@@ -256,7 +256,20 @@ Security:
 - Per-user/project RBAC.
 - Secrets in `.env` locally and cloud secrets manager later.
 
-## 5.1 Use-Case Pack Contract
+### 5.1 API Contract v1
+
+The first public/internal API should stay small and stable:
+
+- `POST /api/v1/solve`: create a problem-solving session and start the Polya loop.
+- `GET /api/v1/solve/{session_id}`: fetch current session state, final answer, evidence, trace, and verification status.
+- `GET /api/v1/solve/{session_id}/stream`: stream live trace events with server-sent events or WebSockets.
+- `POST /api/v1/solve/{session_id}/respond`: submit clarifying answers and resume a paused session.
+- `POST /api/v1/feedback`: submit user feedback, corrections, and usefulness ratings.
+- `GET /api/v1/memory/search`: inspect memory retrieval during development with source and confidence metadata.
+
+The API must expose structured trace and verification status, not hidden chain-of-thought.
+
+## 5.2 Use-Case Pack Contract
 
 Every domain-specific capability must be added as a use-case pack. The core platform owns the Polya loop, engine contracts, state, memory abstractions, tool registry, verification framework, trace UI, auth, audit, and observability. Use-case packs own domain knowledge only.
 
@@ -753,11 +766,16 @@ Tasks:
 2. Add `needs_user_input` session status.
 3. Generate clear clarifying questions.
 4. Add endpoint to submit clarifying answers.
-5. Re-run understanding after answer is provided.
+5. Pause the graph with status `awaiting_user_input` and emit the question through the live trace stream.
+6. Resume the same session after `POST /api/v1/solve/{session_id}/respond`.
+7. Track clarifying questions and user answers in the session trace.
+8. Add timeout behavior for abandoned clarification flows.
+9. Re-run understanding after answer is provided.
 
 Done when:
 
 - Ambiguous input leads to a useful question instead of fake certainty.
+- A paused session can resume without losing trace, evidence, or prior state.
 
 ### Phase 3: Memory Foundation
 
@@ -812,8 +830,8 @@ Tasks:
 3. Create `docs/knowledge/technical_research.md`.
 4. Create `docs/knowledge/data_analysis.md`.
 5. Create `docs/knowledge/problem_solving_playbooks.md`.
-4. Ingest seed docs into semantic memory.
-5. Verify retrieval for 20 sample queries.
+6. Ingest seed docs into semantic memory.
+7. Verify retrieval for 20 sample queries.
 
 Done when:
 
@@ -827,11 +845,13 @@ Tasks:
 2. Add API endpoints for development inspection.
 3. Add memory search endpoint with filters.
 4. Add source display fields for frontend.
-5. Add tests.
+5. Limit prompt injection to the top 3 most relevant memories by default.
+6. Add tests that irrelevant or stale memories do not pollute reasoning context.
 
 Done when:
 
 - Developer can inspect semantic, episodic, and procedural memory.
+- Memory retrieval is useful without flooding prompts.
 
 ### Phase 4: Knowledge Gap Detection
 
@@ -915,10 +935,12 @@ Tasks:
 3. Add real Tavily/Brave/Bing provider behind feature flag.
 4. Normalize result schema.
 5. Add rate limit and timeout.
+6. Add per-session `research_budget` with max query count and max external fetch count.
 
 Done when:
 
 - Search can run safely and return normalized evidence candidates.
+- Research stops gracefully when budget is exhausted.
 
 #### Day 27: Query Formulation
 
@@ -928,7 +950,9 @@ Tasks:
 2. Add domain-specific query templates.
 3. Prefer official/reputable sources.
 4. Limit query count per session.
-5. Add tests for query quality.
+5. Retry once with a rewritten query when top results are irrelevant.
+6. Log query, gap id, source type, and result quality.
+7. Add tests for query quality.
 
 Done when:
 
@@ -943,6 +967,8 @@ Tasks:
 3. Remove boilerplate.
 4. Store raw candidates in evidence staging.
 5. Add source attribution.
+6. Deduplicate near-identical sources and keep the strongest source.
+7. Chunk long pages and keep only relevant passages with source offsets when available.
 
 Done when:
 
@@ -1055,8 +1081,9 @@ Tasks:
 1. Add web/search provider interface with source metadata, rate limits, and domain allow/block controls.
 2. Add document ingestion for local Markdown, text, PDF-extracted text, and HTML snippets.
 3. Normalize retrieved facts, snippets, URLs, timestamps, and source types.
-4. Add tests for stale sources, contradictory sources, unavailable pages, and prompt-injection text in sources.
-5. Add research outputs to the evidence evaluator.
+4. Cache repeated search and extraction results in Redis with a short TTL.
+5. Add tests for stale sources, contradictory sources, unavailable pages, and prompt-injection text in sources.
+6. Add research outputs to the evidence evaluator.
 
 Done when:
 
@@ -1358,7 +1385,8 @@ Tasks:
 2. Add 30 synthetic cases with ground truth across math, logic, research, debugging, algorithmic coding, data analysis, planning, ambiguous, adversarial, and creative synthesis categories.
 3. Score outcome correctness, evidence quality, verification completeness, correct clarification behavior, latency, and cost.
 4. Add baseline simple LLM answer for comparison.
-5. Output report as JSON and Markdown.
+5. Add ablation runs for no-gap-detector, no-verifier, and no-memory variants.
+6. Output report as JSON and Markdown.
 
 Done when:
 
@@ -1640,9 +1668,11 @@ Tasks:
 
 1. Add per-session token budget.
 2. Add per-day budget.
-3. Add semantic cache for repeated retrieval/summarization.
-4. Add cost display in trace.
-5. Add tests.
+3. Add per-session research/search budget.
+4. Add semantic cache for repeated retrieval/summarization.
+5. Add cost display in trace.
+6. Add warning threshold and hard-stop threshold for expensive sessions.
+7. Add tests.
 
 Done when:
 
@@ -3153,6 +3183,20 @@ Real product by Day 180:
 - Security and operations runbooks exist.
 - Workflow export/integration exists.
 - At least one optional specialized use-case pack has a design spec and seed evaluation set.
+
+Internal operational metrics to track continuously:
+
+| Metric | Why it matters |
+| --- | --- |
+| Outcome correctness | Shows whether PolyaBrain solves the task. |
+| Verification catch rate | Shows whether the verifier catches false or unsupported answers. |
+| Knowledge gap usefulness | Shows whether the system asks/searches for the right missing information. |
+| Evidence quality | Shows whether conclusions are grounded in reliable sources. |
+| Memory retrieval relevance | Shows whether memory helps instead of polluting context. |
+| Clarification rate | Shows how often the system correctly asks instead of guessing. |
+| Median and P95 latency | Shows whether the product feels usable. |
+| Cost per session | Shows whether the business can work. |
+| User usefulness rating | Shows whether expert users would reuse the output. |
 
 ## 10. Engineering Rules
 
