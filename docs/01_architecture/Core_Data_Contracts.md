@@ -1,0 +1,204 @@
+# Core Data Contracts
+
+This is a quick implementation reference extracted from the master plan.
+
+Source of truth: `../../PolyaBrain_Product_Implementation_Master_Plan.md`
+
+## Problem Session
+
+- `id`
+- `user_id`
+- `raw_input`
+- `domain`
+- `mode`
+- `status`
+- `created_at`
+- `completed_at`
+- `final_answer`
+- `confidence`
+- `verification_status`
+
+## Structured Problem
+
+- `core_question`
+- `problem_type`
+- `domain`
+- `knowns`
+- `unknowns`
+- `constraints`
+- `success_criteria`
+- `affected_entities`
+- `time_window`
+- `required_data_sources`
+
+## Knowledge Gap
+
+- `description`
+- `gap_type`
+- `priority`
+- `why_needed`
+- `suggested_source`
+- `filled`
+- `evidence_ids`
+
+## Evidence Item
+
+- `source_type`
+- `source_uri`
+- `claim`
+- `raw_excerpt`
+- `reliability_score`
+- `relevance_score`
+- `supports_hypothesis_ids`
+- `contradicts_hypothesis_ids`
+
+## Hypothesis
+
+- `statement`
+- `mechanism`
+- `expected_signals`
+- `evidence_for`
+- `evidence_against`
+- `verification_checks`
+- `confidence`
+- `status`
+
+## Plan Task
+
+- `id`
+- `action`
+- `tool_name`
+- `params`
+- `depends_on`
+- `expected_output`
+- `risk_level`
+
+## Verification Report
+
+- `passed`
+- `checks_run`
+- `failed_checks`
+- `contradictions`
+- `confidence_delta`
+- `recommended_route`
+
+## Tool Definition
+
+- `name`
+- `description`
+- `capabilities`
+- `input_schema`
+- `output_schema`
+- `risk_level`
+- `requires_approval`
+- `allowed_roles`
+- `timeout_seconds`
+- `cost_estimate`
+
+## Tool Call
+
+- `id`
+- `session_id`
+- `tool_name`
+- `input`
+- `output`
+- `status`
+- `started_at`
+- `completed_at`
+- `duration_ms`
+- `error_type`
+- `approval_id`
+- `evidence_ids`
+
+## Artifact
+
+- `id`
+- `session_id`
+- `artifact_type`
+- `name`
+- `uri_or_storage_key`
+- `content_hash`
+- `metadata`
+- `source`
+- `sensitivity`
+- `created_at`
+
+Artifacts include code files, uploaded documents, tables, logs, web snippets, generated reports, screenshots, and benchmark fixtures.
+
+## Evaluation Case
+
+- `id`
+- `category`
+- `difficulty`
+- `problem_statement`
+- `artifacts`
+- `allowed_tools`
+- `expected_behavior`
+- `ground_truth`
+- `rubric`
+- `tags`
+- `version`
+
+## User, Organization, And Project
+
+User:
+
+- `id`
+- `email`
+- `display_name`
+- `role`
+- `organization_id`
+- `created_at`
+
+Organization/project:
+
+- `id`
+- `name`
+- `settings`
+- `budget_limits`
+- `retention_policy`
+- `enabled_tools`
+- `created_at`
+
+## Feedback
+
+- `id`
+- `session_id`
+- `user_id`
+- `rating`
+- `feedback_type`
+- `comment`
+- `corrected_answer`
+- `created_at`
+- `review_status`
+
+## Connector
+
+- `id`
+- `organization_id`
+- `connector_type`
+- `display_name`
+- `status`
+- `config`
+- `secret_ref`
+- `last_health_check_at`
+- `last_error`
+- `created_at`
+
+## Model Call And Cost Record
+
+- `id`
+- `session_id`
+- `engine_name`
+- `provider`
+- `model`
+- `input_tokens`
+- `output_tokens`
+- `estimated_cost`
+- `latency_ms`
+- `status`
+- `created_at`
+
+## Implementation Rule
+
+Define these first as Pydantic models. Database schemas can follow the same contracts, with migrations added only after the model fields are stable.
