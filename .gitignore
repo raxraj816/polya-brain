@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+.next/
+dist/
+build/
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# Logs and local runtime files
+*.log
+.cache/
+tmp/
+temp/
