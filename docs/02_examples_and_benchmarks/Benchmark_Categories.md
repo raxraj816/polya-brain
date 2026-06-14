@@ -6,7 +6,7 @@ Source of truth: `../../PolyaBrain_Product_Implementation_Master_Plan.md`
 
 ## Purpose
 
-PolyaBrain must be tested as a general problem-solving system from Day 1. Benchmarks must prove the same core loop works across different problem types without hardcoding the core platform to one domain.
+PolyaBrain must be tested as a general problem-solving system from Chapter 1. Benchmarks must prove the same core loop works across different problem types without hardcoding the core platform to one domain.
 
 Each benchmark case should include:
 
@@ -47,14 +47,14 @@ Each benchmark case should include:
 - Latency.
 - Estimated cost.
 
-## Day 60 Minimum
+## Chapter 60 Minimum
 
 - At least 30 evaluation cases run automatically.
 - At least one full end-to-end case succeeds in math, research, debugging, data analysis, planning, and ambiguous input.
 - At least 20 general reasoning smoke cases run through the same core loop.
 - Every answer includes evidence, checks, confidence, and open questions.
 
-## Day 90 Minimum
+## Chapter 90 Minimum
 
 - At least 100 synthetic and curated scenarios across benchmark categories.
 - At least 70% correct or usefully verified outcome on solvable cases.

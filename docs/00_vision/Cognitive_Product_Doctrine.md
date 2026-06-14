@@ -1,0 +1,132 @@
+# PolyaBrain Cognitive Product Doctrine
+
+Purpose: define how PolyaBrain should use ideas from brain science, human intelligence, cognition, and problem solving while becoming a real product.
+
+This document is a product and engineering doctrine, not a neuroscience claim. It exists to guide implementation decisions.
+
+## Core Position
+
+PolyaBrain should be brain-inspired, not brain-simulating.
+
+The goal is not to recreate the biological brain. The goal is to convert useful principles from human intelligence into reliable software behavior.
+
+PolyaBrain should therefore ask:
+
+```text
+Which cognitive principle helps the system solve real problems better?
+How can that principle become a concrete product mechanism?
+How can the mechanism be tested, inspected, and improved?
+```
+
+## Product Definition
+
+PolyaBrain is a brain-inspired problem-solving intelligence system.
+
+More practically:
+
+```text
+PolyaBrain is a cognitive workbench that helps a person understand, investigate, solve, verify, and learn from difficult problems.
+```
+
+It should make reasoning visible, evidence inspectable, uncertainty explicit, and learning reusable.
+
+## Research-To-Product Rule
+
+Every cognitive idea must map to an implementation surface.
+
+| Cognitive idea | Product mechanism |
+|---|---|
+| Working memory | Explicit problem state, active context, and scratchpad |
+| Attention | Focus selection: what matters next in this run |
+| Semantic memory | Knowledge chunks, concepts, facts, and embeddings |
+| Episodic memory | Past problem sessions, traces, outcomes, and lessons |
+| Procedural memory | Strategies, methods, playbooks, and tool-use patterns |
+| Metacognition | Knowledge-gap detection, confidence, uncertainty, and "do I know enough?" checks |
+| Curiosity | Research planning and information acquisition when gaps are detected |
+| Problem decomposition | Subproblems, constraints, assumptions, and dependency structure |
+| Hypothesis generation | Candidate explanations, solution paths, and competing plans |
+| Verification | Tests, contradiction search, source evaluation, and constraint checks |
+| Reflection | Post-run analysis, strategy scoring, and memory updates |
+
+If a research idea cannot become a useful product behavior, defer it.
+
+## Implementation Principles
+
+1. Build a useful problem-solving loop before building a complete intelligence theory.
+2. Prefer observable cognitive behavior over hidden cleverness.
+3. Treat missing knowledge as a first-class state, not an error.
+4. Preserve uncertainty instead of forcing premature answers.
+5. Separate evidence, assumptions, hypotheses, actions, verification, and conclusions.
+6. Make every important reasoning step auditable.
+7. Learn from completed cases, but do not let memory replace verification.
+8. Keep the MVP modular in code and simple in deployment.
+9. Use research to sharpen product behavior, not to expand scope without evidence.
+10. Measure usefulness through solved problems, user trust, and repeatable evaluations.
+
+## MVP Boundary
+
+The MVP should not try to become a full artificial brain.
+
+The MVP should implement the smallest useful cognitive loop:
+
+```text
+Problem input
+  -> representation
+  -> constraints
+  -> knowledge gaps
+  -> research or tool use
+  -> evidence evaluation
+  -> hypotheses
+  -> plan
+  -> execution
+  -> verification
+  -> reflection
+  -> auditable report
+```
+
+This loop is the product foundation.
+
+## Role For The Builder
+
+When implementing PolyaBrain, assume the role:
+
+```text
+Acting Founding CTO + Cognitive Systems Architect + Principal Product Engineer.
+```
+
+This means:
+
+- Protect the core vision.
+- Reduce scope aggressively for each milestone.
+- Translate cognitive science into testable product mechanisms.
+- Build working software before theoretical completeness.
+- Keep product usefulness, trust, and auditability above architectural ambition.
+
+## Decision Test
+
+Before adding a feature, engine, memory structure, prompt, agent behavior, or research concept, ask:
+
+1. Does this help a user solve a real difficult problem?
+2. Does this improve understanding, planning, evidence quality, verification, or learning?
+3. Can the behavior be inspected in the trace?
+4. Can it be tested against benchmark cases?
+5. Is it necessary for the current milestone?
+
+If the answer is no, defer it.
+
+## Anti-Goals
+
+Do not let PolyaBrain become:
+
+- A generic chatbot with extra terminology.
+- A neuroscience simulation project.
+- A research notebook without a usable product.
+- A collection of agents without a coherent problem-solving loop.
+- A memory system that retrieves confidently but verifies weakly.
+- A product that hides reasoning from the user.
+
+## North Star
+
+PolyaBrain should help users become better problem solvers.
+
+It should not merely answer. It should help understand, investigate, verify, and learn.

@@ -1,4 +1,4 @@
-# Day 1 Start Here
+# Chapter 1 Start Here
 
 Use this file as the practical implementation entrypoint.
 
@@ -6,9 +6,11 @@ Use this file as the practical implementation entrypoint.
 
 1. `../../PolyaBrain_Product_Implementation_Master_Plan.md`
 2. `../00_vision/PolyaBrain_Final_Foundational_Design.md`
-3. `../01_architecture/MVP_Architecture_Decisions.md`
-4. `../01_architecture/Core_Data_Contracts.md`
-5. `../02_examples_and_benchmarks/Benchmark_Categories.md`
+3. `../00_vision/Cognitive_Product_Doctrine.md`
+4. `Product_Acceleration_Playbook.md`
+5. `../01_architecture/MVP_Architecture_Decisions.md`
+6. `../01_architecture/Core_Data_Contracts.md`
+7. `../02_examples_and_benchmarks/Benchmark_Categories.md`
 
 ## Do Not Start With
 
@@ -16,7 +18,7 @@ Use this file as the practical implementation entrypoint.
 - Archived older plans.
 - Long-term research ideas that mention Kubernetes, Neo4j, fine-tuning, RL, or multi-agent debate.
 
-Those are preserved for context, but they are not Day 1 implementation instructions.
+Those are preserved for context, but they are not Chapter 1 implementation instructions.
 
 ## First Implementation Goal
 
@@ -26,7 +28,7 @@ Problem input -> representation -> constraints -> gaps -> evidence/tools -> hypo
 
 The first milestone is not a perfect engine. The first milestone is one traceable, verified, end-to-end run.
 
-## First 10 Days
+## First 10 Chapters
 
 Follow the master plan exactly:
 
@@ -52,6 +54,6 @@ Follow the master plan exactly:
 - Docker Compose local development.
 - Tests from the first engine contract.
 
-## Day 1 Success
+## Chapter 1 Success
 
-Day 1 is successful when the product direction is locked, the repository foundation is clear, and everyone understands that PolyaBrain Core Platform is the product.
+Chapter 1 is successful when the product direction is locked, the repository foundation is clear, and everyone understands that PolyaBrain Core Platform is the product.

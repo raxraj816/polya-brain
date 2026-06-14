@@ -50,7 +50,7 @@ The plan synthesizes the active local documents in this workspace:
 - `docs/02_examples_and_benchmarks/Problem_Solving_Examples.md`
 - `docs/02_examples_and_benchmarks/Benchmark_Categories.md`
 - `docs/02_examples_and_benchmarks/Additional_Polya_Loop_Examples.md`
-- `docs/03_implementation/Day_1_Start_Here.md`
+- `docs/03_implementation/Chapter_1_Start_Here.md`
 - `docs/04_research/Concept_to_Code.md`
 - `docs/04_research/Polya_Principles_to_Practice.md`
 - `docs/04_research/Research_Reading_Guide.md`
@@ -158,7 +158,7 @@ The MVP must implement these domain-independent capabilities:
 
 ### 4.2 MVP Benchmark Categories
 
-From Day 1, PolyaBrain should be evaluated on multiple categories:
+From Chapter 1, PolyaBrain should be evaluated on multiple categories:
 
 1. **Mathematical reasoning:** word problems, optimization, algebra, probability, constraints.
 2. **Logic and puzzle solving:** deduction, contradiction detection, grid-style reasoning.
@@ -537,13 +537,13 @@ Fields:
 - `status`
 - `created_at`
 
-## 7. Day-by-Day Implementation Plan
+## 7. Chapter-Based Implementation Plan
 
 The plan assumes one strong developer with AI assistance. With a team, parallelize frontend, backend, infra, and evaluation streams.
 
 ### Phase 0: Commitment and Setup
 
-#### Day 1: Product Lock and Repository Foundation
+#### Chapter 1: Product Lock and Repository Foundation
 
 Tasks:
 
@@ -560,12 +560,12 @@ Done when:
 - MVP scope is visible in the README.
 - No secret values are committed.
 
-#### Day 2: Architecture Decisions and Risk Register
+#### Chapter 2: Architecture Decisions and Risk Register
 
 Tasks:
 
 1. Write `docs/architecture_decisions.md`.
-2. Record decisions: Python monolith first, Postgres+pgvector first, LangGraph orchestration, PolyaBrain core-first architecture, mixed benchmark suite from Day 1.
+2. Record decisions: Python monolith first, Postgres+pgvector first, LangGraph orchestration, PolyaBrain core-first architecture, mixed benchmark suite from Chapter 1.
 3. Write `docs/risk_register.md`.
 4. List risks: hallucination, bad data, LLM cost, PII leakage, tool misuse, infinite loops, poor UX trust.
 5. Define mitigation for each risk.
@@ -576,7 +576,7 @@ Done when:
 - Every major architecture choice has a reason.
 - Every critical risk has an owner and mitigation.
 
-#### Day 3: Local Development Environment
+#### Chapter 3: Local Development Environment
 
 Tasks:
 
@@ -593,7 +593,7 @@ Done when:
 - `make test` passes.
 - CI passes on a clean checkout.
 
-#### Day 4: Database Baseline
+#### Chapter 4: Database Baseline
 
 Tasks:
 
@@ -609,7 +609,7 @@ Done when:
 - Fresh database can be created from migrations.
 - A sample session can be inserted and retrieved.
 
-#### Day 5: Core Pydantic Models
+#### Chapter 5: Core Pydantic Models
 
 Tasks:
 
@@ -625,7 +625,7 @@ Done when:
 
 ### Phase 1: Stateful Polya Loop Skeleton
 
-#### Day 6: LangGraph State Object
+#### Chapter 6: LangGraph State Object
 
 Tasks:
 
@@ -639,7 +639,7 @@ Done when:
 
 - A raw input can become a valid initial state.
 
-#### Day 7: Engine Interface Contract
+#### Chapter 7: Engine Interface Contract
 
 Tasks:
 
@@ -654,7 +654,7 @@ Done when:
 
 - All future engines can be implemented consistently.
 
-#### Day 8: Graph Skeleton
+#### Chapter 8: Graph Skeleton
 
 Tasks:
 
@@ -670,7 +670,7 @@ Done when:
 - Graph runs end-to-end with stubs.
 - Routing is visible in documentation.
 
-#### Day 9: Event Trace System
+#### Chapter 9: Event Trace System
 
 Tasks:
 
@@ -684,7 +684,7 @@ Done when:
 
 - Every run produces an inspectable trace.
 
-#### Day 10: API Shell
+#### Chapter 10: API Shell
 
 Tasks:
 
@@ -701,7 +701,7 @@ Done when:
 
 ### Phase 2: Problem Understanding
 
-#### Day 11: Prompt and Parser Design
+#### Chapter 11: Prompt and Parser Design
 
 Tasks:
 
@@ -716,7 +716,7 @@ Done when:
 
 - Prompt produces valid structured output on at least 10 local examples.
 
-#### Day 12: LLM Client Abstraction
+#### Chapter 12: LLM Client Abstraction
 
 Tasks:
 
@@ -730,7 +730,7 @@ Done when:
 
 - Engines can use the fake client in tests and real provider locally.
 
-#### Day 13: Problem Representation Engine
+#### Chapter 13: Problem Representation Engine
 
 Tasks:
 
@@ -744,7 +744,7 @@ Done when:
 
 - Benchmark prompts parse into stable structured problems across several categories.
 
-#### Day 14: Constraint Discovery Engine
+#### Chapter 14: Constraint Discovery Engine
 
 Tasks:
 
@@ -758,7 +758,7 @@ Done when:
 
 - System can identify what must be true for an answer to count as solved.
 
-#### Day 15: Clarifying Question Flow
+#### Chapter 15: Clarifying Question Flow
 
 Tasks:
 
@@ -779,7 +779,7 @@ Done when:
 
 ### Phase 3: Memory Foundation
 
-#### Day 16: Semantic Memory Schema
+#### Chapter 16: Semantic Memory Schema
 
 Tasks:
 
@@ -793,7 +793,7 @@ Done when:
 
 - Text chunks can be inserted and retrieved by similarity.
 
-#### Day 17: Episodic Memory Schema
+#### Chapter 17: Episodic Memory Schema
 
 Tasks:
 
@@ -807,7 +807,7 @@ Done when:
 
 - New sessions can retrieve similar past cases.
 
-#### Day 18: Procedural Memory Schema
+#### Chapter 18: Procedural Memory Schema
 
 Tasks:
 
@@ -821,7 +821,7 @@ Done when:
 
 - Planner can ask for known strategies for a problem type.
 
-#### Day 19: Knowledge Base Seed Data
+#### Chapter 19: Knowledge Base Seed Data
 
 Tasks:
 
@@ -837,7 +837,7 @@ Done when:
 
 - Retrieval returns useful domain knowledge for core use cases.
 
-#### Day 20: Memory API
+#### Chapter 20: Memory API
 
 Tasks:
 
@@ -855,7 +855,7 @@ Done when:
 
 ### Phase 4: Knowledge Gap Detection
 
-#### Day 21: Gap Detection Prompt
+#### Chapter 21: Gap Detection Prompt
 
 Tasks:
 
@@ -869,7 +869,7 @@ Done when:
 
 - Prompt distinguishes missing data from optional curiosity.
 
-#### Day 22: Available Data Source Registry
+#### Chapter 22: Available Data Source Registry
 
 Tasks:
 
@@ -883,7 +883,7 @@ Done when:
 
 - Gap detector knows what data sources exist.
 
-#### Day 23: Knowledge Gap Detector Engine
+#### Chapter 23: Knowledge Gap Detector Engine
 
 Tasks:
 
@@ -897,7 +897,7 @@ Done when:
 
 - Core benchmark scenarios produce actionable gaps such as missing facts, missing constraints, missing dataset, missing code context, missing source, or missing user clarification.
 
-#### Day 24: Gap Quality Evaluation
+#### Chapter 24: Gap Quality Evaluation
 
 Tasks:
 
@@ -911,7 +911,7 @@ Done when:
 
 - Gap detector reaches at least 80% useful-gap precision on local benchmark.
 
-#### Day 25: Gap-to-Action Mapping
+#### Chapter 25: Gap-to-Action Mapping
 
 Tasks:
 
@@ -926,7 +926,7 @@ Done when:
 
 ### Phase 5: Research and Evidence
 
-#### Day 26: Research Engine Interface
+#### Chapter 26: Research Engine Interface
 
 Tasks:
 
@@ -942,7 +942,7 @@ Done when:
 - Search can run safely and return normalized evidence candidates.
 - Research stops gracefully when budget is exhausted.
 
-#### Day 27: Query Formulation
+#### Chapter 27: Query Formulation
 
 Tasks:
 
@@ -958,7 +958,7 @@ Done when:
 
 - Queries are specific, bounded, and tied to gaps.
 
-#### Day 28: Document Extraction
+#### Chapter 28: Document Extraction
 
 Tasks:
 
@@ -974,7 +974,7 @@ Done when:
 
 - Research results are saved with enough source metadata to audit.
 
-#### Day 29: Evidence Evaluation Prompt
+#### Chapter 29: Evidence Evaluation Prompt
 
 Tasks:
 
@@ -988,7 +988,7 @@ Done when:
 
 - Evaluator separates useful evidence from noise.
 
-#### Day 30: Evidence Evaluation Engine
+#### Chapter 30: Evidence Evaluation Engine
 
 Tasks:
 
@@ -1004,7 +1004,7 @@ Done when:
 
 ### Phase 6: Execution Tools
 
-#### Day 31: Tool Registry
+#### Chapter 31: Tool Registry
 
 Tasks:
 
@@ -1018,7 +1018,7 @@ Done when:
 
 - Executor can discover tools by capability.
 
-#### Day 32: Mixed Benchmark Artifacts
+#### Chapter 32: Mixed Benchmark Artifacts
 
 Tasks:
 
@@ -1032,7 +1032,7 @@ Done when:
 
 - Product can be tested across categories without real sensitive data.
 
-#### Day 33: Safe Code Execution and Test Runner
+#### Chapter 33: Safe Code Execution and Test Runner
 
 Tasks:
 
@@ -1046,7 +1046,7 @@ Done when:
 
 - PolyaBrain can safely execute and verify generated code for algorithmic and debugging problems.
 
-#### Day 34: Table, File, and Query Tools
+#### Chapter 34: Table, File, and Query Tools
 
 Tasks:
 
@@ -1060,7 +1060,7 @@ Done when:
 
 - Tool can answer "what changed, where, and when?"
 
-#### Day 35: Math, Logic, and Statistical Analysis Tools
+#### Chapter 35: Math, Logic, and Statistical Analysis Tools
 
 Tasks:
 
@@ -1074,7 +1074,7 @@ Done when:
 
 - PolyaBrain can verify numerical, symbolic, and statistical claims without relying only on an LLM.
 
-#### Day 36: Web, API, and Document Research Tools
+#### Chapter 36: Web, API, and Document Research Tools
 
 Tasks:
 
@@ -1089,7 +1089,7 @@ Done when:
 
 - System can gather external or document-based information while preserving source boundaries.
 
-#### Day 37: Repository, Log, and Event Tools
+#### Chapter 37: Repository, Log, and Event Tools
 
 Tasks:
 
@@ -1103,7 +1103,7 @@ Done when:
 
 - System can inspect small codebases, logs, and event histories as part of problem solving.
 
-#### Day 38: Tool Result Verification Basics
+#### Chapter 38: Tool Result Verification Basics
 
 Tasks:
 
@@ -1119,7 +1119,7 @@ Done when:
 
 ### Phase 7: Reasoning and Planning
 
-#### Day 39: Hypothesis Prompt
+#### Chapter 39: Hypothesis Prompt
 
 Tasks:
 
@@ -1133,7 +1133,7 @@ Done when:
 
 - Hypotheses are testable, not generic.
 
-#### Day 40: Hypothesis Engine
+#### Chapter 40: Hypothesis Engine
 
 Tasks:
 
@@ -1147,7 +1147,7 @@ Done when:
 
 - Investigation-style inputs produce ranked causes with expected checks.
 
-#### Day 41: Plan Schema and Planner Prompt
+#### Chapter 41: Plan Schema and Planner Prompt
 
 Tasks:
 
@@ -1161,7 +1161,7 @@ Done when:
 
 - Planner emits a valid DAG.
 
-#### Day 42: Planner Engine
+#### Chapter 42: Planner Engine
 
 Tasks:
 
@@ -1175,7 +1175,7 @@ Done when:
 
 - Planner can create executable plans for synthetic scenarios.
 
-#### Day 43: Plan Review Before Execution
+#### Chapter 43: Plan Review Before Execution
 
 Tasks:
 
@@ -1189,7 +1189,7 @@ Done when:
 
 - The product cannot accidentally perform unsafe actions.
 
-#### Day 44: Execution Engine
+#### Chapter 44: Execution Engine
 
 Tasks:
 
@@ -1203,7 +1203,7 @@ Done when:
 
 - A plan can run through tools and produce structured results.
 
-#### Day 45: First Mixed End-to-End Polya Runs
+#### Chapter 45: First Mixed End-to-End Polya Runs
 
 Tasks:
 
@@ -1221,7 +1221,7 @@ Done when:
 
 ### Phase 8: Verification
 
-#### Day 46: Verification Strategy Design
+#### Chapter 46: Verification Strategy Design
 
 Tasks:
 
@@ -1235,7 +1235,7 @@ Done when:
 
 - Verification is explicit and not just "ask the LLM if correct."
 
-#### Day 47: Numeric Verification
+#### Chapter 47: Numeric Verification
 
 Tasks:
 
@@ -1249,7 +1249,7 @@ Done when:
 
 - Claims like "metric rose 35%", "test X fails because of Y", or "source A supports claim B" are validated against evidence.
 
-#### Day 48: Causal Plausibility Verification
+#### Chapter 48: Causal Plausibility Verification
 
 Tasks:
 
@@ -1263,7 +1263,7 @@ Done when:
 
 - System rejects causes that do not explain the observed pattern.
 
-#### Day 49: Contradiction Search
+#### Chapter 49: Contradiction Search
 
 Tasks:
 
@@ -1277,7 +1277,7 @@ Done when:
 
 - Verification tries to disprove the answer before accepting it.
 
-#### Day 50: Verification Engine Integration
+#### Chapter 50: Verification Engine Integration
 
 Tasks:
 
@@ -1291,7 +1291,7 @@ Done when:
 
 - Failed verification causes useful replanning.
 
-#### Day 51: Replanning Loop
+#### Chapter 51: Replanning Loop
 
 Tasks:
 
@@ -1305,7 +1305,7 @@ Done when:
 
 - System improves after a failed first hypothesis.
 
-#### Day 52: Final Answer Composer
+#### Chapter 52: Final Answer Composer
 
 Tasks:
 
@@ -1321,7 +1321,7 @@ Done when:
 
 ### Phase 9: Reflection and Learning
 
-#### Day 53: Reflection Prompt
+#### Chapter 53: Reflection Prompt
 
 Tasks:
 
@@ -1335,7 +1335,7 @@ Done when:
 
 - Reflection produces useful lessons, not generic self-praise.
 
-#### Day 54: Reflection Engine
+#### Chapter 54: Reflection Engine
 
 Tasks:
 
@@ -1349,7 +1349,7 @@ Done when:
 
 - Every completed session improves future retrieval.
 
-#### Day 55: Memory Conflict Handling
+#### Chapter 55: Memory Conflict Handling
 
 Tasks:
 
@@ -1363,7 +1363,7 @@ Done when:
 
 - Memory does not blindly accumulate contradictions.
 
-#### Day 56: Strategy Scoring
+#### Chapter 56: Strategy Scoring
 
 Tasks:
 
@@ -1377,7 +1377,7 @@ Done when:
 
 - Successful problem-solving patterns become more likely in future runs.
 
-#### Day 57: Evaluation Harness
+#### Chapter 57: Evaluation Harness
 
 Tasks:
 
@@ -1392,7 +1392,7 @@ Done when:
 
 - Product quality can be measured repeatedly.
 
-#### Day 58: First Evaluation Run
+#### Chapter 58: First Evaluation Run
 
 Tasks:
 
@@ -1406,7 +1406,7 @@ Done when:
 
 - There is a truthful baseline score.
 
-#### Day 59: Regression Suite
+#### Chapter 59: Regression Suite
 
 Tasks:
 
@@ -1420,7 +1420,7 @@ Done when:
 
 - Improvements cannot silently break old cases.
 
-#### Day 60: MVP Alpha Gate
+#### Chapter 60: MVP Alpha Gate
 
 Tasks:
 
@@ -1436,7 +1436,7 @@ Done when:
 
 ### Phase 10: Frontend Product Experience
 
-#### Day 61: Frontend Bootstrap
+#### Chapter 61: Frontend Bootstrap
 
 Tasks:
 
@@ -1450,7 +1450,7 @@ Done when:
 
 - Frontend runs and can call backend health endpoint.
 
-#### Day 62: Problem Input Screen
+#### Chapter 62: Problem Input Screen
 
 Tasks:
 
@@ -1464,7 +1464,7 @@ Done when:
 
 - User can submit a problem from the UI.
 
-#### Day 63: Live Trace Screen
+#### Chapter 63: Live Trace Screen
 
 Tasks:
 
@@ -1478,7 +1478,7 @@ Done when:
 
 - User can watch PolyaBrain work in real time.
 
-#### Day 64: Evidence Panel
+#### Chapter 64: Evidence Panel
 
 Tasks:
 
@@ -1492,7 +1492,7 @@ Done when:
 
 - Trust is grounded in visible evidence.
 
-#### Day 65: Hypothesis Panel
+#### Chapter 65: Hypothesis Panel
 
 Tasks:
 
@@ -1506,7 +1506,7 @@ Done when:
 
 - User can see how the system chooses and rejects explanations.
 
-#### Day 66: Final Report Screen
+#### Chapter 66: Final Report Screen
 
 Tasks:
 
@@ -1520,7 +1520,7 @@ Done when:
 
 - Output is useful as an expert problem-solving note.
 
-#### Day 67: Session History
+#### Chapter 67: Session History
 
 Tasks:
 
@@ -1534,7 +1534,7 @@ Done when:
 
 - Users can return to previous problem-solving sessions.
 
-#### Day 68: Human Feedback
+#### Chapter 68: Human Feedback
 
 Tasks:
 
@@ -1548,7 +1548,7 @@ Done when:
 
 - Human corrections become product data.
 
-#### Day 69: UX Polish
+#### Chapter 69: UX Polish
 
 Tasks:
 
@@ -1562,7 +1562,7 @@ Done when:
 
 - UI feels like a real internal tool, not a demo page.
 
-#### Day 70: Frontend Integration Gate
+#### Chapter 70: Frontend Integration Gate
 
 Tasks:
 
@@ -1578,7 +1578,7 @@ Done when:
 
 ### Phase 11: Security, Governance, and Observability
 
-#### Day 71: PII Masking
+#### Chapter 71: PII Masking
 
 Tasks:
 
@@ -1592,7 +1592,7 @@ Done when:
 
 - Sensitive user data cannot accidentally enter prompts.
 
-#### Day 72: Tool Permission Model
+#### Chapter 72: Tool Permission Model
 
 Tasks:
 
@@ -1606,7 +1606,7 @@ Done when:
 
 - Tool access is controlled and auditable.
 
-#### Day 73: Authentication
+#### Chapter 73: Authentication
 
 Tasks:
 
@@ -1620,7 +1620,7 @@ Done when:
 
 - Product is not an open unauthenticated agent endpoint.
 
-#### Day 74: Audit Logging
+#### Chapter 74: Audit Logging
 
 Tasks:
 
@@ -1634,7 +1634,7 @@ Done when:
 
 - A problem-solving session can be audited after the fact.
 
-#### Day 75: Observability Baseline
+#### Chapter 75: Observability Baseline
 
 Tasks:
 
@@ -1648,7 +1648,7 @@ Done when:
 
 - You can see where time and money go per session.
 
-#### Day 76: Prompt Injection Controls
+#### Chapter 76: Prompt Injection Controls
 
 Tasks:
 
@@ -1662,7 +1662,7 @@ Done when:
 
 - Retrieved text is evidence, not an instruction channel.
 
-#### Day 77: Cost Controls
+#### Chapter 77: Cost Controls
 
 Tasks:
 
@@ -1678,7 +1678,7 @@ Done when:
 
 - The product fails gracefully before runaway spending.
 
-#### Day 78: Failure Mode Playbook
+#### Chapter 78: Failure Mode Playbook
 
 Tasks:
 
@@ -1692,7 +1692,7 @@ Done when:
 
 - Failures look professional and honest.
 
-#### Day 79: Security Review
+#### Chapter 79: Security Review
 
 Tasks:
 
@@ -1706,7 +1706,7 @@ Done when:
 
 - No obvious MVP security holes remain.
 
-#### Day 80: Beta Readiness Gate
+#### Chapter 80: Beta Readiness Gate
 
 Tasks:
 
@@ -1722,7 +1722,7 @@ Done when:
 
 ### Phase 12: General Problem Depth and Product Usefulness
 
-#### Day 81: Expand General Problem Benchmark Library
+#### Chapter 81: Expand General Problem Benchmark Library
 
 Tasks:
 
@@ -1736,7 +1736,7 @@ Done when:
 
 - Evaluation reflects real problem variety.
 
-#### Day 82: General Problem-Solving Playbook Memory
+#### Chapter 82: General Problem-Solving Playbook Memory
 
 Tasks:
 
@@ -1750,7 +1750,7 @@ Done when:
 
 - Plans look like disciplined Polya-style workflows across problem categories.
 
-#### Day 83: Segment Analysis Upgrade
+#### Chapter 83: Segment Analysis Upgrade
 
 Tasks:
 
@@ -1764,7 +1764,7 @@ Done when:
 
 - PolyaBrain can say not just "a metric changed", but which slice, cause, or assumption explains it.
 
-#### Day 84: Timeline Reconstruction
+#### Chapter 84: Timeline Reconstruction
 
 Tasks:
 
@@ -1778,7 +1778,7 @@ Done when:
 
 - Root-cause reasoning is time-aware.
 
-#### Day 85: Recommended Action Generator
+#### Chapter 85: Recommended Action Generator
 
 Tasks:
 
@@ -1792,7 +1792,7 @@ Done when:
 
 - Output helps a user take the next practical step.
 
-#### Day 86: Human Review Mode
+#### Chapter 86: Human Review Mode
 
 Tasks:
 
@@ -1806,7 +1806,7 @@ Done when:
 
 - Product can augment human experts, not just operate from scratch.
 
-#### Day 87: Compare Mode
+#### Chapter 87: Compare Mode
 
 Tasks:
 
@@ -1820,7 +1820,7 @@ Done when:
 
 - Users can ask "what changed?" without writing SQL.
 
-#### Day 88: Report Quality Rubric
+#### Chapter 88: Report Quality Rubric
 
 Tasks:
 
@@ -1834,7 +1834,7 @@ Done when:
 
 - Quality is measurable beyond pass/fail.
 
-#### Day 89: Improve Low-Scoring Cases
+#### Chapter 89: Improve Low-Scoring Cases
 
 Tasks:
 
@@ -1848,7 +1848,7 @@ Done when:
 
 - Quality improves on the exact failures that matter.
 
-#### Day 90: General Problem MVP Gate
+#### Chapter 90: General Problem MVP Gate
 
 Tasks:
 
@@ -1864,7 +1864,7 @@ Done when:
 
 ### Phase 13: Cloud and Pilot Preparation
 
-#### Day 91: Deployment Architecture
+#### Chapter 91: Deployment Architecture
 
 Tasks:
 
@@ -1878,7 +1878,7 @@ Done when:
 
 - Deployment plan is concrete and not overbuilt.
 
-#### Day 92: Container Hardening
+#### Chapter 92: Container Hardening
 
 Tasks:
 
@@ -1892,7 +1892,7 @@ Done when:
 
 - Containers are deployable and reasonably hardened.
 
-#### Day 93: Terraform Baseline
+#### Chapter 93: Terraform Baseline
 
 Tasks:
 
@@ -1906,7 +1906,7 @@ Done when:
 
 - Cloud infra can be created reproducibly.
 
-#### Day 94: Staging Deployment
+#### Chapter 94: Staging Deployment
 
 Tasks:
 
@@ -1920,7 +1920,7 @@ Done when:
 
 - Staging URL works end-to-end.
 
-#### Day 95: Staging Observability
+#### Chapter 95: Staging Observability
 
 Tasks:
 
@@ -1934,7 +1934,7 @@ Done when:
 
 - Staging can be operated without SSH guessing.
 
-#### Day 96: Backup and Restore
+#### Chapter 96: Backup and Restore
 
 Tasks:
 
@@ -1948,7 +1948,7 @@ Done when:
 
 - You know how to recover memory and sessions.
 
-#### Day 97: Load Test
+#### Chapter 97: Load Test
 
 Tasks:
 
@@ -1962,7 +1962,7 @@ Done when:
 
 - You understand realistic capacity and cost.
 
-#### Day 98: Queue and Async Reliability
+#### Chapter 98: Queue and Async Reliability
 
 Tasks:
 
@@ -1976,7 +1976,7 @@ Done when:
 
 - Long problem-solving runs survive normal service restarts.
 
-#### Day 99: Pilot Data Contract
+#### Chapter 99: Pilot Data Contract
 
 Tasks:
 
@@ -1990,7 +1990,7 @@ Done when:
 
 - A pilot partner knows exactly what to provide.
 
-#### Day 100: Pilot Onboarding Docs
+#### Chapter 100: Pilot Onboarding Docs
 
 Tasks:
 
@@ -2006,7 +2006,7 @@ Done when:
 
 ### Phase 14: Beta Pilot
 
-#### Day 101: Recruit Pilot Reviewers
+#### Chapter 101: Recruit Pilot Reviewers
 
 Tasks:
 
@@ -2020,7 +2020,7 @@ Done when:
 
 - Real users are scheduled.
 
-#### Day 102: Pilot Dry Run
+#### Chapter 102: Pilot Dry Run
 
 Tasks:
 
@@ -2034,7 +2034,7 @@ Done when:
 
 - Demo can survive ordinary chaos.
 
-#### Day 103: Pilot Session 1
+#### Chapter 103: Pilot Session 1
 
 Tasks:
 
@@ -2048,7 +2048,7 @@ Done when:
 
 - First human feedback is captured.
 
-#### Day 104: Pilot Session 2
+#### Chapter 104: Pilot Session 2
 
 Tasks:
 
@@ -2062,7 +2062,7 @@ Done when:
 
 - You know whether output is operationally useful.
 
-#### Day 105: Pilot Session 3
+#### Chapter 105: Pilot Session 3
 
 Tasks:
 
@@ -2076,7 +2076,7 @@ Done when:
 
 - Human-in-the-loop mode is validated or rejected.
 
-#### Day 106: Pilot Findings Review
+#### Chapter 106: Pilot Findings Review
 
 Tasks:
 
@@ -2090,7 +2090,7 @@ Done when:
 
 - Feedback is converted into engineering work.
 
-#### Day 107: Fix Trust Issues
+#### Chapter 107: Fix Trust Issues
 
 Tasks:
 
@@ -2104,7 +2104,7 @@ Done when:
 
 - Reports are more calibrated and less salesy.
 
-#### Day 108: Fix Workflow Issues
+#### Chapter 108: Fix Workflow Issues
 
 Tasks:
 
@@ -2118,7 +2118,7 @@ Done when:
 
 - Common user friction is reduced.
 
-#### Day 109: Fix Reasoning Issues
+#### Chapter 109: Fix Reasoning Issues
 
 Tasks:
 
@@ -2132,7 +2132,7 @@ Done when:
 
 - Pilot failures are no longer unexplained.
 
-#### Day 110: Beta 2 Gate
+#### Chapter 110: Beta 2 Gate
 
 Tasks:
 
@@ -2148,7 +2148,7 @@ Done when:
 
 ### Phase 15: Productization
 
-#### Day 111: Multi-Tenant Readiness
+#### Chapter 111: Multi-Tenant Readiness
 
 Tasks:
 
@@ -2162,7 +2162,7 @@ Done when:
 
 - Memory isolation is enforced.
 
-#### Day 112: Admin Console
+#### Chapter 112: Admin Console
 
 Tasks:
 
@@ -2176,7 +2176,7 @@ Done when:
 
 - Pilot admin can manage core settings.
 
-#### Day 113: Data Source Connectors v1
+#### Chapter 113: Data Source Connectors v1
 
 Tasks:
 
@@ -2190,7 +2190,7 @@ Done when:
 
 - Product can use customer-like data without code changes.
 
-#### Day 114: Data Ingestion Validation
+#### Chapter 114: Data Ingestion Validation
 
 Tasks:
 
@@ -2204,7 +2204,7 @@ Done when:
 
 - Bad pilot data fails early with clear instructions.
 
-#### Day 115: Report Export and Sharing
+#### Chapter 115: Report Export and Sharing
 
 Tasks:
 
@@ -2218,7 +2218,7 @@ Done when:
 
 - PolyaBrain output can enter real team workflows.
 
-#### Day 116: Notification Hooks
+#### Chapter 116: Notification Hooks
 
 Tasks:
 
@@ -2232,7 +2232,7 @@ Done when:
 
 - Users do not need to watch every long run.
 
-#### Day 117: Pricing and Cost Model
+#### Chapter 117: Pricing and Cost Model
 
 Tasks:
 
@@ -2246,7 +2246,7 @@ Done when:
 
 - You know whether the product can make money.
 
-#### Day 118: Reliability Runbook
+#### Chapter 118: Reliability Runbook
 
 Tasks:
 
@@ -2260,7 +2260,7 @@ Done when:
 
 - The product can be operated by someone other than the builder.
 
-#### Day 119: Product Website or Internal Landing Page
+#### Chapter 119: Product Website or Internal Landing Page
 
 Tasks:
 
@@ -2274,7 +2274,7 @@ Done when:
 
 - The product can be explained to a buyer or stakeholder.
 
-#### Day 120: Private Beta Launch Gate
+#### Chapter 120: Private Beta Launch Gate
 
 Tasks:
 
@@ -2288,13 +2288,13 @@ Done when:
 
 - PolyaBrain Core Platform is in private beta with a validated mixed-domain benchmark suite.
 
-## 8. Days 121-180: From Beta to Real Product
+## 8. Chapters 121-180: From Beta to Real Product
 
-The first 120 days create a private beta of the PolyaBrain Core Platform with a mixed-domain benchmark suite. Days 121-180 make the core platform stronger, validate it on real tasks, and prepare the architecture for optional use-case packs without rewriting the core.
+The first 120 chapters create a private beta of the PolyaBrain Core Platform with a mixed-domain benchmark suite. Chapters 121-180 make the core platform stronger, validate it on real tasks, and prepare the architecture for optional use-case packs without rewriting the core.
 
-### Days 121-130: Real Task Corpus Integration
+### Chapters 121-130: Real Task Corpus Integration
 
-#### Day 121: Real Task Corpus Intake
+#### Chapter 121: Real Task Corpus Intake
 
 Tasks:
 
@@ -2308,7 +2308,7 @@ Done when:
 
 - A sanitized real-task corpus exists and can be used without leaking sensitive data.
 
-#### Day 122: Corpus Schema Normalization
+#### Chapter 122: Corpus Schema Normalization
 
 Tasks:
 
@@ -2322,7 +2322,7 @@ Done when:
 
 - Corpus items can be imported into the same system path as normal user sessions.
 
-#### Day 123: Ingestion Validation and Quality Report
+#### Chapter 123: Ingestion Validation and Quality Report
 
 Tasks:
 
@@ -2336,7 +2336,7 @@ Done when:
 
 - Every corpus task is either runnable or explicitly marked as blocked with a reason.
 
-#### Day 124: Baseline Runs on Realistic Corpus
+#### Chapter 124: Baseline Runs on Realistic Corpus
 
 Tasks:
 
@@ -2350,7 +2350,7 @@ Done when:
 
 - There is a measurable baseline showing where the Polya loop helps and where it fails.
 
-#### Day 125: Shadow Problem-Solving Sessions
+#### Chapter 125: Shadow Problem-Solving Sessions
 
 Tasks:
 
@@ -2364,7 +2364,7 @@ Done when:
 
 - The private beta can solve or honestly fail real-style tasks end to end.
 
-#### Day 126: Human Reference Comparison
+#### Chapter 126: Human Reference Comparison
 
 Tasks:
 
@@ -2378,12 +2378,12 @@ Done when:
 
 - Failures are assigned to concrete system components instead of remaining vague.
 
-#### Day 127: Connector and Artifact Fixes
+#### Chapter 127: Connector and Artifact Fixes
 
 Tasks:
 
 1. Fix broken corpus adapters and ingestion edge cases.
-2. Improve file, table, repository, and document handling based on Day 126 failures.
+2. Improve file, table, repository, and document handling based on Chapter 126 failures.
 3. Add missing source metadata where evidence was weak.
 4. Add regression tests for every fixed artifact issue.
 5. Re-run the affected subset.
@@ -2392,7 +2392,7 @@ Done when:
 
 - Realistic artifacts enter the system reliably and preserve provenance.
 
-#### Day 128: Cross-Category Procedural Memory
+#### Chapter 128: Cross-Category Procedural Memory
 
 Tasks:
 
@@ -2406,12 +2406,12 @@ Done when:
 
 - The planner can retrieve reusable strategies across problem categories.
 
-#### Day 129: Realistic Corpus Re-Run
+#### Chapter 129: Realistic Corpus Re-Run
 
 Tasks:
 
 1. Re-run the full realistic corpus after fixes.
-2. Compare metrics against Day 124 baseline.
+2. Compare metrics against Chapter 124 baseline.
 3. Identify improvements, regressions, and unchanged failures.
 4. Add regressions to CI smoke eval where practical.
 5. Update the quality dashboard.
@@ -2420,7 +2420,7 @@ Done when:
 
 - Progress is quantified and regressions are visible.
 
-#### Day 130: Real-Task Readiness Report
+#### Chapter 130: Real-Task Readiness Report
 
 Tasks:
 
@@ -2434,9 +2434,9 @@ Done when:
 
 - The team knows exactly how close PolyaBrain is to useful real-world problem solving.
 
-### Days 131-140: Accuracy and Reasoning Improvement
+### Chapters 131-140: Accuracy and Reasoning Improvement
 
-#### Day 131: Failure Taxonomy Review
+#### Chapter 131: Failure Taxonomy Review
 
 Tasks:
 
@@ -2450,7 +2450,7 @@ Done when:
 
 - Accuracy work is focused on the highest-leverage failures.
 
-#### Day 132: Knowledge Gap Detection Upgrade
+#### Chapter 132: Knowledge Gap Detection Upgrade
 
 Tasks:
 
@@ -2464,7 +2464,7 @@ Done when:
 
 - PolyaBrain is better at saying "I need more information" at the right time.
 
-#### Day 133: Hypothesis Ranking Upgrade
+#### Chapter 133: Hypothesis Ranking Upgrade
 
 Tasks:
 
@@ -2478,7 +2478,7 @@ Done when:
 
 - Better-supported hypotheses rise above plausible but weak explanations.
 
-#### Day 134: Verification Coverage Upgrade
+#### Chapter 134: Verification Coverage Upgrade
 
 Tasks:
 
@@ -2492,7 +2492,7 @@ Done when:
 
 - PolyaBrain verifies process and outcome, not only final text.
 
-#### Day 135: Algorithmic Problem-Solving Verifier
+#### Chapter 135: Algorithmic Problem-Solving Verifier
 
 Tasks:
 
@@ -2506,7 +2506,7 @@ Done when:
 
 - Algorithmic problems can be solved, executed, tested, and rejected when wrong.
 
-#### Day 136: Research and Source Quality Upgrade
+#### Chapter 136: Research and Source Quality Upgrade
 
 Tasks:
 
@@ -2520,7 +2520,7 @@ Done when:
 
 - Research answers are source-grounded and currentness-aware.
 
-#### Day 137: Report Clarity Upgrade
+#### Chapter 137: Report Clarity Upgrade
 
 Tasks:
 
@@ -2534,7 +2534,7 @@ Done when:
 
 - Reports are useful without requiring the user to inspect raw traces.
 
-#### Day 138: Regression Expansion
+#### Chapter 138: Regression Expansion
 
 Tasks:
 
@@ -2548,7 +2548,7 @@ Done when:
 
 - Quality improvements are protected by repeatable tests.
 
-#### Day 139: Full Evaluation Re-Run
+#### Chapter 139: Full Evaluation Re-Run
 
 Tasks:
 
@@ -2562,7 +2562,7 @@ Done when:
 
 - There is a current, trustworthy quality score for the whole product.
 
-#### Day 140: Accuracy Improvement Report
+#### Chapter 140: Accuracy Improvement Report
 
 Tasks:
 
@@ -2576,9 +2576,9 @@ Done when:
 
 - The roadmap is guided by measured reasoning quality.
 
-### Days 141-150: Workflow Integrations
+### Chapters 141-150: Workflow Integrations
 
-#### Day 141: Workflow Target Selection
+#### Chapter 141: Workflow Target Selection
 
 Tasks:
 
@@ -2592,7 +2592,7 @@ Done when:
 
 - The integration has a narrow, useful scope.
 
-#### Day 142: Integration Contract Design
+#### Chapter 142: Integration Contract Design
 
 Tasks:
 
@@ -2606,7 +2606,7 @@ Done when:
 
 - The integration can be implemented without guessing payload shapes.
 
-#### Day 143: Outbound Notification Implementation
+#### Chapter 143: Outbound Notification Implementation
 
 Tasks:
 
@@ -2620,7 +2620,7 @@ Done when:
 
 - Users can be notified when a long run changes state.
 
-#### Day 144: Report Export to Workflow Tool
+#### Chapter 144: Report Export to Workflow Tool
 
 Tasks:
 
@@ -2634,7 +2634,7 @@ Done when:
 
 - PolyaBrain output can move into a team's existing work system.
 
-#### Day 145: Inbound Problem Creation
+#### Chapter 145: Inbound Problem Creation
 
 Tasks:
 
@@ -2648,7 +2648,7 @@ Done when:
 
 - External tools can start PolyaBrain sessions safely.
 
-#### Day 146: Integration Auth and Audit
+#### Chapter 146: Integration Auth and Audit
 
 Tasks:
 
@@ -2662,7 +2662,7 @@ Done when:
 
 - Integrations are secure, auditable, and revocable.
 
-#### Day 147: Staging Integration Tests
+#### Chapter 147: Staging Integration Tests
 
 Tasks:
 
@@ -2676,7 +2676,7 @@ Done when:
 
 - Integration behaves correctly under normal and failure conditions.
 
-#### Day 148: Pilot Workflow Run
+#### Chapter 148: Pilot Workflow Run
 
 Tasks:
 
@@ -2690,7 +2690,7 @@ Done when:
 
 - The integration demonstrably reduces context switching.
 
-#### Day 149: Integration Friction Fixes
+#### Chapter 149: Integration Friction Fixes
 
 Tasks:
 
@@ -2704,7 +2704,7 @@ Done when:
 
 - The first workflow integration is usable without hand-holding.
 
-#### Day 150: Integration Documentation
+#### Chapter 150: Integration Documentation
 
 Tasks:
 
@@ -2718,9 +2718,9 @@ Done when:
 
 - A new team can configure and use the integration.
 
-### Days 151-160: Enterprise Hardening
+### Chapters 151-160: Enterprise Hardening
 
-#### Day 151: SSO/OIDC
+#### Chapter 151: SSO/OIDC
 
 Tasks:
 
@@ -2734,7 +2734,7 @@ Done when:
 
 - Enterprise users can authenticate through their identity provider.
 
-#### Day 152: RBAC Improvements
+#### Chapter 152: RBAC Improvements
 
 Tasks:
 
@@ -2748,7 +2748,7 @@ Done when:
 
 - Users can only see and do what their role permits.
 
-#### Day 153: Data Retention and Privacy Controls
+#### Chapter 153: Data Retention and Privacy Controls
 
 Tasks:
 
@@ -2762,7 +2762,7 @@ Done when:
 
 - Stored data has a controlled lifecycle.
 
-#### Day 154: Memory Export, Review, and Deletion
+#### Chapter 154: Memory Export, Review, and Deletion
 
 Tasks:
 
@@ -2776,7 +2776,7 @@ Done when:
 
 - Users can inspect and govern what PolyaBrain remembers.
 
-#### Day 155: Tenant Isolation and Secrets Review
+#### Chapter 155: Tenant Isolation and Secrets Review
 
 Tasks:
 
@@ -2790,7 +2790,7 @@ Done when:
 
 - One tenant cannot access another tenant's sessions, memory, tools, or secrets.
 
-#### Day 156: Penetration Test Checklist
+#### Chapter 156: Penetration Test Checklist
 
 Tasks:
 
@@ -2804,11 +2804,11 @@ Done when:
 
 - Security weaknesses are known and prioritized.
 
-#### Day 157: High-Severity Remediation
+#### Chapter 157: High-Severity Remediation
 
 Tasks:
 
-1. Fix all critical and high-severity findings from Day 156.
+1. Fix all critical and high-severity findings from Chapter 156.
 2. Add regression tests for each fix.
 3. Re-run the security checklist.
 4. Document accepted risks.
@@ -2818,7 +2818,7 @@ Done when:
 
 - No known critical or high-severity issue remains unaddressed.
 
-#### Day 158: Security Whitepaper
+#### Chapter 158: Security Whitepaper
 
 Tasks:
 
@@ -2832,7 +2832,7 @@ Done when:
 
 - Security posture can be explained to a buyer, reviewer, or future teammate.
 
-#### Day 159: Compliance Mapping
+#### Chapter 159: Compliance Mapping
 
 Tasks:
 
@@ -2846,7 +2846,7 @@ Done when:
 
 - Compliance-sensitive users can understand what is and is not ready.
 
-#### Day 160: Enterprise Readiness Review
+#### Chapter 160: Enterprise Readiness Review
 
 Tasks:
 
@@ -2860,9 +2860,9 @@ Done when:
 
 - Enterprise readiness is explicit, not assumed.
 
-### Days 161-170: Performance and Cost
+### Chapters 161-170: Performance and Cost
 
-#### Day 161: Token Usage Profiling
+#### Chapter 161: Token Usage Profiling
 
 Tasks:
 
@@ -2876,7 +2876,7 @@ Done when:
 
 - Token cost is visible and actionable.
 
-#### Day 162: Retrieval and Tool Latency Profiling
+#### Chapter 162: Retrieval and Tool Latency Profiling
 
 Tasks:
 
@@ -2890,7 +2890,7 @@ Done when:
 
 - Slow paths are known by component.
 
-#### Day 163: Caching Layer
+#### Chapter 163: Caching Layer
 
 Tasks:
 
@@ -2904,7 +2904,7 @@ Done when:
 
 - Repeated work is reduced without breaking correctness or privacy.
 
-#### Day 164: LLM Call Reduction
+#### Chapter 164: LLM Call Reduction
 
 Tasks:
 
@@ -2918,7 +2918,7 @@ Done when:
 
 - Cost decreases without degrading benchmark quality.
 
-#### Day 165: Parallel Tool Execution
+#### Chapter 165: Parallel Tool Execution
 
 Tasks:
 
@@ -2932,7 +2932,7 @@ Done when:
 
 - Long multi-tool sessions complete faster without race-condition confusion.
 
-#### Day 166: Database and Vector Optimization
+#### Chapter 166: Database and Vector Optimization
 
 Tasks:
 
@@ -2946,7 +2946,7 @@ Done when:
 
 - Storage layer is not the primary bottleneck for beta traffic.
 
-#### Day 167: Model Routing
+#### Chapter 167: Model Routing
 
 Tasks:
 
@@ -2960,7 +2960,7 @@ Done when:
 
 - PolyaBrain uses expensive reasoning only where it earns its keep.
 
-#### Day 168: Budget Enforcement
+#### Chapter 168: Budget Enforcement
 
 Tasks:
 
@@ -2974,7 +2974,7 @@ Done when:
 
 - Runaway cost is technically prevented.
 
-#### Day 169: Load Test Target Traffic
+#### Chapter 169: Load Test Target Traffic
 
 Tasks:
 
@@ -2988,12 +2988,12 @@ Done when:
 
 - The system survives expected beta load with acceptable latency.
 
-#### Day 170: Performance and Cost Report
+#### Chapter 170: Performance and Cost Report
 
 Tasks:
 
 1. Summarize latency, throughput, cost per session, cache savings, and model-routing savings.
-2. Compare against Day 161 baseline.
+2. Compare against Chapter 161 baseline.
 3. Document remaining bottlenecks.
 4. Update infrastructure sizing.
 5. Publish report.
@@ -3002,9 +3002,9 @@ Done when:
 
 - Cost and performance are understood well enough for controlled launch.
 
-### Days 171-180: Controlled Launch Preparation
+### Chapters 171-180: Controlled Launch Preparation
 
-#### Day 171: Launch Criteria
+#### Chapter 171: Launch Criteria
 
 Tasks:
 
@@ -3018,7 +3018,7 @@ Done when:
 
 - Launch has objective gates.
 
-#### Day 172: Positioning and Messaging
+#### Chapter 172: Positioning and Messaging
 
 Tasks:
 
@@ -3032,7 +3032,7 @@ Done when:
 
 - Users understand what PolyaBrain is and is not.
 
-#### Day 173: Demo Problem Suite
+#### Chapter 173: Demo Problem Suite
 
 Tasks:
 
@@ -3046,7 +3046,7 @@ Done when:
 
 - The demo shows general problem solving, not one narrow trick.
 
-#### Day 174: Case Study Preparation
+#### Chapter 174: Case Study Preparation
 
 Tasks:
 
@@ -3060,7 +3060,7 @@ Done when:
 
 - There is credible evidence that PolyaBrain solves useful problems.
 
-#### Day 175: Documentation Finalization
+#### Chapter 175: Documentation Finalization
 
 Tasks:
 
@@ -3074,7 +3074,7 @@ Done when:
 
 - A new user can get started and recover from common issues.
 
-#### Day 176: Onboarding Flow
+#### Chapter 176: Onboarding Flow
 
 Tasks:
 
@@ -3088,7 +3088,7 @@ Done when:
 
 - A new user can understand the product without a live lecture.
 
-#### Day 177: Launch Rehearsal
+#### Chapter 177: Launch Rehearsal
 
 Tasks:
 
@@ -3102,7 +3102,7 @@ Done when:
 
 - The team can launch, operate, and roll back calmly.
 
-#### Day 178: Release Branch and Freeze
+#### Chapter 178: Release Branch and Freeze
 
 Tasks:
 
@@ -3116,7 +3116,7 @@ Done when:
 
 - The launch build is stable and traceable.
 
-#### Day 179: Controlled Launch
+#### Chapter 179: Controlled Launch
 
 Tasks:
 
@@ -3130,7 +3130,7 @@ Done when:
 
 - Real users can use PolyaBrain under controlled monitoring.
 
-#### Day 180: Launch Review and Next 90-Day Roadmap
+#### Chapter 180: Launch Review and Next 90-Day Roadmap
 
 Tasks:
 
@@ -3146,7 +3146,7 @@ Done when:
 
 ## 9. Acceptance Metrics
 
-Core platform alpha by Day 60:
+Core platform alpha by Chapter 60:
 
 - All nine logical engines exist.
 - At least 30 evaluation cases run automatically.
@@ -3155,7 +3155,7 @@ Core platform alpha by Day 60:
 - Every answer includes evidence, checks, confidence, and open questions.
 - No unsafe write tools exist.
 
-General Problem MVP by Day 90:
+General Problem MVP by Chapter 90:
 
 - 100+ synthetic and curated scenarios across benchmark categories.
 - 70%+ correct or usefully verified outcome on solvable cases.
@@ -3165,7 +3165,7 @@ General Problem MVP by Day 90:
 - UI supports input, live trace, evidence, hypotheses, report, and history.
 - Domain-specific schemas/tools/playbooks are isolated from core engine code.
 
-Private beta by Day 120:
+Private beta by Chapter 120:
 
 - Staging/cloud deployment stable.
 - Auth, audit logging, PII masking, and cost controls enabled.
@@ -3174,7 +3174,7 @@ Private beta by Day 120:
 - Clear path to real data integration.
 - Clear extension contract exists for adding optional domain use-case packs.
 
-Real product by Day 180:
+Real product by Chapter 180:
 
 - One real or realistic mixed task corpus integrated.
 - 80%+ correct or usefully verified outcome on representative validated cases.
@@ -3226,7 +3226,7 @@ That is the product magic: not a chatbot answer, but an auditable thinking workf
 
 ## 12. Adding Specialized Use-Case Packs
 
-PolyaBrain should be tested on mixed problems from Day 1. Specialized use-case packs are optional product packaging and deeper domain integrations, not the foundation of the intelligence system. Add them only when they reuse the same core loop cleanly.
+PolyaBrain should be tested on mixed problems from Chapter 1. Specialized use-case packs are optional product packaging and deeper domain integrations, not the foundation of the intelligence system. Add them only when they reuse the same core loop cleanly.
 
 Good optional use-case packs are:
 
