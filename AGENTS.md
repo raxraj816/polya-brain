@@ -164,6 +164,7 @@ Do not turn PolyaBrain into:
 ## Development Rules
 
 - Prefer the existing docs and architecture decisions over inventing new direction.
+- When creating a feature branch from `develop`, name it with the `feature/` prefix unless the user explicitly requests a different branch name.
 - Keep changes scoped to the current chapter or requested task.
 - Preserve user changes. Do not revert unrelated work.
 - Do not commit secrets, tokens, private data, or real PII.
