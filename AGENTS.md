@@ -103,6 +103,8 @@ Every serious answer or report should expose:
 
 PolyaBrain must be able to say "insufficient evidence" when verification fails.
 
+Every stage must be recoverable. An engine should either produce useful structured output, ask for missing information, route back for better evidence or framing, or stop safely with insufficient evidence. Do not let weak output silently flow to the next stage.
+
 ## Cognitive Product Rules
 
 Use cognitive science and brain-inspired ideas only when they map to product behavior.

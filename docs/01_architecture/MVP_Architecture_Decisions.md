@@ -34,6 +34,7 @@ The code should be modular by engine, but deployment should stay simple until th
 - Bounded reframe/incubation pass after evidence gathering, with verification required for any changed claim.
 - Safe tool execution.
 - Verification checklists by mode and replanning.
+- Stage-gated routing so weak outputs ask, recover, reframe, gather evidence, or stop safely instead of flowing forward.
 - Reflection and logical semantic, episodic, and procedural memory.
 - Evaluation harness across mixed problem categories.
 - User-visible trace, reasoning mode, evidence, hypotheses, final report, confidence, and open questions.

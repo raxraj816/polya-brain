@@ -118,6 +118,8 @@ The MVP is useful only if users trust it. Every final answer must include:
 
 The product must say "insufficient evidence" when verification fails.
 
+To reduce compound failure across the loop, every stage must be stage-gated. Each engine must either produce useful structured output, ask for missing information, route back for better evidence or framing, or stop safely with an explicit insufficient-evidence state. No stage should silently pass weak output forward as if it were verified.
+
 ### 3.5 Version Everything That Affects Reasoning
 
 PolyaBrain behavior must be reproducible. Every completed session should record:
@@ -711,14 +713,17 @@ Tasks:
 
 1. Define base engine interface: `run(state) -> state`.
 2. Add common telemetry wrapper.
-3. Add engine result object with status, duration, errors, token usage.
+3. Add engine result object with status, confidence, missing inputs, recommended route, duration, errors, and token usage.
+   - Initial status values: `ok`, `needs_input`, `needs_evidence`, `low_confidence`, `blocked`, `failed`, `insufficient_evidence`.
+   - Initial route values: `continue`, `clarify`, `research`, `reframe`, `replan`, `retry_execution`, `finalize`, `finalize_insufficient_evidence`.
 4. Add version metadata for engine, prompt, model, tool, verifier, and graph version.
 5. Add structured logging helpers.
-6. Add tests for wrapper behavior and version propagation.
+6. Add tests for wrapper behavior, version propagation, and low-confidence/blocked routing.
 
 Done when:
 
 - All future engines can be implemented consistently.
+- Engines cannot silently pass low-confidence or incomplete outputs to the next stage.
 
 #### Chapter 8: Graph Skeleton
 
@@ -726,15 +731,17 @@ Tasks:
 
 1. Add graph nodes for all nine engines.
 2. Implement stub node functions.
-3. Add graph routes: gaps to research, verification failure to replan/research/execute, success to reflection.
+3. Add graph routes: gaps to research, missing inputs to clarification, low confidence to clarification/research, verification failure to replan/research/execute, insufficient evidence to final report and reflection, and success to reflection.
 4. Add iteration guard.
 5. Export graph Mermaid diagram to docs.
 6. Add a test that runs "What is 2+2?" through all stubs.
+7. Add a test proving a blocked stage stops safely instead of continuing with weak output.
 
 Done when:
 
 - Graph runs end-to-end with stubs.
 - Routing is visible in documentation.
+- The graph is recoverable, not a blind linear chain.
 
 #### Chapter 9: Event Trace System
 
@@ -1305,12 +1312,13 @@ Tasks:
 2. Map each hypothesis type to required checks.
 3. Define verification checklist templates by mode: technical research, debugging/root-cause analysis, architecture tradeoff, data analysis, ambiguous input, and creative synthesis.
 4. Define confidence scoring formula.
-5. Define failure routes.
+5. Define failure routes, including insufficient evidence, ask user, gather more evidence, reframe, replan, retry execution, final report, reflection, and stop safely.
 6. Document in `docs/verification.md`.
 
 Done when:
 
 - Verification is explicit, mode-specific, and not just "ask the LLM if correct."
+- Verification can stop the loop without forcing a confident conclusion.
 
 #### Chapter 47: Numeric Verification
 
