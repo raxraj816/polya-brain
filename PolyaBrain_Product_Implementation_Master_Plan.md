@@ -136,6 +136,36 @@ PolyaBrain behavior must be reproducible. Every completed session should record:
 
 This is required so a wrong answer can be debugged later and so benchmark scores mean something over time.
 
+### 3.6 Creative Problem-Solving Intelligence
+
+Recent creativity and problem-solving research should improve PolyaBrain only when it becomes inspectable product behavior. The MVP should implement creative intelligence as disciplined reasoning mechanisms, not neuroscience labels or a user-facing "daydreaming" gimmick.
+
+Build these mechanisms into the existing Polya loop:
+
+1. **Divergent hypothesis pass:** generate several meaningfully different hypotheses, mechanisms, or solution paths before ranking. Do not over-score ideas during the first generation pass.
+2. **Convergent filtering pass:** rank and prune hypotheses using constraints, evidence, verification cost, feasibility, falsifiability, and risk.
+3. **Knowledge-rich analogical transfer:** retrieve structurally similar past cases, strategies, and patterns, including cross-domain cases when useful, then require the system to state what transfers and what does not.
+4. **Incubation/reframe pass:** after initial research and evidence evaluation, produce candidate reframes, overlooked assumptions, and alternative angles. Any reframe that affects the answer must return through evidence evaluation and verification.
+5. **Trace-visible reasoning modes:** reasoning events should expose whether the system is exploring, reframing, comparing, verifying, executing, or reflecting.
+
+Anti-goals:
+
+- Do not claim to simulate the default mode network, executive network, salience network, cerebellum, or any biological brain structure.
+- Do not expose brain-region terminology in the product UI unless it is part of a research explanation requested by the user.
+- Do not let novelty outrank truth. Creative candidates must still be testable, evidence-linked, and allowed to fail.
+
+### 3.7 Problem Framing and Mode-Specific Verification
+
+Practical problem-solving research and expert advice reinforce a product rule: PolyaBrain must avoid solving the wrong problem with impressive execution. The MVP should therefore add lightweight framing and checklist behavior inside the existing loop, not a new engine or core schema expansion.
+
+Build these mechanisms:
+
+1. **Problem reframe pass:** before hypotheses, generate the literal problem framing, a possible deeper framing, and a wrong-problem warning when applicable.
+2. **Approach selection:** classify the task into the existing product mode and problem type, then choose the matching playbook or checklist.
+3. **Verification checklist by mode:** use different required checks for technical research, debugging/root-cause analysis, architecture tradeoffs, data analysis, ambiguous input, and creative synthesis.
+
+These mechanisms should be implemented first as prompt behavior, trace details, procedural strategy records, and eval criteria. Do not add new core fields unless implementation proves a stable producer, consumer, and product value.
+
 ## 4. Platform Scope and General Benchmark Suite
 
 ### 4.1 Core Platform Capabilities
@@ -144,17 +174,20 @@ The MVP must implement these domain-independent capabilities:
 
 1. Accept a raw problem statement.
 2. Convert it into structured problem representation.
-3. Extract explicit and implicit constraints.
-4. Identify knowledge gaps.
-5. Decide whether to ask the user, search memory, search external sources, or call tools.
-6. Evaluate evidence quality.
-7. Generate testable hypotheses.
-8. Create an executable plan.
-9. Execute safe tools.
-10. Verify intermediate and final results.
-11. Replan when verification fails.
-12. Reflect and update semantic, episodic, and procedural memory.
-13. Show the reasoning trace to the user.
+3. Generate candidate problem reframes and warn when the user may be asking the wrong question.
+4. Select the appropriate product mode, problem type, and verification checklist.
+5. Extract explicit and implicit constraints.
+6. Identify knowledge gaps.
+7. Decide whether to ask the user, search memory, search external sources, or call tools.
+8. Evaluate evidence quality.
+9. Generate diverse, testable hypotheses before ranking.
+10. Retrieve and evaluate relevant analogical patterns from memory when they may transfer.
+11. Create an executable plan.
+12. Execute safe tools.
+13. Verify intermediate and final results using mode-specific checks.
+14. Reframe or replan when verification fails or evidence reveals a better problem construction.
+15. Reflect and update semantic, episodic, and procedural memory.
+16. Show the reasoning trace to the user, including the current reasoning mode.
 
 ### 4.2 MVP Benchmark Categories
 
@@ -170,7 +203,7 @@ From Chapter 1, PolyaBrain should be evaluated on multiple categories:
 8. **Scientific/engineering reasoning:** hypothesis generation, experiment design, evidence evaluation.
 9. **Ambiguous/underspecified problems:** cases where the correct behavior is to ask clarifying questions.
 10. **Adversarial or misleading problems:** cases with false assumptions, bad evidence, or contradictions.
-11. **Open-ended creative synthesis:** generate several possible approaches and verify feasibility.
+11. **Open-ended creative synthesis:** generate several possible approaches, use analogies or reframes when useful, and verify feasibility.
 
 ### 4.3 Optional Use-Case Packs
 
@@ -207,6 +240,8 @@ MVP supports four modes:
 - **Compare:** compare current metrics to baseline and explain differences.
 - **Review:** evaluate a user's proposed conclusion against evidence.
 - **Explore:** solve an unknown or underspecified problem by clarifying, researching, planning, testing, and reflecting.
+
+Mode is optional user input. If absent, the Problem Representation Engine infers `mode` and `problem_type` from the raw problem, records the classification reason in the trace, asks a clarifying question when confidence is low or multiple modes are plausible, and allows user override.
 
 ## 5. Final Technology Stack
 
@@ -316,6 +351,16 @@ Each use-case pack must not:
 
 ## 6. Core Data Contracts
 
+Core contracts should stay small and stable. Do not add a first-class field, score, ranking signal, or engine output unless it has a clear producer, consumer, user or engine value, verification/evaluation path, failure-mode analysis, and a reason it cannot begin as prompt behavior, optional metadata, trace detail, research note, or eval metric.
+
+Research ideas should usually move through this path:
+
+```text
+research note -> prompt/trace/metadata experiment -> eval metric -> core contract
+```
+
+Only promote behavior into the core contract after it proves product value.
+
 ### 6.1 Problem Session
 
 Fields:
@@ -378,12 +423,18 @@ Fields:
 
 - `statement`
 - `mechanism`
+- `origin`
+- `analogical_source_ids`
 - `expected_signals`
 - `evidence_for`
 - `evidence_against`
 - `verification_checks`
+- `falsification_criteria`
 - `confidence`
+- `selection_rationale`
 - `status`
+
+Hypothesis diversity is evaluated at the run level, not stored as a core per-hypothesis score. Preserve plausible unusual candidates through `selection_rationale`, then select by evidence, constraint fit, and verification.
 
 ### 6.6 Plan Task
 
@@ -397,7 +448,22 @@ Fields:
 - `expected_output`
 - `risk_level`
 
-### 6.7 Verification Report
+### 6.7 Reasoning Event
+
+Fields:
+
+- `id`
+- `session_id`
+- `engine_name`
+- `event_type`
+- `reasoning_mode`
+- `summary`
+- `metadata`
+- `created_at`
+
+`reasoning_mode` should use stable values such as `explore`, `compare`, `reframe`, `execute`, `verify`, and `reflect`.
+
+### 6.8 Verification Report
 
 Fields:
 
@@ -408,7 +474,7 @@ Fields:
 - `confidence_delta`
 - `recommended_route`
 
-### 6.8 Tool Definition and Tool Call
+### 6.9 Tool Definition and Tool Call
 
 Tool definition fields:
 
@@ -438,7 +504,7 @@ Tool call fields:
 - `approval_id`
 - `evidence_ids`
 
-### 6.9 Artifact
+### 6.10 Artifact
 
 Fields:
 
@@ -455,7 +521,7 @@ Fields:
 
 Artifacts include code files, uploaded documents, tables, logs, web snippets, generated reports, screenshots, and benchmark fixtures.
 
-### 6.10 Evaluation Case
+### 6.11 Evaluation Case
 
 Fields:
 
@@ -471,7 +537,7 @@ Fields:
 - `tags`
 - `version`
 
-### 6.11 User, Organization, and Project
+### 6.12 User, Organization, and Project
 
 User fields:
 
@@ -492,7 +558,7 @@ Organization/project fields:
 - `enabled_tools`
 - `created_at`
 
-### 6.12 Feedback
+### 6.13 Feedback
 
 Fields:
 
@@ -506,7 +572,7 @@ Fields:
 - `created_at`
 - `review_status`
 
-### 6.13 Connector
+### 6.14 Connector
 
 Fields:
 
@@ -521,7 +587,7 @@ Fields:
 - `last_error`
 - `created_at`
 
-### 6.14 Model Call and Cost Record
+### 6.15 Model Call and Cost Record
 
 Fields:
 
@@ -675,7 +741,7 @@ Done when:
 Tasks:
 
 1. Add `reasoning_events` persistence.
-2. Store each engine start, completion, error, and route decision.
+2. Store each engine start, completion, error, route decision, and reasoning mode.
 3. Add API endpoint to fetch session trace.
 4. Add tests for event ordering.
 5. Ensure logs do not store secrets.
@@ -683,6 +749,7 @@ Tasks:
 Done when:
 
 - Every run produces an inspectable trace.
+- Users can tell whether the system was exploring, comparing, reframing, executing, verifying, or reflecting at each major step.
 
 #### Chapter 10: API Shell
 
@@ -708,9 +775,11 @@ Tasks:
 1. Write problem-understanding prompt.
 2. Define output JSON schema.
 3. Include Pólya fields: given, unknown, constraints, goal, success criteria.
-4. Add prompt examples for math, logic, software bug, research query, data analysis, planning, scientific reasoning, and ambiguous input.
-5. Add prompt version identifiers and changelog.
-6. Add response parser with JSON repair and retry.
+4. Include problem framing behavior: literal framing, possible deeper framing, and wrong-problem warning when applicable.
+5. Include approach selection using existing product modes and problem types; infer mode when absent, ask when uncertain, and record the reason.
+6. Add prompt examples for math, logic, software bug, research query, data analysis, planning, scientific reasoning, ambiguous input, low-confidence mode selection, and wrong-problem framing.
+7. Add prompt version identifiers and changelog.
+8. Add response parser with JSON repair and retry.
 
 Done when:
 
@@ -736,9 +805,10 @@ Tasks:
 
 1. Implement engine using LLM client and parser.
 2. Save structured problem to session.
-3. Add deterministic fallback for obvious structured inputs such as simple math, missing-field requests, and benchmark examples.
-4. Add tests using fake client.
-5. Add golden examples.
+3. Emit trace details for selected framing, rejected alternate framing, and selected approach mode without adding new core contract fields.
+4. Add deterministic fallback for obvious structured inputs such as simple math, missing-field requests, and benchmark examples.
+5. Add tests using fake client.
+6. Add golden examples.
 
 Done when:
 
@@ -1125,13 +1195,16 @@ Tasks:
 
 1. Write prompt to generate hypotheses from structured problem, gaps, memory, and evidence.
 2. Require mechanism, expected signals, required checks, and confidence.
-3. Require at least one alternative hypothesis.
-4. Require "what would falsify this?"
-5. Add examples.
+3. Require a divergent pass that produces meaningfully different hypotheses before any ranking.
+4. Require at least one alternative hypothesis.
+5. Require "what would falsify this?"
+6. Require analogical transfer candidates when memory contains structurally similar cases.
+7. Add examples.
 
 Done when:
 
 - Hypotheses are testable, not generic.
+- The prompt avoids premature convergence and produces alternatives that can be verified or rejected.
 
 #### Chapter 40: Hypothesis Engine
 
@@ -1140,12 +1213,15 @@ Tasks:
 1. Implement hypothesis generation.
 2. Deduplicate hypotheses.
 3. Link evidence for/against.
-4. Rank hypotheses.
-5. Store to database.
+4. Run convergent filtering after divergent generation.
+5. Rank hypotheses.
+6. Store hypothesis origin, falsification criteria, analogical sources, and selection rationale.
+7. Store to database.
 
 Done when:
 
 - Investigation-style inputs produce ranked causes with expected checks.
+- Ranked hypotheses show why one candidate survived over plausible alternatives.
 
 #### Chapter 41: Plan Schema and Planner Prompt
 
@@ -1227,13 +1303,14 @@ Tasks:
 
 1. Define verification types: constraint, numerical, causal, source, contradiction, completeness.
 2. Map each hypothesis type to required checks.
-3. Define confidence scoring formula.
-4. Define failure routes.
-5. Document in `docs/verification.md`.
+3. Define verification checklist templates by mode: technical research, debugging/root-cause analysis, architecture tradeoff, data analysis, ambiguous input, and creative synthesis.
+4. Define confidence scoring formula.
+5. Define failure routes.
+6. Document in `docs/verification.md`.
 
 Done when:
 
-- Verification is explicit and not just "ask the LLM if correct."
+- Verification is explicit, mode-specific, and not just "ask the LLM if correct."
 
 #### Chapter 47: Numeric Verification
 
@@ -1383,7 +1460,7 @@ Tasks:
 
 1. Create `evals/` runner.
 2. Add 30 synthetic cases with ground truth across math, logic, research, debugging, algorithmic coding, data analysis, planning, ambiguous, adversarial, and creative synthesis categories.
-3. Score outcome correctness, evidence quality, verification completeness, correct clarification behavior, latency, and cost.
+3. Score outcome correctness, problem framing quality, approach selection quality, evidence quality, hypothesis diversity, analogical transfer quality, reframe quality, mode-specific verification checklist completeness, correct clarification behavior, latency, and cost.
 4. Add baseline simple LLM answer for comparison.
 5. Add ablation runs for no-gap-detector, no-verifier, and no-memory variants.
 6. Output report as JSON and Markdown.
@@ -1428,7 +1505,8 @@ Tasks:
 2. Confirm all nine logical engines exist.
 3. Confirm at least one end-to-end case succeeds with verification in math, research, debugging, data analysis, and planning.
 4. Confirm critical safety controls exist.
-5. Write Alpha Gate report.
+5. Confirm creative synthesis cases show divergent candidates, convergent filtering, and verification of the selected path.
+6. Write Alpha Gate report.
 
 Done when:
 
@@ -1855,8 +1933,9 @@ Tasks:
 1. Run 80+ scenario eval.
 2. Target: 70%+ correct or usefully verified outcome on synthetic cases.
 3. Target: 90%+ reports include required evidence/check sections.
-4. Target: zero unsafe tool calls.
-5. Write General Problem MVP report.
+4. Target: 80%+ creative synthesis cases include a useful alternative, analogy, or reframe that is explicitly accepted, rejected, or deferred with evidence.
+5. Target: zero unsafe tool calls.
+6. Write General Problem MVP report.
 
 Done when:
 
@@ -3153,6 +3232,7 @@ Core platform alpha by Chapter 60:
 - At least one full end-to-end case succeeds in each major category: math, research, debugging, data analysis, planning, and ambiguous input.
 - At least 20 general reasoning smoke cases run through the same core loop.
 - Every answer includes evidence, checks, confidence, and open questions.
+- Open-ended creative synthesis cases show divergent candidates, convergent filtering, and verification of the selected path.
 - No unsafe write tools exist.
 
 General Problem MVP by Chapter 90:
@@ -3161,6 +3241,7 @@ General Problem MVP by Chapter 90:
 - 70%+ correct or usefully verified outcome on solvable cases.
 - 90%+ correct clarification/escalation behavior on underspecified cases.
 - 90%+ reports include required audit sections.
+- 80%+ creative synthesis cases include a useful alternative, analogy, or reframe that is explicitly accepted, rejected, or deferred with evidence.
 - Zero critical security issues.
 - UI supports input, live trace, evidence, hypotheses, report, and history.
 - Domain-specific schemas/tools/playbooks are isolated from core engine code.

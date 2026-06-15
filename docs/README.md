@@ -18,6 +18,7 @@ This folder is organized so implementation can start from a small, stable workin
 - Chapter 1 implementation entrypoint: `03_implementation/Chapter_1_Start_Here.md`
 - Product acceleration playbook: `03_implementation/Product_Acceleration_Playbook.md`
 - Research reading guide: `04_research/Research_Reading_Guide.md`
+- Creative problem-solving research translation: `04_research/Creative_Problem_Solving_Product_Translation.md`
 
 ## Folder Guide
 

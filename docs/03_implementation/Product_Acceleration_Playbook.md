@@ -95,11 +95,13 @@ Success:
 Deliver:
 
 - Problem representation.
+- Problem reframe and approach selection.
 - Constraint and gap extraction.
 - Basic research or local document/code reading.
 - Evidence items with source metadata.
-- Hypothesis generation.
-- Verification checklist.
+- Divergent hypothesis generation and convergent filtering.
+- Simple analogical transfer from prior cases or patterns when useful.
+- Mode-specific verification checklist.
 - Final report with confidence and open questions.
 
 Success:

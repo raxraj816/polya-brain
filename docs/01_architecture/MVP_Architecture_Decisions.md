@@ -24,15 +24,19 @@ The code should be modular by engine, but deployment should stay simple until th
 - Typed engine interfaces.
 - Stateful Polya loop.
 - Problem representation.
+- Problem reframe pass using trace details rather than new core fields.
+- Approach selection using existing product modes and problem types, inferred when the user does not provide a mode.
 - Constraint discovery.
 - Knowledge gap detection.
 - Research and evidence evaluation.
-- Hypothesis generation and planning.
+- Divergent hypothesis generation, convergent filtering, and planning.
+- Knowledge-rich analogical transfer from memory when structural similarity may help.
+- Bounded reframe/incubation pass after evidence gathering, with verification required for any changed claim.
 - Safe tool execution.
-- Verification and replanning.
+- Verification checklists by mode and replanning.
 - Reflection and logical semantic, episodic, and procedural memory.
 - Evaluation harness across mixed problem categories.
-- User-visible trace, evidence, hypotheses, final report, confidence, and open questions.
+- User-visible trace, reasoning mode, evidence, hypotheses, final report, confidence, and open questions.
 
 ## Defer Until After MVP Proof
 
@@ -71,6 +75,8 @@ The MVP implementation uses nine logical modules:
 9. Reflection and Memory Engine.
 
 Each engine needs typed input/output, tests, prompts, and telemetry.
+
+Creative problem-solving behavior belongs inside these engines, not in a separate "creativity engine." The Reasoning Engine owns divergent generation and convergent filtering. Memory retrieval owns analogical candidates. Verification owns falsification and contradiction checks. Reflection owns strategy learning from which hypotheses, reframes, and analogies helped or failed.
 
 ## Product Boundary
 

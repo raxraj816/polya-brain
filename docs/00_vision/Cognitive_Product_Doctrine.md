@@ -44,8 +44,15 @@ Every cognitive idea must map to an implementation surface.
 | Metacognition | Knowledge-gap detection, confidence, uncertainty, and "do I know enough?" checks |
 | Curiosity | Research planning and information acquisition when gaps are detected |
 | Problem decomposition | Subproblems, constraints, assumptions, and dependency structure |
+| Problem reframing | Literal framing, deeper framing, and wrong-problem warnings |
+| Approach selection | Choose the product mode, problem type, and playbook before planning |
 | Hypothesis generation | Candidate explanations, solution paths, and competing plans |
-| Verification | Tests, contradiction search, source evaluation, and constraint checks |
+| Divergent thinking | Generate multiple meaningfully different hypotheses before ranking |
+| Convergent thinking | Filter hypotheses against evidence, constraints, feasibility, and verification cost |
+| Analogical transfer | Retrieve structurally similar cases and state what pattern transfers |
+| Incubation | Run a bounded reframe pass after evidence gathering, then verify anything it changes |
+| Network switching | Trace-visible reasoning modes such as explore, compare, verify, reframe, and reflect |
+| Verification | Mode-specific checklists, tests, contradiction search, source evaluation, and constraint checks |
 | Reflection | Post-run analysis, strategy scoring, and memory updates |
 
 If a research idea cannot become a useful product behavior, defer it.
@@ -59,9 +66,11 @@ If a research idea cannot become a useful product behavior, defer it.
 5. Separate evidence, assumptions, hypotheses, actions, verification, and conclusions.
 6. Make every important reasoning step auditable.
 7. Learn from completed cases, but do not let memory replace verification.
-8. Keep the MVP modular in code and simple in deployment.
-9. Use research to sharpen product behavior, not to expand scope without evidence.
-10. Measure usefulness through solved problems, user trust, and repeatable evaluations.
+8. Generate diverse possibilities before selecting the best-supported one.
+9. Use analogy to find transferable structure, not to bypass evidence.
+10. Keep the MVP modular in code and simple in deployment.
+11. Use research to sharpen product behavior, not to expand scope without evidence.
+12. Measure usefulness through solved problems, user trust, and repeatable evaluations.
 
 ## MVP Boundary
 
@@ -114,12 +123,24 @@ Before adding a feature, engine, memory structure, prompt, agent behavior, or re
 
 If the answer is no, defer it.
 
+Before adding a core contract field, score, ranking signal, or permanent engine output, also ask:
+
+1. Who produces it?
+2. Who consumes it?
+3. How does it improve user trust, correctness, verification, or learning?
+4. How can misuse harm confidence, ranking, safety, or product clarity?
+5. Why can it not start as prompt behavior, optional metadata, trace detail, research note, or eval metric?
+
+If those answers are weak, keep the idea outside the core contract until evals prove it belongs.
+
 ## Anti-Goals
 
 Do not let PolyaBrain become:
 
 - A generic chatbot with extra terminology.
 - A neuroscience simulation project.
+- A creativity-themed product that rewards novelty without verification.
+- A product UI that uses brain-region labels as decoration.
 - A research notebook without a usable product.
 - A collection of agents without a coherent problem-solving loop.
 - A memory system that retrieves confidently but verifies weakly.

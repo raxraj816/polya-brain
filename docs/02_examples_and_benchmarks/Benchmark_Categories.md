@@ -32,16 +32,21 @@ Each benchmark case should include:
 8. Scientific/engineering reasoning: hypothesis generation, experiment design, and evidence evaluation.
 9. Ambiguous or underspecified problems: cases where the correct behavior is to ask clarifying questions.
 10. Adversarial or misleading problems: cases with false assumptions, bad evidence, or contradictions.
-11. Open-ended creative synthesis: generate several possible approaches and verify feasibility.
+11. Open-ended creative synthesis: generate several possible approaches, use analogies or reframes when useful, and verify feasibility.
 
 ## Scoring Dimensions
 
 - Outcome correctness.
+- Problem framing quality.
+- Approach selection quality.
 - Constraint handling.
 - Knowledge gap quality.
 - Evidence quality.
+- Hypothesis diversity before ranking.
+- Analogical transfer quality.
+- Reframe quality when the initial problem construction is weak.
 - Tool selection quality.
-- Verification completeness.
+- Mode-specific verification checklist completeness.
 - Correct clarification or abstention behavior.
 - Report usefulness.
 - Latency.
@@ -53,6 +58,7 @@ Each benchmark case should include:
 - At least one full end-to-end case succeeds in math, research, debugging, data analysis, planning, and ambiguous input.
 - At least 20 general reasoning smoke cases run through the same core loop.
 - Every answer includes evidence, checks, confidence, and open questions.
+- Open-ended creative synthesis cases must show divergent candidates, convergent filtering, and verification of the selected path.
 
 ## Chapter 90 Minimum
 
@@ -60,6 +66,7 @@ Each benchmark case should include:
 - At least 70% correct or usefully verified outcome on solvable cases.
 - At least 90% correct clarification or escalation behavior on underspecified cases.
 - At least 90% reports include required audit sections.
+- At least 80% of creative synthesis cases include a useful alternative, analogy, or reframe that is explicitly accepted, rejected, or deferred with evidence.
 
 ## Guardrail
 

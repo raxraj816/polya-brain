@@ -56,12 +56,18 @@ Source of truth: `../../PolyaBrain_Product_Implementation_Master_Plan.md`
 
 - `statement`
 - `mechanism`
+- `origin`
+- `analogical_source_ids`
 - `expected_signals`
 - `evidence_for`
 - `evidence_against`
 - `verification_checks`
+- `falsification_criteria`
 - `confidence`
+- `selection_rationale`
 - `status`
+
+`origin` should distinguish direct reasoning, memory-derived analogy, user-supplied hypothesis, and reframe/incubation output. `selection_rationale` records why a hypothesis survived convergent filtering over plausible alternatives. Hypothesis diversity is evaluated at the run level, not stored as a core per-hypothesis score.
 
 ## Plan Task
 
@@ -72,6 +78,19 @@ Source of truth: `../../PolyaBrain_Product_Implementation_Master_Plan.md`
 - `depends_on`
 - `expected_output`
 - `risk_level`
+
+## Reasoning Event
+
+- `id`
+- `session_id`
+- `engine_name`
+- `event_type`
+- `reasoning_mode`
+- `summary`
+- `metadata`
+- `created_at`
+
+`reasoning_mode` should use stable values such as `explore`, `compare`, `reframe`, `execute`, `verify`, and `reflect` so the user-visible trace can show how PolyaBrain moved from possibilities to conclusions.
 
 ## Verification Report
 

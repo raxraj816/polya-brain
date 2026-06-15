@@ -23,6 +23,8 @@ The initial gateway for any problem, this engine is responsible for transforming
     *   **Input Parsing:** Accepts diverse inputs including natural language text, mathematical equations, logical statements, or even structured data.
     *   **NLP Pipelines:** Employs advanced Natural Language Processing (NLP) techniques for tokenization, named entity recognition, and dependency parsing.
     *   **LLM Semantic Parsing:** Utilizes large language models (LLMs) to semantically interpret the input, extracting key entities, their relationships, initial conditions, and implicit contextual information.
+    *   **Problem Reframing:** Produces the literal framing, possible deeper framing, and wrong-problem warning when the user may be asking a question that would lead to an unhelpful solution.
+    *   **Approach Selection:** Classifies the problem into the existing product mode and problem type so later stages can use the right playbook and verification checklist. If the user does not provide a mode, the engine infers it, records the reason, and asks for clarification when confidence is low.
     *   **Constraint Discovery:** Identifies and formalizes both explicit constraints (e.g., 
 "A > B") and implicit constraints (e.g., "variables must be non-negative") that govern the problem space.
 *   **Data Interfaces:**
@@ -78,7 +80,10 @@ This engine acts as PolyaBrain's critical filter, ensuring the integrity and rel
 This engine is the core of PolyaBrain's "Devise a Plan" capability, translating understanding into actionable strategies.
 
 *   **Functionality:**
-    *   **First-Principles Thinking:** Utilizes advanced LLMs (e.g., GPT-4o, Claude 3.5 Sonnet) to decompose complex problems into fundamental components and reason from basic truths rather than analogies.
+    *   **First-Principles Thinking:** Utilizes advanced LLMs (e.g., GPT-4o, Claude 3.5 Sonnet) to decompose complex problems into fundamental components and reason from basic truths rather than relying on analogies as proof.
+    *   **Knowledge-Rich Analogical Transfer:** Retrieves structurally similar past cases or strategies when analogy may help, then states what transfers, what does not, and what must be decomposed into first principles and verified.
+    *   **Divergent/Convergent Reasoning:** Generates multiple meaningfully different hypotheses or plans before ranking and pruning them against evidence, constraints, falsifiability, and verification cost.
+    *   **Reframe/Incubation Pass:** After initial evidence gathering, runs a bounded reframe pass to surface overlooked assumptions or alternative problem constructions. Any useful reframe must return through evidence evaluation and verification.
     *   **Plan Generation:** Generates a step-by-step, executable plan to solve the problem, taking into account the formalized problem statement, validated knowledge, and available tools.
     *   **Procedural Memory Integration:** Queries the Procedural Memory (Graph Database) to retrieve relevant problem-solving strategies, algorithms, and heuristics that have proven effective in similar contexts.
     *   **Hypothesis Formulation:** For uncertain or novel situations, it generates multiple hypotheses or alternative plans, each with an associated confidence level.
@@ -108,6 +113,7 @@ PolyaBrain does not assume success; it rigorously verifies every outcome. This e
 
 *   **Functionality:**
     *   **Output Validation:** Compares the raw execution results against the expected outcomes and original problem constraints. This can involve numerical checks, semantic comparisons (using LLMs), or logical assertions.
+    *   **Mode-Specific Checklists:** Applies different required checks for technical research, debugging/root-cause analysis, architecture tradeoffs, data analysis, ambiguous input, and creative synthesis.
     *   **Hypothesis Testing:** For problems with multiple hypotheses, it actively generates additional test cases or searches for counter-examples to rigorously validate the chosen solution. This can involve generating adversarial inputs or edge cases.
     *   **Semantic Verification:** Utilizes LLMs to semantically evaluate the correctness and completeness of qualitative or open-ended solutions.
     *   **Failure Analysis:** If verification fails, it performs an initial analysis to pinpoint the stage of failure (e.g., incorrect plan, execution error, faulty data) and provides feedback to the Orchestration Layer, potentially triggering a replanning or re-acquisition loop.

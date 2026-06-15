@@ -87,7 +87,7 @@ Expected Polya loop:
 
 - Understand: identify target audience and learning context.
 - Knowledge gaps: ask whether the goal is K-12, college, professional, or self-learning.
-- Plan: generate multiple distinct ideas and evaluation criteria.
+- Plan: generate multiple distinct ideas, retrieve analogous product patterns, and define evaluation criteria.
 - Execute: describe each idea with workflow, user value, and feasibility.
-- Verify: compare ideas against constraints and implementation cost.
-- Reflect: store reusable ideation and feasibility-scoring patterns.
+- Verify: compare ideas against constraints, implementation cost, evidence, and risks.
+- Reflect: store reusable ideation, analogy-transfer, and feasibility-scoring patterns.

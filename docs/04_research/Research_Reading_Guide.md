@@ -45,6 +45,7 @@ The MVP starts simpler:
 
 - `Concept_to_Code.md`: useful for research, verification, reflection, secure execution, and long-term product ideas.
 - `Polya_Principles_to_Practice.md`: useful for domain-agnostic thinking, benchmarks, creative synthesis, and long-term multi-agent concepts.
+- `Creative_Problem_Solving_Product_Translation.md`: useful for implementing divergent/convergent hypothesis handling, analogical transfer, bounded reframing, and trace-visible reasoning modes without turning the product into a neuroscience simulation.
 
 ## Practical Reading Order
 
