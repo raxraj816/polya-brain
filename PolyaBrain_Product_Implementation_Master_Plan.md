@@ -75,6 +75,12 @@ MVP architecture:
 - Docker Compose locally.
 - Cloud deployment only after the end-to-end loop works locally.
 
+Before investing in the full platform shell, run a pre-platform proof harness for
+the technical investigation wedge. The harness should produce trace, evidence,
+hypotheses, verification checklist, report, and direct LLM baseline comparison
+artifacts from one local command. This proof does not replace the MVP
+architecture; it prevents infrastructure from outrunning validated product value.
+
 Add Neo4j, Kubernetes, model fine-tuning, multi-agent debate, and separate microservices only after the MVP proves value.
 
 ### 3.2 Map the Nine Engines Into Buildable Modules

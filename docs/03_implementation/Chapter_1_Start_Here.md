@@ -28,6 +28,11 @@ Problem input -> representation -> constraints -> gaps -> evidence/tools -> hypo
 
 The first milestone is not a perfect engine. The first milestone is one traceable, verified, end-to-end run.
 
+Before building the full platform shell, run the pre-platform proof harness for
+the technical investigation wedge. The harness must produce local file artifacts
+for trace, evidence, hypotheses, verification, report, and a direct LLM baseline
+comparison.
+
 ## First 10 Chapters
 
 Follow the master plan exactly:

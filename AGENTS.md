@@ -75,6 +75,8 @@ The first product wedge is a technical investigation workbench for founders, eng
 
 The wedge is only valid if its overhead is lower than the value it creates. A real user should prefer running a hard technical problem through PolyaBrain a second time instead of defaulting back to manual investigation, Cursor, generic chat, and scattered research.
 
+Before investing in full-stack polish or infrastructure, prove the investigation loop locally against a direct LLM baseline. A CLI/script that produces trace, evidence, hypotheses, checks, and report artifacts is enough for this proof. Add Postgres, Redis, and frontend polish only after the loop shows value beyond a normal model answer.
+
 ## Architecture Defaults
 
 Use the current MVP defaults unless the master plan is intentionally updated:
@@ -162,6 +164,7 @@ Do not turn PolyaBrain into:
 ## Development Rules
 
 - Prefer the existing docs and architecture decisions over inventing new direction.
+- When creating a feature branch from `develop`, name it with the `feature/` prefix unless the user explicitly requests a different branch name.
 - Keep changes scoped to the current chapter or requested task.
 - Preserve user changes. Do not revert unrelated work.
 - Do not commit secrets, tokens, private data, or real PII.

@@ -1,0 +1,62 @@
+{
+  "case_constraints_checked": [
+    "No autonomous production changes",
+    "No new infrastructure unless the bottleneck evidence justifies it",
+    "The recommendation must include verification steps",
+    "The report must preserve uncertainty and evidence against the chosen action"
+  ],
+  "checks_run": [
+    {
+      "description": "Final report includes all required audit sections.",
+      "deterministic": true,
+      "id": "check_required_sections",
+      "result": "passed"
+    },
+    {
+      "description": "Every evidence item includes source_type, source_uri, claim, reliability_score, and relevance_score.",
+      "deterministic": true,
+      "id": "check_source_metadata",
+      "result": "passed"
+    },
+    {
+      "description": "Hypotheses do not use novelty_score as a core MVP field.",
+      "deterministic": true,
+      "id": "check_no_novelty_score",
+      "result": "passed"
+    },
+    {
+      "description": "Evidence against the selected action is explicitly listed before recommendation.",
+      "deterministic": true,
+      "id": "check_contradictions",
+      "result": "passed"
+    },
+    {
+      "description": "New Redis infrastructure is not recommended before bottleneck verification.",
+      "deterministic": true,
+      "id": "check_architecture_change_gate",
+      "result": "passed"
+    }
+  ],
+  "confidence_delta": 0.12,
+  "contradictions": [
+    {
+      "description": "Caching could help read-heavy traffic, but current evidence points to query shape as the safer first test.",
+      "evidence_ids": [
+        "ev_cache_estimate",
+        "ev_query_log",
+        "ev_profile"
+      ]
+    }
+  ],
+  "failed_checks": [],
+  "mode_specific_checklist": [
+    "Confirm dominant latency component",
+    "Check for contradictory evidence",
+    "Prefer reversible local test before infrastructure change",
+    "Define falsification criteria",
+    "Report uncertainty and next checks"
+  ],
+  "passed": true,
+  "recommended_route": "execute_query_shape_experiment_before_cache",
+  "selected_hypothesis_id": "h_n_plus_one"
+}
