@@ -38,6 +38,29 @@ Until those are answered, implementation should default to a narrow beachhead wh
 
 The product must also pass the overhead test: the time and effort required to use PolyaBrain must be lower than the value of the clarity, evidence, checks, and report it returns. The strongest signal is whether a real technical user chooses to bring a second hard problem to PolyaBrain.
 
+## Pre-Platform Proof Gate
+
+Before investing in the full FastAPI/Postgres/Redis/Next.js platform, prove the loop with a local technical investigation prototype.
+
+Deliver:
+
+- One runnable local command or script for a realistic technical investigation case.
+- File-based outputs: trace, evidence, hypotheses, verification checklist, and final report.
+- A direct LLM baseline on the same case.
+- At least one deterministic/non-LLM check, such as required evidence sections, source metadata presence, contradiction checklist completion, calculator/table check, or artifact search.
+
+Success:
+
+- The PolyaBrain loop produces a clearer, more trustworthy, or lower-overhead investigation artifact than the direct LLM baseline.
+- If it does not, simplify or improve the loop before adding platform infrastructure.
+
+Current executable proof:
+
+```bash
+python3 proofs/pre_platform/run_pre_platform_proof.py --clean
+python3 proofs/pre_platform/verify_pre_platform_proof.py
+```
+
 ## Recommended First Wedge
 
 Build the core platform through one high-value workflow first:

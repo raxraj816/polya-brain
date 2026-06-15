@@ -75,6 +75,8 @@ The first product wedge is a technical investigation workbench for founders, eng
 
 The wedge is only valid if its overhead is lower than the value it creates. A real user should prefer running a hard technical problem through PolyaBrain a second time instead of defaulting back to manual investigation, Cursor, generic chat, and scattered research.
 
+Before investing in full-stack polish or infrastructure, prove the investigation loop locally against a direct LLM baseline. A CLI/script that produces trace, evidence, hypotheses, checks, and report artifacts is enough for this proof. Add Postgres, Redis, and frontend polish only after the loop shows value beyond a normal model answer.
+
 ## Architecture Defaults
 
 Use the current MVP defaults unless the master plan is intentionally updated:
