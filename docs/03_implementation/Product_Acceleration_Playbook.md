@@ -36,6 +36,8 @@ The MVP must answer three questions:
 
 Until those are answered, implementation should default to a narrow beachhead while keeping the core loop domain-agnostic.
 
+The product must also pass the overhead test: the time and effort required to use PolyaBrain must be lower than the value of the clarity, evidence, checks, and report it returns. The strongest signal is whether a real technical user chooses to bring a second hard problem to PolyaBrain.
+
 ## Recommended First Wedge
 
 Build the core platform through one high-value workflow first:
@@ -151,6 +153,7 @@ Track these metrics every week:
 - Number of repeated problems improved by memory.
 - Number of real user problems attempted.
 - Number of users who would use it again.
+- Number of cases where users report PolyaBrain was lower-overhead or more trustworthy than their manual workflow.
 
 If a metric is not visible, add instrumentation before adding new intelligence features.
 

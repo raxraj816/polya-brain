@@ -73,6 +73,8 @@ Problem input
 
 The first product wedge is a technical investigation workbench for founders, engineers, researchers, and technical product builders.
 
+The wedge is only valid if its overhead is lower than the value it creates. A real user should prefer running a hard technical problem through PolyaBrain a second time instead of defaulting back to manual investigation, Cursor, generic chat, and scattered research.
+
 ## Architecture Defaults
 
 Use the current MVP defaults unless the master plan is intentionally updated:
