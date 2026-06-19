@@ -11,13 +11,37 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch closes the Chapter 1 foundation gate with a verified pre-platform proof harness.
+This branch implements the Chapter 3 local development environment on top of
+the verified pre-platform proof harness.
 
 What runs today:
 
 ```bash
 ./polyabrain investigate "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?" --clean
 python3 proofs/pre_platform/verify_pre_platform_proof.py --run-dir proofs/pre_platform/runs/our_api_p95_latency_jumped_after_deploy
+```
+
+Start the backend locally:
+
+```bash
+make dev
+curl http://127.0.0.1:8000/health
+```
+
+Run the local checks:
+
+```bash
+make lint
+make test
+make proof
+```
+
+Start the containerized local stack:
+
+```bash
+make docker-up
+make migrate
+make docker-down
 ```
 
 Verify all stored proof runs:
@@ -48,10 +72,10 @@ The system must preserve uncertainty and say when evidence is insufficient.
 ## Repository Layout
 
 ```text
-backend/      Future Python/FastAPI backend and Polya loop engines.
+backend/      Python/FastAPI backend package, health route, Alembic scaffold.
 frontend/     Future Next.js investigation workbench UI.
-infra/        Future Docker Compose and infrastructure files.
-scripts/      Local developer scripts.
+infra/        Infrastructure notes; Docker Compose lives at repo root.
+scripts/      Local developer scripts and notes.
 evals/        Future benchmark and evaluation runners.
 docs/         Vision, architecture, implementation, examples, and research notes.
 proofs/       Executable pre-platform proof harness and generated proof artifacts.
@@ -74,12 +98,14 @@ When documents disagree, follow `PolyaBrain_Product_Implementation_Master_Plan.m
 
 ## Local Setup
 
-No platform services are required for the current proof harness.
+The proof harness runs without platform services. The Chapter 3 backend runs
+locally with Python, and the full local service stack runs with Docker Compose.
 
 Requirements:
 
 - Python 3.11+
 - Bash-compatible shell
+- Docker, for Postgres, Redis, and backend composition
 
 Optional:
 
@@ -100,13 +126,14 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapter 1 closes when the product direction is locked, repository foundation is clear, setup is visible, no secrets are committed, and a new developer can understand what runs locally.
+Chapters 1, 2, and 3 are complete on the active chapter branch. Chapter 4 is the
+next implementation target.
 
 The next chapters are:
 
-1. Chapter 2: architecture decisions and risk register.
-2. Chapter 3: local development environment.
-3. Chapter 4: database baseline.
-4. Chapter 5: core Pydantic models.
+1. Chapter 4: database baseline.
+2. Chapter 5: core Pydantic models.
+3. Chapter 6: LangGraph state object.
+4. Chapter 7: engine interface contract.
 
 See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.

@@ -7,3 +7,8 @@ The implementation source of truth remains at:
 This avoids maintaining two copies of the chapter-by-chapter plan. Add implementation notes here only when they clarify the master plan without changing its decisions.
 
 Start with `Chapter_1_Start_Here.md` before beginning implementation.
+
+Current chapter notes:
+
+- `Chapter_Backlog.md`
+- `Chapter_3_Local_Development_Environment.md`
