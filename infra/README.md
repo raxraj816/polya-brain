@@ -1,11 +1,22 @@
 # Infra
 
-Future local and deployment infrastructure for PolyaBrain.
+Local and deployment infrastructure notes for PolyaBrain.
 
-Planned contents:
+Chapter 3 adds the local Docker Compose stack at the repository root:
 
-- Docker Compose for local Postgres, Redis, and backend.
-- Database initialization helpers.
-- Later cloud deployment assets after the local loop proves value.
+- `postgres`: Postgres with pgvector.
+- `redis`: runtime cache and future streaming state support.
+- `backend`: FastAPI backend container.
+
+Run from the repository root:
+
+```bash
+make docker-up
+make migrate
+make docker-down
+```
+
+Later infrastructure assets should stay boring until the local investigation
+loop proves product value.
 
 Keep infrastructure boring until the investigation loop is useful.

@@ -45,13 +45,44 @@ Exit criteria:
 
 ## Chapter 3: Local Development Environment
 
+Status: complete on `feature/chapter-3-local-dev-env`.
+
+Done:
+
+- Create Python backend package and dependency files.
+- Added FastAPI, Pydantic v2, SQLAlchemy, Alembic, pytest, ruff, mypy, LangGraph, Redis client, and Postgres driver.
+- Added Docker Compose for Postgres with pgvector, Redis, and backend.
+- Added Makefile commands for setup, dev, test, lint, format, typecheck, migrate, Docker up/down, and proof verification.
+- Added `/health` endpoint with typed response and tests.
+- Added GitHub Actions CI for lint, tests, and proof verification.
+- Added Alembic scaffold without Chapter 4 schema migrations.
+- Updated backend, infra, README, and implementation notes for Chapter 3.
+
+Verification:
+
+- `make lint`
+- `make test`
+- `make proof`
+- `make dev` plus `curl http://127.0.0.1:8000/health`
+- `docker compose config --quiet`
+- `make docker-up` plus `curl http://127.0.0.1:8000/health`
+- `make migrate`
+- `make docker-down`
+
+Exit criteria:
+
+- `make dev` starts the backend locally.
+- `make test` passes.
+- CI lint and test workflow exists for a clean checkout.
+
+## Chapter 4: Database Baseline
+
 Status: not started.
 
 Planned:
 
-- Create Python backend package and dependency files.
-- Add FastAPI, Pydantic, SQLAlchemy, Alembic, pytest, ruff, mypy, LangGraph, Redis client, and Postgres driver.
-- Add Docker Compose for Postgres, Redis, and backend.
-- Add Makefile commands for dev, test, lint, and migrate.
-- Add `/health`.
-- Add CI lint and test workflow.
+- Create first durable database models and migrations.
+- Enable and verify `pgvector`.
+- Add tables from the core contract surface.
+- Add local seed script.
+- Add migration tests and sample session insert/retrieve check.
