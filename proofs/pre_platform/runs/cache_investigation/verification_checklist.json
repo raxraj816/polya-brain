@@ -25,38 +25,36 @@
       "result": "passed"
     },
     {
-      "description": "Evidence against the selected action is explicitly listed before recommendation.",
+      "description": "Evidence against or uncertainty is explicitly listed before recommendation.",
       "deterministic": true,
       "id": "check_contradictions",
       "result": "passed"
     },
     {
-      "description": "New Redis infrastructure is not recommended before bottleneck verification.",
+      "description": "Permanent architecture or production changes are not recommended before verification.",
       "deterministic": true,
-      "id": "check_architecture_change_gate",
+      "id": "check_irreversible_change_gate",
       "result": "passed"
     }
   ],
-  "confidence_delta": 0.12,
+  "confidence_delta": 0.1,
   "contradictions": [
     {
-      "description": "Caching could help read-heavy traffic, but current evidence points to query shape as the safer first test.",
+      "description": "The selected path is plausible, but current evidence is incomplete and must be verified before irreversible action.",
       "evidence_ids": [
-        "ev_cache_estimate",
-        "ev_query_log",
-        "ev_profile"
+        "ev_cache_estimate"
       ]
     }
   ],
   "failed_checks": [],
   "mode_specific_checklist": [
-    "Confirm dominant latency component",
+    "Confirm dominant failure mode",
     "Check for contradictory evidence",
-    "Prefer reversible local test before infrastructure change",
+    "Prefer a reversible diagnostic before a permanent fix",
     "Define falsification criteria",
     "Report uncertainty and next checks"
   ],
   "passed": true,
-  "recommended_route": "execute_query_shape_experiment_before_cache",
+  "recommended_route": "run_reversible_diagnostic_check",
   "selected_hypothesis_id": "h_n_plus_one"
 }

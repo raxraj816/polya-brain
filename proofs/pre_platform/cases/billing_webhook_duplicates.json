@@ -1,0 +1,13 @@
+{
+  "case_id": "billing_webhook_duplicates",
+  "title": "Investigate duplicate billing webhooks before blaming provider retries",
+  "mode": "investigate",
+  "problem_type": "technical_investigation",
+  "raw_problem": "Some customers were charged twice after billing webhooks retried during a provider incident. The first proposal is to disable retries. Should we disable provider retries or verify idempotency handling first?",
+  "recommended_next_action": "Audit webhook event ids against charge creation ids, add an idempotency assertion in a replay test, and only change retry settings after proving duplicate handling is safe.",
+  "open_questions": [
+    "Were duplicate events processed with the same provider event id?",
+    "Does the handler persist idempotency before or after creating the charge?",
+    "Can replaying the same event twice create more than one internal charge?"
+  ]
+}
