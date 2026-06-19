@@ -37,3 +37,48 @@ jobs:
 
       - name: Verify pre-platform proof artifacts
         run: make proof
+
+  database-baseline:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: polyabrain
+          POSTGRES_USER: polyabrain
+          POSTGRES_PASSWORD: polyabrain
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U polyabrain -d polyabrain"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://polyabrain:polyabrain@localhost:5432/polyabrain
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Run migrations
+        run: make migrate
+
+      - name: Run database integration tests
+        run: make db-test
+
+      - name: Run database smoke check
+        run: make db-smoke

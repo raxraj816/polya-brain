@@ -11,8 +11,8 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch implements the Chapter 3 local development environment on top of
-the verified pre-platform proof harness.
+This branch implements the Chapter 4 database baseline on top of the Chapter 3
+local development environment and the verified pre-platform proof harness.
 
 What runs today:
 
@@ -41,8 +41,13 @@ Start the containerized local stack:
 ```bash
 make docker-up
 make migrate
+make db-smoke
+make db-test
 make docker-down
 ```
+
+`make db-smoke` verifies the Chapter 4 schema and inserts local seed data only in
+local/test environments or with `POLYABRAIN_ALLOW_DB_SEED=1`.
 
 Verify all stored proof runs:
 
@@ -72,7 +77,7 @@ The system must preserve uncertainty and say when evidence is insufficient.
 ## Repository Layout
 
 ```text
-backend/      Python/FastAPI backend package, health route, Alembic scaffold.
+backend/      Python/FastAPI backend, health route, Alembic, DB models, seed/smoke checks.
 frontend/     Future Next.js investigation workbench UI.
 infra/        Infrastructure notes; Docker Compose lives at repo root.
 scripts/      Local developer scripts and notes.
@@ -98,8 +103,8 @@ When documents disagree, follow `PolyaBrain_Product_Implementation_Master_Plan.m
 
 ## Local Setup
 
-The proof harness runs without platform services. The Chapter 3 backend runs
-locally with Python, and the full local service stack runs with Docker Compose.
+The proof harness runs without platform services. The backend runs locally with
+Python, and the full local service stack runs with Docker Compose.
 
 Requirements:
 
@@ -126,14 +131,14 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, and 3 are complete on the active chapter branch. Chapter 4 is the
-next implementation target.
+Chapters 1, 2, 3, and 4 are complete on the active chapter branch. Chapter 5 is
+the next implementation target.
 
 The next chapters are:
 
-1. Chapter 4: database baseline.
-2. Chapter 5: core Pydantic models.
-3. Chapter 6: LangGraph state object.
-4. Chapter 7: engine interface contract.
+1. Chapter 5: core Pydantic models.
+2. Chapter 6: LangGraph state object.
+3. Chapter 7: engine interface contract.
+4. Chapter 8: graph skeleton.
 
 See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.

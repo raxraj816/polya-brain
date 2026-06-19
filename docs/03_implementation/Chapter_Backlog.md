@@ -77,12 +77,56 @@ Exit criteria:
 
 ## Chapter 4: Database Baseline
 
+Status: complete on `feature/chapter-4-database-baseline`.
+
+Done:
+
+- Converted shared SQLAlchemy metadata into a SQLAlchemy 2.0 declarative base.
+- Added `pgvector` dependency for SQLAlchemy vector support.
+- Added Alembic migration `20260620_0001` enabling the Postgres `vector` extension.
+- Added durable MVP tables for sessions, structured problems, knowledge gaps,
+  evidence items, hypotheses, plan tasks, reasoning events, verification reports,
+  artifacts, and semantic knowledge chunks.
+- Added nullable `VECTOR(1536)` storage for `knowledge_chunks.embedding`.
+- Added explicit embedding provenance columns on semantic knowledge chunks.
+- Added local seed and smoke utilities.
+- Guarded smoke seeding to local/test environments or explicit override.
+- Linked seed evidence, hypothesis, and knowledge-gap records so the fixture
+  exercises evidence-backed reasoning relationships.
+- Added Makefile targets for `db-seed`, `db-smoke`, and `db-test`.
+- Added DB integration test gated by `POLYABRAIN_RUN_DB_TESTS=1`.
+- Added GitHub Actions database baseline job using `pgvector/pgvector:pg16`.
+- Updated backend, README, and implementation notes for Chapter 4.
+
+Verification:
+
+- `make lint`
+- `make test`
+- `make proof`
+- `docker compose config --quiet`
+- `make docker-up`
+- `make migrate`
+- `make db-smoke`
+- `make db-test`
+
+Exit criteria:
+
+- `pgvector` is enabled and verified.
+- First durable MVP tables exist through Alembic.
+- Seed and smoke checks prove sample session, evidence, trace, artifact, and
+  vector-backed knowledge chunk insert/retrieve.
+- Seed and smoke checks prove evidence-to-hypothesis linkage and embedding
+  provenance storage.
+
+## Chapter 5: Core Pydantic Models
+
 Status: not started.
 
 Planned:
 
-- Create first durable database models and migrations.
-- Enable and verify `pgvector`.
-- Add tables from the core contract surface.
-- Add local seed script.
-- Add migration tests and sample session insert/retrieve check.
+- Define first-class Pydantic v2 models for the core contract surface.
+- Add value validation for modes, statuses, risk levels, and reasoning modes.
+- Decide whether structured problem representation is one mutable current state
+  per session or a versioned representation history.
+- Add serialization tests and contract fixtures.
+- Align API and engine-facing interfaces to these contracts before graph work.

@@ -12,3 +12,4 @@ Current chapter notes:
 
 - `Chapter_Backlog.md`
 - `Chapter_3_Local_Development_Environment.md`
+- `Chapter_4_Database_Baseline.md`
