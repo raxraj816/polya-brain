@@ -12,6 +12,9 @@ This folder is organized so implementation can start from a small, stable workin
 - MVP architecture decisions: `01_architecture/MVP_Architecture_Decisions.md`
 - Engine contracts: `01_architecture/Nine_Engine_Framework.md`
 - Core data contracts: `01_architecture/Core_Data_Contracts.md`
+- Chapter 2 architecture decisions: `architecture_decisions.md`
+- Chapter 2 risk register: `risk_register.md`
+- ADR template: `adr/0000-template.md`
 - Stateful loop: `01_architecture/Stateful_Polya_Loop.md`
 - Examples and benchmark inspiration: `02_examples_and_benchmarks/Problem_Solving_Examples.md`
 - Benchmark categories: `02_examples_and_benchmarks/Benchmark_Categories.md`
