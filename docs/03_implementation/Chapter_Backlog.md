@@ -27,15 +27,21 @@ Exit criteria:
 
 ## Chapter 2: Architecture Decisions And Risk Register
 
-Status: not started.
+Status: complete on `develop`.
 
-Planned:
+Done:
 
-- Add `docs/architecture_decisions.md`.
-- Add `docs/risk_register.md`.
-- Add a lightweight ADR template.
-- Record the reasons for Python monolith first, Postgres plus pgvector first, LangGraph orchestration, core-first architecture, and mixed benchmark suite.
-- Document mitigations for hallucination, bad data, LLM cost, PII leakage, tool misuse, infinite loops, and poor UX trust.
+- Added `docs/architecture_decisions.md`.
+- Added `docs/risk_register.md`.
+- Added lightweight ADR template at `docs/adr/0000-template.md`.
+- Recorded reasons for PolyaBrain core-first architecture, Python/FastAPI modular monolith first, Postgres plus pgvector first, LangGraph orchestration, Redis runtime support, Next.js workbench UI, use-case pack boundaries, typed contracts and stage gates, reasoning versioning, tool registry safety, mixed benchmark categories, and the pre-platform proof as a regression anchor.
+- Documented mitigations, owners, signals, verification paths, and residual risks for hallucination, bad data, LLM cost, PII leakage, tool misuse, infinite loops, poor UX trust, scope creep, benchmark skew, provider dependency failure, and secrets/configuration mistakes.
+- Updated docs map with the Chapter 2 artifacts.
+
+Exit criteria:
+
+- Every major architecture choice has a reason.
+- Every critical risk has an owner and mitigation.
 
 ## Chapter 3: Local Development Environment
 
