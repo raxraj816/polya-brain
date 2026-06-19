@@ -21,6 +21,12 @@
     "The recommendation must include verification steps",
     "The report must preserve uncertainty and evidence against the chosen action"
   ],
+  "recommended_next_action": "Run a reversible query-shape experiment: add a query-count assertion, batch/eager-load account details, replay representative dashboard requests, and compare p95 latency before introducing Redis.",
+  "open_questions": [
+    "What is p95 latency after replacing repeated account detail queries with a batch/eager-load query?",
+    "Does a larger traffic sample confirm the 30% cache-hit estimate?",
+    "Which invalidation paths are required to preserve the five-minute dashboard freshness constraint?"
+  ],
   "evidence": [
     {
       "id": "ev_query_log",

@@ -1,0 +1,86 @@
+[
+  {
+    "analogical_source_ids": [
+      "pattern_separate_leak_from_load_spike"
+    ],
+    "confidence": 0.62,
+    "evidence_against": [
+      "ev_change_risk"
+    ],
+    "evidence_for": [
+      "ev_user_problem",
+      "ev_missing_measurements"
+    ],
+    "expected_signals": [
+      "A small diagnostic check identifies the dominant component of the failure",
+      "The selected fix becomes measurable before implementation",
+      "Contradictory evidence is recorded before the recommendation is finalized"
+    ],
+    "falsification_criteria": [
+      "Direct measurements show a different dominant failure mode",
+      "The diagnostic check does not change confidence or narrow the solution path"
+    ],
+    "id": "h_resource_growth",
+    "mechanism": "The prompt contains a symptom and likely fix pressure, but not enough measured evidence to safely choose a permanent solution.",
+    "origin": "direct_reasoning",
+    "selection_rationale": "It minimizes irreversible work and converts the unknown into a measurable investigation step.",
+    "statement": "The issue may be resource growth under load, so memory and queue behavior should be measured before scaling.",
+    "status": "selected",
+    "verification_checks": [
+      "Collect the smallest log, metric, trace, or reproduction artifact that isolates the failure mode",
+      "Define a falsification criterion before changing architecture or production behavior",
+      "Compare the proposed fix against at least one plausible alternative"
+    ]
+  },
+  {
+    "analogical_source_ids": [],
+    "confidence": 0.31,
+    "evidence_against": [
+      "ev_missing_measurements",
+      "ev_change_risk"
+    ],
+    "evidence_for": [
+      "ev_user_problem"
+    ],
+    "expected_signals": [
+      "The symptom has a known direct cause",
+      "The fix is reversible and low risk"
+    ],
+    "falsification_criteria": [
+      "The fix does not address the measured dominant component"
+    ],
+    "id": "h_apply_obvious_fix",
+    "mechanism": "The reported symptom may directly point to a common fix.",
+    "origin": "divergent_hypothesis_pass",
+    "selection_rationale": "Possible, but too weak to choose before evidence collection.",
+    "statement": "Apply the first obvious fix suggested by the symptom.",
+    "status": "deferred",
+    "verification_checks": [
+      "Check whether the proposed fix directly targets the measured failure mode"
+    ]
+  },
+  {
+    "analogical_source_ids": [],
+    "confidence": 0.18,
+    "evidence_against": [
+      "ev_missing_measurements"
+    ],
+    "evidence_for": [],
+    "expected_signals": [
+      "Dependency latency or error rate changed at the same time",
+      "The issue disappears without code or configuration changes"
+    ],
+    "falsification_criteria": [
+      "Internal traces explain the issue without dependency anomalies"
+    ],
+    "id": "h_external_or_random_noise",
+    "mechanism": "External systems and transient incidents can create similar symptoms.",
+    "origin": "divergent_hypothesis_pass",
+    "selection_rationale": "Worth checking, but unsupported by the current prompt.",
+    "statement": "The problem is caused by an external dependency or random transient noise.",
+    "status": "rejected",
+    "verification_checks": [
+      "Compare dependency metrics and incident timelines against the observed symptom"
+    ]
+  }
+]

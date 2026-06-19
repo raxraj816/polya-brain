@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""Local PolyaBrain CLI entrypoint."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from proofs.pre_platform.core import DEFAULT_OPENAI_MODEL, DEFAULT_OUTPUT_ROOT, run_from_case_path, run_from_problem
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(prog="polyabrain", description="Run local PolyaBrain proof workflows.")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    investigate = subparsers.add_parser(
+        "investigate",
+        description="Investigate a technical problem and write an auditable artifact bundle.",
+    )
+    investigate.add_argument("problem", nargs="*", help="Problem statement to investigate.")
+    investigate.add_argument("--case", type=Path, help="Run a curated JSON case instead of free-form input.")
+    investigate.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
+    investigate.add_argument("--run-id", help="Output directory name. Defaults to a slug derived from the problem or case.")
+    investigate.add_argument("--clean", action="store_true", help="Delete the target run directory before writing artifacts.")
+    investigate.add_argument(
+        "--baseline-provider",
+        choices=["auto", "template", "openai"],
+        default="auto",
+        help="Use OpenAI when available, a local direct-answer template, or auto-select.",
+    )
+    investigate.add_argument("--baseline-model", default=DEFAULT_OPENAI_MODEL)
+    investigate.add_argument("--baseline-timeout-seconds", type=float, default=30)
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    try:
+        if args.command == "investigate":
+            if args.case:
+                run_dir = run_from_case_path(
+                    case_path=args.case,
+                    output_root=args.output_root,
+                    clean=args.clean,
+                    baseline_provider=args.baseline_provider,
+                    baseline_path=None,
+                    baseline_model=args.baseline_model,
+                    baseline_timeout_seconds=args.baseline_timeout_seconds,
+                    run_id=args.run_id,
+                )
+            else:
+                problem = " ".join(args.problem).strip()
+                if not problem:
+                    raise SystemExit("polyabrain investigate requires a problem string or --case")
+                run_dir = run_from_problem(
+                    problem=problem,
+                    output_root=args.output_root,
+                    clean=args.clean,
+                    baseline_provider=args.baseline_provider,
+                    baseline_model=args.baseline_model,
+                    baseline_timeout_seconds=args.baseline_timeout_seconds,
+                    run_id=args.run_id,
+                )
+            print(f"Wrote PolyaBrain investigation artifacts to {run_dir}")
+    except RuntimeError as exc:
+        print(f"polyabrain: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
+
+
+if __name__ == "__main__":
+    main()

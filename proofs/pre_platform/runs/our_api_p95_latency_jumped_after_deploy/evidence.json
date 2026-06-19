@@ -1,0 +1,29 @@
+[
+  {
+    "claim": "The user reports this technical problem: Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?",
+    "id": "ev_user_problem",
+    "raw_excerpt": "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?",
+    "relevance_score": 0.95,
+    "reliability_score": 0.72,
+    "source_type": "user_input",
+    "source_uri": "cli:problem"
+  },
+  {
+    "claim": "The prompt does not include enough direct measurements to safely choose a permanent fix.",
+    "id": "ev_missing_measurements",
+    "raw_excerpt": "No complete before/after metrics, logs, reproduction steps, or falsification results were provided in the prompt.",
+    "relevance_score": 0.88,
+    "reliability_score": 0.8,
+    "source_type": "analysis",
+    "source_uri": "polya:gap-detection"
+  },
+  {
+    "claim": "The system should avoid rolling forward without isolating the release delta until the failure mode is verified.",
+    "id": "ev_change_risk",
+    "raw_excerpt": "PolyaBrain must prefer reversible checks and explicit evidence before architecture or production changes.",
+    "relevance_score": 0.83,
+    "reliability_score": 0.86,
+    "source_type": "constraint",
+    "source_uri": "polya:mvp-safety-rule"
+  }
+]

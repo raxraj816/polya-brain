@@ -1,10 +1,10 @@
-# Pre-Platform Proof Report: Investigate whether Redis caching is the right latency fix
+# PolyaBrain Investigation Report: Investigate whether Redis caching is the right latency fix
 
 ## Final conclusion
-Do not add Redis as the first fix yet. First run a query-shape experiment for the likely N+1 pattern, then reassess whether caching is still needed.
+The leading path is: The main bottleneck is an N+1 query pattern, so query consolidation should be tested before Redis. Do not treat this as final until the verification checks below are run.
 
 ## Confidence level
-Moderate-high (0.74). The dominant latency evidence is strong, but the final answer still depends on running the before/after experiment.
+Moderate (0.74). The recommendation is directionally useful, but the evidence is still incomplete until checks are run.
 
 ## Evidence used
 - `ev_query_log` (artifact:fixtures/query-log-summary.txt): The dashboard request performs 51 account detail queries after one initial account list query.
@@ -12,14 +12,14 @@ Moderate-high (0.74). The dominant latency evidence is strong, but the final ans
 
 ## Evidence against
 - `ev_cache_estimate` (analysis:fixtures/cache-hit-estimate.md): A first Redis cache is estimated at only 30% hit rate because users often view distinct account sets.
-- Redis may still be useful after the query-shape fix, especially if measured hit rate improves.
+- A different failure mode may explain the symptom once direct measurements are collected.
 
 ## Checks performed
 - Final report includes all required audit sections.
 - Every evidence item includes source_type, source_uri, claim, reliability_score, and relevance_score.
 - Hypotheses do not use novelty_score as a core MVP field.
-- Evidence against the selected action is explicitly listed before recommendation.
-- New Redis infrastructure is not recommended before bottleneck verification.
+- Evidence against or uncertainty is explicitly listed before recommendation.
+- Permanent architecture or production changes are not recommended before verification.
 
 ## Open questions
 - What is p95 latency after replacing repeated account detail queries with a batch/eager-load query?
@@ -30,12 +30,12 @@ Moderate-high (0.74). The dominant latency evidence is strong, but the final ans
 Run a reversible query-shape experiment: add a query-count assertion, batch/eager-load account details, replay representative dashboard requests, and compare p95 latency before introducing Redis.
 
 ## Audit trace
-- `explore` / `problem_representation`: Parsed the raw latency question into a technical investigation about whether caching is the right first fix.
-- `reframe` / `problem_representation`: Reframed 'Should we add Redis?' into 'What verified bottleneck should we address first?'
-- `compare` / `evidence_evaluation`: Compared query logs, profile data, cache hit estimate, freshness constraint, and an analogical pattern.
+- `explore` / `problem_representation`: Parsed the input into a technical_investigation run.
+- `reframe` / `problem_representation`: Separated the reported symptom from the safest verified next action.
+- `compare` / `evidence_evaluation`: Compared supplied evidence, missing measurements, constraints, and analogical patterns.
 - `compare` / `hypothesis_reasoning`: Generated 3 candidate explanations and selected h_n_plus_one as the best-supported next path.
-- `verify` / `verification`: Created a technical investigation checklist with contradiction and architecture-change checks.
-- `reflect` / `reflection_memory`: Recorded that infrastructure should follow bottleneck evidence, not precede it.
+- `verify` / `verification`: Created a technical investigation checklist with contradiction and irreversible-change checks.
+- `reflect` / `reflection_memory`: Recorded that the next product step should convert uncertainty into measured evidence.
 
 ## Hypotheses considered
 - `h_n_plus_one` [selected] confidence=0.74: The main bottleneck is an N+1 query pattern, so query consolidation should be tested before Redis.

@@ -1,6 +1,10 @@
 {
-  "baseline_kind": "static_direct_llm_baseline_fixture",
-  "baseline_note": "This fixture represents a direct model-style answer for the same case. Refresh with live model output when an API-backed eval runner exists.",
+  "baseline_kind": "local_direct_answer_template",
+  "baseline_metadata": {
+    "provider": "template",
+    "reason": "OPENAI_API_KEY was not available or baseline_provider=template was selected."
+  },
+  "baseline_note": "The baseline is a direct answer for the same problem, without the PolyaBrain artifact contract.",
   "baseline_score": {
     "audit_signal_count": 0,
     "audit_signal_hits": [],
@@ -20,8 +24,8 @@
   "result": "polya_artifact_more_auditable",
   "why": [
     "PolyaBrain output has explicit evidence metadata.",
-    "PolyaBrain output separates evidence for and evidence against.",
+    "PolyaBrain output separates evidence for and evidence against or uncertainty.",
     "PolyaBrain output includes deterministic checks and an audit trace.",
-    "The baseline jumps to Redis before verifying the dominant bottleneck."
+    "PolyaBrain output avoids permanent action before verification."
   ]
 }

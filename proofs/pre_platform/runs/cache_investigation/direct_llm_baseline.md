@@ -1,12 +1,5 @@
-# Direct LLM Baseline: Cache Strategy Investigation
+# Direct LLM Baseline
 
-The likely best move is to add Redis caching for the slow endpoint because caches
-often reduce latency and take pressure off the database. Start with a simple
-read-through cache and set a short TTL so stale data risk is low.
+For this problem, a reasonable first answer is to investigate the most obvious likely cause and apply the common fix: Our account dashboard endpoint has p95 latency around 2.4s. A teammate wants to add Redis caching this sprint. Should we do that first, or investigate/fix something else?
 
-If the endpoint is still slow after adding Redis, inspect the database queries and
-indexes. You may also want to profile the request path and check whether external
-API calls are part of the latency.
-
-Recommended next step: prototype Redis caching for the endpoint and measure p95
-latency before and after.
+Recommended next step: inspect the relevant logs or metrics, try the likely fix in a safe environment, and measure whether the issue improves.

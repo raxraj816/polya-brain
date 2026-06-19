@@ -1,0 +1,13 @@
+{
+  "case_id": "memory_growth_worker",
+  "title": "Investigate worker memory growth before scaling",
+  "mode": "investigate",
+  "problem_type": "technical_investigation",
+  "raw_problem": "Our background worker RSS grows from 600MB to 3GB over six hours and then gets OOM-killed. The quick fix suggested is doubling pod memory. Should we scale memory now or find the root cause first?",
+  "recommended_next_action": "Run a bounded reproduction with heap/RSS sampling and queue-depth correlation, then compare memory growth on a fixed input batch against live traffic growth.",
+  "open_questions": [
+    "Does memory grow with processed job count, queue depth, payload size, or wall-clock time?",
+    "Is the growth in heap, native memory, buffers, or child processes?",
+    "Does memory return after GC or worker restart on a fixed-size batch?"
+  ]
+}

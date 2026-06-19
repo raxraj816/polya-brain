@@ -57,8 +57,25 @@ Success:
 Current executable proof:
 
 ```bash
+./polyabrain investigate "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?" --clean
+python3 proofs/pre_platform/verify_pre_platform_proof.py --run-dir proofs/pre_platform/runs/our_api_p95_latency_jumped_after_deploy
+```
+
+The original fixed proof case remains available:
+
+```bash
 python3 proofs/pre_platform/run_pre_platform_proof.py --clean
 python3 proofs/pre_platform/verify_pre_platform_proof.py
+```
+
+Curated technical cases can be generated and checked with:
+
+```bash
+./polyabrain investigate --case proofs/pre_platform/cases/deploy_healthcheck_regression.json --clean
+./polyabrain investigate --case proofs/pre_platform/cases/memory_growth_worker.json --clean
+./polyabrain investigate --case proofs/pre_platform/cases/search_ranking_drop.json --clean
+./polyabrain investigate --case proofs/pre_platform/cases/billing_webhook_duplicates.json --clean
+python3 proofs/pre_platform/verify_pre_platform_proof.py --all
 ```
 
 ## Recommended First Wedge

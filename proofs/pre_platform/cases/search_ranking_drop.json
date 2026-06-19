@@ -1,0 +1,13 @@
+{
+  "case_id": "search_ranking_drop",
+  "title": "Investigate search ranking drop before changing relevance logic",
+  "mode": "investigate",
+  "problem_type": "technical_investigation",
+  "raw_problem": "Product search conversion dropped after yesterday's catalog sync. The team wants to tune ranking weights immediately. Should we change ranking logic or inspect indexing and sync quality first?",
+  "recommended_next_action": "Check index freshness, missing fields, and top-query result diffs before changing ranking weights; only tune relevance after confirming the index pipeline is healthy.",
+  "open_questions": [
+    "Did catalog sync change field completeness, availability, or boosts?",
+    "Are top queries missing expected products or just ordered differently?",
+    "Does a replay against the previous index restore conversion-sensitive result sets?"
+  ]
+}

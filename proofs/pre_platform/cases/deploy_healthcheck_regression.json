@@ -1,0 +1,13 @@
+{
+  "case_id": "deploy_healthcheck_regression",
+  "title": "Investigate a deploy health-check regression",
+  "mode": "investigate",
+  "problem_type": "technical_investigation",
+  "raw_problem": "After the latest API deploy, Kubernetes readiness checks fail for about 40% of pods. A teammate wants to roll forward with a larger timeout. Should we increase the timeout or isolate the deploy change first?",
+  "recommended_next_action": "Compare the failing pod startup logs and config diff against the previous release, then run one canary with the suspected config reverted before changing readiness timeout globally.",
+  "open_questions": [
+    "Which release diff changed startup, dependency initialization, or readiness behavior?",
+    "Do failing pods eventually become healthy, or do they fail on a specific dependency?",
+    "Would reverting the suspected config restore readiness without increasing timeout?"
+  ]
+}
