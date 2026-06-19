@@ -6,7 +6,7 @@ UVICORN := $(VENV)/bin/uvicorn
 ALEMBIC := $(VENV)/bin/alembic
 INSTALL_STAMP := $(VENV)/.installed
 
-.PHONY: setup install dev test lint format typecheck migrate docker-up docker-down proof clean
+.PHONY: setup install dev test lint format typecheck migrate db-seed db-smoke db-test docker-up docker-down proof clean
 
 $(PYTHON_BIN):
 	$(PYTHON) -m venv $(VENV)
@@ -40,6 +40,15 @@ typecheck: setup
 
 migrate: setup
 	$(ALEMBIC) upgrade head
+
+db-seed: setup
+	$(PYTHON_BIN) -m app.db.seed
+
+db-smoke: setup
+	$(PYTHON_BIN) -m app.db.smoke
+
+db-test: setup
+	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py
 
 docker-up:
 	docker compose up --build --wait --wait-timeout 60

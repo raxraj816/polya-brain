@@ -2,12 +2,16 @@
 
 Python/FastAPI backend for the PolyaBrain Core Platform.
 
-Chapter 3 implements the local development shell:
+Chapters 3 and 4 implement the local development shell plus the first durable
+database baseline:
 
 - FastAPI app factory at `backend/app/main.py`.
 - Environment-backed settings at `backend/app/config.py`.
 - `/health` endpoint with typed response model.
-- Alembic migration scaffold wired to shared SQLAlchemy metadata.
+- SQLAlchemy 2.0 declarative base and Alembic migrations.
+- Postgres/pgvector MVP tables for sessions, evidence, trace, artifacts, and
+  semantic knowledge chunks.
+- Local database seed and guarded smoke utilities.
 - Pytest, ruff, and mypy configuration through the repository `pyproject.toml`.
 
 Run locally from the repository root:
@@ -16,6 +20,19 @@ Run locally from the repository root:
 make dev
 curl http://127.0.0.1:8000/health
 ```
+
+Run the local database baseline with Docker Compose:
+
+```bash
+make docker-up
+make migrate
+make db-smoke
+make db-test
+make docker-down
+```
+
+`make db-smoke` writes local seed data only when `POLYABRAIN_ENV` is `local` or
+`test`, unless `POLYABRAIN_ALLOW_DB_SEED=1` is explicitly set.
 
 Planned platform responsibilities:
 

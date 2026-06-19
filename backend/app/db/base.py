@@ -1,6 +1,7 @@
-"""Shared SQLAlchemy metadata for future migrations."""
+"""Shared SQLAlchemy declarative base for platform persistence."""
 
 from sqlalchemy import MetaData
+from sqlalchemy.orm import DeclarativeBase
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -10,4 +11,11 @@ NAMING_CONVENTION = {
     "pk": "pk_%(table_name)s",
 }
 
-metadata = MetaData(naming_convention=NAMING_CONVENTION)
+
+class Base(DeclarativeBase):
+    """Base class for SQLAlchemy models with deterministic constraint names."""
+
+    metadata = MetaData(naming_convention=NAMING_CONVENTION)
+
+
+metadata = Base.metadata
