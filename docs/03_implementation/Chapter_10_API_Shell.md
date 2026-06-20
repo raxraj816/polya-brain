@@ -39,6 +39,10 @@ rich reasoning artifacts from stub engines.
   persistence, failed-run marking, duplicate-run rejection, and competing-run
   protection.
 - Added a stub graph smoke test proving all nine engine stages complete.
+- Added the Phase 1 debt closure hardening after initial Chapter 10 completion:
+  bounded trace pagination/filtering, broader trace secret redaction, lightweight
+  trace metrics, concurrent append validation, and stale-running session
+  expiration.
 
 ## API
 
@@ -75,14 +79,30 @@ GET /api/v1/sessions/{session_id}/events
 
 Returns persisted ordered trace events.
 
+Optional query parameters:
+
+- `after_sequence`: return events after a sequence number.
+- `limit`: bounded page size, default `100`, maximum `500`.
+- `engine_name`: filter by engine name.
+- `event_type`: filter by event type.
+- `reasoning_mode`: filter by reasoning mode.
+
 ## Behavior Notes
 
 - `/run` is synchronous for Chapter 10. Queueing, streaming, and Redis run state
   remain later platform work.
 - `running` is a durable observable state. The service commits `running` before
   graph execution so competing `/run` requests return `409`.
+- `running` sessions record `run_started_at`. Stale runs older than the
+  configured timeout are safely expired to `failed` with
+  `verification_status=run_expired` and are not executed again.
 - A session can be run once. Re-running a completed or otherwise non-created
   session returns `409`.
+- Trace reads are bounded and filterable while preserving deterministic sequence
+  ordering.
+- Trace persistence exposes lightweight in-process metrics for append attempts,
+  successful appends, failures, event counts, route-decision counts, redaction
+  counts, and append duration.
 - Chapter 10 stores only `problem_sessions` outcome fields and reasoning trace
   rows. Stub-produced structured problems, gaps, evidence, hypotheses, plan
   tasks, verification reports, and reflections are not written to their durable
@@ -96,6 +116,7 @@ Returns persisted ordered trace events.
 make lint
 make test
 make proof
+docker compose config --quiet
 ```
 
 With Docker/Postgres available:

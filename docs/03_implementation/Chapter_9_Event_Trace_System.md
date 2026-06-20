@@ -30,6 +30,14 @@ Those remain Chapter 10+ work.
 - Kept LangGraph execution storage-agnostic; callers persist `state["events"]`
   through the repository after a run.
 - Added `GET /api/v1/sessions/{session_id}/events` for ordered trace retrieval.
+- Added bounded trace pagination and filters by sequence, engine name, event
+  type, and reasoning mode during the Phase 1 debt closure pass.
+- Broadened redaction coverage for active connector/tool-adjacent secret
+  families during the Phase 1 debt closure pass.
+- Added lightweight in-process trace persistence metrics during the Phase 1 debt
+  closure pass.
+- Added DB-backed concurrent append validation for the per-session trace writer
+  during the Phase 1 debt closure pass.
 - Added app-level SQLAlchemy session factory wiring for API dependencies.
 - Added unit and API tests for ordering, redaction, route-decision insertion,
   endpoint output, missing sessions, and engine wrapper redaction.
@@ -61,6 +69,9 @@ Returns:
 ```json
 {
   "session_id": "uuid",
+  "limit": 100,
+  "has_more": false,
+  "next_after_sequence": null,
   "events": [
     {
       "id": "uuid",
@@ -77,6 +88,9 @@ Returns:
 ```
 
 Missing sessions return `404`.
+
+Optional query parameters: `after_sequence`, `limit`, `engine_name`,
+`event_type`, and `reasoning_mode`.
 
 ## Commands
 
@@ -110,5 +124,6 @@ make docker-down
 - Frontend trace rendering.
 - Real engine prompts and parsers.
 - Tool-call trace integration.
-- Model-call cost trace integration.
+- Model-call cost trace integration beyond the lightweight in-process counters
+  added for Phase 1 closure.
 - Report composition from persisted trace.

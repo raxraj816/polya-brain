@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Protocol
 from uuid import UUID
 
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.db.models import ProblemSession, utc_now
 from app.graph.chapter10_stub import run_chapter10_stub_graph
 from app.graph.state import PolyaState
@@ -20,6 +22,7 @@ SESSION_STATUS_CREATED = "created"
 SESSION_STATUS_RUNNING = "running"
 SESSION_STATUS_COMPLETED = "completed"
 SESSION_STATUS_FAILED = "failed"
+VERIFICATION_STATUS_RUN_EXPIRED = "run_expired"
 
 
 class SessionRunner(Protocol):
@@ -69,10 +72,17 @@ class PolyaSessionService:
         db_session: Session,
         *,
         runner: SessionRunner = run_chapter10_stub_graph,
+        stale_run_timeout_seconds: int | None = None,
     ) -> None:
         self._db_session = db_session
         self._runner = runner
         self._trace_repository = SQLAlchemyTraceRepository(db_session)
+        timeout_seconds = (
+            get_settings().session_run_timeout_seconds
+            if stale_run_timeout_seconds is None
+            else stale_run_timeout_seconds
+        )
+        self._stale_run_timeout = timedelta(seconds=timeout_seconds)
 
     def create_session(
         self,
@@ -102,13 +112,14 @@ class PolyaSessionService:
 
     def _claim_created_session_for_run(self, session_id: UUID) -> ProblemSession:
         """Atomically move one created session to running, or raise."""
+        now = utc_now()
         claimed_session_id = self._db_session.scalar(
             update(ProblemSession)
             .where(
                 ProblemSession.id == session_id,
                 ProblemSession.status == SESSION_STATUS_CREATED,
             )
-            .values(status=SESSION_STATUS_RUNNING)
+            .values(status=SESSION_STATUS_RUNNING, run_started_at=now)
             .returning(ProblemSession.id)
         )
         if claimed_session_id is None:
@@ -116,6 +127,10 @@ class PolyaSessionService:
             if problem_session is None:
                 self._db_session.rollback()
                 raise SessionNotFoundError(f"problem session not found: {session_id}")
+            if self._expire_stale_running_session(problem_session, now=now):
+                self._db_session.commit()
+                self._db_session.refresh(problem_session)
+                raise SessionConflictError(_session_conflict_message(problem_session))
             conflict_message = _session_conflict_message(problem_session)
             self._db_session.rollback()
             raise SessionConflictError(conflict_message)
@@ -125,6 +140,36 @@ class PolyaSessionService:
         if problem_session is None:
             raise SessionNotFoundError(f"problem session not found after claim: {session_id}")
         return problem_session
+
+    def _expire_stale_running_session(
+        self,
+        problem_session: ProblemSession,
+        *,
+        now: datetime,
+    ) -> bool:
+        """Mark a stale running session failed without running it again."""
+        if problem_session.status != SESSION_STATUS_RUNNING:
+            return False
+        if problem_session.run_started_at is None:
+            # Legacy or interrupted Chapter 10 claims may be running without a start timestamp.
+            # Treat them as stale so the run stops safely instead of remaining wedged.
+            should_expire = True
+        else:
+            elapsed = now - problem_session.run_started_at
+            should_expire = elapsed >= self._stale_run_timeout
+        if not should_expire:
+            return False
+
+        problem_session.status = SESSION_STATUS_FAILED
+        problem_session.completed_at = now
+        problem_session.final_answer = (
+            "PolyaBrain expired this run because it stayed in running state beyond "
+            "the configured timeout. The session stopped safely and was not retried "
+            "automatically."
+        )
+        problem_session.confidence = None
+        problem_session.verification_status = VERIFICATION_STATUS_RUN_EXPIRED
+        return True
 
     def run_session(self, session_id: UUID) -> SessionRunResult:
         """Run a created session through the deterministic Chapter 10 graph."""

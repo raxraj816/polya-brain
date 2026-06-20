@@ -325,12 +325,25 @@ Done:
 - Added database-backed service tests for run persistence, ordered trace
   persistence, failed-run marking, and competing-run protection.
 - Added Chapter 10 implementation notes.
+- Completed the Phase 1 debt closure pass after Chapter 10:
+  - broadened trace secret redaction coverage,
+  - added bounded trace pagination and filtering,
+  - added lightweight trace persistence metrics,
+  - validated per-session trace append locking under concurrency,
+  - added stale-running session expiration,
+  - closed all implementation debt introduced by completed Phase 0/1 chapters.
 
 Verification:
 
 - `make lint`
 - `make test`
 - `make proof`
+- `docker compose config --quiet`
+- `make docker-up`
+- `make migrate`
+- `make db-smoke`
+- `make db-test`
+- `make docker-down`
 
 Exit criteria:
 
@@ -339,3 +352,4 @@ Exit criteria:
 - The ordered trace is readable through the API.
 - The stub final answer clearly states that Chapter 10 proves platform wiring,
   not real investigation intelligence.
+- No implementation debt remains open for completed Phase 0 or Phase 1 chapters.

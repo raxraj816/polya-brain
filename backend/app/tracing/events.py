@@ -8,7 +8,7 @@ from pydantic import JsonValue
 
 from app.graph.state import StateEvent
 from app.models.contracts import ReasoningMode
-from app.tracing.sanitization import sanitize_json_mapping, sanitize_text
+from app.tracing.sanitization import sanitize_json_mapping_with_count, sanitize_text_with_count
 
 TERMINAL_ENGINE_EVENT_TYPES = {"completed", "failed"}
 ROUTE_DECISION_EVENT_TYPE = "route_decision"
@@ -25,6 +25,7 @@ class TraceEventWrite:
     reasoning_mode: ReasoningMode
     summary: str
     metadata: dict[str, JsonValue]
+    redaction_count: int
 
 
 def _sanitize_event(
@@ -32,13 +33,16 @@ def _sanitize_event(
     *,
     sequence_number: int,
 ) -> TraceEventWrite:
+    sanitized_summary = sanitize_text_with_count(event.summary)
+    sanitized_metadata, metadata_redactions = sanitize_json_mapping_with_count(event.metadata)
     return TraceEventWrite(
         sequence_number=sequence_number,
         engine_name=event.engine_name,
         event_type=event.event_type,
         reasoning_mode=event.reasoning_mode,
-        summary=sanitize_text(event.summary),
-        metadata=sanitize_json_mapping(event.metadata),
+        summary=sanitized_summary.value,
+        metadata=sanitized_metadata,
+        redaction_count=sanitized_summary.redaction_count + metadata_redactions,
     )
 
 
@@ -72,15 +76,18 @@ def _route_decision_for_event(
         "recommended_route": recommended_route,
         **next_metadata,
     }
+    sanitized_summary = sanitize_text_with_count(
+        f"Routed {event.engine_name} after {status} with {recommended_route} recommendation."
+    )
+    sanitized_metadata, metadata_redactions = sanitize_json_mapping_with_count(metadata)
     return TraceEventWrite(
         sequence_number=sequence_number,
         engine_name=GRAPH_ROUTER_ENGINE_NAME,
         event_type=ROUTE_DECISION_EVENT_TYPE,
         reasoning_mode=ReasoningMode.COMPARE,
-        summary=(
-            f"Routed {event.engine_name} after {status} with {recommended_route} recommendation."
-        ),
-        metadata=sanitize_json_mapping(metadata),
+        summary=sanitized_summary.value,
+        metadata=sanitized_metadata,
+        redaction_count=sanitized_summary.redaction_count + metadata_redactions,
     )
 
 

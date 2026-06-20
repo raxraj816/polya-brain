@@ -183,9 +183,34 @@ class FakeTraceReader:
     def __init__(self, events: list[ReasoningEvent]) -> None:
         self.events = events
 
-    def list_events(self, session_id: UUID) -> list[ReasoningEvent]:
+    def list_events(
+        self,
+        session_id: UUID,
+        *,
+        after_sequence: int | None = None,
+        limit: int = 100,
+        engine_name: str | None = None,
+        event_type: str | None = None,
+        reasoning_mode: str | None = None,
+    ):
+        from app.tracing.persistence import TraceEventPage
+
         del session_id
-        return self.events
+        events = self.events
+        if after_sequence is not None:
+            events = [event for event in events if event.sequence_number > after_sequence]
+        if engine_name is not None:
+            events = [event for event in events if event.engine_name == engine_name]
+        if event_type is not None:
+            events = [event for event in events if event.event_type == event_type]
+        if reasoning_mode is not None:
+            events = [event for event in events if event.reasoning_mode == reasoning_mode]
+        page_events = events[:limit]
+        return TraceEventPage(
+            events=page_events,
+            has_more=len(events) > limit,
+            next_after_sequence=page_events[-1].sequence_number if len(events) > limit else None,
+        )
 
 
 def test_trace_endpoint_can_read_ordered_events_after_run() -> None:
@@ -230,3 +255,4 @@ def test_trace_endpoint_can_read_ordered_events_after_run() -> None:
     assert trace_response.status_code == 200
     payload = trace_response.json()
     assert [event["sequence_number"] for event in payload["events"]] == [0, 1]
+    assert payload["has_more"] is False

@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     environment: str = Field(default="local", alias="POLYABRAIN_ENV")
     log_level: str = Field(default="INFO", alias="POLYABRAIN_LOG_LEVEL")
     secret_key: str = Field(default="", alias="POLYABRAIN_SECRET_KEY")
+    session_run_timeout_seconds: int = Field(
+        default=900,
+        ge=1,
+        alias="POLYABRAIN_SESSION_RUN_TIMEOUT_SECONDS",
+    )
     database_url: str = Field(
         default="postgresql+psycopg://polyabrain:polyabrain@localhost:5432/polyabrain",
         alias="DATABASE_URL",
