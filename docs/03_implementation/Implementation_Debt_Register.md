@@ -50,57 +50,21 @@ blocker.
 
 ## Open Items
 
-### DEBT-0002: Broaden Trace Secret Redaction Patterns
+No open implementation debt remains for completed Phase 0 or Phase 1 chapters.
 
-- ID: DEBT-0002
-- Chapter introduced: Chapter 9
-- Type: known gap
-- Description: Chapter 9 redacts secret-like keys, bearer tokens, and
-  OpenAI-style API keys, but it is not a complete secret scanner. Future tool
-  and connector work may introduce additional secret formats such as AWS access
-  keys, private keys, GitHub tokens, Slack tokens, JWTs, and database URLs.
-- Why accepted now: Chapter 9 satisfies the immediate trace/log safety gate for
-  current engine metadata and local proof workflows. Broader secret coverage
-  should be added when real external tools/connectors are introduced.
-- Owner: backend/platform
-- Target chapter: tool registry, connector, or observability hardening chapter
-- Exit criteria: Redaction tests cover the secret families used by active
-  integrations, and persisted/API/log trace paths share the same sanitizer.
-- Status: open
+## Closed Items
 
-### DEBT-0003: Add Trace Pagination And Filtering
+### DEBT-0006: Recover Or Expire Stale Running Sessions
 
-- ID: DEBT-0003
-- Chapter introduced: Chapter 9
-- Type: known gap
-- Description: `GET /api/v1/sessions/{session_id}/events` returns the full
-  ordered trace. Large traces will eventually need pagination and filters by
-  sequence range, engine name, event type, and reasoning mode.
-- Why accepted now: Chapter 9 traces are small and the endpoint exists to prove
-  inspectable auditability. Session APIs and larger run workflows begin in
-  Chapter 10.
-- Owner: backend/API
-- Target chapter: Chapter 10 or trace UI/API hardening chapter
-- Exit criteria: Trace reads support bounded result size and documented filters
-  without breaking deterministic sequence ordering.
-- Status: open
-
-### DEBT-0004: Add Trace Persistence Metrics
-
-- ID: DEBT-0004
-- Chapter introduced: Chapter 9
-- Type: known gap
-- Description: Trace persistence currently has tests and deterministic storage
-  but no runtime metrics for append latency, write counts, redaction counts,
-  route-decision counts, sequence allocation, or persistence failures.
-- Why accepted now: Chapter 9 is the durable trace layer; full metrics belong
-  with observability and run instrumentation after the API shell starts invoking
-  graph runs.
-- Owner: observability/backend
-- Target chapter: observability or Chapter 10+ run instrumentation
-- Exit criteria: Trace persistence emits structured metrics or counters that can
-  be used to monitor latency, failures, and trace volume.
-- Status: open
+- ID: DEBT-0006
+- Chapter introduced: Chapter 10
+- Type: accepted risk
+- Description: Chapter 10 committed sessions from `created` to `running` before
+  synchronous graph execution without a stale-running recovery path.
+- Resolution: Added `problem_sessions.run_started_at`, a configurable stale-run
+  timeout, safe expiration to `failed` with `verification_status=run_expired`,
+  and DB-backed tests proving expired runs are not executed again.
+- Status: closed
 
 ### DEBT-0005: Revisit Per-Session Trace Append Locking Under Concurrency
 
@@ -108,42 +72,50 @@ blocker.
 - Chapter introduced: Chapter 9
 - Type: accepted risk
 - Description: Trace append uses a row-level lock on the owning
-  `problem_sessions` row before assigning sequence numbers. This protects
-  deterministic ordering but may become a bottleneck if multiple writers append
-  to the same session concurrently.
-- Why accepted now: Current expected behavior is one graph/run writer per
-  session. Deterministic audit ordering is more important than high-concurrency
-  trace writes at this stage.
-- Owner: backend/platform
-- Target chapter: Chapter 10+ run execution or streaming trace chapter
-- Exit criteria: If concurrent per-session writers are introduced, validate the
-  lock remains acceptable or replace it with retry-on-conflict, advisory locks,
-  or a queued/session-serialized trace writer.
-- Status: open
+  `problem_sessions` row before assigning sequence numbers.
+- Resolution: Kept the per-session serialized writer policy and added
+  DB-backed concurrency coverage proving competing appends preserve unique,
+  ordered sequence numbers. The row lock remains the accepted Chapter 9/10
+  design until a future async/streaming architecture introduces multiple
+  intentional writers per session.
+- Status: closed
 
-### DEBT-0006: Recover Or Expire Stale Running Sessions
+### DEBT-0004: Add Trace Persistence Metrics
 
-- ID: DEBT-0006
-- Chapter introduced: Chapter 10
-- Type: accepted risk
-- Description: Chapter 10 commits a session from `created` to `running` before
-  synchronous graph execution so competing `/run` requests cannot duplicate a
-  trace. If the backend process dies after that claim but before completion or
-  failure handling, the session can remain `running` and future `/run` attempts
-  will correctly return `409` without an automatic recovery path.
-- Why accepted now: Chapter 10 runs only short-lived deterministic stub graphs.
-  A proper recovery design needs run leases, heartbeat or timeout semantics,
-  retry policy, and likely durable run records, which belong with async run
-  state, streaming, or real engine execution rather than the first API shell.
-- Owner: backend/platform
-- Target chapter: run-state, streaming, or async execution chapter before real
-  long-running engine runs
-- Exit criteria: Stale `running` sessions can be safely expired, marked failed,
-  retried, or recovered through a durable run record with lease/heartbeat
-  semantics, without allowing duplicate trace-producing runs.
-- Status: open
+- ID: DEBT-0004
+- Chapter introduced: Chapter 9
+- Type: known gap
+- Description: Trace persistence had deterministic storage but no runtime
+  counters for append attempts, success/failure, persisted events,
+  route-decision events, redactions, or append duration.
+- Resolution: Added lightweight in-process trace metrics with focused tests.
+  This intentionally stops short of a full observability backend, which belongs
+  to a later observability chapter.
+- Status: closed
 
-## Closed Items
+### DEBT-0003: Add Trace Pagination And Filtering
+
+- ID: DEBT-0003
+- Chapter introduced: Chapter 9
+- Type: known gap
+- Description: `GET /api/v1/sessions/{session_id}/events` returned the full
+  ordered trace without pagination or filters.
+- Resolution: Added bounded trace reads with `after_sequence`, `limit`,
+  `engine_name`, `event_type`, and `reasoning_mode` filters plus pagination
+  metadata, while preserving no-param read behavior.
+- Status: closed
+
+### DEBT-0002: Broaden Trace Secret Redaction Patterns
+
+- ID: DEBT-0002
+- Chapter introduced: Chapter 9
+- Type: known gap
+- Description: Trace redaction covered secret-like keys, bearer tokens, and
+  OpenAI-style API keys but not broader connector/tool secret families.
+- Resolution: Added redaction coverage and tests for AWS access keys, GitHub
+  tokens, Slack tokens and webhooks, JWTs, database and credential-bearing URLs,
+  private-key blocks, and nested secret-bearing metadata.
+- Status: closed
 
 ### DEBT-0001: LangGraph Dependency Deprecation Warning
 

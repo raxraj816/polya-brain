@@ -23,7 +23,8 @@ from app.engines import (
 from app.graph.state import PolyaState, StateEvent, create_initial_state
 from app.main import create_app
 from app.models.contracts import ReasoningMode
-from app.tracing import REDACTED, prepare_trace_event_writes, sanitize_json_mapping
+from app.tracing import REDACTED, prepare_trace_event_writes, sanitize_json_mapping, trace_metrics
+from app.tracing.persistence import TraceEventPage
 
 
 def event(
@@ -82,6 +83,33 @@ def test_trace_sanitization_redacts_secret_keys_and_values() -> None:
         "Authorization": REDACTED,
         "safe": "keep this",
         "notes": [f"token is {REDACTED}", "ordinary value"],
+    }
+
+
+def test_trace_sanitization_redacts_connector_and_cloud_secret_families() -> None:
+    private_key = "-----BEGIN PRIVATE KEY-----\nabc123secret\n-----END PRIVATE KEY-----"
+    sanitized = sanitize_json_mapping(
+        {
+            "aws_access_key_id": "AKIA1234567890ABCDEF",
+            "github": "ghp_1234567890abcdefghijklmnopqrstuvwxyz",
+            "slack": "xoxb-123456789012-abcdefghijk",
+            "jwt": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signatureabcdef",
+            "database_url": "postgresql://polyabrain:secret@localhost:5432/polyabrain",
+            "webhook": "https://hooks.slack.com/services/T000/B000/secret",
+            "private_key_body": private_key,
+            "safe": "ordinary source text",
+        }
+    )
+
+    assert sanitized == {
+        "aws_access_key_id": REDACTED,
+        "github": REDACTED,
+        "slack": REDACTED,
+        "jwt": REDACTED,
+        "database_url": REDACTED,
+        "webhook": REDACTED,
+        "private_key_body": REDACTED,
+        "safe": "ordinary source text",
     }
 
 
@@ -178,32 +206,61 @@ def test_run_engine_logs_sanitized_failures_without_raw_traceback(
 
 
 class FakeTraceReader:
-    def __init__(self, events: list[ReasoningEvent] | None) -> None:
-        self.events = events
+    def __init__(self, event_page: TraceEventPage | None) -> None:
+        self.event_page = event_page
 
-    def list_events(self, session_id: UUID) -> list[ReasoningEvent] | None:
+    def list_events(
+        self,
+        session_id: UUID,
+        *,
+        after_sequence: int | None = None,
+        limit: int = 100,
+        engine_name: str | None = None,
+        event_type: str | None = None,
+        reasoning_mode: str | None = None,
+    ) -> TraceEventPage | None:
         del session_id
-        return self.events
+        if self.event_page is None:
+            return None
+        events = self.event_page.events
+        if after_sequence is not None:
+            events = [event for event in events if event.sequence_number > after_sequence]
+        if engine_name is not None:
+            events = [event for event in events if event.engine_name == engine_name]
+        if event_type is not None:
+            events = [event for event in events if event.event_type == event_type]
+        if reasoning_mode is not None:
+            events = [event for event in events if event.reasoning_mode == reasoning_mode]
+        page_events = events[:limit]
+        return TraceEventPage(
+            events=page_events,
+            has_more=len(events) > limit,
+            next_after_sequence=page_events[-1].sequence_number if len(events) > limit else None,
+        )
 
 
 def test_trace_events_endpoint_returns_ordered_sanitized_events() -> None:
     session_id = uuid4()
     app = create_app(Settings(POLYABRAIN_ENV="test"))
     app.dependency_overrides[get_trace_repository] = lambda: FakeTraceReader(
-        [
-            persisted_event(
-                session_id=session_id,
-                sequence_number=0,
-                event_type="started",
-                metadata={"safe": "yes"},
-            ),
-            persisted_event(
-                session_id=session_id,
-                sequence_number=1,
-                event_type="completed",
-                metadata={"authorization": "Bearer secret-token"},
-            ),
-        ]
+        TraceEventPage(
+            events=[
+                persisted_event(
+                    session_id=session_id,
+                    sequence_number=0,
+                    event_type="started",
+                    metadata={"safe": "yes"},
+                ),
+                persisted_event(
+                    session_id=session_id,
+                    sequence_number=1,
+                    event_type="completed",
+                    metadata={"authorization": "Bearer secret-token"},
+                ),
+            ],
+            has_more=False,
+            next_after_sequence=None,
+        )
     )
     client = TestClient(app)
 
@@ -215,6 +272,46 @@ def test_trace_events_endpoint_returns_ordered_sanitized_events() -> None:
     assert [event["sequence_number"] for event in payload["events"]] == [0, 1]
     assert payload["events"][0]["metadata"] == {"safe": "yes"}
     assert payload["events"][1]["metadata"] == {"authorization": REDACTED}
+    assert payload["limit"] == 100
+    assert payload["has_more"] is False
+    assert payload["next_after_sequence"] is None
+
+
+def test_trace_events_endpoint_filters_and_paginates_events() -> None:
+    session_id = uuid4()
+    app = create_app(Settings(POLYABRAIN_ENV="test"))
+    app.dependency_overrides[get_trace_repository] = lambda: FakeTraceReader(
+        TraceEventPage(
+            events=[
+                persisted_event(session_id=session_id, sequence_number=0, event_type="started"),
+                persisted_event(
+                    session_id=session_id,
+                    sequence_number=1,
+                    event_type="completed",
+                ),
+                persisted_event(
+                    session_id=session_id,
+                    sequence_number=2,
+                    event_type="completed",
+                ),
+            ],
+            has_more=False,
+            next_after_sequence=None,
+        )
+    )
+    client = TestClient(app)
+
+    response = client.get(
+        f"/api/v1/sessions/{session_id}/events",
+        params={"after_sequence": 0, "event_type": "completed", "limit": 1},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert [event["sequence_number"] for event in payload["events"]] == [1]
+    assert payload["limit"] == 1
+    assert payload["has_more"] is True
+    assert payload["next_after_sequence"] == 1
 
 
 def test_trace_events_endpoint_returns_404_for_missing_session() -> None:
@@ -226,3 +323,39 @@ def test_trace_events_endpoint_returns_404_for_missing_session() -> None:
     response = client.get(f"/api/v1/sessions/{session_id}/events")
 
     assert response.status_code == 404
+
+
+def test_trace_metrics_count_success_failure_route_decisions_and_redactions() -> None:
+    writes = prepare_trace_event_writes(
+        [
+            event(event_type="started"),
+            event(
+                event_type="completed",
+                metadata={
+                    "status": "ok",
+                    "recommended_route": "continue",
+                    "github_token": "ghp_1234567890abcdefghijklmnopqrstuvwxyz",
+                },
+            ),
+        ]
+    )
+
+    trace_metrics.reset()
+    trace_metrics.record_append_attempt()
+    trace_metrics.record_append_success(
+        persisted_events=len(writes),
+        route_decision_events=sum(1 for write in writes if write.event_type == "route_decision"),
+        redactions=sum(write.redaction_count for write in writes),
+        duration_ms=12.5,
+    )
+    trace_metrics.record_append_attempt()
+    trace_metrics.record_append_failure(duration_ms=2.5)
+
+    snapshot = trace_metrics.snapshot()
+    assert snapshot.append_attempts == 2
+    assert snapshot.append_successes == 1
+    assert snapshot.append_failures == 1
+    assert snapshot.persisted_events == 3
+    assert snapshot.route_decision_events == 1
+    assert snapshot.redactions == 1
+    assert snapshot.append_duration_ms_total == 15.0

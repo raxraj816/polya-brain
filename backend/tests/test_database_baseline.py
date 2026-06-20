@@ -1,6 +1,8 @@
 """Database baseline integration tests."""
 
 import os
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 from uuid import uuid4
 
 import pytest
@@ -80,9 +82,10 @@ def test_trace_repository_appends_route_decisions_and_reads_in_sequence_order() 
 
     with session_factory() as session:
         repository = SQLAlchemyTraceRepository(session)
-        events = repository.list_events(session_id)
+        event_page = repository.list_events(session_id)
 
-        assert events is not None
+        assert event_page is not None
+        events = event_page.events
         assert [record.sequence_number for record in events] == [0, 1, 2, 3]
         assert [record.event_type for record in events] == [
             "started",
@@ -95,6 +98,119 @@ def test_trace_repository_appends_route_decisions_and_reads_in_sequence_order() 
         assert events[1].event_metadata["api_key"] == "[REDACTED]"
         assert events[2].engine_name == "graph_router"
         assert events[2].event_metadata["source_engine"] == "problem_representation"
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_trace_repository_filters_and_paginates_in_sequence_order() -> None:
+    engine = create_database_engine(get_settings().database_url)
+    session_factory = create_session_factory(engine)
+
+    with session_factory() as session:
+        problem_session = ProblemSession(
+            raw_input=f"Trace paging test {uuid4()}",
+            domain="software_debugging",
+            mode="investigate",
+            status="running",
+        )
+        session.add(problem_session)
+        session.flush()
+        repository = SQLAlchemyTraceRepository(session)
+        repository.persist_events(
+            session_id=problem_session.id,
+            events=[
+                StateEvent(
+                    engine_name="problem_representation",
+                    event_type="started",
+                    reasoning_mode=ReasoningMode.EXPLORE,
+                    summary="Started representation.",
+                ),
+                StateEvent(
+                    engine_name="problem_representation",
+                    event_type="completed",
+                    reasoning_mode=ReasoningMode.EXPLORE,
+                    summary="Completed representation.",
+                    metadata={"status": "ok", "recommended_route": "continue"},
+                ),
+                StateEvent(
+                    engine_name="execution",
+                    event_type="started",
+                    reasoning_mode=ReasoningMode.EXECUTE,
+                    summary="Started execution.",
+                ),
+            ],
+        )
+        session.commit()
+        session_id = problem_session.id
+
+    with session_factory() as session:
+        repository = SQLAlchemyTraceRepository(session)
+        first_page = repository.list_events(session_id, limit=2)
+        completed_page = repository.list_events(
+            session_id,
+            after_sequence=0,
+            event_type="completed",
+            limit=10,
+        )
+
+        assert first_page is not None
+        assert [event.sequence_number for event in first_page.events] == [0, 1]
+        assert first_page.has_more is True
+        assert first_page.next_after_sequence == 1
+        assert completed_page is not None
+        assert [event.event_type for event in completed_page.events] == ["completed"]
+        assert completed_page.has_more is False
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_trace_repository_serializes_concurrent_appends_per_session() -> None:
+    engine = create_database_engine(get_settings().database_url)
+    session_factory = create_session_factory(engine)
+
+    with session_factory() as session:
+        problem_session = ProblemSession(
+            raw_input=f"Concurrent trace append test {uuid4()}",
+            domain="software_debugging",
+            mode="investigate",
+            status="running",
+        )
+        session.add(problem_session)
+        session.commit()
+        session_id = problem_session.id
+
+    barrier = Barrier(2)
+
+    def append_one(worker_id: int) -> list[int]:
+        with session_factory() as session:
+            repository = SQLAlchemyTraceRepository(session)
+            barrier.wait(timeout=10)
+            records = repository.persist_events(
+                session_id=session_id,
+                events=[
+                    StateEvent(
+                        engine_name=f"worker_{worker_id}",
+                        event_type="started",
+                        reasoning_mode=ReasoningMode.EXPLORE,
+                        summary=f"Worker {worker_id} started.",
+                    )
+                ],
+            )
+            session.commit()
+            return [record.sequence_number for record in records]
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(append_one, [1, 2]))
+
+    with session_factory() as session:
+        sequence_numbers = list(
+            session.scalars(
+                select(ReasoningEvent.sequence_number)
+                .where(ReasoningEvent.session_id == session_id)
+                .order_by(ReasoningEvent.sequence_number)
+            )
+        )
+
+    assert sorted(sequence for result in results for sequence in result) == [0, 1]
+    assert sequence_numbers == [0, 1]
 
 
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)

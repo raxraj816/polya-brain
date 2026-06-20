@@ -11,11 +11,13 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch implements the Chapter 10 API shell on top of the Chapter 9 event
-trace system, Chapter 8 LangGraph skeleton, Chapter 7
-engine interface contract, Chapter 6 LangGraph state object, Chapter 5 core
-Pydantic contracts, Chapter 4 database baseline, Chapter 3 local development
-environment, and the verified pre-platform proof harness.
+This branch completes Phase 1 through the Chapter 10 API shell on top of the
+Chapter 9 event trace system, Chapter 8 LangGraph skeleton, Chapter 7 engine
+interface contract, Chapter 6 LangGraph state object, Chapter 5 core Pydantic
+contracts, Chapter 4 database baseline, Chapter 3 local development
+environment, and the verified pre-platform proof harness. The Phase 1 debt
+closure pass leaves no open implementation debt for completed Phase 0 or Phase 1
+chapters.
 
 What runs today:
 
@@ -35,6 +37,7 @@ Fetch a persisted session trace:
 
 ```bash
 curl http://127.0.0.1:8000/api/v1/sessions/{session_id}/events
+curl 'http://127.0.0.1:8000/api/v1/sessions/{session_id}/events?limit=50&after_sequence=99'
 ```
 
 Create and run a Chapter 10 stub session:
@@ -155,8 +158,9 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, 3, 4, 5, 6, 7, 8, 9, and 10 are complete on the active chapter
-branch. Chapter 11 is the next implementation target.
+Chapters 1, 2, 3, 4, 5, 6, 7, 8, 9, and 10 are complete on the active branch.
+The Phase 1 debt closure pass is complete. Chapter 11 is the next implementation
+target.
 
 The next chapters are:
 

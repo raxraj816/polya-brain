@@ -34,6 +34,7 @@ class ProblemSession(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
+    run_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     final_answer: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
@@ -42,6 +43,7 @@ class ProblemSession(Base):
     __table_args__ = (
         Index("ix_problem_sessions_status", "status"),
         Index("ix_problem_sessions_created_at", "created_at"),
+        Index("ix_problem_sessions_run_started_at", "run_started_at"),
     )
 
 

@@ -21,8 +21,12 @@ the engine interface contract, the graph skeleton, and the event trace system:
   wrapper, structured logging, and stage-gate validation.
 - Runnable Chapter 8 graph skeleton with safe stops and iteration guard.
 - Ordered `reasoning_events` persistence with route-decision events and redaction.
+- Bounded trace reads with sequence pagination and filters.
+- Lightweight trace persistence metrics for append, failure, route, and
+  redaction counts.
 - Chapter 10 session API shell for creating, reading, and synchronously running
   sessions through a deterministic stub graph.
+- Safe stale-running session expiration through `run_started_at`.
 - Read-only trace endpoint at `/api/v1/sessions/{session_id}/events`.
 - Pytest, ruff, and mypy configuration through the repository `pyproject.toml`.
 

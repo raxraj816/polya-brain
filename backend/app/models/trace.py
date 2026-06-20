@@ -28,3 +28,6 @@ class TraceEventsResponse(ContractModel):
 
     session_id: UUID
     events: list[TraceEventResponse] = Field(default_factory=list)
+    limit: int = Field(ge=1)
+    has_more: bool = False
+    next_after_sequence: int | None = Field(default=None, ge=0)

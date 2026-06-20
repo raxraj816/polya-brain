@@ -13,6 +13,7 @@ Source of truth: `../../PolyaBrain_Product_Implementation_Master_Plan.md`
 - `mode`
 - `status`
 - `created_at`
+- `run_started_at`
 - `completed_at`
 - `final_answer`
 - `confidence`
