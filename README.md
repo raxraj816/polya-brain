@@ -133,14 +133,14 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, 3, 4, and 5 are complete on the active chapter branch. Chapter 6
-is the next implementation target.
+Chapters 1, 2, 3, 4, 5, and 6 are complete on the active chapter branch.
+Chapter 7 is the next implementation target.
 
 The next chapters are:
 
-1. Chapter 6: LangGraph state object.
-2. Chapter 7: engine interface contract.
-3. Chapter 8: graph skeleton.
-4. Chapter 9: event trace system.
+1. Chapter 7: engine interface contract.
+2. Chapter 8: graph skeleton.
+3. Chapter 9: event trace system.
+4. Chapter 10: API shell.
 
 See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.
