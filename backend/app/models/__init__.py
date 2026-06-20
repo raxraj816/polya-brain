@@ -16,8 +16,10 @@ from app.models.contracts import (
     VerificationReport,
 )
 from app.models.health import HealthResponse
+from app.models.sessions import CreateSessionRequest, RunSessionResponse, SessionResponse
 
 __all__ = [
+    "CreateSessionRequest",
     "EvidenceItem",
     "HealthResponse",
     "Hypothesis",
@@ -30,6 +32,8 @@ __all__ = [
     "ReasoningMode",
     "Reflection",
     "RiskLevel",
+    "RunSessionResponse",
+    "SessionResponse",
     "StructuredProblem",
     "VerificationReport",
 ]

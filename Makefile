@@ -55,7 +55,7 @@ db-smoke: setup
 	$(PYTHON_BIN) -m app.db.smoke
 
 db-test: setup
-	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py
+	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py backend/tests/test_sessions_service.py
 
 docker-up:
 	docker compose up --build --wait --wait-timeout 60
