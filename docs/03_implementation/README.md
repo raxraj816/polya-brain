@@ -18,3 +18,5 @@ Current chapter notes:
 - `Chapter_6_LangGraph_State_Object.md`
 - `Chapter_7_Engine_Interface_Contract.md`
 - `Chapter_8_Graph_Skeleton.md`
+- `Chapter_9_Event_Trace_System.md`
+- `Chapter_10_API_Shell.md`

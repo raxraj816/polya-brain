@@ -11,8 +11,8 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch implements the Chapter 9 event trace system on top of the Chapter 8
-LangGraph skeleton, Chapter 7
+This branch implements the Chapter 10 API shell on top of the Chapter 9 event
+trace system, Chapter 8 LangGraph skeleton, Chapter 7
 engine interface contract, Chapter 6 LangGraph state object, Chapter 5 core
 Pydantic contracts, Chapter 4 database baseline, Chapter 3 local development
 environment, and the verified pre-platform proof harness.
@@ -34,6 +34,18 @@ curl http://127.0.0.1:8000/health
 Fetch a persisted session trace:
 
 ```bash
+curl http://127.0.0.1:8000/api/v1/sessions/{session_id}/events
+```
+
+Create and run a Chapter 10 stub session:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/sessions \
+  -H 'content-type: application/json' \
+  -d '{"raw_input":"Investigate why p95 latency jumped after deploy.","mode":"investigate","domain":"software_debugging"}'
+
+curl -X POST http://127.0.0.1:8000/api/v1/sessions/{session_id}/run
+curl http://127.0.0.1:8000/api/v1/sessions/{session_id}
 curl http://127.0.0.1:8000/api/v1/sessions/{session_id}/events
 ```
 
@@ -143,13 +155,13 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, 3, 4, 5, 6, 7, 8, and 9 are complete on the active chapter
-branch. Chapter 10 is the next implementation target.
+Chapters 1, 2, 3, 4, 5, 6, 7, 8, 9, and 10 are complete on the active chapter
+branch. Chapter 11 is the next implementation target.
 
 The next chapters are:
 
-1. Chapter 10: API shell.
-2. Chapter 11: prompt and parser design.
-3. Chapter 12: first problem representation engine.
+1. Chapter 11: prompt and parser design.
+2. Chapter 12: LLM client abstraction.
+3. Chapter 13: first problem representation engine.
 
 See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.

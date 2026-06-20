@@ -296,3 +296,46 @@ Exit criteria:
 - Users can tell whether the system was exploring, comparing, reframing,
   executing, verifying, or reflecting at each major step.
 - Logs and persisted/API trace data redact obvious secrets.
+
+## Chapter 10: API Shell
+
+Status: complete on `feature/chapter-10-api-shell`.
+
+Done:
+
+- Added session API models for create, read, and run responses.
+- Added `POST /api/v1/sessions`.
+- Added `GET /api/v1/sessions/{session_id}`.
+- Kept `GET /api/v1/sessions/{session_id}/events` as the ordered trace read
+  endpoint.
+- Added `POST /api/v1/sessions/{session_id}/run`.
+- Added deterministic application stub engines for all nine logical graph
+  stages.
+- Wired the run endpoint to execute the stub graph synchronously, persist trace
+  events, and update the session outcome.
+- Added an atomic `created` to `running` claim before graph execution so
+  duplicate or competing run requests return `409`.
+- Preserved Chapter 10 honesty by not persisting rich reasoning artifacts from
+  stub outputs.
+- Added duplicate-run protection for non-created sessions with `409`.
+- Added sanitized failed-run handling that marks the session as `failed`.
+- Added OpenAPI tags and request examples for the session workflow.
+- Added API and graph smoke tests for session creation, readback, run behavior,
+  validation, conflicts, missing sessions, and trace readback.
+- Added database-backed service tests for run persistence, ordered trace
+  persistence, failed-run marking, and competing-run protection.
+- Added Chapter 10 implementation notes.
+
+Verification:
+
+- `make lint`
+- `make test`
+- `make proof`
+
+Exit criteria:
+
+- A client can create and run a session through the stub graph.
+- The completed session is readable through the API.
+- The ordered trace is readable through the API.
+- The stub final answer clearly states that Chapter 10 proves platform wiring,
+  not real investigation intelligence.

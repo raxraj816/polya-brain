@@ -2,7 +2,7 @@
 
 Python/FastAPI backend for the PolyaBrain Core Platform.
 
-Chapters 3 through 9 implement the local development shell, the first durable
+Chapters 3 through 10 implement the local development shell, the first durable
 database baseline, the core Pydantic contract layer, the LangGraph state object,
 the engine interface contract, the graph skeleton, and the event trace system:
 
@@ -21,6 +21,8 @@ the engine interface contract, the graph skeleton, and the event trace system:
   wrapper, structured logging, and stage-gate validation.
 - Runnable Chapter 8 graph skeleton with safe stops and iteration guard.
 - Ordered `reasoning_events` persistence with route-decision events and redaction.
+- Chapter 10 session API shell for creating, reading, and synchronously running
+  sessions through a deterministic stub graph.
 - Read-only trace endpoint at `/api/v1/sessions/{session_id}/events`.
 - Pytest, ruff, and mypy configuration through the repository `pyproject.toml`.
 
@@ -50,7 +52,7 @@ make docker-down
 
 Planned platform responsibilities:
 
-- API shell for solve sessions, trace streaming, feedback, and memory inspection.
+- Trace streaming, feedback, and memory inspection APIs.
 - LangGraph orchestration for the stateful Polya loop.
 - Typed engine modules for representation, constraints, gaps, research, evidence, hypotheses, execution, verification, and reflection.
 - Persistence adapters for Postgres, Redis, artifacts, traces, tool calls, and model-call cost records.

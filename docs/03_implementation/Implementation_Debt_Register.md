@@ -121,6 +121,28 @@ blocker.
   or a queued/session-serialized trace writer.
 - Status: open
 
+### DEBT-0006: Recover Or Expire Stale Running Sessions
+
+- ID: DEBT-0006
+- Chapter introduced: Chapter 10
+- Type: accepted risk
+- Description: Chapter 10 commits a session from `created` to `running` before
+  synchronous graph execution so competing `/run` requests cannot duplicate a
+  trace. If the backend process dies after that claim but before completion or
+  failure handling, the session can remain `running` and future `/run` attempts
+  will correctly return `409` without an automatic recovery path.
+- Why accepted now: Chapter 10 runs only short-lived deterministic stub graphs.
+  A proper recovery design needs run leases, heartbeat or timeout semantics,
+  retry policy, and likely durable run records, which belong with async run
+  state, streaming, or real engine execution rather than the first API shell.
+- Owner: backend/platform
+- Target chapter: run-state, streaming, or async execution chapter before real
+  long-running engine runs
+- Exit criteria: Stale `running` sessions can be safely expired, marked failed,
+  retried, or recovered through a durable run record with lease/heartbeat
+  semantics, without allowing duplicate trace-producing runs.
+- Status: open
+
 ## Closed Items
 
 ### DEBT-0001: LangGraph Dependency Deprecation Warning
