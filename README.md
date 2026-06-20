@@ -159,13 +159,18 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 Implementation is chapter-based, not date-based.
 
 Chapters 1, 2, 3, 4, 5, 6, 7, 8, 9, and 10 are complete on the active branch.
-The Phase 1 debt closure pass is complete. Chapter 11 is the next implementation
-target.
+The Phase 1 debt closure pass is complete. Phase 2 starts with the fake-testable
+LLM client boundary.
 
-The next chapters are:
+The next implementation sequence is:
 
-1. Chapter 11: prompt and parser design.
-2. Chapter 12: LLM client abstraction.
-3. Chapter 13: first problem representation engine.
+1. Chapter 12-A: LLM client interface and fake deterministic client.
+2. Chapter 11: prompt and parser design.
+3. Chapter 12-B: first real provider adapter.
+4. Chapter 13: first problem representation engine.
 
-See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.
+Before Chapter 13 persists real engine output, follow the Phase 2 persistence
+policy in `docs/01_architecture/Phase_2_Engine_Output_Persistence.md`.
+
+See `docs/03_implementation/Phase_2_Action_Items.md` and
+`docs/03_implementation/Chapter_Backlog.md` for the active local backlog.
