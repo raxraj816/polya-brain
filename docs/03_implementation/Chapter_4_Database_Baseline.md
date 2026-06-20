@@ -68,10 +68,10 @@ make proof
 - Enum/value validation for modes, statuses, risk levels, and reasoning modes.
 - Contract-level producers and consumers.
 - API request/response models.
-- Decide whether `structured_problems` remains the current canonical
-  representation per session or becomes a versioned snapshot history. Chapter 4
-  stores one row per session and expects reframe history to remain trace-visible
-  in `reasoning_events.metadata` until that decision is made.
+- Chapter 13 keeps `structured_problems` as one canonical validated
+  representation per session. Reframe history remains trace-visible in
+  `reasoning_events.metadata` until versioned representation history proves
+  necessary.
 
 ## Deferred Beyond Chapter 4
 

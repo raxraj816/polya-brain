@@ -781,6 +781,21 @@ Done when:
 
 ### Phase 2: Problem Understanding
 
+Phase 2 introduces the first real intelligence outputs. Canonical engine outputs
+should be persisted only after the producing engine completes successfully and
+the output passes parser and contract validation. The initial Phase 2 persistence
+boundary is a simple batch flush after successful engine execution; per-step,
+streaming, and partial-output persistence are deferred until async/retry chapters
+need them. Trace events remain the append-only audit history for accepted,
+rejected, failed, or repaired outputs.
+
+Implementation sequencing note: start Phase 2 with the fake-testable LLM client
+boundary, then build prompt/parser infrastructure, then add the first real
+provider adapter. This means Chapter 12-A can land before Chapter 11, Chapter
+12-B can follow Chapter 11, and Chapter 13 should start only after both the
+client and parser boundaries are testable. Keep Redis runtime features and
+additional provider adapters out of the critical path for the first real engine.
+
 #### Chapter 11: Prompt and Parser Design
 
 Tasks:
@@ -817,7 +832,8 @@ Done when:
 Tasks:
 
 1. Implement engine using LLM client and parser.
-2. Save structured problem to session.
+2. Persist the validated structured problem to the `structured_problems` table
+   after successful engine execution.
 3. Emit trace details for selected framing, rejected alternate framing, and selected approach mode without adding new core contract fields.
 4. Add deterministic fallback for obvious structured inputs such as simple math, missing-field requests, and benchmark examples.
 5. Add tests using fake client.

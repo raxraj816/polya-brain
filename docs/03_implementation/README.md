@@ -20,3 +20,8 @@ Current chapter notes:
 - `Chapter_8_Graph_Skeleton.md`
 - `Chapter_9_Event_Trace_System.md`
 - `Chapter_10_API_Shell.md`
+- `Phase_2_Action_Items.md`
+
+Phase 2 architecture notes:
+
+- `../01_architecture/Phase_2_Engine_Output_Persistence.md`

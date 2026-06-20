@@ -353,3 +353,30 @@ Exit criteria:
 - The stub final answer clearly states that Chapter 10 proves platform wiring,
   not real investigation intelligence.
 - No implementation debt remains open for completed Phase 0 or Phase 1 chapters.
+
+## Phase 2 Readiness Note
+
+Before Chapter 13 lands, real engine outputs should follow the Phase 2
+persistence policy in
+`../01_architecture/Phase_2_Engine_Output_Persistence.md`.
+
+The working rule is: persist canonical rows only after a producing engine
+completes successfully and its structured output passes parser and contract
+validation. Chapter 13 owns the first canonical `structured_problems` write.
+Trace events remain the append-only audit history for accepted, rejected, failed,
+or repaired outputs.
+
+## Phase 2 Action Plan
+
+Use `Phase_2_Action_Items.md` as the tactical checklist for the next
+implementation branches.
+
+Current intended order:
+
+1. Chapter 12-A: LLM client interface and fake deterministic client.
+2. Chapter 11: prompt templates, parser, schemas, and JSON repair.
+3. Chapter 12-B: first real provider adapter, starting with OpenAI.
+4. Chapter 13: problem representation engine with `structured_problems`
+   persistence.
+5. Chapter 15: clarifying question flow.
+6. Chapter 14: constraint discovery engine.
