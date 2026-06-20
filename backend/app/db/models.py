@@ -175,6 +175,7 @@ class ReasoningEvent(Base):
         ForeignKey("problem_sessions.id", ondelete="CASCADE"),
         nullable=False,
     )
+    sequence_number: Mapped[int] = mapped_column(Integer, nullable=False)
     engine_name: Mapped[str] = mapped_column(String(128), nullable=False)
     event_type: Mapped[str] = mapped_column(String(128), nullable=False)
     reasoning_mode: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -188,6 +189,7 @@ class ReasoningEvent(Base):
 
     __table_args__ = (
         Index("ix_reasoning_events_session_id", "session_id"),
+        Index("ix_reasoning_events_session_sequence", "session_id", "sequence_number", unique=True),
         Index("ix_reasoning_events_created_at", "created_at"),
     )
 

@@ -70,6 +70,12 @@ def assert_database_baseline(engine: Engine, *, allow_seed: bool) -> None:
         table_names = inspect(connection).get_table_names()
         missing_tables = _missing_items(REQUIRED_TABLES, table_names)
         assert not missing_tables, f"missing Chapter 4 tables: {sorted(missing_tables)}"
+        reasoning_event_columns = {
+            column["name"] for column in inspect(connection).get_columns("reasoning_events")
+        }
+        assert "sequence_number" in reasoning_event_columns, (
+            "reasoning_events.sequence_number is missing"
+        )
 
     assert allow_seed, (
         "database smoke checks insert local seed data; refusing because this environment is not "
@@ -121,6 +127,11 @@ def assert_database_baseline(engine: Engine, *, allow_seed: bool) -> None:
         assert hypothesis_count and hypothesis_count > 0, "seed hypothesis was not inserted"
         assert task_count and task_count > 0, "seed plan task was not inserted"
         assert trace_count and trace_count > 0, "seed reasoning event was not inserted"
+        trace_event = session.scalar(
+            select(ReasoningEvent).where(ReasoningEvent.session_id == session_id).limit(1)
+        )
+        assert trace_event is not None, "seed reasoning event could not be retrieved"
+        assert trace_event.sequence_number == 0, "seed reasoning event sequence was not inserted"
         assert artifact_count and artifact_count > 0, "seed artifact was not inserted"
         assert evidence_item is not None, "seed evidence item could not be retrieved"
         assert hypothesis is not None, "seed hypothesis could not be retrieved"

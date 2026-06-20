@@ -11,6 +11,7 @@ from pydantic import Field, JsonValue, ValidationError, model_validator
 
 from app.graph.state import PolyaState, StateEvent, append_state_events
 from app.models.contracts import ContractModel, NonEmptyStr, ReasoningMode, Score
+from app.tracing.sanitization import sanitize_json_mapping, sanitize_text
 
 logger = logging.getLogger("polyabrain.engines")
 
@@ -153,20 +154,22 @@ class PolyaEngine(Protocol):
 
 def engine_event_metadata(result: EngineResult) -> dict[str, JsonValue]:
     """Build JSON-compatible trace metadata for one engine result."""
-    return {
-        "status": result.status.value,
-        "recommended_route": result.recommended_route.value,
-        "confidence": result.confidence,
-        "missing_inputs": list(result.missing_inputs),
-        "duration_ms": result.duration_ms,
-        "errors": list(result.errors),
-        "token_usage": {
-            "input_tokens": result.token_usage.input_tokens,
-            "output_tokens": result.token_usage.output_tokens,
-            "total_tokens": result.token_usage.total_tokens,
-        },
-        "versions": result.versions.model_dump(mode="json"),
-    }
+    return sanitize_json_mapping(
+        {
+            "status": result.status.value,
+            "recommended_route": result.recommended_route.value,
+            "confidence": result.confidence,
+            "missing_inputs": list(result.missing_inputs),
+            "duration_ms": result.duration_ms,
+            "errors": list(result.errors),
+            "token_usage": {
+                "input_tokens": result.token_usage.input_tokens,
+                "output_tokens": result.token_usage.output_tokens,
+                "total_tokens": result.token_usage.total_tokens,
+            },
+            "versions": result.versions.model_dump(mode="json"),
+        }
+    )
 
 
 def _safe_engine_name(engine: PolyaEngine) -> str:
@@ -234,7 +237,7 @@ def _terminal_event(
         engine_name=engine_name,
         event_type="completed" if result.status is not EngineStatus.FAILED else "failed",
         reasoning_mode=reasoning_mode,
-        summary=result.summary,
+        summary=sanitize_text(result.summary),
         metadata=engine_event_metadata(result),
     )
 
@@ -314,7 +317,7 @@ def run_engine(engine: PolyaEngine, state: PolyaState) -> EngineRunOutput:
             summary=f"{engine_name} failed before producing a valid result.",
         )
         state_delta = {}
-        logger.exception(
+        logger.error(
             "engine.failed",
             extra={
                 "engine_name": engine_name,

@@ -11,7 +11,8 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch implements the Chapter 8 LangGraph skeleton on top of the Chapter 7
+This branch implements the Chapter 9 event trace system on top of the Chapter 8
+LangGraph skeleton, Chapter 7
 engine interface contract, Chapter 6 LangGraph state object, Chapter 5 core
 Pydantic contracts, Chapter 4 database baseline, Chapter 3 local development
 environment, and the verified pre-platform proof harness.
@@ -28,6 +29,12 @@ Start the backend locally:
 ```bash
 make dev
 curl http://127.0.0.1:8000/health
+```
+
+Fetch a persisted session trace:
+
+```bash
+curl http://127.0.0.1:8000/api/v1/sessions/{session_id}/events
 ```
 
 Run the local checks:
@@ -136,14 +143,13 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, 3, 4, 5, 6, 7, and 8 are complete on the active chapter branch.
-Chapter 9 is the next implementation target.
+Chapters 1, 2, 3, 4, 5, 6, 7, 8, and 9 are complete on the active chapter
+branch. Chapter 10 is the next implementation target.
 
 The next chapters are:
 
-1. Chapter 9: event trace system.
-2. Chapter 10: API shell.
-3. Chapter 11: prompt and parser design.
-4. Chapter 12: first problem representation engine.
+1. Chapter 10: API shell.
+2. Chapter 11: prompt and parser design.
+3. Chapter 12: first problem representation engine.
 
 See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.
