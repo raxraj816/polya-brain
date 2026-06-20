@@ -2,8 +2,10 @@
 
 from fastapi import FastAPI
 
+from app.api.routes.events import router as events_router
 from app.api.routes.health import router as health_router
 from app.config import Settings, get_settings
+from app.db.session import create_database_engine, create_session_factory
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -16,7 +18,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         redoc_url="/redoc",
     )
     app.state.settings = resolved_settings
+    app.state.db_engine = create_database_engine(resolved_settings.database_url)
+    app.state.session_factory = create_session_factory(app.state.db_engine)
     app.include_router(health_router)
+    app.include_router(events_router)
     return app
 
 

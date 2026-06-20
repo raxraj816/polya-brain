@@ -261,12 +261,38 @@ Exit criteria:
 
 ## Chapter 9: Event Trace System
 
-Status: not started.
+Status: complete on `feature/chapter-9-event-trace-system`.
 
-Planned:
+Done:
 
-- Add `reasoning_events` persistence.
-- Store each engine start, completion, error, route decision, and reasoning mode.
-- Add API endpoint to fetch session trace.
-- Add tests for event ordering.
-- Ensure logs and persisted events do not store secrets.
+- Added deterministic per-session ordering through
+  `reasoning_events.sequence_number`.
+- Added Alembic migration `20260620_0002` to backfill and enforce sequence
+  numbers for existing trace rows.
+- Added pure trace preparation for sanitized durable writes.
+- Added derived `graph_router` `route_decision` events after terminal engine
+  events with route metadata.
+- Added recursive redaction for secret-like keys and obvious secret-bearing
+  strings before logging, persistence, and API response.
+- Added `SQLAlchemyTraceRepository` for appending graph state events and reading
+  ordered persisted events.
+- Kept LangGraph execution storage-agnostic; callers persist events after runs.
+- Added `GET /api/v1/sessions/{session_id}/events`.
+- Added API response models for ordered trace events.
+- Extended database smoke checks to verify trace ordering metadata.
+- Added Chapter 9 implementation notes.
+- Added unit and API tests for redaction, event ordering, route-decision
+  insertion, endpoint output, missing sessions, and wrapper redaction.
+
+Verification:
+
+- `make lint`
+- `make test`
+- `make proof`
+
+Exit criteria:
+
+- Every persisted run can produce an inspectable ordered trace.
+- Users can tell whether the system was exploring, comparing, reframing,
+  executing, verifying, or reflecting at each major step.
+- Logs and persisted/API trace data redact obvious secrets.

@@ -128,6 +128,7 @@ def seed_database(session: Session) -> UUID:
 
     reasoning_event = ReasoningEvent(
         session_id=problem_session.id,
+        sequence_number=0,
         engine_name="chapter_4_seed",
         event_type="seed_trace",
         reasoning_mode="verify",

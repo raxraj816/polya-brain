@@ -2,9 +2,9 @@
 
 Python/FastAPI backend for the PolyaBrain Core Platform.
 
-Chapters 3, 4, 5, 6, and 7 implement the local development shell, the first
-durable database baseline, the core Pydantic contract layer, the LangGraph state
-object, and the engine interface contract:
+Chapters 3 through 9 implement the local development shell, the first durable
+database baseline, the core Pydantic contract layer, the LangGraph state object,
+the engine interface contract, the graph skeleton, and the event trace system:
 
 - FastAPI app factory at `backend/app/main.py`.
 - Environment-backed settings at `backend/app/config.py`.
@@ -19,6 +19,9 @@ object, and the engine interface contract:
   and state-local event/execution output models.
 - Shared engine status/route enums, result envelope, version metadata, telemetry
   wrapper, structured logging, and stage-gate validation.
+- Runnable Chapter 8 graph skeleton with safe stops and iteration guard.
+- Ordered `reasoning_events` persistence with route-decision events and redaction.
+- Read-only trace endpoint at `/api/v1/sessions/{session_id}/events`.
 - Pytest, ruff, and mypy configuration through the repository `pyproject.toml`.
 
 Run locally from the repository root:
