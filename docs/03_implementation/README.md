@@ -16,3 +16,5 @@ Current chapter notes:
 - `Chapter_4_Database_Baseline.md`
 - `Chapter_5_Core_Pydantic_Models.md`
 - `Chapter_6_LangGraph_State_Object.md`
+- `Chapter_7_Engine_Interface_Contract.md`
+- `Chapter_8_Graph_Skeleton.md`

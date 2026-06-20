@@ -228,12 +228,45 @@ Exit criteria:
 
 ## Chapter 8: Graph Skeleton
 
-Status: not started.
+Status: complete on `feature/chapter-8-graph-skeleton`.
 
-Planned:
+Done:
 
 - Add graph nodes for all nine logical engines.
 - Wire engine nodes through the Chapter 7 telemetry wrapper.
 - Add graph routes for gaps, missing inputs, low confidence, verification
   failure, insufficient evidence, success, and iteration limits.
 - Prove blocked or weak stages stop safely instead of continuing.
+- Added `backend/app/graph/skeleton.py`.
+- Added stable graph node names for all nine logical engines.
+- Added `PolyaGraphEngines`, `build_polya_graph`, and `run_polya_graph`.
+- Added graph-owned `iteration_guard` and `safe_stop` router nodes.
+- Reconstructed routing decisions from Chapter 7 terminal event metadata
+  without adding new `PolyaState` fields.
+- Added deterministic graph skeleton tests.
+- Added Chapter 8 implementation notes and routing Mermaid diagram.
+
+Verification:
+
+- `backend/tests/test_graph_skeleton.py`
+- `make lint`
+- `make test`
+- `make proof`
+
+Exit criteria:
+
+- Graph runs end-to-end with stubs.
+- Routing is visible in documentation.
+- The graph is recoverable, not a blind linear chain.
+
+## Chapter 9: Event Trace System
+
+Status: not started.
+
+Planned:
+
+- Add `reasoning_events` persistence.
+- Store each engine start, completion, error, route decision, and reasoning mode.
+- Add API endpoint to fetch session trace.
+- Add tests for event ordering.
+- Ensure logs and persisted events do not store secrets.
