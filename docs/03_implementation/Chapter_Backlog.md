@@ -120,13 +120,46 @@ Exit criteria:
 
 ## Chapter 5: Core Pydantic Models
 
+Status: complete on active implementation branch.
+
+Done:
+
+- Define first-class Pydantic v2 models for the core contract surface.
+- Added strict Pydantic models for structured problems, knowledge gaps, evidence
+  items, hypotheses, plan tasks, verification reports, and reflections.
+- Added value validation for product modes, priorities, plan risk levels,
+  hypothesis origins, hypothesis statuses, reasoning modes, confidence scores,
+  reliability scores, relevance scores, and verification confidence deltas.
+- Kept structured problem representation as the current canonical session
+  representation; reframe history remains trace metadata until versioned
+  representation history proves necessary.
+- Added JSON round-trip tests for all Chapter 5 models.
+- Added malformed-data tests for extra fields, blank required strings, invalid
+  enum values, evidence provenance, score bounds, selected-hypothesis
+  requirements, and verification report consistency.
+- Added full contract-bundle fixtures for math, technical research, software
+  debugging, data analysis, planning, and ambiguous-problem use cases.
+- Added implementation notes at `Chapter_5_Core_Pydantic_Models.md`.
+
+Verification:
+
+- `backend/tests/test_core_contracts.py`
+
+Exit criteria:
+
+- All models round-trip through JSON.
+- Bad data fails clearly.
+- Contract bundles cover the required Chapter 5 benchmark categories.
+
+## Chapter 6: LangGraph State Object
+
 Status: not started.
 
 Planned:
 
-- Define first-class Pydantic v2 models for the core contract surface.
-- Add value validation for modes, statuses, risk levels, and reasoning modes.
-- Decide whether structured problem representation is one mutable current state
-  per session or a versioned representation history.
-- Add serialization tests and contract fixtures.
-- Align API and engine-facing interfaces to these contracts before graph work.
+- Define `PolyaState`.
+- Include session id, structured problem, gaps, evidence, hypotheses, plan,
+  execution outputs, verification, reflection, iteration count, and final answer.
+- Add `max_iterations`.
+- Add state reducer for event messages.
+- Write state initialization helper.
