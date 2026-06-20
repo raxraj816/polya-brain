@@ -11,9 +11,10 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch implements the Chapter 5 core Pydantic contracts on top of the
-Chapter 4 database baseline, Chapter 3 local development environment, and the
-verified pre-platform proof harness.
+This branch implements the Chapter 7 engine interface contract on top of the
+Chapter 6 LangGraph state object, Chapter 5 core Pydantic contracts, Chapter 4
+database baseline, Chapter 3 local development environment, and the verified
+pre-platform proof harness.
 
 What runs today:
 
@@ -48,8 +49,9 @@ make docker-down
 ```
 
 `make db-smoke` verifies the Chapter 4 schema and inserts local seed data only in
-local/test environments or with `POLYABRAIN_ALLOW_DB_SEED=1`. Chapter 5 adds
-strict Pydantic contracts and does not require a database smoke check.
+local/test environments or with `POLYABRAIN_ALLOW_DB_SEED=1`. Chapters 5, 6, and
+7 add contracts and graph/engine primitives and do not require a database smoke
+check.
 
 Verify all stored proof runs:
 
@@ -110,7 +112,8 @@ Python, and the full local service stack runs with Docker Compose.
 
 Requirements:
 
-- Python 3.11+
+- Python 3.14. The repository defaults to Python 3.14 through
+  `.python-version`, matching the current local development interpreter.
 - Bash-compatible shell
 - Docker, for Postgres, Redis, and backend composition
 
@@ -133,14 +136,14 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, 3, 4, 5, and 6 are complete on the active chapter branch.
-Chapter 7 is the next implementation target.
+Chapters 1, 2, 3, 4, 5, 6, and 7 are complete on the active chapter branch.
+Chapter 8 is the next implementation target.
 
 The next chapters are:
 
-1. Chapter 7: engine interface contract.
-2. Chapter 8: graph skeleton.
-3. Chapter 9: event trace system.
-4. Chapter 10: API shell.
+1. Chapter 8: graph skeleton.
+2. Chapter 9: event trace system.
+3. Chapter 10: API shell.
+4. Chapter 11: prompt and parser design.
 
 See `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.

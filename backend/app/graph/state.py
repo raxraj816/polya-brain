@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Annotated, TypeAlias, TypedDict
+from typing import Annotated, TypedDict
 from uuid import uuid4
 
 from pydantic import Field, JsonValue
@@ -44,8 +44,8 @@ class ExecutionOutput(ContractModel):
     error: NonEmptyStr | None = None
 
 
-StateEventInput: TypeAlias = StateEvent | Mapping[str, JsonValue]
-StateEventUpdate: TypeAlias = StateEventInput | list[StateEventInput] | None
+type StateEventInput = StateEvent | Mapping[str, JsonValue]
+type StateEventUpdate = StateEventInput | list[StateEventInput] | None
 
 
 def _validate_state_event(event: StateEventInput) -> StateEvent:
