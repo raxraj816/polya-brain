@@ -153,13 +153,45 @@ Exit criteria:
 
 ## Chapter 6: LangGraph State Object
 
+Status: complete on active implementation branch.
+
+Done:
+
+- Added `backend/app/graph/state.py`.
+- Defined `PolyaState` as a LangGraph-compatible `TypedDict`.
+- Included session id, raw input, structured problem, gaps, evidence,
+  hypotheses, plan, execution outputs, verification, reflection, iteration
+  count, max iterations, final answer, and events.
+- Added `StateEvent` for append-only state event messages.
+- Added `ExecutionOutput` for task execution results before persistence exists.
+- Added `append_state_events` as the `events` state reducer.
+- Added reducer validation for dict-shaped graph event updates.
+- Kept state event metadata and execution output payloads JSON-compatible.
+- Added `create_initial_state` for raw-input validation and complete initial
+  state construction.
+- Added focused tests in `backend/tests/test_polya_state.py`.
+- Added implementation notes at `Chapter_6_LangGraph_State_Object.md`.
+
+Verification:
+
+- `backend/tests/test_polya_state.py`
+
+Exit criteria:
+
+- A raw input can become a valid initial state.
+- LangGraph accepts the `PolyaState` schema.
+- A compiled LangGraph smoke graph accumulates event updates through the reducer.
+
+## Chapter 7: Engine Interface Contract
+
 Status: not started.
 
 Planned:
 
-- Define `PolyaState`.
-- Include session id, structured problem, gaps, evidence, hypotheses, plan,
-  execution outputs, verification, reflection, iteration count, and final answer.
-- Add `max_iterations`.
-- Add state reducer for event messages.
-- Write state initialization helper.
+- Define base engine interface: `run(state) -> state`.
+- Add common telemetry wrapper.
+- Add engine result object with status, confidence, missing inputs,
+  recommended route, duration, errors, and token usage.
+- Add version metadata for engine, prompt, model, tool, verifier, and graph
+  version.
+- Add structured logging helpers.

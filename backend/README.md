@@ -2,8 +2,9 @@
 
 Python/FastAPI backend for the PolyaBrain Core Platform.
 
-Chapters 3, 4, and 5 implement the local development shell, the first durable
-database baseline, and the core Pydantic contract layer:
+Chapters 3, 4, 5, and 6 implement the local development shell, the first durable
+database baseline, the core Pydantic contract layer, and the LangGraph state
+object:
 
 - FastAPI app factory at `backend/app/main.py`.
 - Environment-backed settings at `backend/app/config.py`.
@@ -14,6 +15,8 @@ database baseline, and the core Pydantic contract layer:
 - Local database seed and guarded smoke utilities.
 - Strict Pydantic contracts for structured problems, gaps, evidence,
   hypotheses, plan tasks, verification reports, and reflections.
+- LangGraph-compatible `PolyaState`, state initialization helper, event reducer,
+  and state-local event/execution output models.
 - Pytest, ruff, and mypy configuration through the repository `pyproject.toml`.
 
 Run locally from the repository root:

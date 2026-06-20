@@ -11,6 +11,8 @@ Start with `Chapter_1_Start_Here.md` before beginning implementation.
 Current chapter notes:
 
 - `Chapter_Backlog.md`
+- `Implementation_Debt_Register.md`
 - `Chapter_3_Local_Development_Environment.md`
 - `Chapter_4_Database_Baseline.md`
 - `Chapter_5_Core_Pydantic_Models.md`
+- `Chapter_6_LangGraph_State_Object.md`
