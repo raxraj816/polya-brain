@@ -184,14 +184,56 @@ Exit criteria:
 
 ## Chapter 7: Engine Interface Contract
 
+Status: complete on active implementation branch.
+
+Done:
+
+- Added `backend/app/engines/contracts.py`.
+- Defined shared `PolyaEngine` protocol with `name`, `reasoning_mode`,
+  `version`, and synchronous `run(state)` interface.
+- Added `EngineRunOutput` for graph-ready state deltas plus typed engine result.
+- Added state-delta key validation against `PolyaState`.
+- Added `EngineResult` with status, confidence, missing inputs,
+  recommended route, duration, errors, token usage, version metadata, and
+  summary.
+- Added initial status values: `ok`, `needs_input`, `needs_evidence`,
+  `low_confidence`, `blocked`, `failed`, and `insufficient_evidence`.
+- Added initial route values: `continue`, `clarify`, `research`, `reframe`,
+  `replan`, `retry_execution`, `finalize`, and
+  `finalize_insufficient_evidence`.
+- Added version metadata for engine, prompt, model, tool, verifier, and graph
+  version.
+- Added common `run_engine` telemetry wrapper with duration capture,
+  structured logging, start/completion/failure events, version propagation, and
+  exception-to-failed-result conversion.
+- Added fail-closed fallback handling for malformed engine identity or version
+  metadata.
+- Added validation guards so `ok`, `needs_input`, `needs_evidence`,
+  `low_confidence`, `blocked`, `failed`, and `insufficient_evidence` statuses
+  cannot recommend unsafe or incoherent routes.
+- Added focused tests in `backend/tests/test_engine_contracts.py`.
+- Added implementation notes at `Chapter_7_Engine_Interface_Contract.md`.
+
+Verification:
+
+- `make lint`
+- `make test`
+- `make proof`
+
+Exit criteria:
+
+- All future engines can be implemented consistently.
+- Engines cannot silently pass low-confidence or incomplete outputs to the next
+  stage.
+
+## Chapter 8: Graph Skeleton
+
 Status: not started.
 
 Planned:
 
-- Define base engine interface: `run(state) -> state`.
-- Add common telemetry wrapper.
-- Add engine result object with status, confidence, missing inputs,
-  recommended route, duration, errors, and token usage.
-- Add version metadata for engine, prompt, model, tool, verifier, and graph
-  version.
-- Add structured logging helpers.
+- Add graph nodes for all nine logical engines.
+- Wire engine nodes through the Chapter 7 telemetry wrapper.
+- Add graph routes for gaps, missing inputs, low confidence, verification
+  failure, insufficient evidence, success, and iteration limits.
+- Prove blocked or weak stages stop safely instead of continuing.
