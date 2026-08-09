@@ -373,10 +373,68 @@ implementation branches.
 
 Current intended order:
 
-1. Chapter 12-A: LLM client interface and fake deterministic client.
-2. Chapter 11: prompt templates, parser, schemas, and JSON repair.
-3. Chapter 12-B: first real provider adapter, starting with OpenAI.
-4. Chapter 13: problem representation engine with `structured_problems`
+1. Chapter 12-B: first real provider adapter.
+2. Chapter 13: problem representation engine with `structured_problems`
    persistence.
-5. Chapter 15: clarifying question flow.
-6. Chapter 14: constraint discovery engine.
+3. Chapter 15: clarifying question flow.
+4. Chapter 14: constraint discovery engine.
+
+## Chapter 12-A: LLM Client Boundary
+
+Status: complete on `feature/chapter-12-llm-client`.
+
+Done:
+
+- Added strict provider-neutral message, request, option, capability, response,
+  and usage contracts.
+- Added the synchronous `LLMClient` protocol for the current graph architecture.
+- Added deterministic `FakeLLMClient` scripting and request capture.
+- Added JSON-mode capability checks that fail before unsupported calls.
+- Added typed, sanitized client errors.
+- Added bounded retry and deterministic exponential-backoff policy.
+- Added request-level timeout, model, temperature, output-token, and retry
+  controls.
+- Added focused tests for validation, fake responses, capability failures,
+  timeout propagation, retry behavior, error sanitization, and prompt-free logs.
+- Added OpenRouter support and an offline HTTP contract test for the separate
+  direct-model proof baseline runner.
+- Ran a five-case live OpenRouter baseline audit and recorded the result under
+  `proofs/pre_platform/live_baseline_runs/2026-08-09/`.
+
+Exit criteria:
+
+- Future engines can use the fake client in deterministic tests.
+- A production adapter can implement the protocol without changing engine
+  contracts.
+- Unsupported features and weak provider failures stop safely.
+
+## Chapter 11: Prompt And Parser Design
+
+Status: complete on `feature/chapter-11-prompt-parser`.
+
+Done:
+
+- Added versioned problem-understanding and repair prompts.
+- Added a strict Pydantic JSON output schema with literal, deeper, and
+  wrong-problem framing.
+- Added the exact Polya fields for given information, unknowns, constraints,
+  goal, and success criteria.
+- Added existing-mode inference, mode rationale and confidence, low-confidence
+  clarification routing, and user override preservation.
+- Added safe deterministic local JSON repair and bounded LLM repair.
+- Mapped validated prompt output into the existing Chapter 5
+  `StructuredProblem` contract without expanding the core data model.
+- Added exactly ten validated examples covering every category required by the
+  master plan.
+- Added focused contract, prompt, parser, and service tests.
+- Added an executable `make chapter11-proof` verification gate and CI step.
+- Added prompt version history and Chapter 11 implementation notes.
+
+Exit criteria:
+
+- The problem-understanding prompt exposes all required framing and Polya
+  fields through strict JSON.
+- Invalid output is locally repaired, repaired by a bounded model call, or
+  rejected safely.
+- All ten local examples pass through the provider-neutral fake-client boundary
+  and canonical contract mapping.

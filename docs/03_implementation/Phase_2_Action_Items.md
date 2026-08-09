@@ -7,22 +7,23 @@ continue from a shared checklist instead of conversation memory.
 
 ## Immediate Branches
 
-1. Finish and merge `feature/phase-2-persistence-policy`.
-2. Start `feature/chapter-12-llm-client` for the fake-testable LLM boundary.
+1. Review and merge `feature/chapter-11-prompt-parser`, including the Chapter
+   12-A boundary it builds upon.
+2. Start Chapter 12-B from the tested prompt, parser, and client boundaries.
 
 ## Execution Order
 
-1. Chapter 12-A: LLM client interface and fake client.
-2. Chapter 11: prompt templates, parser, schemas, and JSON repair.
-3. Chapter 12-B: first real provider adapter, starting with OpenAI.
-4. Chapter 13: problem representation engine.
-5. Chapter 15: clarifying question flow.
-6. Chapter 14: constraint discovery engine.
+1. Chapter 12-B: first real provider adapter.
+2. Chapter 13: problem representation engine.
+3. Chapter 15: clarifying question flow.
+4. Chapter 14: constraint discovery engine.
 
 This order keeps tests deterministic before live provider work and prevents
 under-specified user input from flowing too far into later engines.
 
 ## Chapter 12-A: LLM Boundary
+
+Status: complete on `feature/chapter-12-llm-client`.
 
 Deliver:
 
@@ -38,7 +39,9 @@ Do not require Redis or multiple real providers before this boundary is proven.
 
 ## Chapter 11: Prompt And Parser Boundary
 
-Deliver:
+Status: complete on `feature/chapter-11-prompt-parser`.
+
+Done:
 
 - Versioned problem-understanding prompt templates.
 - Prompt input formatting from `PolyaState`.
@@ -48,6 +51,11 @@ Deliver:
 - Local examples for math, logic, software debugging, research, data analysis,
   planning, scientific reasoning, ambiguous input, low-confidence mode selection,
   and wrong-problem framing.
+- Executable ten-example gate through `make chapter11-proof`.
+- Bounded deterministic local repair and bounded LLM repair with safe
+  exhaustion.
+- Prompt-only intelligence kept outside the canonical core contract while
+  accepted output maps to `StructuredProblem`.
 
 ## Chapter 12-B: First Real Provider
 
