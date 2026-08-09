@@ -1,0 +1,90 @@
+[
+  {
+    "analogical_source_ids": [
+      "pattern_n_plus_one_before_cache"
+    ],
+    "confidence": 0.74,
+    "evidence_against": [
+      "ev_cache_estimate"
+    ],
+    "evidence_for": [
+      "ev_query_log",
+      "ev_profile"
+    ],
+    "expected_signals": [
+      "High query count per request",
+      "Database time dominates total request time",
+      "Batch query or eager loading reduces p95 without new infrastructure"
+    ],
+    "falsification_criteria": [
+      "Query count remains high after alleged fix",
+      "Database p95 does not materially improve on representative traffic"
+    ],
+    "id": "h_n_plus_one",
+    "mechanism": "Repeated account detail queries create database round trips that dominate p95 latency.",
+    "origin": "direct_reasoning",
+    "selection_rationale": "It explains the largest measured latency component and can be tested without adding infrastructure.",
+    "statement": "The main bottleneck is an N+1 query pattern, so query consolidation should be tested before Redis.",
+    "status": "selected",
+    "verification_checks": [
+      "Run query-count assertion before and after batch-loading change",
+      "Measure p95 latency on a replayed representative request set",
+      "Confirm correctness of dashboard data after query-shape change"
+    ]
+  },
+  {
+    "analogical_source_ids": [],
+    "confidence": 0.38,
+    "evidence_against": [
+      "ev_query_log",
+      "ev_staleness"
+    ],
+    "evidence_for": [
+      "ev_cache_estimate"
+    ],
+    "expected_signals": [
+      "High repeated identical dashboard inputs",
+      "High cache hit rate in shadow simulation",
+      "Freshness constraints can be satisfied safely"
+    ],
+    "falsification_criteria": [
+      "Shadow cache hit rate remains below useful threshold",
+      "Freshness violations are likely without complex invalidation"
+    ],
+    "id": "h_cache_first",
+    "mechanism": "A cache could avoid database work for repeated dashboard requests.",
+    "origin": "user_supplied_hypothesis",
+    "selection_rationale": "Caching may help later, but current evidence does not justify making it the first architectural change.",
+    "statement": "Redis caching should be the first fix because repeated reads are causing avoidable database load.",
+    "status": "deferred",
+    "verification_checks": [
+      "Run shadow cache hit-rate simulation",
+      "Model invalidation paths for payment and balance updates",
+      "Compare expected p95 improvement against query-shape fix"
+    ]
+  },
+  {
+    "analogical_source_ids": [],
+    "confidence": 0.14,
+    "evidence_against": [
+      "ev_profile"
+    ],
+    "evidence_for": [],
+    "expected_signals": [
+      "External API time dominates request profile",
+      "Latency variance matches remote call variance"
+    ],
+    "falsification_criteria": [
+      "External API time remains a minor share of total latency"
+    ],
+    "id": "h_external_api",
+    "mechanism": "Remote calls could be adding latency outside the database.",
+    "origin": "divergent_hypothesis_pass",
+    "selection_rationale": "Included as a divergent alternative, but current profile data argues strongly against it.",
+    "statement": "External API calls are the dominant bottleneck.",
+    "status": "rejected",
+    "verification_checks": [
+      "Confirm external API p95 across a larger sample"
+    ]
+  }
+]

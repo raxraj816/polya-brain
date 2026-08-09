@@ -1,0 +1,60 @@
+{
+  "case_constraints_checked": [
+    "No autonomous production changes",
+    "No new infrastructure or irreversible change until the bottleneck or failure mode is verified",
+    "The recommendation must include verification steps",
+    "The report must preserve uncertainty and evidence against the chosen action"
+  ],
+  "checks_run": [
+    {
+      "description": "Final report includes all required audit sections.",
+      "deterministic": true,
+      "id": "check_required_sections",
+      "result": "passed"
+    },
+    {
+      "description": "Every evidence item includes source_type, source_uri, claim, reliability_score, and relevance_score.",
+      "deterministic": true,
+      "id": "check_source_metadata",
+      "result": "passed"
+    },
+    {
+      "description": "Hypotheses do not use novelty_score as a core MVP field.",
+      "deterministic": true,
+      "id": "check_no_novelty_score",
+      "result": "passed"
+    },
+    {
+      "description": "Evidence against or uncertainty is explicitly listed before recommendation.",
+      "deterministic": true,
+      "id": "check_contradictions",
+      "result": "passed"
+    },
+    {
+      "description": "Permanent architecture or production changes are not recommended before verification.",
+      "deterministic": true,
+      "id": "check_irreversible_change_gate",
+      "result": "passed"
+    }
+  ],
+  "confidence_delta": 0.1,
+  "contradictions": [
+    {
+      "description": "The selected path is plausible, but current evidence is incomplete and must be verified before irreversible action.",
+      "evidence_ids": [
+        "ev_change_risk"
+      ]
+    }
+  ],
+  "failed_checks": [],
+  "mode_specific_checklist": [
+    "Confirm dominant failure mode",
+    "Check for contradictory evidence",
+    "Prefer a reversible diagnostic before a permanent fix",
+    "Define falsification criteria",
+    "Report uncertainty and next checks"
+  ],
+  "passed": true,
+  "recommended_route": "run_reversible_diagnostic_check",
+  "selected_hypothesis_id": "h_idempotency_gap"
+}

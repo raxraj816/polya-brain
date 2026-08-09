@@ -1,0 +1,152 @@
+{
+  "analogical_patterns": [
+    {
+      "does_not_transfer": "The pattern does not prove the selected explanation is true; it only chooses the safest first test.",
+      "id": "pattern_separate_leak_from_load_spike",
+      "source": "procedural_memory_template",
+      "summary": "Similar investigations start by separating observed symptoms from the first proposed fix.",
+      "transfers": "Run the cheapest measurement that can falsify the leading explanation before changing architecture."
+    }
+  ],
+  "case_id": "memory_growth_worker",
+  "constraints": [
+    "No autonomous production changes",
+    "No new infrastructure or irreversible change until the bottleneck or failure mode is verified",
+    "The recommendation must include verification steps",
+    "The report must preserve uncertainty and evidence against the chosen action"
+  ],
+  "evidence": [
+    {
+      "claim": "The user reports this technical problem: Our background worker RSS grows from 600MB to 3GB over six hours and then gets OOM-killed. The quick fix suggested is doubling pod memory. Should we scale memory now or find the root cause first?",
+      "id": "ev_user_problem",
+      "raw_excerpt": "Our background worker RSS grows from 600MB to 3GB over six hours and then gets OOM-killed. The quick fix suggested is doubling pod memory. Should we scale memory now or find the root cause first?",
+      "relevance_score": 0.95,
+      "reliability_score": 0.72,
+      "source_type": "user_input",
+      "source_uri": "cli:problem"
+    },
+    {
+      "claim": "The prompt does not include enough direct measurements to safely choose a permanent fix.",
+      "id": "ev_missing_measurements",
+      "raw_excerpt": "No complete before/after metrics, logs, reproduction steps, or falsification results were provided in the prompt.",
+      "relevance_score": 0.88,
+      "reliability_score": 0.8,
+      "source_type": "analysis",
+      "source_uri": "polya:gap-detection"
+    },
+    {
+      "claim": "The system should avoid scaling capacity before isolating the growth source until the failure mode is verified.",
+      "id": "ev_change_risk",
+      "raw_excerpt": "PolyaBrain must prefer reversible checks and explicit evidence before architecture or production changes.",
+      "relevance_score": 0.83,
+      "reliability_score": 0.86,
+      "source_type": "constraint",
+      "source_uri": "polya:mvp-safety-rule"
+    }
+  ],
+  "hypothesis_candidates": [
+    {
+      "analogical_source_ids": [
+        "pattern_separate_leak_from_load_spike"
+      ],
+      "confidence": 0.62,
+      "evidence_against": [
+        "ev_change_risk"
+      ],
+      "evidence_for": [
+        "ev_user_problem",
+        "ev_missing_measurements"
+      ],
+      "expected_signals": [
+        "A small diagnostic check identifies the dominant component of the failure",
+        "The selected fix becomes measurable before implementation",
+        "Contradictory evidence is recorded before the recommendation is finalized"
+      ],
+      "falsification_criteria": [
+        "Direct measurements show a different dominant failure mode",
+        "The diagnostic check does not change confidence or narrow the solution path"
+      ],
+      "id": "h_resource_growth",
+      "mechanism": "The prompt contains a symptom and likely fix pressure, but not enough measured evidence to safely choose a permanent solution.",
+      "origin": "direct_reasoning",
+      "selection_rationale": "It minimizes irreversible work and converts the unknown into a measurable investigation step.",
+      "statement": "The issue may be resource growth under load, so memory and queue behavior should be measured before scaling.",
+      "status": "selected",
+      "verification_checks": [
+        "Collect the smallest log, metric, trace, or reproduction artifact that isolates the failure mode",
+        "Define a falsification criterion before changing architecture or production behavior",
+        "Compare the proposed fix against at least one plausible alternative"
+      ]
+    },
+    {
+      "analogical_source_ids": [],
+      "confidence": 0.31,
+      "evidence_against": [
+        "ev_missing_measurements",
+        "ev_change_risk"
+      ],
+      "evidence_for": [
+        "ev_user_problem"
+      ],
+      "expected_signals": [
+        "The symptom has a known direct cause",
+        "The fix is reversible and low risk"
+      ],
+      "falsification_criteria": [
+        "The fix does not address the measured dominant component"
+      ],
+      "id": "h_apply_obvious_fix",
+      "mechanism": "The reported symptom may directly point to a common fix.",
+      "origin": "divergent_hypothesis_pass",
+      "selection_rationale": "Possible, but too weak to choose before evidence collection.",
+      "statement": "Apply the first obvious fix suggested by the symptom.",
+      "status": "deferred",
+      "verification_checks": [
+        "Check whether the proposed fix directly targets the measured failure mode"
+      ]
+    },
+    {
+      "analogical_source_ids": [],
+      "confidence": 0.18,
+      "evidence_against": [
+        "ev_missing_measurements"
+      ],
+      "evidence_for": [],
+      "expected_signals": [
+        "Dependency latency or error rate changed at the same time",
+        "The issue disappears without code or configuration changes"
+      ],
+      "falsification_criteria": [
+        "Internal traces explain the issue without dependency anomalies"
+      ],
+      "id": "h_external_or_random_noise",
+      "mechanism": "External systems and transient incidents can create similar symptoms.",
+      "origin": "divergent_hypothesis_pass",
+      "selection_rationale": "Worth checking, but unsupported by the current prompt.",
+      "statement": "The problem is caused by an external dependency or random transient noise.",
+      "status": "rejected",
+      "verification_checks": [
+        "Compare dependency metrics and incident timelines against the observed symptom"
+      ]
+    }
+  ],
+  "knowns": [
+    "The user supplied a technical problem statement through the local CLI."
+  ],
+  "mode": "investigate",
+  "open_questions": [
+    "Does memory grow with processed job count, queue depth, payload size, or wall-clock time?",
+    "Is the growth in heap, native memory, buffers, or child processes?",
+    "Does memory return after GC or worker restart on a fixed-size batch?"
+  ],
+  "problem_type": "technical_investigation",
+  "raw_problem": "Our background worker RSS grows from 600MB to 3GB over six hours and then gets OOM-killed. The quick fix suggested is doubling pod memory. Should we scale memory now or find the root cause first?",
+  "recommended_next_action": "Run a bounded reproduction with heap/RSS sampling and queue-depth correlation, then compare memory growth on a fixed input batch against live traffic growth.",
+  "success_criteria": [
+    "Recommend the safest next engineering action",
+    "Expose evidence for and against the selected path",
+    "Identify checks needed before irreversible changes",
+    "Preserve uncertainty when evidence is incomplete"
+  ],
+  "title": "Investigate worker memory growth before scaling"
+}

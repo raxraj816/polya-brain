@@ -481,8 +481,7 @@ def call_openai_baseline(problem: str, model: str, timeout_seconds: float) -> Ba
         with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
             response_payload = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"OpenAI baseline request failed with HTTP {exc.code}: {body}") from exc
+        raise RuntimeError(f"OpenAI baseline request failed with HTTP {exc.code}") from exc
     except urllib.error.URLError as exc:
         raise RuntimeError(f"OpenAI baseline request failed: {exc.reason}") from exc
     except TimeoutError as exc:
@@ -502,6 +501,69 @@ def call_openai_baseline(problem: str, model: str, timeout_seconds: float) -> Ba
     )
 
 
+def call_openrouter_baseline(problem: str, model: str, timeout_seconds: float) -> BaselineResult:
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENROUTER_API_KEY is not set")
+    if not model.strip():
+        raise RuntimeError("OPENROUTER_MODEL or --baseline-model is required")
+
+    base_url = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/")
+    url = f"{base_url}/chat/completions"
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "system",
+                "content": "Answer directly as a normal LLM assistant. Do not use PolyaBrain's audit sections unless the user asks.",
+            },
+            {
+                "role": "user",
+                "content": f"Investigate this technical problem and recommend what to do next:\n\n{problem}",
+            },
+        ],
+        "max_tokens": 800,
+    }
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    started = time.monotonic()
+    try:
+        with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+            response_payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(f"OpenRouter baseline request failed with HTTP {exc.code}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"OpenRouter baseline request failed: {exc.reason}") from exc
+    except TimeoutError as exc:
+        raise RuntimeError("OpenRouter baseline request timed out") from exc
+
+    duration_ms = int((time.monotonic() - started) * 1000)
+    text = extract_chat_completion_text(response_payload)
+    usage = response_payload.get("usage")
+    usage_metadata = usage if isinstance(usage, dict) else {}
+    return BaselineResult(
+        text=text,
+        kind="openrouter_chat_completions_api",
+        metadata={
+            "provider": "openrouter",
+            "model": response_payload.get("model", model),
+            "duration_ms": duration_ms,
+            "response_id": response_payload.get("id"),
+            "api": "chat_completions",
+            "input_tokens": usage_metadata.get("prompt_tokens"),
+            "output_tokens": usage_metadata.get("completion_tokens"),
+            "total_tokens": usage_metadata.get("total_tokens"),
+        },
+    )
+
+
 def extract_response_text(response_payload: dict[str, Any]) -> str:
     if isinstance(response_payload.get("output_text"), str):
         return response_payload["output_text"].strip()
@@ -516,11 +578,31 @@ def extract_response_text(response_payload: dict[str, Any]) -> str:
     return text.strip() + "\n"
 
 
+def extract_chat_completion_text(response_payload: dict[str, Any]) -> str:
+    provider_error = response_payload.get("error")
+    if isinstance(provider_error, dict):
+        error_code = provider_error.get("code", "provider_error")
+        raise RuntimeError(f"OpenRouter baseline returned provider error code {error_code}")
+    choices = response_payload.get("choices")
+    if not isinstance(choices, list) or not choices:
+        raise RuntimeError("OpenRouter baseline response did not include choices")
+    first_choice = choices[0]
+    if not isinstance(first_choice, dict):
+        raise RuntimeError("OpenRouter baseline response included a malformed choice")
+    message = first_choice.get("message")
+    if not isinstance(message, dict):
+        raise RuntimeError("OpenRouter baseline response did not include a message")
+    content = message.get("content")
+    if not isinstance(content, str) or not content.strip():
+        raise RuntimeError("OpenRouter baseline response did not include text content")
+    return content.strip() + "\n"
+
+
 def build_baseline(
     problem: str,
     provider: str,
     baseline_path: Path | None,
-    model: str,
+    model: str | None,
     timeout_seconds: float,
 ) -> BaselineResult:
     if baseline_path is not None:
@@ -529,16 +611,24 @@ def build_baseline(
             kind="static_direct_llm_baseline_fixture",
             metadata={"source_uri": str(baseline_path)},
         )
+    if provider == "openrouter":
+        openrouter_model = model or os.environ.get("OPENROUTER_MODEL", "")
+        return call_openrouter_baseline(problem, openrouter_model, timeout_seconds)
     if provider == "openai":
-        return call_openai_baseline(problem, model, timeout_seconds)
+        openai_model = model or os.environ.get("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
+        return call_openai_baseline(problem, openai_model, timeout_seconds)
+    if provider == "auto" and os.environ.get("OPENROUTER_API_KEY"):
+        openrouter_model = model or os.environ.get("OPENROUTER_MODEL", "")
+        return call_openrouter_baseline(problem, openrouter_model, timeout_seconds)
     if provider == "auto" and os.environ.get("OPENAI_API_KEY"):
-        return call_openai_baseline(problem, model, timeout_seconds)
+        openai_model = model or os.environ.get("OPENAI_MODEL", DEFAULT_OPENAI_MODEL)
+        return call_openai_baseline(problem, openai_model, timeout_seconds)
     return BaselineResult(
         text=render_template_baseline(problem),
         kind="local_direct_answer_template",
         metadata={
             "provider": "template",
-            "reason": "OPENAI_API_KEY was not available or baseline_provider=template was selected.",
+            "reason": "No supported live baseline credential was available or baseline_provider=template was selected.",
         },
     )
 
@@ -690,7 +780,7 @@ def run_from_case_path(
     clean: bool,
     baseline_provider: str = "auto",
     baseline_path: Path | None = None,
-    baseline_model: str = DEFAULT_OPENAI_MODEL,
+    baseline_model: str | None = None,
     baseline_timeout_seconds: float = 30,
     run_id: str | None = None,
 ) -> Path:
@@ -720,7 +810,7 @@ def run_from_problem(
     output_root: Path,
     clean: bool,
     baseline_provider: str = "auto",
-    baseline_model: str = DEFAULT_OPENAI_MODEL,
+    baseline_model: str | None = None,
     baseline_timeout_seconds: float = 30,
     run_id: str | None = None,
 ) -> Path:
