@@ -20,7 +20,13 @@ Current chapter notes:
 - `Chapter_8_Graph_Skeleton.md`
 - `Chapter_9_Event_Trace_System.md`
 - `Chapter_10_API_Shell.md`
+- `Chapter_11_Prompt_And_Parser_Design.md`
+- `Chapter_12A_LLM_Client_Boundary.md`
 - `Phase_2_Action_Items.md`
+
+Prompt version history:
+
+- `prompts/Problem_Understanding_Prompt_Changelog.md`
 
 Phase 2 architecture notes:
 

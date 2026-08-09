@@ -38,6 +38,9 @@ jobs:
       - name: Verify pre-platform proof artifacts
         run: make proof
 
+      - name: Verify Chapter 11 prompt and parser examples
+        run: make chapter11-proof
+
   database-baseline:
     runs-on: ubuntu-latest
 

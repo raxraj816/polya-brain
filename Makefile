@@ -6,7 +6,7 @@ UVICORN := $(VENV)/bin/uvicorn
 ALEMBIC := $(VENV)/bin/alembic
 INSTALL_STAMP := $(VENV)/.installed
 
-.PHONY: check-python check-venv setup install dev test lint format typecheck migrate db-seed db-smoke db-test docker-up docker-down proof clean
+.PHONY: check-python check-venv setup install dev test lint format typecheck migrate db-seed db-smoke db-test docker-up docker-down proof chapter11-proof clean
 
 check-python:
 	@$(PYTHON) -c 'import sys; v=sys.version_info; ok=(3, 14) <= v[:2] < (3, 15); sys.exit(0 if ok else f"PolyaBrain requires Python >=3.14,<3.15; {sys.executable} is {v.major}.{v.minor}.{v.micro}.")'
@@ -65,6 +65,9 @@ docker-down:
 
 proof: check-python
 	$(PYTHON) proofs/pre_platform/verify_pre_platform_proof.py --all
+
+chapter11-proof: setup
+	$(PYTHON_BIN) scripts/verify_chapter11_examples.py
 
 clean:
 	rm -rf $(VENV) .pytest_cache .ruff_cache .mypy_cache

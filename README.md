@@ -11,13 +11,21 @@ problem input -> representation -> constraints -> gaps -> evidence/tools
 
 ## Current Status
 
-This branch completes Phase 1 through the Chapter 10 API shell on top of the
+This branch completes Phase 1 through the Chapter 10 API shell and advances
+Phase 2 through the Chapter 11 prompt/parser boundary and Chapter 12-A
+provider-neutral LLM boundary on top of the
 Chapter 9 event trace system, Chapter 8 LangGraph skeleton, Chapter 7 engine
 interface contract, Chapter 6 LangGraph state object, Chapter 5 core Pydantic
 contracts, Chapter 4 database baseline, Chapter 3 local development
 environment, and the verified pre-platform proof harness. The Phase 1 debt
 closure pass leaves no open implementation debt for completed Phase 0 or Phase 1
-chapters.
+chapters. Chapter 12-A adds a deterministic fake LLM client, typed request and
+response contracts, JSON-mode capability checks, bounded retry/backoff, token
+usage, and sanitized errors without adding a production provider adapter.
+Chapter 11 adds a versioned problem-understanding prompt, strict JSON schema,
+ten validated local examples, deterministic parsing, bounded repair, mode
+selection, clarification routing, and mapping to the existing canonical
+`StructuredProblem` contract.
 
 What runs today:
 
@@ -58,6 +66,7 @@ Run the local checks:
 make lint
 make test
 make proof
+make chapter11-proof
 ```
 
 Start the containerized local stack:
@@ -141,7 +150,8 @@ Requirements:
 
 Optional:
 
-- `OPENAI_API_KEY` for a live direct LLM baseline
+- `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` for an OpenRouter direct-model baseline
+- `OPENAI_API_KEY` for an OpenAI direct-model baseline
 
 Run the local proof:
 
@@ -158,16 +168,15 @@ Copy `.env.example` to a local `.env` when platform or live baseline work needs 
 
 Implementation is chapter-based, not date-based.
 
-Chapters 1, 2, 3, 4, 5, 6, 7, 8, 9, and 10 are complete on the active branch.
-The Phase 1 debt closure pass is complete. Phase 2 starts with the fake-testable
-LLM client boundary.
+Chapters 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, and 12-A are complete on the active
+branch. The Phase 1 debt closure pass is complete. Phase 2 now continues with
+the first production provider adapter and representation engine.
 
 The next implementation sequence is:
 
-1. Chapter 12-A: LLM client interface and fake deterministic client.
-2. Chapter 11: prompt and parser design.
-3. Chapter 12-B: first real provider adapter.
-4. Chapter 13: first problem representation engine.
+1. Chapter 12-B: first real provider adapter.
+2. Chapter 13: first problem representation engine.
+3. Chapter 15: clarifying-question flow.
 
 Before Chapter 13 persists real engine output, follow the Phase 2 persistence
 policy in `docs/01_architecture/Phase_2_Engine_Output_Persistence.md`.
