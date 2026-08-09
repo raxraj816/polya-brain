@@ -166,6 +166,12 @@ Do not turn PolyaBrain into:
 - Prefer the existing docs and architecture decisions over inventing new direction.
 - When creating a feature branch from `develop`, name it with the `feature/` prefix unless the user explicitly requests a different branch name.
 - Do not commit or push changes unless the user explicitly asks for a commit or push.
+- Treat `develop` and `master` as protected branches: never commit directly on
+  them, push to them, delete them, or force-update them. Commit and push only on
+  feature branches, then integrate through review.
+- Do not create or switch feature branches while chapter work is uncommitted.
+  Stop, report the dirty worktree, and obtain an explicit commit or disposition
+  decision first.
 - Keep changes scoped to the current chapter or requested task.
 - Preserve user changes. Do not revert unrelated work.
 - Do not commit secrets, tokens, private data, or real PII.
