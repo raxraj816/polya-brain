@@ -52,10 +52,21 @@ python3 proofs/pre_platform/verify_pre_platform_proof.py --all
 
 ## Direct LLM Baseline
 
-By default, the CLI uses `--baseline-provider auto`. If `OPENAI_API_KEY` is
-available, it calls the OpenAI Responses API for a direct baseline answer. If no
-key is available, it writes an explicit local direct-answer template so the proof
-can still run offline.
+By default, the CLI uses `--baseline-provider auto`. It prefers OpenRouter when
+`OPENROUTER_API_KEY` and `OPENROUTER_MODEL` are available, otherwise it uses the
+OpenAI Responses API when `OPENAI_API_KEY` is available. If no supported key is
+available, it writes an explicit local direct-answer template so the proof can
+still run offline.
+
+To force an OpenRouter baseline:
+
+```bash
+set -a
+. ./.env
+set +a
+./polyabrain investigate --case proofs/pre_platform/cases/cache_investigation.json \
+  --baseline-provider openrouter --clean
+```
 
 To force a real OpenAI baseline:
 
@@ -80,6 +91,10 @@ This harness proves the minimum product behavior, not the final platform:
 - Verification includes deterministic/non-LLM checks.
 - The output is compared against a direct LLM baseline runner or an explicit offline fallback.
 
-The OpenAI baseline runner is intentionally only the baseline. PolyaBrain's own
-artifact contract stays deterministic in this pre-platform proof so failures are
-easy to inspect.
+The live-provider baseline runners are intentionally only baselines.
+PolyaBrain's own artifact contract stays deterministic in this pre-platform
+proof so failures are easy to inspect.
+
+Live baseline comparisons measure the current direct model honestly. Structural
+audit-section scoring alone is not evidence that PolyaBrain is more useful or
+lower-overhead; inspect the direct answer and the Polya report together.

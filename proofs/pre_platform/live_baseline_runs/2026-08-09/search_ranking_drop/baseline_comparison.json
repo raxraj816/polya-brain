@@ -1,0 +1,37 @@
+{
+  "baseline_kind": "openrouter_chat_completions_api",
+  "baseline_metadata": {
+    "api": "chat_completions",
+    "duration_ms": 40521,
+    "input_tokens": 83,
+    "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "output_tokens": 617,
+    "provider": "openrouter",
+    "response_id": "gen-1786262525-mxnvbJZ9d657QoFLRQkN",
+    "total_tokens": 700
+  },
+  "baseline_note": "The baseline is a direct answer for the same problem, without the PolyaBrain artifact contract.",
+  "baseline_score": {
+    "audit_signal_count": 0,
+    "audit_signal_hits": [],
+    "has_contradiction_check": false,
+    "has_source_metadata": false,
+    "required_section_count": 0,
+    "required_section_hits": []
+  },
+  "polya_score": {
+    "audit_signal_count": 5,
+    "has_contradiction_check": true,
+    "has_deterministic_checks": true,
+    "has_file_artifacts": true,
+    "has_source_metadata": true,
+    "required_section_count": 8
+  },
+  "result": "polya_artifact_more_auditable",
+  "why": [
+    "PolyaBrain output has explicit evidence metadata.",
+    "PolyaBrain output separates evidence for and evidence against or uncertainty.",
+    "PolyaBrain output includes deterministic checks and an audit trace.",
+    "PolyaBrain output avoids permanent action before verification."
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "analogical_patterns": [
+    {
+      "does_not_transfer": "It does not prove Redis is useless; a cache may still help after query shape is fixed.",
+      "id": "pattern_n_plus_one_before_cache",
+      "source": "procedural_memory_fixture",
+      "summary": "When query logs show repeated per-entity lookups, batch loading or query shape fixes often beat adding a cache first.",
+      "transfers": "Look for N+1 query structure before adding infrastructure."
+    }
+  ],
+  "case_id": "cache_investigation",
+  "constraints": [
+    "No autonomous production changes",
+    "No new infrastructure unless the bottleneck evidence justifies it",
+    "The recommendation must include verification steps",
+    "The report must preserve uncertainty and evidence against the chosen action"
+  ],
+  "evidence": [
+    {
+      "claim": "The dashboard request performs 51 account detail queries after one initial account list query.",
+      "id": "ev_query_log",
+      "raw_excerpt": "GET /account-dashboard p95=2.4s; db_time_p95=1.9s; query_count=52; repeated SELECT account_details WHERE account_id=? observed for 50 accounts.",
+      "relevance_score": 0.95,
+      "reliability_score": 0.92,
+      "source_type": "artifact",
+      "source_uri": "fixtures/query-log-summary.txt"
+    },
+    {
+      "claim": "Database time dominates request latency while external API time is low.",
+      "id": "ev_profile",
+      "raw_excerpt": "p95 profile: total=2400ms; db=1900ms; app_render=260ms; external_api=90ms; serialization=80ms.",
+      "relevance_score": 0.94,
+      "reliability_score": 0.9,
+      "source_type": "artifact",
+      "source_uri": "fixtures/profile-summary.txt"
+    },
+    {
+      "claim": "A first Redis cache is estimated at only 30% hit rate because users often view distinct account sets.",
+      "id": "ev_cache_estimate",
+      "raw_excerpt": "Sampled dashboard requests over one hour: repeated identical dashboard inputs appeared in roughly 30% of requests.",
+      "relevance_score": 0.78,
+      "reliability_score": 0.68,
+      "source_type": "analysis",
+      "source_uri": "fixtures/cache-hit-estimate.md"
+    },
+    {
+      "claim": "Dashboard balances should reflect recent payments within five minutes.",
+      "id": "ev_staleness",
+      "raw_excerpt": "Support-facing dashboards must show payment and balance changes within a five minute freshness window.",
+      "relevance_score": 0.82,
+      "reliability_score": 0.84,
+      "source_type": "constraint",
+      "source_uri": "product-requirements:dashboard-freshness"
+    }
+  ],
+  "hypothesis_candidates": [
+    {
+      "analogical_source_ids": [
+        "pattern_n_plus_one_before_cache"
+      ],
+      "confidence": 0.74,
+      "evidence_against": [
+        "ev_cache_estimate"
+      ],
+      "evidence_for": [
+        "ev_query_log",
+        "ev_profile"
+      ],
+      "expected_signals": [
+        "High query count per request",
+        "Database time dominates total request time",
+        "Batch query or eager loading reduces p95 without new infrastructure"
+      ],
+      "falsification_criteria": [
+        "Query count remains high after alleged fix",
+        "Database p95 does not materially improve on representative traffic"
+      ],
+      "id": "h_n_plus_one",
+      "mechanism": "Repeated account detail queries create database round trips that dominate p95 latency.",
+      "origin": "direct_reasoning",
+      "selection_rationale": "It explains the largest measured latency component and can be tested without adding infrastructure.",
+      "statement": "The main bottleneck is an N+1 query pattern, so query consolidation should be tested before Redis.",
+      "status": "selected",
+      "verification_checks": [
+        "Run query-count assertion before and after batch-loading change",
+        "Measure p95 latency on a replayed representative request set",
+        "Confirm correctness of dashboard data after query-shape change"
+      ]
+    },
+    {
+      "analogical_source_ids": [],
+      "confidence": 0.38,
+      "evidence_against": [
+        "ev_query_log",
+        "ev_staleness"
+      ],
+      "evidence_for": [
+        "ev_cache_estimate"
+      ],
+      "expected_signals": [
+        "High repeated identical dashboard inputs",
+        "High cache hit rate in shadow simulation",
+        "Freshness constraints can be satisfied safely"
+      ],
+      "falsification_criteria": [
+        "Shadow cache hit rate remains below useful threshold",
+        "Freshness violations are likely without complex invalidation"
+      ],
+      "id": "h_cache_first",
+      "mechanism": "A cache could avoid database work for repeated dashboard requests.",
+      "origin": "user_supplied_hypothesis",
+      "selection_rationale": "Caching may help later, but current evidence does not justify making it the first architectural change.",
+      "statement": "Redis caching should be the first fix because repeated reads are causing avoidable database load.",
+      "status": "deferred",
+      "verification_checks": [
+        "Run shadow cache hit-rate simulation",
+        "Model invalidation paths for payment and balance updates",
+        "Compare expected p95 improvement against query-shape fix"
+      ]
+    },
+    {
+      "analogical_source_ids": [],
+      "confidence": 0.14,
+      "evidence_against": [
+        "ev_profile"
+      ],
+      "evidence_for": [],
+      "expected_signals": [
+        "External API time dominates request profile",
+        "Latency variance matches remote call variance"
+      ],
+      "falsification_criteria": [
+        "External API time remains a minor share of total latency"
+      ],
+      "id": "h_external_api",
+      "mechanism": "Remote calls could be adding latency outside the database.",
+      "origin": "divergent_hypothesis_pass",
+      "selection_rationale": "Included as a divergent alternative, but current profile data argues strongly against it.",
+      "statement": "External API calls are the dominant bottleneck.",
+      "status": "rejected",
+      "verification_checks": [
+        "Confirm external API p95 across a larger sample"
+      ]
+    }
+  ],
+  "knowns": [
+    "The endpoint is read-heavy during business hours",
+    "Dashboard data can become stale if cache invalidation is wrong",
+    "The team can run local profiling and inspect query logs this sprint"
+  ],
+  "mode": "investigate",
+  "open_questions": [
+    "What is p95 latency after replacing repeated account detail queries with a batch/eager-load query?",
+    "Does a larger traffic sample confirm the 30% cache-hit estimate?",
+    "Which invalidation paths are required to preserve the five-minute dashboard freshness constraint?"
+  ],
+  "problem_type": "technical_investigation",
+  "raw_problem": "Our account dashboard endpoint has p95 latency around 2.4s. A teammate wants to add Redis caching this sprint. Should we do that first, or investigate/fix something else?",
+  "recommended_next_action": "Run a reversible query-shape experiment: add a query-count assertion, batch/eager-load account details, replay representative dashboard requests, and compare p95 latency before introducing Redis.",
+  "success_criteria": [
+    "Recommend the safest next engineering action",
+    "Expose evidence for and against caching first",
+    "Identify checks needed before changing architecture",
+    "Avoid treating Redis as the answer before verifying the bottleneck"
+  ],
+  "title": "Investigate whether Redis caching is the right latency fix"
+}

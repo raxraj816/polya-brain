@@ -7,7 +7,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from proofs.pre_platform.core import DEFAULT_OPENAI_MODEL, DEFAULT_OUTPUT_ROOT, run_from_case_path, run_from_problem
+from proofs.pre_platform.core import DEFAULT_OUTPUT_ROOT, run_from_case_path, run_from_problem
 
 
 def parse_args() -> argparse.Namespace:
@@ -25,11 +25,11 @@ def parse_args() -> argparse.Namespace:
     investigate.add_argument("--clean", action="store_true", help="Delete the target run directory before writing artifacts.")
     investigate.add_argument(
         "--baseline-provider",
-        choices=["auto", "template", "openai"],
+        choices=["auto", "template", "openai", "openrouter"],
         default="auto",
-        help="Use OpenAI when available, a local direct-answer template, or auto-select.",
+        help="Use OpenRouter/OpenAI when available, a local template, or auto-select.",
     )
-    investigate.add_argument("--baseline-model", default=DEFAULT_OPENAI_MODEL)
+    investigate.add_argument("--baseline-model")
     investigate.add_argument("--baseline-timeout-seconds", type=float, default=30)
 
     return parser.parse_args()

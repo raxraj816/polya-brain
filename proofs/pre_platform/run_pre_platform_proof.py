@@ -13,7 +13,6 @@ if str(ROOT) not in sys.path:
 
 from proofs.pre_platform.core import (
     DEFAULT_CASE,
-    DEFAULT_OPENAI_MODEL,
     DEFAULT_OUTPUT_ROOT,
     run_from_case_path,
 )
@@ -27,11 +26,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--clean", action="store_true", help="Delete the target run directory before writing artifacts.")
     parser.add_argument(
         "--baseline-provider",
-        choices=["auto", "template", "openai"],
+        choices=["auto", "template", "openai", "openrouter"],
         default="auto",
         help="Baseline provider used when --baseline is not supplied.",
     )
-    parser.add_argument("--baseline-model", default=DEFAULT_OPENAI_MODEL)
+    parser.add_argument("--baseline-model")
     parser.add_argument("--baseline-timeout-seconds", type=float, default=30)
     parser.add_argument("--run-id")
     return parser.parse_args()
