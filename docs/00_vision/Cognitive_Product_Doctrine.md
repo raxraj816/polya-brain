@@ -10,6 +10,18 @@ PolyaBrain should be brain-inspired, not brain-simulating.
 
 The goal is not to recreate the biological brain. The goal is to convert useful principles from human intelligence into reliable software behavior.
 
+PolyaBrain itself is the problem-solving control system. It owns the goal,
+working state, knowledge gaps, action selection, belief updates, verification,
+recovery, stopping, reflection, and learning. An LLM is a replaceable capability
+for language interpretation, candidate generation, or synthesis; it is not the
+brain and does not own the control loop. The same subordinate relationship
+applies to search, code execution, calculators, databases, simulators, APIs,
+documents, and human input.
+
+Every capability result enters the system as an observation. It becomes trusted
+knowledge only after provenance, relevance, consistency, independence, and the
+problem's verification requirements have been evaluated.
+
 PolyaBrain should therefore ask:
 
 ```text
@@ -71,6 +83,11 @@ If a research idea cannot become a useful product behavior, defer it.
 10. Keep the MVP modular in code and simple in deployment.
 11. Use research to sharpen product behavior, not to expand scope without evidence.
 12. Measure usefulness through solved problems, user trust, and repeatable evaluations.
+13. Select actions from explicit state; do not hide the control policy inside a model prompt.
+14. Treat tool and model outputs as observations, not conclusions.
+15. Choose information-gathering actions for their ability to resolve important uncertainty.
+16. Preserve competing hypotheses until evidence or verification accepts, rejects, or defers them.
+17. Demonstrate generality with one cognitive kernel across different domains.
 
 ## MVP Boundary
 

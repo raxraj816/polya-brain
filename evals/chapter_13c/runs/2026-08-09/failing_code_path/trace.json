@@ -1,0 +1,309 @@
+[
+  {
+    "engine_name": "constraint_discovery",
+    "event_type": "completed",
+    "metadata": {
+      "status": "ok"
+    },
+    "reasoning_mode": "compare",
+    "summary": "Constraints are pre-discovered to isolate the next-action proof."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected inspect for the failing code path and observed execution state from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [
+        {
+          "candidate_id": "action-bd6f4afb01dd",
+          "rationale": "Lower bounded utility (0.788) than selected action (0.868)."
+        },
+        {
+          "candidate_id": "action-1987cd620fc6",
+          "rationale": "Lower bounded utility (0.708) than selected action (0.868)."
+        },
+        {
+          "candidate_id": "action-7f2cb03d263d",
+          "rationale": "Lower bounded utility (0.628) than selected action (0.868)."
+        }
+      ],
+      "selected": {
+        "action_type": "inspect",
+        "capability": "inspector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An observation that resolves or materially narrows the gap: the failing code path and observed execution state",
+        "expected_usefulness": 0.88,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-c2103c3b49b9",
+        "preconditions": [],
+        "purpose": "The unknown blocks a verified conclusion.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "the failing code path and observed execution state"
+      },
+      "state_fingerprint": "6405875fd34bf548"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected inspect for the failing code path and observed execution state through inspector."
+  },
+  {
+    "engine_name": "inspector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-c2103c3b49b9",
+      "action_type": "inspect",
+      "capability": "inspector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 1,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "the failing code path and observed execution state"
+    },
+    "reasoning_mode": "execute",
+    "summary": "inspector returned a fixture-backed observation for the failing code path and observed execution state."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected hypothesize for Which code path causes the second-page failure? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "hypothesize",
+        "capability": "reasoner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Distinct candidates with expected signals and falsification criteria.",
+        "expected_usefulness": 0.82,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-9cf94fd91dfd",
+        "preconditions": [],
+        "purpose": "Generate testable explanations or solution paths from current evidence.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which code path causes the second-page failure?"
+      },
+      "state_fingerprint": "6527a9b8aa873f45"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected hypothesize for Which code path causes the second-page failure? through reasoner."
+  },
+  {
+    "engine_name": "reasoner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-9cf94fd91dfd",
+      "action_type": "hypothesize",
+      "capability": "reasoner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which code path causes the second-page failure?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Generated a testable candidate from the acquired observations."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected plan for Which code path causes the second-page failure? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "plan",
+        "capability": "planner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An ordered plan whose tasks have observable outputs.",
+        "expected_usefulness": 0.79,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-339f34618956",
+        "preconditions": [],
+        "purpose": "Turn supported hypotheses into bounded executable checks.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which code path causes the second-page failure?"
+      },
+      "state_fingerprint": "e7c96679b05cb75e"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected plan for Which code path causes the second-page failure? through planner."
+  },
+  {
+    "engine_name": "planner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-339f34618956",
+      "action_type": "plan",
+      "capability": "planner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which code path causes the second-page failure?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Created one bounded verification task."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected execute for verify-failing_code_path-1 from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "execute",
+        "capability": "executor",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A deterministic pass or failure signal.",
+        "expected_usefulness": 0.84,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-29467a6d65c1",
+        "preconditions": [],
+        "purpose": "Execute the independent case check.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "verify-failing_code_path-1"
+      },
+      "state_fingerprint": "978d9c54a00c519a"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected execute for verify-failing_code_path-1 through executor."
+  },
+  {
+    "engine_name": "executor",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-29467a6d65c1",
+      "action_type": "execute",
+      "capability": "executor",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "verify-failing_code_path-1"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Executed the deterministic independent case check."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected verify for Which code path causes the second-page failure? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "verify",
+        "capability": "verifier",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Independent checks with pass, failure, or contradiction details.",
+        "expected_usefulness": 0.96,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-355d0f0b853a",
+        "preconditions": [],
+        "purpose": "Try to disprove the candidate conclusion before accepting it.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which code path causes the second-page failure?"
+      },
+      "state_fingerprint": "34b94534c317f030"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected verify for Which code path causes the second-page failure? through verifier."
+  },
+  {
+    "engine_name": "verifier",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-355d0f0b853a",
+      "action_type": "verify",
+      "capability": "verifier",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which code path causes the second-page failure?"
+    },
+    "reasoning_mode": "verify",
+    "summary": "The independent case verifier completed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected reflect for Which code path causes the second-page failure? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "reflect",
+        "capability": "reflector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Specific successful, failed, and reusable strategy observations.",
+        "expected_usefulness": 0.62,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-0ff11f4d01ba",
+        "preconditions": [],
+        "purpose": "Extract reusable lessons only after verification passes.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which code path causes the second-page failure?"
+      },
+      "state_fingerprint": "74dfdafe520db321"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected reflect for Which code path causes the second-page failure? through reflector."
+  },
+  {
+    "engine_name": "reflector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-0ff11f4d01ba",
+      "action_type": "reflect",
+      "capability": "reflector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which code path causes the second-page failure?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Reflected only after the independent check passed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected stop for current run from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "stop",
+        "capability": "cognitive_controller",
+        "distinguishes": [],
+        "estimated_cost": 1.0,
+        "expected_observation": "A truthful terminal status without a forced conclusion.",
+        "expected_usefulness": 0.05,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2734194fb40d",
+        "preconditions": [],
+        "purpose": "Stop safely because verified outcome reflected.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "current run"
+      },
+      "state_fingerprint": "d9bb3e1b56cc09ad"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected stop for current run through cognitive_controller."
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "comparison_type": "live_full_outcome_same_model_same_tools",
+  "completed_comparison_pairs": 2,
+  "invalidated_at": "2026-08-10T01:15:00+00:00",
+  "reason": "The diagnostic exposed that PolyaBrain could exceed the declared six-model-call ceiling because the budget was scored after execution instead of enforced at the model boundary. The run was manually stopped and must not be used as benchmark evidence.",
+  "run_id": "004230-08c7a7c7",
+  "status": "invalidated"
+}

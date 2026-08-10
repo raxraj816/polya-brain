@@ -7,7 +7,17 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from pgvector.sqlalchemy import VECTOR
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -44,6 +54,33 @@ class ProblemSession(Base):
         Index("ix_problem_sessions_status", "status"),
         Index("ix_problem_sessions_created_at", "created_at"),
         Index("ix_problem_sessions_run_started_at", "run_started_at"),
+    )
+
+
+class ClarificationRequest(Base):
+    """One persisted pause for missing user-owned information."""
+
+    __tablename__ = "clarification_requests"
+
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("problem_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    questions: Mapped[list[Any]] = mapped_column(JSONB, nullable=False)
+    answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(64), nullable=False, default="pending")
+    requested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        Index("ix_clarification_requests_session_id", "session_id"),
+        Index("ix_clarification_requests_session_status", "session_id", "status"),
+        Index("ix_clarification_requests_expires_at", "expires_at"),
     )
 
 
@@ -267,6 +304,11 @@ class KnowledgeChunk(Base):
     content_hash: Mapped[str | None] = mapped_column(String(128), nullable=True)
     source_type: Mapped[str] = mapped_column(String(128), nullable=False)
     source_uri: Mapped[str | None] = mapped_column(Text, nullable=True)
+    domain: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    reliability_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
+    valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    tags: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    admission_status: Mapped[str] = mapped_column(String(64), nullable=False, default="evaluated")
     chunk_metadata: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSONB, nullable=False, default=dict
     )
@@ -281,4 +323,77 @@ class KnowledgeChunk(Base):
     __table_args__ = (
         Index("ix_knowledge_chunks_session_id", "session_id"),
         Index("ix_knowledge_chunks_source_artifact_id", "source_artifact_id"),
+        Index("ix_knowledge_chunks_domain", "domain"),
+        Index("ix_knowledge_chunks_valid_until", "valid_until"),
+    )
+
+
+class EpisodicMemory(Base):
+    """A completed, verified problem-solving episode available for transfer."""
+
+    __tablename__ = "episodic_memories"
+
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    source_session_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("problem_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+    problem_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    domain: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    core_question: Mapped[str] = mapped_column(Text, nullable=False)
+    outcome_summary: Mapped[str] = mapped_column(Text, nullable=False)
+    final_answer: Mapped[str] = mapped_column(Text, nullable=False)
+    verification_checks: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    reflection: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+    evidence_source_uris: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    embedding_provider: Mapped[str] = mapped_column(String(128), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(255), nullable=False)
+    embedding: Mapped[list[float]] = mapped_column(VECTOR(1536), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+
+    __table_args__ = (
+        Index("ix_episodic_memories_problem_type", "problem_type"),
+        Index("ix_episodic_memories_domain", "domain"),
+        Index("ix_episodic_memories_created_at", "created_at"),
+    )
+
+
+class ProceduralStrategy(Base):
+    """A reusable action preference learned only from verified outcomes."""
+
+    __tablename__ = "procedural_strategies"
+
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    problem_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    gap_type: Mapped[str] = mapped_column(String(128), nullable=False)
+    action_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    capability: Mapped[str] = mapped_column(String(128), nullable=False)
+    preconditions: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    steps: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    verified_successes: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    verified_failures: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    success_rate: Mapped[float] = mapped_column(Float, nullable=False, default=1.0)
+    source_session_ids: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now, onupdate=utc_now
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "problem_type",
+            "gap_type",
+            "action_type",
+            "capability",
+            name="uq_procedural_strategy_signature",
+        ),
+        Index("ix_procedural_strategies_problem_gap", "problem_type", "gap_type"),
+        Index("ix_procedural_strategies_success_rate", "success_rate"),
     )

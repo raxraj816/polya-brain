@@ -22,6 +22,14 @@ Current chapter notes:
 - `Chapter_10_API_Shell.md`
 - `Chapter_11_Prompt_And_Parser_Design.md`
 - `Chapter_12A_LLM_Client_Boundary.md`
+- `Chapter_12B_OpenRouter_Adapter.md`
+- `Chapter_13_Problem_Representation_Engine.md`
+- `Chapter_13C_General_Cognitive_Control_Proof.md`
+- `Chapter_13C_Outcome_Benchmark_Operations.md`
+- `Chapter_14_Constraint_Discovery_Engine.md`
+- `Chapter_15_Clarifying_Question_Flow.md`
+- `Chapter_16_20_Memory_Foundation.md`
+- `Minimum_Production_Capability_Set.md`
 - `Phase_2_Action_Items.md`
 
 Prompt version history:

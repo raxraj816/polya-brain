@@ -1,0 +1,21 @@
+{
+  "changed_action": true,
+  "learned_strategies": [
+    {
+      "action_type": "inspect",
+      "capability": "inspector",
+      "gap_type": "current_external_fact",
+      "problem_type": "technical_research",
+      "source_session_ids": [
+        "current_api_behavior"
+      ],
+      "verified_failures": 0,
+      "verified_successes": 1
+    }
+  ],
+  "passed": true,
+  "source_case": "current_api_behavior",
+  "source_verified": true,
+  "with_memory_action": "inspect",
+  "without_memory_action": "search"
+}

@@ -1,0 +1,43 @@
+{
+  "affected_entities": [
+    "OpenRouter client configuration",
+    "Evaluation harness",
+    "Production request router",
+    "Privacy policy enforcement"
+  ],
+  "constraints": [
+    "Production must maintain fail-closed privacy (data_collection=deny or ZDR)",
+    "Evaluation path must be clearly isolated from production data",
+    "JSON-mode routing (require_parameters) must remain enforced",
+    "No confidential data may reach the free endpoint"
+  ],
+  "core_question": "Identify a configuration that allows the free model for evaluation-only use while preserving data_collection=deny (or equivalent ZDR) for production traffic.",
+  "domain": "provider_configuration",
+  "knowns": [
+    "OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free (free endpoint)",
+    "OPENROUTER_DATA_COLLECTION=deny (fail-closed privacy)",
+    "OPENROUTER_ZDR=false",
+    "OPENROUTER_REQUIRE_PARAMETERS_FOR_JSON=true",
+    "Free endpoint warns: session data logged for security and model improvement",
+    "Probe result: HTTP 404 with error 'No endpoints found matching your data policy (Free model training)'"
+  ],
+  "problem_type": "provider_routing_policy_investigation",
+  "required_data_sources": [
+    "OpenRouter model catalog with data_collection/ZDR support matrix",
+    "OpenRouter routing documentation for per-request provider.parameters",
+    "Current PolyaBrain router implementation"
+  ],
+  "success_criteria": [
+    "Configuration allows free model for evaluation with explicit data_collection=allow",
+    "Production routing uses a model/endpoint that satisfies data_collection=deny or ZDR",
+    "No code path allows production prompts to reach the free endpoint",
+    "Routing logic is auditable and tested"
+  ],
+  "time_window": {},
+  "unknowns": [
+    "Which paid models/endpoints support data_collection=deny or ZDR=true",
+    "Whether OpenRouter allows per-request data_collection override for evaluation vs production",
+    "Current production traffic routing architecture (single client vs segmented)",
+    "Cost and latency constraints for production model selection"
+  ]
+}

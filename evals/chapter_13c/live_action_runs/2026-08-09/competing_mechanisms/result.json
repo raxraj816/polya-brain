@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "experiment"
+  ],
+  "case_id": "competing_mechanisms",
+  "category": "scientific_reasoning",
+  "controller_action": "experiment",
+  "controller_correct": true,
+  "controller_latency_ms": 0.2157499548047781,
+  "controller_model_tokens": 0,
+  "direct_action": "experiment",
+  "direct_capability": "experiment",
+  "direct_correct": true,
+  "direct_latency_ms": 11735.401999903843,
+  "direct_rationale": "The high-priority gap indicates a controlled experiment is needed to determine which mechanism's prediction matches observation. Executing an experiment directly addresses this gap and enables verification.",
+  "direct_supported": true,
+  "direct_target": "run controlled experiment to test the differing predictions of the two mechanisms",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1227,
+    "output_tokens": 396,
+    "reasoning_tokens": 419
+  },
+  "expected_action": "experiment",
+  "parse_error": null
+}

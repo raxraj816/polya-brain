@@ -1,0 +1,305 @@
+[
+  {
+    "engine_name": "constraint_discovery",
+    "event_type": "completed",
+    "metadata": {
+      "status": "ok"
+    },
+    "reasoning_mode": "compare",
+    "summary": "Constraints are pre-discovered to isolate the next-action proof."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected experiment for which mechanism's prediction matches observation from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [
+        {
+          "candidate_id": "action-55ea5a2527eb",
+          "rationale": "Lower bounded utility (0.788) than selected action (0.868)."
+        },
+        {
+          "candidate_id": "action-598f80babc4b",
+          "rationale": "Lower bounded utility (0.708) than selected action (0.868)."
+        }
+      ],
+      "selected": {
+        "action_type": "experiment",
+        "capability": "experiment",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An observation that resolves or materially narrows the gap: which mechanism's prediction matches observation",
+        "expected_usefulness": 0.88,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-e65f8cd8a5ab",
+        "preconditions": [],
+        "purpose": "The unknown blocks a verified conclusion.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "which mechanism's prediction matches observation"
+      },
+      "state_fingerprint": "4851aba2be5e4047"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected experiment for which mechanism's prediction matches observation through experiment."
+  },
+  {
+    "engine_name": "experiment",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-e65f8cd8a5ab",
+      "action_type": "experiment",
+      "capability": "experiment",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 1,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "which mechanism's prediction matches observation"
+    },
+    "reasoning_mode": "execute",
+    "summary": "experiment returned a fixture-backed observation for which mechanism's prediction matches observation."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected hypothesize for Which mechanism explains the observed response? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "hypothesize",
+        "capability": "reasoner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Distinct candidates with expected signals and falsification criteria.",
+        "expected_usefulness": 0.82,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-616d44768298",
+        "preconditions": [],
+        "purpose": "Generate testable explanations or solution paths from current evidence.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which mechanism explains the observed response?"
+      },
+      "state_fingerprint": "4f6839d5e87c44c6"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected hypothesize for Which mechanism explains the observed response? through reasoner."
+  },
+  {
+    "engine_name": "reasoner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-616d44768298",
+      "action_type": "hypothesize",
+      "capability": "reasoner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which mechanism explains the observed response?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Generated a testable candidate from the acquired observations."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected plan for Which mechanism explains the observed response? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "plan",
+        "capability": "planner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An ordered plan whose tasks have observable outputs.",
+        "expected_usefulness": 0.79,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-60c054d235c4",
+        "preconditions": [],
+        "purpose": "Turn supported hypotheses into bounded executable checks.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which mechanism explains the observed response?"
+      },
+      "state_fingerprint": "6a048deb302e8f05"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected plan for Which mechanism explains the observed response? through planner."
+  },
+  {
+    "engine_name": "planner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-60c054d235c4",
+      "action_type": "plan",
+      "capability": "planner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which mechanism explains the observed response?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Created one bounded verification task."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected execute for verify-competing_mechanisms-1 from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "execute",
+        "capability": "executor",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A deterministic pass or failure signal.",
+        "expected_usefulness": 0.84,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-421f47f603d0",
+        "preconditions": [],
+        "purpose": "Execute the independent case check.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "verify-competing_mechanisms-1"
+      },
+      "state_fingerprint": "8487abdf91a8ce10"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected execute for verify-competing_mechanisms-1 through executor."
+  },
+  {
+    "engine_name": "executor",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-421f47f603d0",
+      "action_type": "execute",
+      "capability": "executor",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "verify-competing_mechanisms-1"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Executed the deterministic independent case check."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected verify for Which mechanism explains the observed response? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "verify",
+        "capability": "verifier",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Independent checks with pass, failure, or contradiction details.",
+        "expected_usefulness": 0.96,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2f6fdf5b77da",
+        "preconditions": [],
+        "purpose": "Try to disprove the candidate conclusion before accepting it.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which mechanism explains the observed response?"
+      },
+      "state_fingerprint": "34a6457ac916ea9d"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected verify for Which mechanism explains the observed response? through verifier."
+  },
+  {
+    "engine_name": "verifier",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-2f6fdf5b77da",
+      "action_type": "verify",
+      "capability": "verifier",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which mechanism explains the observed response?"
+    },
+    "reasoning_mode": "verify",
+    "summary": "The independent case verifier completed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected reflect for Which mechanism explains the observed response? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "reflect",
+        "capability": "reflector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Specific successful, failed, and reusable strategy observations.",
+        "expected_usefulness": 0.62,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-c31b6e8b685f",
+        "preconditions": [],
+        "purpose": "Extract reusable lessons only after verification passes.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which mechanism explains the observed response?"
+      },
+      "state_fingerprint": "ba81d5d889f8001f"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected reflect for Which mechanism explains the observed response? through reflector."
+  },
+  {
+    "engine_name": "reflector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-c31b6e8b685f",
+      "action_type": "reflect",
+      "capability": "reflector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which mechanism explains the observed response?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Reflected only after the independent check passed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected stop for current run from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "stop",
+        "capability": "cognitive_controller",
+        "distinguishes": [],
+        "estimated_cost": 1.0,
+        "expected_observation": "A truthful terminal status without a forced conclusion.",
+        "expected_usefulness": 0.05,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2734194fb40d",
+        "preconditions": [],
+        "purpose": "Stop safely because verified outcome reflected.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "current run"
+      },
+      "state_fingerprint": "fc4a718d0ea1b281"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected stop for current run through cognitive_controller."
+  }
+]

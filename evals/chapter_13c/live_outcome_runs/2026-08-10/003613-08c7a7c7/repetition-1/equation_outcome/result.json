@@ -1,0 +1,84 @@
+{
+  "case_id": "equation_outcome",
+  "category": "mathematical_reasoning",
+  "direct": {
+    "actions": [
+      "calculate"
+    ],
+    "answer_passed": false,
+    "budget_passed": true,
+    "checks_performed": [
+      "Algebraic isolation of x",
+      "Substitution verification in original equation"
+    ],
+    "conclusion": "x = 3",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 14746.130083920434,
+    "parse_error": null,
+    "passed": false,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "calculate",
+        "call_index": 1,
+        "capability": "calculator",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+          "status": "succeeded",
+          "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+        },
+        "target": "(10 - 4) / 2"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 916,
+      "model_calls": 2,
+      "output_tokens": 384,
+      "total_tokens": 1300
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "polya": {
+    "actions": [
+      "calculate",
+      "hypothesize",
+      "plan",
+      "stop"
+    ],
+    "answer_passed": false,
+    "budget_passed": true,
+    "checks_performed": [],
+    "conclusion": null,
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 44842.937915818766,
+    "passed": false,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 2714,
+      "model_calls": 2,
+      "output_tokens": 1140,
+      "total_tokens": 3854
+    },
+    "verification_passed": false
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

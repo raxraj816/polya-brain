@@ -1,0 +1,23 @@
+[
+  {
+    "bytes": 4586,
+    "id": "query_measurement_code",
+    "included_chars": 4586,
+    "path": "evals/chapter_13/fixtures/query_path/measure_query_paths.py",
+    "sha256": "61fc6ff0008d528ae7ad2868ff125ff568d78314cdbfacf073060b644656e884"
+  },
+  {
+    "bytes": 331,
+    "id": "query_metrics_summary",
+    "included_chars": 331,
+    "path": "evals/chapter_13/generated/query_metrics_summary.json",
+    "sha256": "dbf26c9a1d0903d6ec3188d90c62cba9805a161415f63cc18ebb086074230111"
+  },
+  {
+    "bytes": 9753,
+    "id": "query_metrics_csv",
+    "included_chars": 5000,
+    "path": "evals/chapter_13/generated/query_metrics.csv",
+    "sha256": "8004225380dd8e981dc0512436f9c7556945ce8b4c3b89d3b8ef3631f67bf129"
+  }
+]

@@ -12,6 +12,7 @@ from app.llm.contracts import (
 )
 from app.llm.errors import LLMClientError, LLMErrorCode
 from app.llm.fake import FakeLLMClient
+from app.llm.openrouter import OpenRouterLLMClient
 
 __all__ = [
     "FakeLLMClient",
@@ -25,5 +26,6 @@ __all__ = [
     "LLMResponse",
     "LLMRole",
     "LLMTokenUsage",
+    "OpenRouterLLMClient",
     "complete_with_retry",
 ]

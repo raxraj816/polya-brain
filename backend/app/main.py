@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.api.routes.events import router as events_router
 from app.api.routes.health import router as health_router
+from app.api.routes.memory import router as memory_router
 from app.api.routes.sessions import router as sessions_router
 from app.config import Settings, get_settings
 from app.db.session import create_database_engine, create_session_factory
@@ -24,6 +25,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(sessions_router)
     app.include_router(events_router)
+    app.include_router(memory_router)
     return app
 
 

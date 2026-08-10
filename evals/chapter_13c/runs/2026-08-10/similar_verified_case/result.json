@@ -1,0 +1,27 @@
+{
+  "actions": [
+    "retrieve_memory",
+    "hypothesize",
+    "plan",
+    "execute",
+    "verify",
+    "reflect",
+    "stop"
+  ],
+  "case_id": "similar_verified_case",
+  "category": "analogical_transfer",
+  "controller_latency_ms": 0.5975000094622374,
+  "estimated_capability_cost": 0.30000000000000004,
+  "expected_first_action": "retrieve_memory",
+  "expected_recovery_action": null,
+  "expected_verification_recovery": false,
+  "final_answer": "Use only the transferable structure and verify it in the new case.",
+  "first_action_correct": true,
+  "model_tokens": 0,
+  "passed": true,
+  "recovery_correct": true,
+  "repeated_non_progress_count": 0,
+  "status": "completed",
+  "verification_passed": true,
+  "verification_recovery_correct": true
+}

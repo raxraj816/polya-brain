@@ -32,10 +32,16 @@ class LLMClientError(RuntimeError):
         provider: str,
         retryable: bool = False,
         status_code: int | None = None,
+        retry_after_seconds: float | None = None,
     ) -> None:
         self.code = code
         self.safe_message = sanitize_text(message).strip() or "LLM request failed"
         self.provider = sanitize_text(provider).strip() or "unknown"
         self.retryable = retryable
         self.status_code = status_code
+        self.retry_after_seconds = (
+            retry_after_seconds
+            if retry_after_seconds is not None and retry_after_seconds >= 0
+            else None
+        )
         super().__init__(f"{self.code.value}: {self.safe_message}")

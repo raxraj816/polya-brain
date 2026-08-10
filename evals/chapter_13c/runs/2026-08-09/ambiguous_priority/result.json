@@ -1,0 +1,27 @@
+{
+  "actions": [
+    "clarify",
+    "hypothesize",
+    "plan",
+    "execute",
+    "verify",
+    "reflect",
+    "stop"
+  ],
+  "case_id": "ambiguous_priority",
+  "category": "ambiguous_input",
+  "controller_latency_ms": 1.9362918101251125,
+  "estimated_capability_cost": 0.30000000000000004,
+  "expected_first_action": "clarify",
+  "expected_recovery_action": null,
+  "expected_verification_recovery": false,
+  "final_answer": "Use the plan matching the clarified priority.",
+  "first_action_correct": true,
+  "model_tokens": 0,
+  "passed": true,
+  "recovery_correct": true,
+  "repeated_non_progress_count": 0,
+  "status": "completed",
+  "verification_passed": true,
+  "verification_recovery_correct": true
+}

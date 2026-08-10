@@ -1,0 +1,32 @@
+{
+  "affected_entities": [
+    "collect_pages function",
+    "pagination test"
+  ],
+  "constraints": [
+    "Fix must be minimal and safe.",
+    "Must not break existing functionality."
+  ],
+  "core_question": "Identify the root cause of duplicate records in pagination and provide the minimal code change to fix it.",
+  "domain": "software_debugging",
+  "knowns": [
+    "The function collect_pages uses cursor += page_size - 1.",
+    "Test expects each record once for page_size=2 on three records.",
+    "Test fails with duplicates."
+  ],
+  "problem_type": "software_root_cause_investigation",
+  "required_data_sources": [
+    "pagination_service.py",
+    "test_pagination_service.py",
+    "pagination_pytest.log"
+  ],
+  "success_criteria": [
+    "The test passes with the fix.",
+    "No duplicates for any page_size and record list."
+  ],
+  "time_window": {},
+  "unknowns": [
+    "Whether there are other edge cases (e.g., page_size=1, empty list).",
+    "If the fix might affect other pagination behaviors."
+  ]
+}

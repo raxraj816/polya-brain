@@ -1,0 +1,11 @@
+{
+  "comparison_type": "live_full_outcome_same_model_same_tools",
+  "completed_comparison_pairs": 0,
+  "failed_case": "equation_outcome",
+  "failed_repetition": 1,
+  "message": "rate_limit: OpenRouter request failed (http_429).",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "provider_error_kind": "rate_limit",
+  "run_id": "175333-08c7a7c7",
+  "status": "provider_blocked"
+}

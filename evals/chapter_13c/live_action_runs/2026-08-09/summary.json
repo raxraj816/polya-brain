@@ -1,0 +1,289 @@
+{
+  "case_count": 10,
+  "cases": [
+    {
+      "accepted_actions": [
+        "ask_human",
+        "clarify"
+      ],
+      "case_id": "ambiguous_priority",
+      "category": "ambiguous_input",
+      "controller_action": "clarify",
+      "controller_correct": true,
+      "controller_latency_ms": 0.08158409036695957,
+      "controller_model_tokens": 0,
+      "direct_action": "ask_human",
+      "direct_capability": "human_input",
+      "direct_correct": true,
+      "direct_latency_ms": 6652.65491604805,
+      "direct_rationale": "Need user's priority between speed, cost, and risk to choose best launch plan.",
+      "direct_supported": true,
+      "direct_target": "user",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1231,
+        "output_tokens": 209,
+        "reasoning_tokens": 176
+      },
+      "expected_action": "clarify",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "calculate"
+      ],
+      "case_id": "exact_equation",
+      "category": "mathematical_reasoning",
+      "controller_action": "calculate",
+      "controller_correct": true,
+      "controller_latency_ms": 0.18474995158612728,
+      "controller_model_tokens": 0,
+      "direct_action": "calculate",
+      "direct_capability": "calculator",
+      "direct_correct": true,
+      "direct_latency_ms": 16210.298459045589,
+      "direct_rationale": "Compute the value of x by solving the linear equation 2x + 4 = 10.",
+      "direct_supported": true,
+      "direct_target": "(10-4)/2",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1239,
+        "output_tokens": 196,
+        "reasoning_tokens": 117
+      },
+      "expected_action": "calculate",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "search"
+      ],
+      "case_id": "current_api_behavior",
+      "category": "technical_research",
+      "controller_action": "search",
+      "controller_correct": true,
+      "controller_latency_ms": 0.20208396017551422,
+      "controller_model_tokens": 0,
+      "direct_action": "search",
+      "direct_capability": "web_search",
+      "direct_correct": true,
+      "direct_latency_ms": 21166.646833065897,
+      "direct_rationale": "Search for authoritative documentation on the current official API behavior to fill the high-priority gap.",
+      "direct_supported": true,
+      "direct_target": "official API specification current behavior",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1231,
+        "output_tokens": 593,
+        "reasoning_tokens": 689
+      },
+      "expected_action": "search",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "inspect"
+      ],
+      "case_id": "failing_code_path",
+      "category": "software_debugging",
+      "controller_action": "inspect",
+      "controller_correct": true,
+      "controller_latency_ms": 0.25258283130824566,
+      "controller_model_tokens": 0,
+      "direct_action": null,
+      "direct_capability": null,
+      "direct_correct": false,
+      "direct_latency_ms": 28252.96308286488,
+      "direct_rationale": null,
+      "direct_supported": false,
+      "direct_target": null,
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1233,
+        "output_tokens": 800,
+        "reasoning_tokens": 961
+      },
+      "expected_action": "inspect",
+      "parse_error": "direct model returned no JSON object"
+    },
+    {
+      "accepted_actions": [
+        "measure"
+      ],
+      "case_id": "missing_baseline",
+      "category": "data_analysis",
+      "controller_action": "measure",
+      "controller_correct": true,
+      "controller_latency_ms": 0.30045793391764164,
+      "controller_model_tokens": 0,
+      "direct_action": "measure",
+      "direct_capability": "measurement",
+      "direct_correct": true,
+      "direct_latency_ms": 19041.844499995932,
+      "direct_rationale": "The missing historical conversion baseline is required to determine if this week's conversion change is anomalous. The measurement capability can retrieve this baseline from the dataset.",
+      "direct_supported": true,
+      "direct_target": "historical conversion baseline",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1225,
+        "output_tokens": 236,
+        "reasoning_tokens": 229
+      },
+      "expected_action": "measure",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "simulate"
+      ],
+      "case_id": "capacity_plan",
+      "category": "planning",
+      "controller_action": "simulate",
+      "controller_correct": true,
+      "controller_latency_ms": 0.20699994638562202,
+      "controller_model_tokens": 0,
+      "direct_action": "simulate",
+      "direct_capability": "simulator",
+      "direct_correct": true,
+      "direct_latency_ms": 5323.840207885951,
+      "direct_rationale": "The high-priority gap requires determining whether each plan survives peak demand; the simulator capability is explicitly suggested for this purpose.",
+      "direct_supported": true,
+      "direct_target": "capacity alternatives under peak demand scenarios",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1223,
+        "output_tokens": 156,
+        "reasoning_tokens": 118
+      },
+      "expected_action": "simulate",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "experiment"
+      ],
+      "case_id": "competing_mechanisms",
+      "category": "scientific_reasoning",
+      "controller_action": "experiment",
+      "controller_correct": true,
+      "controller_latency_ms": 0.2157499548047781,
+      "controller_model_tokens": 0,
+      "direct_action": "experiment",
+      "direct_capability": "experiment",
+      "direct_correct": true,
+      "direct_latency_ms": 11735.401999903843,
+      "direct_rationale": "The high-priority gap indicates a controlled experiment is needed to determine which mechanism's prediction matches observation. Executing an experiment directly addresses this gap and enables verification.",
+      "direct_supported": true,
+      "direct_target": "run controlled experiment to test the differing predictions of the two mechanisms",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1227,
+        "output_tokens": 396,
+        "reasoning_tokens": 419
+      },
+      "expected_action": "experiment",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "reframe"
+      ],
+      "case_id": "contradictory_premises",
+      "category": "adversarial_logic",
+      "controller_action": "reframe",
+      "controller_correct": true,
+      "controller_latency_ms": 0.22041681222617626,
+      "controller_model_tokens": 0,
+      "direct_action": "reframe",
+      "direct_capability": "reasoner",
+      "direct_correct": true,
+      "direct_latency_ms": 7150.321832858026,
+      "direct_rationale": "The premises conflict, creating a contradiction. Using the reasoner's reframe action will help resolve the contradiction and produce a valid problem framing, which is the high-priority gap.",
+      "direct_supported": true,
+      "direct_target": "structured_problem",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1231,
+        "output_tokens": 192,
+        "reasoning_tokens": 155
+      },
+      "expected_action": "reframe",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "retrieve_memory"
+      ],
+      "case_id": "similar_verified_case",
+      "category": "analogical_transfer",
+      "controller_action": "retrieve_memory",
+      "controller_correct": true,
+      "controller_latency_ms": 0.23141689598560333,
+      "controller_model_tokens": 0,
+      "direct_action": "retrieve_memory",
+      "direct_capability": "memory",
+      "direct_correct": true,
+      "direct_latency_ms": 6785.460125189275,
+      "direct_rationale": "The high-priority gap requires a structurally similar verified case; the memory capability can retrieve such cases from episodic memory to enable analogical transfer.",
+      "direct_supported": true,
+      "direct_target": "episodic memory for prior verified case",
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1227,
+        "output_tokens": 261,
+        "reasoning_tokens": 239
+      },
+      "expected_action": "retrieve_memory",
+      "parse_error": null
+    },
+    {
+      "accepted_actions": [
+        "hypothesize"
+      ],
+      "case_id": "creative_alternatives",
+      "category": "creative_synthesis",
+      "controller_action": "hypothesize",
+      "controller_correct": true,
+      "controller_latency_ms": 0.2942499704658985,
+      "controller_model_tokens": 0,
+      "direct_action": null,
+      "direct_capability": null,
+      "direct_correct": false,
+      "direct_latency_ms": 11906.405916903168,
+      "direct_rationale": null,
+      "direct_supported": false,
+      "direct_target": null,
+      "direct_usage": {
+        "cached_input_tokens": 0,
+        "estimated_cost_usd": 0.0,
+        "input_tokens": 1160,
+        "output_tokens": 314,
+        "reasoning_tokens": 297
+      },
+      "expected_action": "hypothesize",
+      "parse_error": "direct model returned an invalid action selection"
+    }
+  ],
+  "comparison_type": "live_first_action_selection",
+  "controller_correct": 10,
+  "controller_mean_latency_ms": 0.21902923472225666,
+  "direct_correct": 8,
+  "direct_mean_latency_ms": 13422.583787376061,
+  "direct_parse_failures": 2,
+  "direct_total_tokens": 15580,
+  "limitations": [
+    "This compares the first state-dependent action, not complete real-world outcomes.",
+    "Synthetic cases make the expected action deterministic and auditable.",
+    "Capability execution quality is evaluated by the separate structural proof."
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free"
+}

@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "inspect"
+  ],
+  "case_id": "failing_code_path",
+  "category": "software_debugging",
+  "controller_action": "inspect",
+  "controller_correct": true,
+  "controller_latency_ms": 0.25258283130824566,
+  "controller_model_tokens": 0,
+  "direct_action": null,
+  "direct_capability": null,
+  "direct_correct": false,
+  "direct_latency_ms": 28252.96308286488,
+  "direct_rationale": null,
+  "direct_supported": false,
+  "direct_target": null,
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1233,
+    "output_tokens": 800,
+    "reasoning_tokens": 961
+  },
+  "expected_action": "inspect",
+  "parse_error": "direct model returned no JSON object"
+}

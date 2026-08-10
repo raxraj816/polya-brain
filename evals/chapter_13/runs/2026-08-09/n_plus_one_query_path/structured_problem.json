@@ -1,0 +1,40 @@
+{
+  "affected_entities": [
+    "account dashboard",
+    "query path",
+    "Redis proposal"
+  ],
+  "constraints": [
+    "Decision must be grounded in the provided benchmark evidence.",
+    "Avoid recommending infrastructure before measuring the dominant bottleneck.",
+    "Prefer reversible, low-risk checks first."
+  ],
+  "core_question": "Determine whether query-path consolidation (JOIN) or caching (Redis) should be tested first based on the executable benchmark evidence.",
+  "domain": "software_performance",
+  "knowns": [
+    "Account dashboard is reported slow.",
+    "Team proposes Redis as a solution.",
+    "Executable benchmark code measures two SQLite query paths: N+1 (51 queries) and JOIN (1 query).",
+    "Benchmark ran 200 runs per strategy on an in-memory SQLite database with 50 accounts.",
+    "N+1 strategy: query_count=51, row_count=50, median_duration_us=49.041, p95_duration_us=56.833.",
+    "JOIN strategy: query_count=1, row_count=50, median_duration_us=9.583, p95_duration_us=11.709."
+  ],
+  "problem_type": "software_root_cause_investigation",
+  "required_data_sources": [
+    "query_measurement_code",
+    "query_metrics_summary",
+    "query_metrics_csv"
+  ],
+  "success_criteria": [
+    "The chosen first test targets the measured dominant bottleneck (N+1 query count).",
+    "Evidence shows whether query consolidation alone meets latency targets before adding caching."
+  ],
+  "time_window": {},
+  "unknowns": [
+    "Production database latency characteristics (network, disk, concurrency).",
+    "Dashboard query complexity beyond the measured accounts+details pattern.",
+    "Cache invalidation requirements and data freshness needs.",
+    "Whether Redis would be applied to the N+1 path or the JOIN path.",
+    "Team's operational capacity to run and maintain Redis."
+  ]
+}

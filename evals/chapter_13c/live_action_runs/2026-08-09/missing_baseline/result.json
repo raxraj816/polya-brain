@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "measure"
+  ],
+  "case_id": "missing_baseline",
+  "category": "data_analysis",
+  "controller_action": "measure",
+  "controller_correct": true,
+  "controller_latency_ms": 0.30045793391764164,
+  "controller_model_tokens": 0,
+  "direct_action": "measure",
+  "direct_capability": "measurement",
+  "direct_correct": true,
+  "direct_latency_ms": 19041.844499995932,
+  "direct_rationale": "The missing historical conversion baseline is required to determine if this week's conversion change is anomalous. The measurement capability can retrieve this baseline from the dataset.",
+  "direct_supported": true,
+  "direct_target": "historical conversion baseline",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1225,
+    "output_tokens": 236,
+    "reasoning_tokens": 229
+  },
+  "expected_action": "measure",
+  "parse_error": null
+}

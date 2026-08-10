@@ -1,0 +1,130 @@
+{
+  "case_id": "pagination_outcome",
+  "category": "software_debugging",
+  "direct": {
+    "actions": [],
+    "answer_passed": false,
+    "budget_passed": true,
+    "checks_performed": [],
+    "conclusion": null,
+    "confidence": null,
+    "evidence_source_uris": [],
+    "latency_ms": 3896.810208912939,
+    "parse_error": "1 validation error for DirectOutcomeTurn\ncapability_name\n  Extra inputs are not permitted [type=extra_forbidden, input_value='inspector', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden",
+    "passed": false,
+    "recovery_passed": true,
+    "source_passed": false,
+    "terminal_status": "model_call_budget_exhausted",
+    "tool_history": [],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 365,
+      "model_calls": 1,
+      "output_tokens": 149,
+      "total_tokens": 514
+    },
+    "verification_passed": false
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "polya": {
+    "actions": [
+      "inspect",
+      "hypothesize",
+      "plan",
+      "execute",
+      "execute",
+      "execute",
+      "execute",
+      "verify",
+      "reflect",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": false,
+    "checks_performed": [
+      "Verify fixture evidence identifies faulty offset as 'page * page_size'",
+      "Verify fixture evidence identifies corrected expression as '(page - 1) * page_size'"
+    ],
+    "conclusion": "The faulty offset is `page * page_size` and the corrected expression is `(page - 1) * page_size`, as confirmed by fixture evidence. Empirical test verification of the fix is pending (test executions for page 1 and page 2 not recorded).",
+    "cycles": 10,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/pagination_outcome/inspector"
+    ],
+    "latency_ms": 217261.7144160904,
+    "observation_trace": [
+      {
+        "capability": "inspector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "The code computes offset = page * page_size. With one-based page numbers it must compute offset = (page - 1) * page_size."
+      },
+      {
+        "capability": "reasoner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Generated 2 testable candidate(s)."
+      },
+      {
+        "capability": "planner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Created 4 bounded plan task(s)."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Inspected pagination code via fixture evidence; offset calculation uses page * page_size."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Task 'run-page1-test-with-logging' has no recorded execution output in current state. The plan shows it depends on 'inspect-pagination-code' which completed, but the test execution itself has not been recorded."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Task 'run-page2-test-with-logging' has no recorded execution output in current state. The plan shows it depends on 'inspect-pagination-code' which completed, but the test execution itself has not been recorded."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Based on fixture evidence, the pagination offset calculation uses `offset = page * page_size` for one-based page numbers, causing page 1 to skip the first page (offset = page_size) and page 2 to skip two pages (offset = 2*page_size). Applying the fix `offset = (page - 1) * page_size` would correct the offset for all pages, making both page 1 and page 2 tests pass (assuming tests validate correct record sets)."
+      },
+      {
+        "capability": "verifier",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Verification passed all declared checks."
+      },
+      {
+        "capability": "reflector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Extracted bounded lessons from the verified run."
+      }
+    ],
+    "passed": false,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 20994,
+      "model_calls": 9,
+      "output_tokens": 8987,
+      "total_tokens": 29981
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

@@ -1,0 +1,343 @@
+{
+  "averages": {
+    "direct_correctness": 1.0,
+    "direct_evidence_quality": 0.1,
+    "direct_time_to_decision_ms": 37305.176,
+    "latency_ratio": 3.402,
+    "polya_correctness": 1.0,
+    "polya_evidence_quality": 1.0,
+    "polya_time_to_decision_ms": 103167.514,
+    "token_ratio": 4.685
+  },
+  "case_count": 3,
+  "cases": [
+    {
+      "artifact_preparation_ms": 417.444,
+      "benchmark_policy_overrides": {
+        "data_collection": "allow",
+        "non_confidential_fixtures_only": true,
+        "require_parameters_for_json": false
+      },
+      "case_id": "pagination_cursor_overlap",
+      "direct_model": {
+        "score": {
+          "actionability": 1.0,
+          "artifact_citation_coverage": 0.0,
+          "cited_artifact_ids": [],
+          "correctness": 1.0,
+          "evidence_quality": 0.0,
+          "human_user_feedback_collected": false,
+          "matched_correctness_terms": [
+            [
+              "page_size - 1"
+            ],
+            [
+              "page_size"
+            ]
+          ],
+          "report_completeness": 0.0,
+          "required_section_count": 0,
+          "required_sections": [],
+          "reuse_proxy_score": 0.75,
+          "would_use_again_proxy": true
+        },
+        "time_to_decision_ms": 58649.952,
+        "usage": {
+          "cached_input_tokens": 0,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 541,
+          "output_tokens": 1003,
+          "reasoning_tokens": 718,
+          "total_tokens": 1544
+        }
+      },
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "overhead": {
+        "latency_ms": 48186.951,
+        "latency_ratio": 1.822,
+        "token_count": 6600,
+        "token_ratio": 5.275
+      },
+      "polya": {
+        "score": {
+          "actionability": 1.0,
+          "artifact_citation_coverage": 1.0,
+          "cited_artifact_ids": [
+            "pagination_code",
+            "pagination_test",
+            "pagination_pytest_log"
+          ],
+          "correctness": 1.0,
+          "evidence_quality": 1.0,
+          "human_user_feedback_collected": false,
+          "matched_correctness_terms": [
+            [
+              "page_size - 1"
+            ],
+            [
+              "page_size"
+            ]
+          ],
+          "report_completeness": 1.0,
+          "required_section_count": 8,
+          "required_sections": [
+            "Final conclusion",
+            "Confidence level",
+            "Evidence used",
+            "Evidence against",
+            "Checks performed",
+            "Open questions",
+            "Recommended next action",
+            "Audit trace"
+          ],
+          "reuse_proxy_score": 0.9,
+          "would_use_again_proxy": true
+        },
+        "time_to_decision_ms": 106836.903,
+        "usage": {
+          "cached_input_tokens": 0,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 5314,
+          "output_tokens": 2830,
+          "reasoning_tokens": 1618,
+          "total_tokens": 8144
+        }
+      },
+      "provider": "openrouter",
+      "title": "Duplicate records after pagination refactor"
+    },
+    {
+      "artifact_preparation_ms": 52.071,
+      "benchmark_policy_overrides": {
+        "data_collection": "allow",
+        "non_confidential_fixtures_only": true,
+        "require_parameters_for_json": false
+      },
+      "case_id": "n_plus_one_query_path",
+      "direct_model": {
+        "score": {
+          "actionability": 1.0,
+          "artifact_citation_coverage": 0.0,
+          "cited_artifact_ids": [],
+          "correctness": 1.0,
+          "evidence_quality": 0.15,
+          "human_user_feedback_collected": false,
+          "matched_correctness_terms": [
+            [
+              "n+1",
+              "51"
+            ],
+            [
+              "join",
+              "consolidat",
+              "1 query"
+            ],
+            [
+              "then evaluate",
+              "if caching is still needed"
+            ]
+          ],
+          "report_completeness": 0.0,
+          "required_section_count": 0,
+          "required_sections": [],
+          "reuse_proxy_score": 0.787,
+          "would_use_again_proxy": true
+        },
+        "time_to_decision_ms": 19531.088,
+        "usage": {
+          "cached_input_tokens": 0,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 5257,
+          "output_tokens": 541,
+          "reasoning_tokens": 345,
+          "total_tokens": 5798
+        }
+      },
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "overhead": {
+        "latency_ms": 90758.004,
+        "latency_ratio": 5.647,
+        "token_count": 12105,
+        "token_ratio": 3.088
+      },
+      "polya": {
+        "score": {
+          "actionability": 1.0,
+          "artifact_citation_coverage": 1.0,
+          "cited_artifact_ids": [
+            "query_measurement_code",
+            "query_metrics_summary",
+            "query_metrics_csv"
+          ],
+          "correctness": 1.0,
+          "evidence_quality": 1.0,
+          "human_user_feedback_collected": false,
+          "matched_correctness_terms": [
+            [
+              "n+1",
+              "51"
+            ],
+            [
+              "join",
+              "consolidat",
+              "1 query"
+            ],
+            [
+              "only if"
+            ]
+          ],
+          "report_completeness": 1.0,
+          "required_section_count": 8,
+          "required_sections": [
+            "Final conclusion",
+            "Confidence level",
+            "Evidence used",
+            "Evidence against",
+            "Checks performed",
+            "Open questions",
+            "Recommended next action",
+            "Audit trace"
+          ],
+          "reuse_proxy_score": 0.9,
+          "would_use_again_proxy": true
+        },
+        "time_to_decision_ms": 110289.092,
+        "usage": {
+          "cached_input_tokens": 0,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 15061,
+          "output_tokens": 2842,
+          "reasoning_tokens": 1189,
+          "total_tokens": 17903
+        }
+      },
+      "provider": "openrouter",
+      "title": "N+1 query path versus Redis"
+    },
+    {
+      "artifact_preparation_ms": 915.542,
+      "benchmark_policy_overrides": {
+        "data_collection": "allow",
+        "non_confidential_fixtures_only": true,
+        "require_parameters_for_json": false
+      },
+      "case_id": "openrouter_privacy_policy",
+      "direct_model": {
+        "score": {
+          "actionability": 1.0,
+          "artifact_citation_coverage": 0.0,
+          "cited_artifact_ids": [],
+          "correctness": 1.0,
+          "evidence_quality": 0.15,
+          "human_user_feedback_collected": false,
+          "matched_correctness_terms": [
+            [
+              "data_collection",
+              "privacy"
+            ],
+            [
+              "free model",
+              "training"
+            ],
+            [
+              "keep",
+              "do not weaken",
+              "paid",
+              "zdr"
+            ]
+          ],
+          "report_completeness": 0.0,
+          "required_section_count": 0,
+          "required_sections": [],
+          "reuse_proxy_score": 0.787,
+          "would_use_again_proxy": true
+        },
+        "time_to_decision_ms": 33734.487,
+        "usage": {
+          "cached_input_tokens": 0,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 851,
+          "output_tokens": 737,
+          "reasoning_tokens": 538,
+          "total_tokens": 1588
+        }
+      },
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "overhead": {
+        "latency_ms": 58642.061,
+        "latency_ratio": 2.738,
+        "token_count": 7449,
+        "token_ratio": 5.691
+      },
+      "polya": {
+        "score": {
+          "actionability": 1.0,
+          "artifact_citation_coverage": 1.0,
+          "cited_artifact_ids": [
+            "openrouter_env_template",
+            "openrouter_official_sources",
+            "openrouter_policy_probe"
+          ],
+          "correctness": 1.0,
+          "evidence_quality": 1.0,
+          "human_user_feedback_collected": false,
+          "matched_correctness_terms": [
+            [
+              "data_collection",
+              "data policy",
+              "privacy"
+            ],
+            [
+              "free model",
+              "free endpoint",
+              "training"
+            ],
+            [
+              "paid",
+              "zdr"
+            ]
+          ],
+          "report_completeness": 1.0,
+          "required_section_count": 8,
+          "required_sections": [
+            "Final conclusion",
+            "Confidence level",
+            "Evidence used",
+            "Evidence against",
+            "Checks performed",
+            "Open questions",
+            "Recommended next action",
+            "Audit trace"
+          ],
+          "reuse_proxy_score": 0.9,
+          "would_use_again_proxy": true
+        },
+        "time_to_decision_ms": 92376.548,
+        "usage": {
+          "cached_input_tokens": 0,
+          "estimated_cost_usd": 0.0,
+          "input_tokens": 6116,
+          "output_tokens": 2921,
+          "reasoning_tokens": 1549,
+          "total_tokens": 9037
+        }
+      },
+      "provider": "openrouter",
+      "title": "Configured free model versus fail-closed privacy routing"
+    }
+  ],
+  "limitations": [
+    "Correctness and reuse are deterministic rubric proxies, not blinded human judgments.",
+    "The Polya path contains two model stages (representation plus report); the direct path contains one.",
+    "Fixtures are executable and reproducible but are not customer production incidents.",
+    "The configured free endpoint required benchmark-only data_collection=allow and best-effort JSON routing."
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "run_date": "2026-08-09",
+  "would_use_again_proxy": {
+    "denominator": 3,
+    "direct_yes": 3,
+    "human_user_feedback_collected": false,
+    "polya_yes": 3
+  }
+}

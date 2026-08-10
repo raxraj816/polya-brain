@@ -356,8 +356,7 @@ Exit criteria:
 
 ## Phase 2 Readiness Note
 
-Before Chapter 13 lands, real engine outputs should follow the Phase 2
-persistence policy in
+Chapter 13 engine outputs follow the Phase 2 persistence policy in
 `../01_architecture/Phase_2_Engine_Output_Persistence.md`.
 
 The working rule is: persist canonical rows only after a producing engine
@@ -371,13 +370,10 @@ or repaired outputs.
 Use `Phase_2_Action_Items.md` as the tactical checklist for the next
 implementation branches.
 
-Current intended order:
+Current intended order after the completed Chapter 12-B, Chapter 13, and Chapter
+14-15 work:
 
-1. Chapter 12-B: first real provider adapter.
-2. Chapter 13: problem representation engine with `structured_problems`
-   persistence.
-3. Chapter 15: clarifying question flow.
-4. Chapter 14: constraint discovery engine.
+1. Minimum production capability set for the persisted cognitive runtime.
 
 ## Chapter 12-A: LLM Client Boundary
 
@@ -407,6 +403,132 @@ Exit criteria:
 - A production adapter can implement the protocol without changing engine
   contracts.
 - Unsupported features and weak provider failures stop safely.
+
+## Chapter 12-B: Production OpenRouter Adapter
+
+Status: complete on `feature/chapter-12b-13-openrouter-representation`.
+
+Done:
+
+- Added a production OpenRouter adapter behind the Chapter 12-A protocol.
+- Added environment-driven model, endpoint, attribution, privacy, ZDR, and JSON
+  routing configuration with secret-safe API-key handling.
+- Added typed mapping for transport, HTTP, embedded, choice-level, and malformed
+  provider failures without exposing provider bodies.
+- Added normalized token, cached-token, reasoning-token, and available cost
+  metadata.
+- Added `Retry-After` support within the existing bounded retry policy.
+- Added offline adapter contract and error-mapping tests.
+- Exercised the adapter through a genuine live smoke call and all three Chapter
+  13 technical investigations.
+- Confirmed that the configured free endpoint cannot meet deny-data-collection
+  plus strict-JSON production routing; kept defaults fail-closed and limited the
+  compatibility override to non-confidential evaluation fixtures.
+
+Exit criteria:
+
+- Real local calls use the provider-neutral engine boundary without contract
+  changes.
+- Provider failures remain typed, sanitized, and safely retry-bounded.
+- Production privacy defaults fail closed when no compatible endpoint exists.
+
+## Chapter 13: Problem Representation Engine
+
+Status: complete on `feature/chapter-12b-13-openrouter-representation`.
+
+Done:
+
+- Added the first real engine using the Chapter 11 prompt/parser and Chapter 12
+  client boundary.
+- Added narrow deterministic fallbacks for exact golden examples, simple
+  arithmetic, and explicit underspecified requests.
+- Added stage-gated clarification that emits audit trace but does not promote a
+  canonical structured problem.
+- Added framing, alternate-framing, approach-mode, parser-repair, and fallback
+  trace events without expanding the core data contract.
+- Added validated, successful-only canonical persistence to
+  `structured_problems` plus trace persistence for all accepted engine paths.
+- Added fake-client, fallback, repair, clarification, state-update, and
+  database-backed persistence tests.
+- Ran three reproducible live technical investigations against the configured
+  direct model using real code, logs, measurements, and provider-policy
+  documents.
+- Recorded equal correctness, much stronger Polya evidence quality, and
+  substantial Polya latency/token overhead in
+  `../../evals/chapter_13/runs/2026-08-09/summary.json`.
+
+Exit criteria:
+
+- The engine produces a contract-valid state update or stops safely for
+  clarification.
+- Only successful validated output becomes canonical database state.
+- Selected and rejected framing decisions remain inspectable in the trace.
+- Focused, full-suite, proof, lint, Compose, and real Postgres checks pass.
+
+## Chapter 13-C: General Cognitive Control Proof
+
+Status: in progress on `feature/chapter-12b-13-openrouter-representation`.
+
+Done:
+
+- Established the non-negotiable capability hierarchy: PolyaBrain owns goal,
+  state, action selection, observation interpretation, verification, recovery,
+  stopping, and reflection; models and tools are subordinate capabilities.
+- Added an experimental universal action taxonomy, action candidates, decisions,
+  observations, typed state updates, capability registry, deterministic
+  controller, and bounded cognitive kernel outside the sacred core contracts.
+- Proved cross-domain routing across ten categories with one shared controller.
+- Proved search-to-inspection recovery without repeating a failed action.
+- Proved failed-verification invalidation and
+  `verify -> replan -> execute -> verify` recovery.
+- Proved that only a verified completed run can teach in-process procedural
+  memory and change a related future decision.
+- Added raw-input runtime composition and a typed adapter for the real Chapter
+  13 Problem Representation Engine, including successful and clarification
+  paths.
+- Recorded a live same-model first-action comparison: controller 10/10 versus
+  direct model 8/10, with two invalid structured responses; this is not an
+  end-to-end outcome claim.
+- Added durable verified semantic, episodic, and procedural memory plus
+  production acquisition, inspection, measurement, safe-code, simulation, and
+  experiment capabilities.
+- Added an offline-contract-tested six-category fair full-outcome harness. The
+  2026-08-09 live run completed zero comparable cases because the configured
+  free model returned HTTP 429.
+
+Remaining exit criteria:
+
+- Execute the implemented fair end-to-end harness when provider capacity is
+  available and record complete comparable cases scored on final correctness,
+  evidence, recovery, verification, latency, and cost.
+- Keep experimental action contracts unpromoted until this evidence identifies
+  stable producers, consumers, failure modes, and user value.
+
+## Chapter 15: Clarifying Question Flow
+
+Status: complete on `feature/chapter-12b-13-openrouter-representation`.
+
+Done:
+
+- Replaced the persisted API's silent Chapter 10 success stub with the
+  representation-capable cognitive runtime.
+- Added durable `awaiting_user_input` sessions and expiring
+  `clarification_requests` through migration `20260809_0004`.
+- Persisted questions in the audit trace and exposed a bounded SSE trace stream.
+- Added `POST /api/v1/sessions/{session_id}/respond` with locked state
+  transition, durable answer, trace continuity, and representation rerun.
+- Canonicalized only validated clarified representations.
+- Added repeat-clarification behavior for insufficient answers and safe
+  duplicate, wrong-state, missing-session, expired, and resume-failure paths.
+- Verified the full pause/respond/resume path through unit, API, real Postgres,
+  database smoke, and Docker API checks.
+
+Exit criteria:
+
+- Ambiguous input produces useful questions without canonicalizing weak output.
+- A paused session resumes with the same id and ordered trace.
+- User answers change the next representation result.
+- Missing downstream capabilities stop with an explicit unverified conclusion.
 
 ## Chapter 11: Prompt And Parser Design
 

@@ -8,6 +8,53 @@ Date prepared: 2026-05-25
 
 PolyaBrain is the main product. It is a general problem-solving intelligence platform inspired by George Pólya's method: understand the problem, devise a plan, carry out the plan, and look back.
 
+### 1.1 Non-Negotiable Product Hierarchy
+
+PolyaBrain is the problem-solving intelligence. An LLM is not PolyaBrain and
+must never become the implicit owner of the problem-solving loop. Language
+models, web search, memory retrieval, calculators, code execution, databases,
+simulators, APIs, documents, sensors, and human input are replaceable
+capabilities that PolyaBrain may select when the current problem state warrants
+their use.
+
+The domain-independent cognitive kernel owns:
+
+1. The goal and current problem representation.
+2. Working state, assumptions, constraints, and unresolved knowledge gaps.
+3. Candidate explanations, solution paths, and plans.
+4. Selection of the next cognitive or external action.
+5. Interpretation of action results as observations rather than automatic truth.
+6. Belief and hypothesis updates after new observations.
+7. Verification, recovery, stopping, and insufficient-evidence decisions.
+8. Reflection and learning of reusable strategies from verified outcomes.
+
+The governing control loop is:
+
+```text
+observe current state
+  -> detect the obstacle to progress
+  -> generate candidate cognitive actions
+  -> select by expected usefulness, cost, risk, and constraints
+  -> execute through a registered capability
+  -> interpret and validate the observation
+  -> update state and competing hypotheses
+  -> verify progress
+  -> continue, backtrack, reframe, ask, or stop
+  -> reflect and learn
+```
+
+Technical investigation is the first executable proof surface because it
+provides inspectable evidence and tools. It is not PolyaBrain's product identity
+or long-term boundary. Mathematics, logic, research, debugging, data analysis,
+planning, scientific reasoning, ambiguous input, and creative synthesis must
+ultimately exercise the same cognitive kernel. Domain packs may add knowledge,
+tools, and verification procedures, but they may not replace or directly route
+the kernel.
+
+Generality is a measured property, not an architecture claim. It is proven only
+when the same state-dependent control cycle selects useful actions, recovers,
+verifies, and learns across materially different problem categories.
+
 The implementation must therefore build the **PolyaBrain Core Platform** first:
 
 1. A stateful Polya loop.
@@ -843,7 +890,66 @@ Done when:
 
 - Benchmark prompts parse into stable structured problems across several categories.
 
+#### Chapter 13-C: General Cognitive Control Proof
+
+Status: in progress on `feature/chapter-12b-13-openrouter-representation`. The
+same-model/same-tool six-category full-outcome harness is implemented and
+offline contract-tested. Its 2026-08-09 live attempt stopped before scoring
+because the configured free OpenRouter model returned HTTP 429; this provider
+failure is neither a PolyaBrain win nor loss. The completion gate requires three
+repetitions, balanced condition order, automated provenance/verification/
+recovery scoring, and separately keyed blinded human review; see
+`docs/03_implementation/Chapter_13C_Outcome_Benchmark_Operations.md`.
+
+Purpose: prove that PolyaBrain selects what to do next from explicit problem
+state instead of merely advancing through a fixed chain of LLM prompts.
+
+Tasks:
+
+1. Define an experimental universal cognitive-action taxonomy covering
+   understanding, clarification, reframing, decomposition, recall, research,
+   observation, measurement, calculation, simulation, experimentation,
+   hypothesis generation, comparison, planning, execution, verification,
+   backtracking, stopping, and reflection.
+2. Define experimental action-candidate, action-decision, and observation
+   models outside the sacred core contracts.
+3. Require every candidate to state its target obstacle or gap, purpose,
+   expected observation, expected usefulness, cost, risk, required capability,
+   and success/failure conditions.
+4. Implement a deterministic controller that generates and ranks candidate
+   actions from `PolyaState`; an LLM may propose candidates but cannot select or
+   execute them without controller validation.
+5. Route selected actions only through a typed capability registry with risk,
+   permission, timeout, and audit metadata.
+6. Treat capability results as observations that must be interpreted, linked to
+   evidence, and checked before changing hypothesis status or confidence.
+7. Demonstrate state-dependent recovery: at least one unexpected or failed
+   observation must cause the kernel to choose a different next action.
+8. Add interactive evaluation cases across the active benchmark categories,
+   including clarification, research, calculation, inspection, experiment,
+   verification, backtracking, and safe stopping behavior.
+9. Compare against the same base model with the same tools so the evaluation
+   isolates value created by the cognitive controller.
+10. Keep action scores and policy details in experimental models and trace
+    metadata until evaluation establishes stable producers, consumers, failure
+    modes, and product value.
+
+Done when:
+
+- One executable observe-decide-act-update-verify loop runs without making an
+  LLM the controller.
+- The same controller selects appropriate next actions across materially
+  different problem categories.
+- Action decisions are auditable, bounded, and recover from at least one failed
+  action.
+- The proof records correctness, action quality, recovery, verification catch
+  rate, latency, and cost against a tool-enabled direct-model baseline.
+- Failed or inconclusive runs stop truthfully rather than producing a forced
+  answer.
+
 #### Chapter 14: Constraint Discovery Engine
+
+Status: complete on `feature/chapter-12b-13-openrouter-representation`.
 
 Tasks:
 
@@ -858,6 +964,8 @@ Done when:
 - System can identify what must be true for an answer to count as solved.
 
 #### Chapter 15: Clarifying Question Flow
+
+Status: complete on `feature/chapter-12b-13-openrouter-representation`.
 
 Tasks:
 
@@ -880,6 +988,10 @@ Done when:
 
 #### Chapter 16: Semantic Memory Schema
 
+Status: complete on the active branch. Sourced, reliability- and
+freshness-gated pgvector ingestion/retrieval is documented in
+`docs/03_implementation/Chapter_16_20_Memory_Foundation.md`.
+
 Tasks:
 
 1. Add `knowledge_chunks` table with embedding vector.
@@ -893,6 +1005,9 @@ Done when:
 - Text chunks can be inserted and retrieved by similarity.
 
 #### Chapter 17: Episodic Memory Schema
+
+Status: complete on the active branch. Only verified, reflected completed runs
+are admitted, with similarity retrieval tested across five problem categories.
 
 Tasks:
 
@@ -908,6 +1023,11 @@ Done when:
 
 #### Chapter 18: Procedural Memory Schema
 
+Status: complete on the active branch. Seven unverified human-authored
+playbooks are seeded, while controller preference is restricted to strategies
+supported by verified run outcomes. Successful and failed actions update the
+observed rate idempotently.
+
 Tasks:
 
 1. Add strategy records: name, problem types, preconditions, steps, success rate.
@@ -921,6 +1041,10 @@ Done when:
 - Planner can ask for known strategies for a problem type.
 
 #### Chapter 19: Knowledge Base Seed Data
+
+Status: complete on the active branch. Five governed source documents and a
+20-query cross-domain retrieval proof are available through `make memory-seed`
+and `make memory-proof`.
 
 Tasks:
 
@@ -937,6 +1061,10 @@ Done when:
 - Retrieval returns useful domain knowledge for core use cases.
 
 #### Chapter 20: Memory API
+
+Status: complete on the active branch. Read-only semantic, episodic,
+procedural, and bounded-context inspection endpoints expose provenance and
+quality fields and exclude stale, weak, or irrelevant retrievals.
 
 Tasks:
 
@@ -969,6 +1097,9 @@ Done when:
 - Prompt distinguishes missing data from optional curiosity.
 
 #### Chapter 22: Available Data Source Registry
+
+Status: complete on the active branch. See
+`docs/03_implementation/Chapter_22_26_Knowledge_Acquisition.md`.
 
 Tasks:
 
@@ -1027,6 +1158,10 @@ Done when:
 
 #### Chapter 26: Research Engine Interface
 
+Status: complete on the active branch. The production Brave adapter is
+transport-tested; live-provider verification awaits a configured search key.
+See `docs/03_implementation/Chapter_22_26_Knowledge_Acquisition.md`.
+
 Tasks:
 
 1. Define search provider interface.
@@ -1075,6 +1210,9 @@ Done when:
 
 #### Chapter 29: Evidence Evaluation Prompt
 
+Status: complete on the active branch. See
+`docs/03_implementation/Chapter_29_Evidence_Evaluation.md`.
+
 Tasks:
 
 1. Write prompt to score relevance, reliability, recency, and contradiction risk.
@@ -1088,6 +1226,12 @@ Done when:
 - Evaluator separates useful evidence from noise.
 
 #### Chapter 30: Evidence Evaluation Engine
+
+Status: complete on the active branch. Candidate evaluation, canonical-state
+integration, durable evidence rehydration, current-session contradiction
+checks, and governed semantic-memory cross-checks are implemented. Episodic
+memory remains case context rather than being misrepresented as factual
+evidence.
 
 Tasks:
 
@@ -1104,6 +1248,11 @@ Done when:
 ### Phase 6: Execution Tools
 
 #### Chapter 31: Tool Registry
+
+Status: in progress. The cognitive capability registry supplies allowlisted
+discovery, risk metadata, execution boundaries, and durable call traces. Tool
+description plus explicit input/output schema metadata remain to complete the
+chapter contract.
 
 Tasks:
 
@@ -1133,6 +1282,9 @@ Done when:
 
 #### Chapter 33: Safe Code Execution and Test Runner
 
+Status: complete for bounded Python and assertion-based tests. See
+`docs/03_implementation/Chapter_33_Safe_Code_Execution.md`.
+
 Tasks:
 
 1. Implement a sandboxed code execution tool for small Python programs and generated solutions.
@@ -1147,6 +1299,10 @@ Done when:
 
 #### Chapter 34: Table, File, and Query Tools
 
+Status: complete on the active branch. Read-only bounded CSV/JSON loading,
+exact numeric distributions, change/anomaly summaries, configurable grouping,
+and authorizer-protected in-memory SQL-style queries are implemented.
+
 Tasks:
 
 1. Implement read-only CSV/JSON/table loading.
@@ -1160,6 +1316,11 @@ Done when:
 - Tool can answer "what changed, where, and when?"
 
 #### Chapter 35: Math, Logic, and Statistical Analysis Tools
+
+Status: in progress. Exact arithmetic, percent change, distributions, standard
+deviation, anomaly counts, grouped contributors, and approximate controlled
+effect intervals are implemented. Symbolic algebra, derivatives, unit
+conversion, confidence-interval variants, and logic satisfiability remain.
 
 Tasks:
 

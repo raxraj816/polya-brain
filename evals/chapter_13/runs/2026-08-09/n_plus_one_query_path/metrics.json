@@ -1,0 +1,108 @@
+{
+  "artifact_preparation_ms": 52.071,
+  "benchmark_policy_overrides": {
+    "data_collection": "allow",
+    "non_confidential_fixtures_only": true,
+    "require_parameters_for_json": false
+  },
+  "case_id": "n_plus_one_query_path",
+  "direct_model": {
+    "score": {
+      "actionability": 1.0,
+      "artifact_citation_coverage": 0.0,
+      "cited_artifact_ids": [],
+      "correctness": 1.0,
+      "evidence_quality": 0.15,
+      "human_user_feedback_collected": false,
+      "matched_correctness_terms": [
+        [
+          "n+1",
+          "51"
+        ],
+        [
+          "join",
+          "consolidat",
+          "1 query"
+        ],
+        [
+          "then evaluate",
+          "if caching is still needed"
+        ]
+      ],
+      "report_completeness": 0.0,
+      "required_section_count": 0,
+      "required_sections": [],
+      "reuse_proxy_score": 0.787,
+      "would_use_again_proxy": true
+    },
+    "time_to_decision_ms": 19531.088,
+    "usage": {
+      "cached_input_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 5257,
+      "output_tokens": 541,
+      "reasoning_tokens": 345,
+      "total_tokens": 5798
+    }
+  },
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "overhead": {
+    "latency_ms": 90758.004,
+    "latency_ratio": 5.647,
+    "token_count": 12105,
+    "token_ratio": 3.088
+  },
+  "polya": {
+    "score": {
+      "actionability": 1.0,
+      "artifact_citation_coverage": 1.0,
+      "cited_artifact_ids": [
+        "query_measurement_code",
+        "query_metrics_summary",
+        "query_metrics_csv"
+      ],
+      "correctness": 1.0,
+      "evidence_quality": 1.0,
+      "human_user_feedback_collected": false,
+      "matched_correctness_terms": [
+        [
+          "n+1",
+          "51"
+        ],
+        [
+          "join",
+          "consolidat",
+          "1 query"
+        ],
+        [
+          "only if"
+        ]
+      ],
+      "report_completeness": 1.0,
+      "required_section_count": 8,
+      "required_sections": [
+        "Final conclusion",
+        "Confidence level",
+        "Evidence used",
+        "Evidence against",
+        "Checks performed",
+        "Open questions",
+        "Recommended next action",
+        "Audit trace"
+      ],
+      "reuse_proxy_score": 0.9,
+      "would_use_again_proxy": true
+    },
+    "time_to_decision_ms": 110289.092,
+    "usage": {
+      "cached_input_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 15061,
+      "output_tokens": 2842,
+      "reasoning_tokens": 1189,
+      "total_tokens": 17903
+    }
+  },
+  "provider": "openrouter",
+  "title": "N+1 query path versus Redis"
+}

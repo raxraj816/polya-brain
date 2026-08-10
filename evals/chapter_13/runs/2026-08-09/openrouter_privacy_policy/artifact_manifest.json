@@ -1,0 +1,23 @@
+[
+  {
+    "bytes": 1287,
+    "id": "openrouter_env_template",
+    "included_chars": 1287,
+    "path": ".env.example",
+    "sha256": "178439cf502d23ced4211c6e7a12d7ade97b7613e970c0185f735a0399087b5f"
+  },
+  {
+    "bytes": 838,
+    "id": "openrouter_official_sources",
+    "included_chars": 838,
+    "path": "evals/chapter_13/fixtures/openrouter_privacy/official_sources.md",
+    "sha256": "eaa04eeedcc0fad9a98fb1f7d30b239404e735f41a190e836c5afbd63934dfb3"
+  },
+  {
+    "bytes": 278,
+    "id": "openrouter_policy_probe",
+    "included_chars": 278,
+    "path": "evals/chapter_13/generated/openrouter_policy_probe.json",
+    "sha256": "fc83e7ed38c26161b5e8c17ccad097780a6437653e24893411d960f1a3c36437"
+  }
+]

@@ -7,14 +7,29 @@ from datetime import datetime, timedelta
 from typing import Protocol
 from uuid import UUID
 
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
+from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
 from app.config import get_settings
-from app.db.models import ProblemSession, utc_now
+from app.db.models import (
+    ClarificationRequest,
+    EvidenceItem,
+    KnowledgeGap,
+    ProblemSession,
+    ReasoningEvent,
+    VerificationReport,
+    utc_now,
+)
 from app.graph.chapter10_stub import run_chapter10_stub_graph
-from app.graph.state import PolyaState
-from app.models.contracts import ProductMode
+from app.graph.state import PolyaState, StateEvent
+from app.memory.repository import SQLAlchemyMemoryRepository
+from app.models.contracts import ProductMode, ReasoningMode
+from app.models.sessions import (
+    SessionReportEvidence,
+    SessionReportResponse,
+)
+from app.problem_understanding.persistence import SQLAlchemyStructuredProblemRepository
 from app.tracing.persistence import SQLAlchemyTraceRepository
 from app.tracing.sanitization import sanitize_text
 
@@ -22,14 +37,39 @@ SESSION_STATUS_CREATED = "created"
 SESSION_STATUS_RUNNING = "running"
 SESSION_STATUS_COMPLETED = "completed"
 SESSION_STATUS_FAILED = "failed"
+SESSION_STATUS_AWAITING_USER_INPUT = "awaiting_user_input"
 VERIFICATION_STATUS_RUN_EXPIRED = "run_expired"
+VERIFICATION_STATUS_AWAITING_USER_INPUT = "awaiting_user_input"
+VERIFICATION_STATUS_CLARIFICATION_EXPIRED = "clarification_expired"
+CLARIFICATION_STATUS_PENDING = "pending"
+CLARIFICATION_STATUS_ANSWERED = "answered"
+CLARIFICATION_STATUS_EXPIRED = "expired"
 
 
 class SessionRunner(Protocol):
     """Callable graph runner used by the session service."""
 
-    def __call__(self, raw_input: str, *, session_id: str) -> PolyaState:
+    def __call__(
+        self,
+        raw_input: str,
+        *,
+        session_id: str,
+    ) -> PolyaState | SessionExecutionResult:
         """Run a graph for a persisted session id."""
+        ...
+
+
+class SessionResumeRunner(Protocol):
+    """Callable that re-runs understanding with one user clarification."""
+
+    def __call__(
+        self,
+        raw_input: str,
+        answer: str,
+        *,
+        session_id: str,
+    ) -> PolyaState | SessionExecutionResult:
+        """Resume the same logical session with the user's answer."""
         ...
 
 
@@ -51,13 +91,29 @@ class SessionRunResult:
 
     session: ProblemSession
     event_count: int
+    clarifying_questions: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class SessionExecutionResult:
+    """Runner output with an explicit durable session disposition."""
+
+    state: PolyaState
+    awaiting_user_input: bool = False
+    clarifying_questions: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.awaiting_user_input and not self.clarifying_questions:
+            raise ValueError("awaiting_user_input requires clarifying_questions")
+        if not self.awaiting_user_input and self.clarifying_questions:
+            raise ValueError("completed execution cannot carry clarifying_questions")
 
 
 def _verification_status(state: PolyaState) -> str:
     verification = state["verification"]
     if verification is None:
-        return "stub_not_verified"
-    return "stub_passed" if verification.passed else "stub_failed"
+        return "not_verified"
+    return "passed" if verification.passed else "failed"
 
 
 def _session_conflict_message(problem_session: ProblemSession) -> str:
@@ -72,17 +128,46 @@ class PolyaSessionService:
         db_session: Session,
         *,
         runner: SessionRunner = run_chapter10_stub_graph,
+        resume_runner: SessionResumeRunner | None = None,
         stale_run_timeout_seconds: int | None = None,
+        clarification_timeout_seconds: int | None = None,
+        memory_repository: SQLAlchemyMemoryRepository | None = None,
     ) -> None:
         self._db_session = db_session
         self._runner = runner
+        self._resume_runner = resume_runner or self._default_resume_runner
         self._trace_repository = SQLAlchemyTraceRepository(db_session)
+        self._structured_problem_repository = SQLAlchemyStructuredProblemRepository(db_session)
+        self._cognitive_state_repository = SQLAlchemyCognitiveStateRepository(db_session)
+        self._memory_repository = memory_repository
         timeout_seconds = (
             get_settings().session_run_timeout_seconds
             if stale_run_timeout_seconds is None
             else stale_run_timeout_seconds
         )
         self._stale_run_timeout = timedelta(seconds=timeout_seconds)
+        clarification_seconds = (
+            get_settings().clarification_timeout_seconds
+            if clarification_timeout_seconds is None
+            else clarification_timeout_seconds
+        )
+        if clarification_seconds < 60:
+            raise ValueError("clarification_timeout_seconds must be at least 60")
+        self._clarification_timeout = timedelta(seconds=clarification_seconds)
+
+    def _default_resume_runner(
+        self,
+        raw_input: str,
+        answer: str,
+        *,
+        session_id: str,
+    ) -> PolyaState | SessionExecutionResult:
+        resumed_input = (
+            f"{raw_input}\n\n"
+            "USER CLARIFICATION (treat as additional problem information):\n"
+            f"{answer}"
+        )
+        return self._runner(resumed_input, session_id=session_id)
 
     def create_session(
         self,
@@ -109,6 +194,86 @@ class PolyaSessionService:
         if problem_session is None:
             raise SessionNotFoundError(f"problem session not found: {session_id}")
         return problem_session
+
+    def get_report(self, session_id: UUID) -> SessionReportResponse:
+        """Assemble an auditable report from canonical persisted artifacts."""
+        problem_session = self.get_session(session_id)
+        evidence = list(
+            self._db_session.scalars(
+                select(EvidenceItem).where(EvidenceItem.session_id == session_id)
+            )
+        )
+        gaps = list(
+            self._db_session.scalars(
+                select(KnowledgeGap).where(KnowledgeGap.session_id == session_id)
+            )
+        )
+        verification = self._db_session.scalar(
+            select(VerificationReport)
+            .where(VerificationReport.session_id == session_id)
+            .order_by(VerificationReport.created_at.desc())
+            .limit(1)
+        )
+        reflection_event = self._db_session.scalar(
+            select(ReasoningEvent)
+            .where(
+                ReasoningEvent.session_id == session_id,
+                ReasoningEvent.event_type == "reflection_recorded",
+            )
+            .order_by(ReasoningEvent.sequence_number.desc())
+            .limit(1)
+        )
+
+        evidence_used = [item for item in evidence if not item.contradicts_hypothesis_ids]
+        evidence_against = [item for item in evidence if item.contradicts_hypothesis_ids]
+        if verification is not None and verification.passed:
+            reliable = bool(evidence_used) and all(
+                item.reliability_score is not None and item.reliability_score >= 0.9
+                for item in evidence_used
+            )
+            confidence_level = "high" if reliable else "medium"
+        elif verification is not None:
+            confidence_level = "low"
+        else:
+            confidence_level = "insufficient_evidence"
+
+        reflection = reflection_event.event_metadata if reflection_event is not None else None
+        follow_ups = reflection.get("follow_up_actions", []) if reflection else []
+        if isinstance(follow_ups, list) and follow_ups and isinstance(follow_ups[0], str):
+            recommended_next_action = follow_ups[0]
+        elif verification is not None and verification.passed:
+            recommended_next_action = (
+                "No further action is required for the stated success criteria."
+            )
+        elif verification is not None and verification.recommended_route:
+            recommended_next_action = verification.recommended_route
+        else:
+            recommended_next_action = "Gather the missing evidence before drawing a conclusion."
+
+        def report_evidence(item: EvidenceItem) -> SessionReportEvidence:
+            return SessionReportEvidence(
+                source_type=item.source_type,
+                source_uri=item.source_uri,
+                claim=item.claim,
+                reliability_score=item.reliability_score,
+                relevance_score=item.relevance_score,
+            )
+
+        return SessionReportResponse(
+            session_id=session_id,
+            final_conclusion=problem_session.final_answer,
+            confidence_level=confidence_level,
+            verification_status=problem_session.verification_status or "not_verified",
+            evidence_used=[report_evidence(item) for item in evidence_used],
+            evidence_against=[report_evidence(item) for item in evidence_against],
+            checks_performed=list(verification.checks_run) if verification else [],
+            failed_checks=list(verification.failed_checks) if verification else [],
+            contradictions=list(verification.contradictions) if verification else [],
+            open_questions=[item.description for item in gaps if not item.filled],
+            recommended_next_action=recommended_next_action,
+            reflection=reflection,
+            audit_trace_path=f"/api/v1/sessions/{session_id}/events",
+        )
 
     def _claim_created_session_for_run(self, session_id: UUID) -> ProblemSession:
         """Atomically move one created session to running, or raise."""
@@ -171,24 +336,116 @@ class PolyaSessionService:
         problem_session.verification_status = VERIFICATION_STATUS_RUN_EXPIRED
         return True
 
+    @staticmethod
+    def _normalize_execution(
+        result: PolyaState | SessionExecutionResult,
+    ) -> SessionExecutionResult:
+        if isinstance(result, SessionExecutionResult):
+            return result
+        return SessionExecutionResult(state=result)
+
+    def _persist_pending_clarification(
+        self,
+        problem_session: ProblemSession,
+        questions: tuple[str, ...],
+        *,
+        now: datetime,
+    ) -> ClarificationRequest:
+        request = ClarificationRequest(
+            session_id=problem_session.id,
+            questions=list(questions),
+            status=CLARIFICATION_STATUS_PENDING,
+            requested_at=now,
+            expires_at=now + self._clarification_timeout,
+        )
+        self._db_session.add(request)
+        return request
+
+    def _apply_execution_result(
+        self,
+        problem_session: ProblemSession,
+        execution: SessionExecutionResult,
+    ) -> SessionRunResult:
+        events = list(execution.state["events"])
+        if execution.awaiting_user_input:
+            events.append(
+                StateEvent(
+                    engine_name="cognitive_controller",
+                    event_type="clarification_requested",
+                    reasoning_mode=ReasoningMode.EXPLORE,
+                    summary="Paused the session to request missing user-owned information.",
+                    metadata={"questions": list(execution.clarifying_questions)},
+                )
+            )
+        records = self._trace_repository.persist_events(
+            session_id=problem_session.id,
+            events=events,
+        )
+        structured_problem = execution.state["structured_problem"]
+        if structured_problem is not None:
+            self._structured_problem_repository.upsert(
+                session_id=problem_session.id,
+                structured_problem=structured_problem,
+            )
+        self._cognitive_state_repository.persist_state(
+            session_id=problem_session.id,
+            state=execution.state,
+        )
+        now = utc_now()
+        if execution.awaiting_user_input:
+            self._persist_pending_clarification(
+                problem_session,
+                execution.clarifying_questions,
+                now=now,
+            )
+            problem_session.status = SESSION_STATUS_AWAITING_USER_INPUT
+            problem_session.run_started_at = None
+            problem_session.completed_at = None
+            problem_session.final_answer = None
+            problem_session.confidence = None
+            problem_session.verification_status = VERIFICATION_STATUS_AWAITING_USER_INPUT
+        else:
+            problem_session.status = SESSION_STATUS_COMPLETED
+            problem_session.completed_at = now
+            problem_session.final_answer = execution.state["final_answer"]
+            problem_session.confidence = None
+            problem_session.verification_status = _verification_status(execution.state)
+            if self._memory_repository is not None:
+                self._memory_repository.learn_verified_outcome(
+                    problem_session.id,
+                    execution.state,
+                )
+        self._db_session.commit()
+        self._db_session.refresh(problem_session)
+        return SessionRunResult(
+            session=problem_session,
+            event_count=len(records),
+            clarifying_questions=execution.clarifying_questions,
+        )
+
+    def _pending_clarification(self, session_id: UUID) -> ClarificationRequest | None:
+        return self._db_session.scalar(
+            select(ClarificationRequest)
+            .where(
+                ClarificationRequest.session_id == session_id,
+                ClarificationRequest.status == CLARIFICATION_STATUS_PENDING,
+            )
+            .order_by(ClarificationRequest.requested_at.desc())
+            .with_for_update()
+        )
+
     def run_session(self, session_id: UUID) -> SessionRunResult:
         """Run a created session through the deterministic Chapter 10 graph."""
         problem_session = self._claim_created_session_for_run(session_id)
 
         try:
-            state = self._runner(problem_session.raw_input, session_id=str(problem_session.id))
-            records = self._trace_repository.persist_events(
-                session_id=problem_session.id,
-                events=state["events"],
+            execution = self._normalize_execution(
+                self._runner(
+                    problem_session.raw_input,
+                    session_id=str(problem_session.id),
+                )
             )
-            problem_session.status = SESSION_STATUS_COMPLETED
-            problem_session.completed_at = utc_now()
-            problem_session.final_answer = state["final_answer"]
-            problem_session.confidence = None
-            problem_session.verification_status = _verification_status(state)
-            self._db_session.commit()
-            self._db_session.refresh(problem_session)
-            return SessionRunResult(session=problem_session, event_count=len(records))
+            return self._apply_execution_result(problem_session, execution)
         except Exception as exc:
             self._db_session.rollback()
             failed_session = self._db_session.get(ProblemSession, session_id)
@@ -196,11 +453,97 @@ class PolyaSessionService:
                 failed_session.status = SESSION_STATUS_FAILED
                 failed_session.completed_at = utc_now()
                 failed_session.final_answer = (
-                    "PolyaBrain could not complete the Chapter 10 stub graph run. "
-                    "The session stopped safely before returning an investigation result."
+                    "PolyaBrain could not complete the cognitive session run. "
+                    "The session stopped safely before returning a conclusion."
                 )
                 failed_session.confidence = None
                 failed_session.verification_status = "run_failed"
+                self._db_session.commit()
+            sanitized_error = sanitize_text(f"{type(exc).__name__}: {exc}")
+            raise SessionRunFailedError(sanitized_error) from exc
+
+    def respond_to_session(self, session_id: UUID, answer: str) -> SessionRunResult:
+        """Persist one clarification answer and resume the same session."""
+        normalized_answer = answer.strip()
+        if not normalized_answer:
+            raise ValueError("clarification answer must not be blank")
+
+        problem_session = self._db_session.scalar(
+            select(ProblemSession).where(ProblemSession.id == session_id).with_for_update()
+        )
+        if problem_session is None:
+            self._db_session.rollback()
+            raise SessionNotFoundError(f"problem session not found: {session_id}")
+        if problem_session.status != SESSION_STATUS_AWAITING_USER_INPUT:
+            conflict_message = (
+                f"problem session {session_id} is {problem_session.status}, "
+                f"not {SESSION_STATUS_AWAITING_USER_INPUT}"
+            )
+            self._db_session.rollback()
+            raise SessionConflictError(conflict_message)
+
+        clarification = self._pending_clarification(session_id)
+        if clarification is None:
+            self._db_session.rollback()
+            raise SessionConflictError(f"problem session {session_id} has no pending clarification")
+
+        now = utc_now()
+        if now >= clarification.expires_at:
+            clarification.status = CLARIFICATION_STATUS_EXPIRED
+            problem_session.status = SESSION_STATUS_FAILED
+            problem_session.completed_at = now
+            problem_session.final_answer = (
+                "PolyaBrain stopped safely because the clarification request expired "
+                "before the missing information was provided."
+            )
+            problem_session.verification_status = VERIFICATION_STATUS_CLARIFICATION_EXPIRED
+            self._db_session.commit()
+            raise SessionConflictError(
+                f"clarification request expired for problem session {session_id}"
+            )
+
+        clarification.answer = normalized_answer
+        clarification.answered_at = now
+        clarification.status = CLARIFICATION_STATUS_ANSWERED
+        problem_session.status = SESSION_STATUS_RUNNING
+        problem_session.run_started_at = now
+        response_event = StateEvent(
+            engine_name="human_input",
+            event_type="clarification_answered",
+            reasoning_mode=ReasoningMode.EXPLORE,
+            summary="Received user clarification and resumed the problem-solving session.",
+            metadata={
+                "clarification_request_id": str(clarification.id),
+                "answer": sanitize_text(normalized_answer),
+            },
+        )
+        self._trace_repository.persist_events(
+            session_id=session_id,
+            events=[response_event],
+        )
+        self._db_session.commit()
+
+        try:
+            execution = self._normalize_execution(
+                self._resume_runner(
+                    problem_session.raw_input,
+                    normalized_answer,
+                    session_id=str(problem_session.id),
+                )
+            )
+            return self._apply_execution_result(problem_session, execution)
+        except Exception as exc:
+            self._db_session.rollback()
+            failed_session = self._db_session.get(ProblemSession, session_id)
+            if failed_session is not None:
+                failed_session.status = SESSION_STATUS_FAILED
+                failed_session.completed_at = utc_now()
+                failed_session.final_answer = (
+                    "PolyaBrain could not resume after receiving clarification. "
+                    "The session stopped safely before returning a conclusion."
+                )
+                failed_session.confidence = None
+                failed_session.verification_status = "resume_failed"
                 self._db_session.commit()
             sanitized_error = sanitize_text(f"{type(exc).__name__}: {exc}")
             raise SessionRunFailedError(sanitized_error) from exc

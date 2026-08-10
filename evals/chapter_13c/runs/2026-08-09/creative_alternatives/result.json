@@ -1,0 +1,26 @@
+{
+  "actions": [
+    "hypothesize",
+    "plan",
+    "execute",
+    "verify",
+    "reflect",
+    "stop"
+  ],
+  "case_id": "creative_alternatives",
+  "category": "creative_synthesis",
+  "controller_latency_ms": 0.35887514241039753,
+  "estimated_capability_cost": 0.25,
+  "expected_first_action": "hypothesize",
+  "expected_recovery_action": null,
+  "expected_verification_recovery": false,
+  "final_answer": "Select a feasible alternative only after comparing and verifying it.",
+  "first_action_correct": true,
+  "model_tokens": 0,
+  "passed": true,
+  "recovery_correct": true,
+  "repeated_non_progress_count": 0,
+  "status": "completed",
+  "verification_passed": true,
+  "verification_recovery_correct": true
+}

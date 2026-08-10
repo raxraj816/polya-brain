@@ -5,13 +5,22 @@ from __future__ import annotations
 from typing import Protocol
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db_session
+from app.cognition.bootstrap import build_representation_session_runner
+from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
 from app.db.models import ProblemSession
+from app.memory import SQLAlchemyMemoryRepository
 from app.models.contracts import ProductMode
-from app.models.sessions import CreateSessionRequest, RunSessionResponse, SessionResponse
+from app.models.sessions import (
+    ClarificationAnswerRequest,
+    CreateSessionRequest,
+    RunSessionResponse,
+    SessionReportResponse,
+    SessionResponse,
+)
 from app.sessions import (
     PolyaSessionService,
     SessionConflictError,
@@ -19,6 +28,7 @@ from app.sessions import (
     SessionRunFailedError,
 )
 from app.sessions.service import SessionRunResult
+from app.tracing.persistence import SQLAlchemyTraceRepository
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
 DB_SESSION_DEPENDENCY = Depends(get_db_session)
@@ -41,16 +51,44 @@ class SessionService(Protocol):
         """Read a persisted problem session."""
         ...
 
+    def get_report(self, session_id: UUID) -> SessionReportResponse:
+        """Read the auditable report assembled from canonical artifacts."""
+        ...
+
     def run_session(self, session_id: UUID) -> SessionRunResult:
         """Run a persisted problem session."""
         ...
 
+    def respond_to_session(self, session_id: UUID, answer: str) -> SessionRunResult:
+        """Persist a clarification answer and resume a paused session."""
+        ...
+
 
 def get_session_service(
+    request: Request,
     db_session: Session = DB_SESSION_DEPENDENCY,
 ) -> PolyaSessionService:
-    """Build the database-backed session service for request handling."""
-    return PolyaSessionService(db_session)
+    """Build the database-backed cognitive session service for request handling."""
+    trace_repository = SQLAlchemyTraceRepository(db_session)
+    cognitive_repository = SQLAlchemyCognitiveStateRepository(db_session)
+    memory_repository = SQLAlchemyMemoryRepository(db_session)
+    runner = build_representation_session_runner(
+        request.app.state.settings,
+        prior_research_query_count=lambda session_id: trace_repository.count_events(
+            UUID(session_id),
+            event_type="research_query_started",
+        ),
+        prior_evidence_loader=lambda session_id: cognitive_repository.load_evidence(
+            UUID(session_id)
+        ),
+        semantic_memory=memory_repository,
+        procedural_memory=memory_repository,
+    )
+    return PolyaSessionService(
+        db_session,
+        runner=runner,
+        memory_repository=memory_repository,
+    )
 
 
 SESSION_SERVICE_DEPENDENCY = Depends(get_session_service)
@@ -117,16 +155,32 @@ def get_session(
     return _session_response(problem_session)
 
 
+@router.get(
+    "/{session_id}/report",
+    response_model=SessionReportResponse,
+    summary="Read an auditable problem-solving report",
+)
+def get_session_report(
+    session_id: UUID,
+    session_service: SessionService = SESSION_SERVICE_DEPENDENCY,
+) -> SessionReportResponse:
+    """Expose conclusion, evidence, checks, uncertainty, and next action."""
+    try:
+        return session_service.get_report(session_id)
+    except SessionNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
 @router.post(
     "/{session_id}/run",
     response_model=RunSessionResponse,
-    summary="Run a problem session through the Chapter 10 stub graph",
+    summary="Run a problem session through the cognitive runtime",
 )
 def run_session(
     session_id: UUID,
     session_service: SessionService = SESSION_SERVICE_DEPENDENCY,
 ) -> RunSessionResponse:
-    """Run a created session synchronously through the deterministic stub graph."""
+    """Run a created session synchronously through the available capabilities."""
     try:
         run_result = session_service.run_session(session_id)
     except SessionNotFoundError as exc:
@@ -141,5 +195,42 @@ def run_session(
 
     session_payload = _session_response(run_result.session).model_dump()
     return RunSessionResponse.model_validate(
-        {**session_payload, "event_count": run_result.event_count}
+        {
+            **session_payload,
+            "event_count": run_result.event_count,
+            "clarifying_questions": list(run_result.clarifying_questions),
+        }
+    )
+
+
+@router.post(
+    "/{session_id}/respond",
+    response_model=RunSessionResponse,
+    summary="Answer a clarification and resume a problem session",
+)
+def respond_to_session(
+    session_id: UUID,
+    request: ClarificationAnswerRequest,
+    session_service: SessionService = SESSION_SERVICE_DEPENDENCY,
+) -> RunSessionResponse:
+    """Resume an awaiting session without discarding its persisted trace."""
+    try:
+        run_result = session_service.respond_to_session(session_id, request.answer)
+    except SessionNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except SessionConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except SessionRunFailedError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"session resume failed safely: {exc}",
+        ) from exc
+
+    session_payload = _session_response(run_result.session).model_dump()
+    return RunSessionResponse.model_validate(
+        {
+            **session_payload,
+            "event_count": run_result.event_count,
+            "clarifying_questions": list(run_result.clarifying_questions),
+        }
     )

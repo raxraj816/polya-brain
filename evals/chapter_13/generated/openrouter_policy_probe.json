@@ -1,0 +1,7 @@
+{
+  "error_code": 404,
+  "error_message": "No endpoints found matching your data policy (Free model training). Configure: https://openrouter.ai/settings/privacy",
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "requested_data_collection": "deny",
+  "status_code": 404
+}

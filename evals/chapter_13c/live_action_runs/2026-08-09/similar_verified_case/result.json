@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "retrieve_memory"
+  ],
+  "case_id": "similar_verified_case",
+  "category": "analogical_transfer",
+  "controller_action": "retrieve_memory",
+  "controller_correct": true,
+  "controller_latency_ms": 0.23141689598560333,
+  "controller_model_tokens": 0,
+  "direct_action": "retrieve_memory",
+  "direct_capability": "memory",
+  "direct_correct": true,
+  "direct_latency_ms": 6785.460125189275,
+  "direct_rationale": "The high-priority gap requires a structurally similar verified case; the memory capability can retrieve such cases from episodic memory to enable analogical transfer.",
+  "direct_supported": true,
+  "direct_target": "episodic memory for prior verified case",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1227,
+    "output_tokens": 261,
+    "reasoning_tokens": 239
+  },
+  "expected_action": "retrieve_memory",
+  "parse_error": null
+}

@@ -104,6 +104,16 @@ class SQLAlchemyTraceRepository:
             is not None
         )
 
+    def count_events(self, session_id: UUID, *, event_type: str) -> int:
+        """Count one durable event type for cross-resume safety budgets."""
+        value = self._session.scalar(
+            select(func.count(ReasoningEvent.id)).where(
+                ReasoningEvent.session_id == session_id,
+                ReasoningEvent.event_type == event_type,
+            )
+        )
+        return int(value or 0)
+
     def list_events(
         self,
         session_id: UUID,

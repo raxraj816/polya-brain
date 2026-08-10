@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "reframe"
+  ],
+  "case_id": "contradictory_premises",
+  "category": "adversarial_logic",
+  "controller_action": "reframe",
+  "controller_correct": true,
+  "controller_latency_ms": 0.22041681222617626,
+  "controller_model_tokens": 0,
+  "direct_action": "reframe",
+  "direct_capability": "reasoner",
+  "direct_correct": true,
+  "direct_latency_ms": 7150.321832858026,
+  "direct_rationale": "The premises conflict, creating a contradiction. Using the reasoner's reframe action will help resolve the contradiction and produce a valid problem framing, which is the high-priority gap.",
+  "direct_supported": true,
+  "direct_target": "structured_problem",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1231,
+    "output_tokens": 192,
+    "reasoning_tokens": 155
+  },
+  "expected_action": "reframe",
+  "parse_error": null
+}

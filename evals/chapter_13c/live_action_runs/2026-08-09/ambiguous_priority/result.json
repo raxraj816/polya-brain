@@ -1,0 +1,28 @@
+{
+  "accepted_actions": [
+    "ask_human",
+    "clarify"
+  ],
+  "case_id": "ambiguous_priority",
+  "category": "ambiguous_input",
+  "controller_action": "clarify",
+  "controller_correct": true,
+  "controller_latency_ms": 0.08158409036695957,
+  "controller_model_tokens": 0,
+  "direct_action": "ask_human",
+  "direct_capability": "human_input",
+  "direct_correct": true,
+  "direct_latency_ms": 6652.65491604805,
+  "direct_rationale": "Need user's priority between speed, cost, and risk to choose best launch plan.",
+  "direct_supported": true,
+  "direct_target": "user",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1231,
+    "output_tokens": 209,
+    "reasoning_tokens": 176
+  },
+  "expected_action": "clarify",
+  "parse_error": null
+}

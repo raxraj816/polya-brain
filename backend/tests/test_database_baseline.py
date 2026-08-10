@@ -8,7 +8,9 @@ from uuid import uuid4
 import pytest
 from sqlalchemy import select
 
+from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
 from app.config import get_settings
+from app.db.models import EvidenceItem as EvidenceItemRecord
 from app.db.models import ProblemSession, ReasoningEvent
 from app.db.session import create_database_engine, create_session_factory
 from app.db.smoke import assert_database_baseline, can_seed_database
@@ -25,6 +27,42 @@ def test_chapter_4_database_baseline_supports_seed_graph_and_vector_storage() ->
     engine = create_database_engine(get_settings().database_url)
 
     assert_database_baseline(engine, allow_seed=True)
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_cognitive_repository_rehydrates_canonical_evidence() -> None:
+    engine = create_database_engine(get_settings().database_url)
+    session_factory = create_session_factory(engine)
+    with session_factory() as session:
+        problem_session = ProblemSession(
+            raw_input=f"Evidence rehydration {uuid4()}",
+            mode="investigate",
+            status="awaiting_user_input",
+        )
+        session.add(problem_session)
+        session.flush()
+        session.add(
+            EvidenceItemRecord(
+                session_id=problem_session.id,
+                source_type="evaluated_web_source",
+                source_uri="https://example.com/prior",
+                claim="A prior fact remains relevant.",
+                raw_excerpt="Prior source excerpt.",
+                reliability_score=0.8,
+                relevance_score=0.9,
+                supports_hypothesis_ids=[],
+                contradicts_hypothesis_ids=[],
+            )
+        )
+        session.commit()
+        session_id = problem_session.id
+
+    with session_factory() as session:
+        evidence = SQLAlchemyCognitiveStateRepository(session).load_evidence(session_id)
+
+    assert len(evidence) == 1
+    assert evidence[0].claim == "A prior fact remains relevant."
+    assert evidence[0].source_uri == "https://example.com/prior"
 
 
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
@@ -98,6 +136,8 @@ def test_trace_repository_appends_route_decisions_and_reads_in_sequence_order() 
         assert events[1].event_metadata["api_key"] == "[REDACTED]"
         assert events[2].engine_name == "graph_router"
         assert events[2].event_metadata["source_engine"] == "problem_representation"
+        assert repository.count_events(session_id, event_type="started") == 2
+        assert repository.count_events(session_id, event_type="completed") == 1
 
 
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
