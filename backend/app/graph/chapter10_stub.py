@@ -16,8 +16,9 @@ from app.engines import (
     EngineStatus,
     EngineVersion,
 )
-from app.graph.skeleton import GRAPH_VERSION, GraphNodeName, PolyaGraphEngines, run_polya_graph
+from app.graph.skeleton import GraphNodeName, PolyaGraphEngines, run_polya_graph
 from app.graph.state import ExecutionOutput, PolyaState
+from app.graph.version import GRAPH_VERSION
 from app.models.contracts import (
     EvidenceItem,
     Hypothesis,

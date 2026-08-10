@@ -1,0 +1,23 @@
+[
+  {
+    "bytes": 414,
+    "id": "pagination_code",
+    "included_chars": 414,
+    "path": "evals/chapter_13/fixtures/pagination/pagination_service.py",
+    "sha256": "a25d26fa952a7d8706c1f3eb9dc0389712d35dc4031bff142ab9a1e0310e3b89"
+  },
+  {
+    "bytes": 281,
+    "id": "pagination_test",
+    "included_chars": 281,
+    "path": "evals/chapter_13/fixtures/pagination/test_pagination_service.py",
+    "sha256": "a2ff4269f1b26bb5bf4b3b5e14e7756a8246f9ce3f27a5a4b4177ab9b67d5e4c"
+  },
+  {
+    "bytes": 925,
+    "id": "pagination_pytest_log",
+    "included_chars": 925,
+    "path": "evals/chapter_13/generated/pagination_pytest.log",
+    "sha256": "14a768c4ef829ae17afe42e8c09cd7ba51c55b4d971bf521c28c63cbc9f0000d"
+  }
+]

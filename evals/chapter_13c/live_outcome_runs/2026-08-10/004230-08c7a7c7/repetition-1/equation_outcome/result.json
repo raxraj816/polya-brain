@@ -1,0 +1,127 @@
+{
+  "case_id": "equation_outcome",
+  "category": "mathematical_reasoning",
+  "direct": {
+    "actions": [
+      "calculate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Substitution verification: 2(3) + 4 = 10"
+    ],
+    "conclusion": "x = 3",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 12644.194792024791,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "calculate",
+        "call_index": 1,
+        "capability": "calculator",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+          "status": "succeeded",
+          "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+        },
+        "target": "(10 - 4) / 2"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 915,
+      "model_calls": 2,
+      "output_tokens": 406,
+      "total_tokens": 1321
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "polya": {
+    "actions": [
+      "calculate",
+      "hypothesize",
+      "plan",
+      "execute",
+      "verify",
+      "reflect",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Algebraic steps preserve equality: subtract 4 from both sides (2x = 6), divide by 2 (x = 3)",
+      "Substitution arithmetic: 2*3 + 4 = 6 + 4 = 10, matches right-hand side"
+    ],
+    "conclusion": "x = 3",
+    "cycles": 7,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 79367.28320806287,
+    "observation_trace": [
+      {
+        "capability": "calculator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+      },
+      {
+        "capability": "reasoner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Generated 1 testable candidate(s)."
+      },
+      {
+        "capability": "planner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Created 1 bounded plan task(s)."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Verification of substitution x=3 into 2x+4 yields 10: 2*3+4 = 6+4 = 10, which equals 10, so the equation holds true."
+      },
+      {
+        "capability": "verifier",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Verification passed all declared checks."
+      },
+      {
+        "capability": "reflector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Extracted bounded lessons from the verified run."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 6799,
+      "model_calls": 5,
+      "output_tokens": 2467,
+      "total_tokens": 9266
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

@@ -21,6 +21,10 @@ The code should be modular by engine, but deployment should stay simple until th
 
 ## Build Now
 
+- A domain-independent cognitive controller that selects state-dependent
+  actions; models and external systems remain replaceable capabilities.
+- An experimental cognitive-action model and capability registry kept outside
+  core contracts until cross-domain evaluation proves promotion.
 - Typed engine interfaces.
 - Stateful Polya loop.
 - Problem representation.
@@ -76,6 +80,11 @@ The MVP implementation uses nine logical modules:
 9. Reflection and Memory Engine.
 
 Each engine needs typed input/output, tests, prompts, and telemetry.
+
+The engines do not own the run independently. The cognitive controller owns
+selection of the next action from canonical state. Engine, model, memory, and
+tool results enter as observations and cannot directly finalize, verify, or
+write durable learned knowledge without the corresponding kernel gates.
 
 Creative problem-solving behavior belongs inside these engines, not in a separate "creativity engine." The Reasoning Engine owns divergent generation and convergent filtering. Memory retrieval owns analogical candidates. Verification owns falsification and contradiction checks. Reflection owns strategy learning from which hypotheses, reframes, and analogies helped or failed.
 

@@ -1,0 +1,30 @@
+{
+  "actions": [
+    "calculate",
+    "hypothesize",
+    "plan",
+    "execute",
+    "verify",
+    "replan",
+    "execute",
+    "verify",
+    "reflect",
+    "stop"
+  ],
+  "case_id": "exact_equation",
+  "category": "mathematical_reasoning",
+  "controller_latency_ms": 1.2507080100476742,
+  "estimated_capability_cost": 0.45,
+  "expected_first_action": "calculate",
+  "expected_recovery_action": null,
+  "expected_verification_recovery": true,
+  "final_answer": "x = 3",
+  "first_action_correct": true,
+  "model_tokens": 0,
+  "passed": true,
+  "recovery_correct": true,
+  "repeated_non_progress_count": 0,
+  "status": "completed",
+  "verification_passed": true,
+  "verification_recovery_correct": true
+}

@@ -10,21 +10,38 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import sessionmaker
 
-from app.config import get_settings
-from app.db.models import ProblemSession, ReasoningEvent, utc_now
+from app.cognition.bootstrap import build_representation_session_runner
+from app.config import Settings, get_settings
+from app.db.models import (
+    ClarificationRequest,
+    EvidenceItem,
+    Hypothesis,
+    KnowledgeGap,
+    PlanTask,
+    ProblemSession,
+    ReasoningEvent,
+    utc_now,
+)
+from app.db.models import StructuredProblem as StructuredProblemRecord
+from app.db.models import (
+    VerificationReport as VerificationReportRecord,
+)
 from app.db.session import create_database_engine, create_session_factory
 from app.graph.state import PolyaState, StateEvent, create_initial_state
 from app.models.contracts import ProductMode, ReasoningMode, VerificationReport
 from app.sessions import (
     PolyaSessionService,
     SessionConflictError,
+    SessionExecutionResult,
     SessionNotFoundError,
     SessionRunFailedError,
 )
 from app.sessions.service import (
+    SESSION_STATUS_AWAITING_USER_INPUT,
     SESSION_STATUS_CREATED,
     SESSION_STATUS_FAILED,
     SESSION_STATUS_RUNNING,
+    VERIFICATION_STATUS_CLARIFICATION_EXPIRED,
     VERIFICATION_STATUS_RUN_EXPIRED,
 )
 
@@ -73,6 +90,35 @@ def failing_runner(raw_input: str, *, session_id: str) -> PolyaState:
     raise RuntimeError("forced service test failure")
 
 
+def awaiting_runner(raw_input: str, *, session_id: str) -> SessionExecutionResult:
+    state = create_initial_state(raw_input, session_id=session_id)
+    state["events"] = [
+        StateEvent(
+            engine_name="problem_representation",
+            event_type="needs_input",
+            reasoning_mode=ReasoningMode.EXPLORE,
+            summary="The success criterion is missing.",
+        )
+    ]
+    return SessionExecutionResult(
+        state=state,
+        awaiting_user_input=True,
+        clarifying_questions=("Which measurable success criterion should be used?",),
+    )
+
+
+def successful_resume_runner(
+    raw_input: str,
+    answer: str,
+    *,
+    session_id: str,
+) -> PolyaState:
+    return successful_runner(
+        f"{raw_input}\nClarification: {answer}",
+        session_id=session_id,
+    )
+
+
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
 def test_session_service_create_persists_created_session(
     session_factory: sessionmaker,
@@ -116,7 +162,7 @@ def test_session_service_run_persists_completion_and_ordered_trace(
 
         assert run_result.session.status == "completed"
         assert run_result.session.final_answer == "Service test completed."
-        assert run_result.session.verification_status == "stub_passed"
+        assert run_result.session.verification_status == "passed"
         assert run_result.event_count == 3
 
     with session_factory() as db_session:
@@ -138,6 +184,236 @@ def test_session_service_run_persists_completion_and_ordered_trace(
             "completed",
             "route_decision",
         ]
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_session_service_pauses_persists_question_and_resumes_same_trace(
+    session_factory: sessionmaker,
+) -> None:
+    with session_factory() as db_session:
+        service = PolyaSessionService(
+            db_session,
+            runner=awaiting_runner,
+            resume_runner=successful_resume_runner,
+        )
+        problem_session = service.create_session(
+            raw_input=f"Choose the best plan {uuid4()}",
+            mode=ProductMode.EXPLORE,
+            domain="planning",
+        )
+        session_id = problem_session.id
+
+        paused = service.run_session(session_id)
+
+        assert paused.session.status == SESSION_STATUS_AWAITING_USER_INPUT
+        assert paused.session.completed_at is None
+        assert paused.session.final_answer is None
+        assert paused.clarifying_questions == (
+            "Which measurable success criterion should be used?",
+        )
+
+        resumed = service.respond_to_session(
+            session_id,
+            "Minimize risk while staying within the fixed budget.",
+        )
+
+        assert resumed.session.status == "completed"
+        assert resumed.session.final_answer == "Service test completed."
+
+    with session_factory() as db_session:
+        clarification = db_session.scalar(
+            select(ClarificationRequest).where(ClarificationRequest.session_id == session_id)
+        )
+        events = list(
+            db_session.scalars(
+                select(ReasoningEvent)
+                .where(ReasoningEvent.session_id == session_id)
+                .order_by(ReasoningEvent.sequence_number)
+            )
+        )
+
+        assert clarification is not None
+        assert clarification.status == "answered"
+        assert clarification.answer == "Minimize risk while staying within the fixed budget."
+        assert clarification.answered_at is not None
+        assert [event.sequence_number for event in events] == list(range(len(events)))
+        assert [event.event_type for event in events] == [
+            "needs_input",
+            "clarification_requested",
+            "clarification_answered",
+            "started",
+            "completed",
+            "route_decision",
+        ]
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_session_service_rejects_duplicate_clarification_response(
+    session_factory: sessionmaker,
+) -> None:
+    with session_factory() as db_session:
+        service = PolyaSessionService(
+            db_session,
+            runner=awaiting_runner,
+            resume_runner=successful_resume_runner,
+        )
+        problem_session = service.create_session(
+            raw_input=f"Clarify once {uuid4()}",
+            mode=ProductMode.EXPLORE,
+            domain=None,
+        )
+        service.run_session(problem_session.id)
+        service.respond_to_session(problem_session.id, "Use the lowest-risk option.")
+
+        with pytest.raises(SessionConflictError, match="completed"):
+            service.respond_to_session(problem_session.id, "A second answer.")
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_session_service_expires_abandoned_clarification(
+    session_factory: sessionmaker,
+) -> None:
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=awaiting_runner)
+        problem_session = service.create_session(
+            raw_input=f"Expire clarification {uuid4()}",
+            mode=ProductMode.EXPLORE,
+            domain=None,
+        )
+        service.run_session(problem_session.id)
+        clarification = db_session.scalar(
+            select(ClarificationRequest).where(
+                ClarificationRequest.session_id == problem_session.id
+            )
+        )
+        assert clarification is not None
+        clarification.expires_at = utc_now() - timedelta(seconds=1)
+        db_session.commit()
+
+        with pytest.raises(SessionConflictError, match="expired"):
+            service.respond_to_session(problem_session.id, "Late answer.")
+
+        db_session.refresh(problem_session)
+        assert problem_session.status == SESSION_STATUS_FAILED
+        assert problem_session.verification_status == VERIFICATION_STATUS_CLARIFICATION_EXPIRED
+        assert problem_session.final_answer is not None
+        assert "expired" in problem_session.final_answer
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_persisted_cognitive_runner_pauses_and_reunderstands_after_answer(
+    session_factory: sessionmaker,
+) -> None:
+    runner = build_representation_session_runner(
+        Settings(
+            POLYABRAIN_ENV="test",
+            OPENROUTER_API_KEY="",
+            OPENROUTER_MODEL="",
+        )
+    )
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=runner)
+        problem_session = service.create_session(
+            raw_input="Fix it.",
+            mode=ProductMode.EXPLORE,
+            domain=None,
+        )
+
+        paused = service.run_session(problem_session.id)
+        resumed = service.respond_to_session(
+            problem_session.id,
+            "Reduce checkout p95 latency below 300 ms without increasing payment errors.",
+        )
+
+        assert paused.session.id == resumed.session.id
+        assert paused.clarifying_questions
+        assert resumed.session.status == "completed"
+        assert resumed.session.final_answer is not None
+        assert "without a verified conclusion" in resumed.session.final_answer
+
+    with session_factory() as db_session:
+        events = list(
+            db_session.scalars(
+                select(ReasoningEvent)
+                .where(ReasoningEvent.session_id == problem_session.id)
+                .order_by(ReasoningEvent.sequence_number)
+            )
+        )
+        structured_problem = db_session.scalar(
+            select(StructuredProblemRecord).where(
+                StructuredProblemRecord.session_id == problem_session.id
+            )
+        )
+        assert any(event.event_type == "clarification_requested" for event in events)
+        assert any(event.event_type == "clarification_answered" for event in events)
+        assert sum(event.event_type == "framing_selected" for event in events) == 2
+        assert structured_problem is not None
+        assert structured_problem.problem_type == "clarified_request"
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
+    session_factory: sessionmaker,
+) -> None:
+    runner = build_representation_session_runner(
+        Settings(
+            POLYABRAIN_ENV="test",
+            OPENROUTER_API_KEY="",
+            OPENROUTER_MODEL="",
+        )
+    )
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=runner)
+        problem_session = service.create_session(
+            raw_input="17 * 6?",
+            mode=ProductMode.EXPLORE,
+            domain="mathematics",
+        )
+        session_id = problem_session.id
+
+        completed = service.run_session(session_id)
+        report = service.get_report(session_id)
+
+        assert completed.session.final_answer == "17 * 6 = 102."
+        assert completed.session.verification_status == "passed"
+        assert report.final_conclusion == "17 * 6 = 102."
+        assert report.confidence_level == "high"
+        assert len(report.evidence_used) == 2
+        assert report.evidence_against == []
+        assert report.checks_performed
+        assert report.open_questions == []
+        assert report.reflection is not None
+
+    with session_factory() as db_session:
+        gap = db_session.scalar(select(KnowledgeGap).where(KnowledgeGap.session_id == session_id))
+        evidence = list(
+            db_session.scalars(select(EvidenceItem).where(EvidenceItem.session_id == session_id))
+        )
+        hypothesis = db_session.scalar(
+            select(Hypothesis).where(Hypothesis.session_id == session_id)
+        )
+        plan_task = db_session.scalar(select(PlanTask).where(PlanTask.session_id == session_id))
+        verification = db_session.scalar(
+            select(VerificationReportRecord).where(
+                VerificationReportRecord.session_id == session_id
+            )
+        )
+        reflection_event = db_session.scalar(
+            select(ReasoningEvent).where(
+                ReasoningEvent.session_id == session_id,
+                ReasoningEvent.event_type == "reflection_recorded",
+            )
+        )
+
+        assert gap is not None and gap.filled
+        assert len(evidence) == 2
+        assert {item.claim for item in evidence} == {"17 * 6 = 102."}
+        assert hypothesis is not None and hypothesis.statement == "17 * 6 = 102."
+        assert plan_task is not None
+        assert plan_task.params["_polyabrain_task_id"] == "independent-recalculation"
+        assert verification is not None and verification.passed
+        assert reflection_event is not None
+        assert reflection_event.event_metadata["strategy_notes"] == ["calculate_then_recalculate"]
 
 
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)

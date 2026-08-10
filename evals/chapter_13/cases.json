@@ -1,0 +1,52 @@
+[
+  {
+    "case_id": "pagination_cursor_overlap",
+    "title": "Duplicate records after pagination refactor",
+    "problem": "A pagination refactor made a three-record query return duplicates. Determine the root cause and the smallest safe correction using the executable code and failing test log.",
+    "mode": "investigate",
+    "domain": "software_debugging",
+    "artifacts": [
+      {"id": "pagination_code", "path": "fixtures/pagination/pagination_service.py", "max_chars": 8000},
+      {"id": "pagination_test", "path": "fixtures/pagination/test_pagination_service.py", "max_chars": 8000},
+      {"id": "pagination_pytest_log", "path": "generated/pagination_pytest.log", "max_chars": 12000}
+    ],
+    "correctness_term_groups": [
+      ["page_size - 1", "cursor overlap", "overlapping pages"],
+      ["page_size", "advance the cursor", "non-overlapping"]
+    ]
+  },
+  {
+    "case_id": "n_plus_one_query_path",
+    "title": "N+1 query path versus Redis",
+    "problem": "An account dashboard is slow and the team proposes Redis. Use the executable benchmark code and measured output to decide whether caching or query-path consolidation should be tested first.",
+    "mode": "investigate",
+    "domain": "software_performance",
+    "artifacts": [
+      {"id": "query_measurement_code", "path": "fixtures/query_path/measure_query_paths.py", "max_chars": 18000},
+      {"id": "query_metrics_summary", "path": "generated/query_metrics_summary.json", "max_chars": 8000},
+      {"id": "query_metrics_csv", "path": "generated/query_metrics.csv", "max_chars": 5000}
+    ],
+    "correctness_term_groups": [
+      ["n+1", "n_plus_one", "51"],
+      ["join", "batch", "consolidat", "1 query"],
+      ["before redis", "before caching", "redis should not", "cache later", "then evaluate", "if caching is still needed", "only if"]
+    ]
+  },
+  {
+    "case_id": "openrouter_privacy_policy",
+    "title": "Configured free model versus fail-closed privacy routing",
+    "problem": "The configured OpenRouter free model returns HTTP 404 under PolyaBrain's data_collection=deny policy. Determine whether production should weaken privacy globally or change model/routing while preserving a safe evaluation-only path.",
+    "mode": "investigate",
+    "domain": "provider_configuration",
+    "artifacts": [
+      {"id": "openrouter_env_template", "path": "../../.env.example", "max_chars": 10000},
+      {"id": "openrouter_official_sources", "path": "fixtures/openrouter_privacy/official_sources.md", "max_chars": 10000},
+      {"id": "openrouter_policy_probe", "path": "generated/openrouter_policy_probe.json", "max_chars": 8000}
+    ],
+    "correctness_term_groups": [
+      ["data_collection", "data policy", "privacy"],
+      ["free model", "free endpoint", "training"],
+      ["keep", "do not weaken", "paid", "zdr", "privacy-compatible"]
+    ]
+  }
+]

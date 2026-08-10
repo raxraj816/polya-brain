@@ -6,7 +6,7 @@ UVICORN := $(VENV)/bin/uvicorn
 ALEMBIC := $(VENV)/bin/alembic
 INSTALL_STAMP := $(VENV)/.installed
 
-.PHONY: check-python check-venv setup install dev test lint format typecheck migrate db-seed db-smoke db-test docker-up docker-down proof chapter11-proof clean
+.PHONY: check-python check-venv setup install dev test lint format typecheck migrate db-seed db-smoke db-test memory-seed memory-proof outcome-harness-test docker-up docker-down proof chapter11-proof cognitive-proof clean
 
 check-python:
 	@$(PYTHON) -c 'import sys; v=sys.version_info; ok=(3, 14) <= v[:2] < (3, 15); sys.exit(0 if ok else f"PolyaBrain requires Python >=3.14,<3.15; {sys.executable} is {v.major}.{v.minor}.{v.micro}.")'
@@ -55,7 +55,16 @@ db-smoke: setup
 	$(PYTHON_BIN) -m app.db.smoke
 
 db-test: setup
-	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py backend/tests/test_sessions_service.py
+	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py backend/tests/test_sessions_service.py backend/tests/test_memory_persistence.py
+
+memory-seed: setup
+	$(PYTHON_BIN) scripts/ingest_knowledge_base.py
+
+memory-proof: setup
+	$(PYTHON_BIN) scripts/verify_memory_queries.py
+
+outcome-harness-test: setup
+	$(PYTHON_BIN) -m pytest backend/tests/test_live_outcome_harness.py
 
 docker-up:
 	docker compose up --build --wait --wait-timeout 60
@@ -68,6 +77,9 @@ proof: check-python
 
 chapter11-proof: setup
 	$(PYTHON_BIN) scripts/verify_chapter11_examples.py
+
+cognitive-proof: setup
+	$(PYTHON_BIN) evals/chapter_13c/run_cognitive_control_proof.py
 
 clean:
 	rm -rf $(VENV) .pytest_cache .ruff_cache .mypy_cache

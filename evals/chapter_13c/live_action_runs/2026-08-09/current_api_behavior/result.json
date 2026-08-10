@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "search"
+  ],
+  "case_id": "current_api_behavior",
+  "category": "technical_research",
+  "controller_action": "search",
+  "controller_correct": true,
+  "controller_latency_ms": 0.20208396017551422,
+  "controller_model_tokens": 0,
+  "direct_action": "search",
+  "direct_capability": "web_search",
+  "direct_correct": true,
+  "direct_latency_ms": 21166.646833065897,
+  "direct_rationale": "Search for authoritative documentation on the current official API behavior to fill the high-priority gap.",
+  "direct_supported": true,
+  "direct_target": "official API specification current behavior",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1231,
+    "output_tokens": 593,
+    "reasoning_tokens": 689
+  },
+  "expected_action": "search",
+  "parse_error": null
+}

@@ -114,7 +114,7 @@ class ProblemUnderstandingRunResult(ContractModel):
     prompt_version: NonEmptyStr
     provider: NonEmptyStr
     model: NonEmptyStr
-    llm_call_count: PositiveInt
+    llm_call_count: Annotated[int, Field(ge=0)]
     llm_repair_attempts: Annotated[int, Field(ge=0)] = 0
     local_repair_steps: list[NonEmptyStr] = Field(default_factory=list)
     response_ids: list[NonEmptyStr] = Field(default_factory=list)

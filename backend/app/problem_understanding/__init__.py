@@ -10,6 +10,7 @@ from app.problem_understanding.contracts import (
     PromptExampleCategory,
 )
 from app.problem_understanding.examples import PROBLEM_UNDERSTANDING_EXAMPLES
+from app.problem_understanding.fallbacks import deterministic_problem_understanding
 from app.problem_understanding.parser import (
     ProblemUnderstandingParseError,
     parse_problem_understanding,
@@ -39,6 +40,7 @@ __all__ = [
     "PromptExampleCategory",
     "build_problem_understanding_repair_request",
     "build_problem_understanding_request",
+    "deterministic_problem_understanding",
     "format_problem_understanding_input",
     "generate_problem_understanding",
     "parse_problem_understanding",

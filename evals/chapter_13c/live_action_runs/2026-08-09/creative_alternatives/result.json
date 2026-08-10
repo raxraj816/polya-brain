@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "hypothesize"
+  ],
+  "case_id": "creative_alternatives",
+  "category": "creative_synthesis",
+  "controller_action": "hypothesize",
+  "controller_correct": true,
+  "controller_latency_ms": 0.2942499704658985,
+  "controller_model_tokens": 0,
+  "direct_action": null,
+  "direct_capability": null,
+  "direct_correct": false,
+  "direct_latency_ms": 11906.405916903168,
+  "direct_rationale": null,
+  "direct_supported": false,
+  "direct_target": null,
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1160,
+    "output_tokens": 314,
+    "reasoning_tokens": 297
+  },
+  "expected_action": "hypothesize",
+  "parse_error": "direct model returned an invalid action selection"
+}

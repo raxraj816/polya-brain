@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "simulate"
+  ],
+  "case_id": "capacity_plan",
+  "category": "planning",
+  "controller_action": "simulate",
+  "controller_correct": true,
+  "controller_latency_ms": 0.20699994638562202,
+  "controller_model_tokens": 0,
+  "direct_action": "simulate",
+  "direct_capability": "simulator",
+  "direct_correct": true,
+  "direct_latency_ms": 5323.840207885951,
+  "direct_rationale": "The high-priority gap requires determining whether each plan survives peak demand; the simulator capability is explicitly suggested for this purpose.",
+  "direct_supported": true,
+  "direct_target": "capacity alternatives under peak demand scenarios",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1223,
+    "output_tokens": 156,
+    "reasoning_tokens": 118
+  },
+  "expected_action": "simulate",
+  "parse_error": null
+}

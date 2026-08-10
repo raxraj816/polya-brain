@@ -1,0 +1,111 @@
+{
+  "artifact_preparation_ms": 915.542,
+  "benchmark_policy_overrides": {
+    "data_collection": "allow",
+    "non_confidential_fixtures_only": true,
+    "require_parameters_for_json": false
+  },
+  "case_id": "openrouter_privacy_policy",
+  "direct_model": {
+    "score": {
+      "actionability": 1.0,
+      "artifact_citation_coverage": 0.0,
+      "cited_artifact_ids": [],
+      "correctness": 1.0,
+      "evidence_quality": 0.15,
+      "human_user_feedback_collected": false,
+      "matched_correctness_terms": [
+        [
+          "data_collection",
+          "privacy"
+        ],
+        [
+          "free model",
+          "training"
+        ],
+        [
+          "keep",
+          "do not weaken",
+          "paid",
+          "zdr"
+        ]
+      ],
+      "report_completeness": 0.0,
+      "required_section_count": 0,
+      "required_sections": [],
+      "reuse_proxy_score": 0.787,
+      "would_use_again_proxy": true
+    },
+    "time_to_decision_ms": 33734.487,
+    "usage": {
+      "cached_input_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 851,
+      "output_tokens": 737,
+      "reasoning_tokens": 538,
+      "total_tokens": 1588
+    }
+  },
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "overhead": {
+    "latency_ms": 58642.061,
+    "latency_ratio": 2.738,
+    "token_count": 7449,
+    "token_ratio": 5.691
+  },
+  "polya": {
+    "score": {
+      "actionability": 1.0,
+      "artifact_citation_coverage": 1.0,
+      "cited_artifact_ids": [
+        "openrouter_env_template",
+        "openrouter_official_sources",
+        "openrouter_policy_probe"
+      ],
+      "correctness": 1.0,
+      "evidence_quality": 1.0,
+      "human_user_feedback_collected": false,
+      "matched_correctness_terms": [
+        [
+          "data_collection",
+          "data policy",
+          "privacy"
+        ],
+        [
+          "free model",
+          "free endpoint",
+          "training"
+        ],
+        [
+          "paid",
+          "zdr"
+        ]
+      ],
+      "report_completeness": 1.0,
+      "required_section_count": 8,
+      "required_sections": [
+        "Final conclusion",
+        "Confidence level",
+        "Evidence used",
+        "Evidence against",
+        "Checks performed",
+        "Open questions",
+        "Recommended next action",
+        "Audit trace"
+      ],
+      "reuse_proxy_score": 0.9,
+      "would_use_again_proxy": true
+    },
+    "time_to_decision_ms": 92376.548,
+    "usage": {
+      "cached_input_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 6116,
+      "output_tokens": 2921,
+      "reasoning_tokens": 1549,
+      "total_tokens": 9037
+    }
+  },
+  "provider": "openrouter",
+  "title": "Configured free model versus fail-closed privacy routing"
+}

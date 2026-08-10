@@ -1,0 +1,353 @@
+[
+  {
+    "engine_name": "constraint_discovery",
+    "event_type": "completed",
+    "metadata": {
+      "status": "ok"
+    },
+    "reasoning_mode": "compare",
+    "summary": "Constraints are pre-discovered to isolate the next-action proof."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected search for the current official API behavior from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [
+        {
+          "candidate_id": "action-72a3c61d7fcf",
+          "rationale": "Lower bounded utility (0.788) than selected action (0.868)."
+        },
+        {
+          "candidate_id": "action-44f96944afcd",
+          "rationale": "Lower bounded utility (0.708) than selected action (0.868)."
+        }
+      ],
+      "selected": {
+        "action_type": "search",
+        "capability": "web_search",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An observation that resolves or materially narrows the gap: the current official API behavior",
+        "expected_usefulness": 0.88,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-002b8a503723",
+        "preconditions": [],
+        "purpose": "The unknown blocks a verified conclusion.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "the current official API behavior"
+      },
+      "state_fingerprint": "236505780b896b75"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected search for the current official API behavior through web_search."
+  },
+  {
+    "engine_name": "web_search",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-002b8a503723",
+      "action_type": "search",
+      "capability": "web_search",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": "no_results",
+      "status": "failed",
+      "target": "the current official API behavior"
+    },
+    "reasoning_mode": "execute",
+    "summary": "The primary search capability returned no usable result."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected inspect for the current official API behavior from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [
+        {
+          "candidate_id": "action-44f96944afcd",
+          "rationale": "Lower bounded utility (0.708) than selected action (0.788)."
+        }
+      ],
+      "selected": {
+        "action_type": "inspect",
+        "capability": "inspector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An observation that resolves or materially narrows the gap: the current official API behavior",
+        "expected_usefulness": 0.8,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-72a3c61d7fcf",
+        "preconditions": [],
+        "purpose": "The unknown blocks a verified conclusion.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "the current official API behavior"
+      },
+      "state_fingerprint": "236505780b896b75"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected inspect for the current official API behavior through inspector."
+  },
+  {
+    "engine_name": "inspector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-72a3c61d7fcf",
+      "action_type": "inspect",
+      "capability": "inspector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 1,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "the current official API behavior"
+    },
+    "reasoning_mode": "execute",
+    "summary": "inspector returned a fixture-backed observation for the current official API behavior."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected hypothesize for What behavior does the current official API specification support? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "hypothesize",
+        "capability": "reasoner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Distinct candidates with expected signals and falsification criteria.",
+        "expected_usefulness": 0.82,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-c556d2765c3c",
+        "preconditions": [],
+        "purpose": "Generate testable explanations or solution paths from current evidence.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What behavior does the current official API specification support?"
+      },
+      "state_fingerprint": "881c5577095871d0"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected hypothesize for What behavior does the current official API specification support? through reasoner."
+  },
+  {
+    "engine_name": "reasoner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-c556d2765c3c",
+      "action_type": "hypothesize",
+      "capability": "reasoner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What behavior does the current official API specification support?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Generated a testable candidate from the acquired observations."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected plan for What behavior does the current official API specification support? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "plan",
+        "capability": "planner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An ordered plan whose tasks have observable outputs.",
+        "expected_usefulness": 0.79,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-6629c29f6329",
+        "preconditions": [],
+        "purpose": "Turn supported hypotheses into bounded executable checks.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What behavior does the current official API specification support?"
+      },
+      "state_fingerprint": "8a2d9ca425e62f79"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected plan for What behavior does the current official API specification support? through planner."
+  },
+  {
+    "engine_name": "planner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-6629c29f6329",
+      "action_type": "plan",
+      "capability": "planner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What behavior does the current official API specification support?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Created one bounded verification task."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected execute for verify-current_api_behavior-1 from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "execute",
+        "capability": "executor",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A deterministic pass or failure signal.",
+        "expected_usefulness": 0.84,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-5c2befbacfaf",
+        "preconditions": [],
+        "purpose": "Execute the independent case check.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "verify-current_api_behavior-1"
+      },
+      "state_fingerprint": "639335b6540a41e3"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected execute for verify-current_api_behavior-1 through executor."
+  },
+  {
+    "engine_name": "executor",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-5c2befbacfaf",
+      "action_type": "execute",
+      "capability": "executor",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "verify-current_api_behavior-1"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Executed the deterministic independent case check."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected verify for What behavior does the current official API specification support? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "verify",
+        "capability": "verifier",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Independent checks with pass, failure, or contradiction details.",
+        "expected_usefulness": 0.96,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-98381d97cafa",
+        "preconditions": [],
+        "purpose": "Try to disprove the candidate conclusion before accepting it.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What behavior does the current official API specification support?"
+      },
+      "state_fingerprint": "ee4b6b7dce31ac31"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected verify for What behavior does the current official API specification support? through verifier."
+  },
+  {
+    "engine_name": "verifier",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-98381d97cafa",
+      "action_type": "verify",
+      "capability": "verifier",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What behavior does the current official API specification support?"
+    },
+    "reasoning_mode": "verify",
+    "summary": "The independent case verifier completed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected reflect for What behavior does the current official API specification support? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "reflect",
+        "capability": "reflector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Specific successful, failed, and reusable strategy observations.",
+        "expected_usefulness": 0.62,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-f73aa93fee0b",
+        "preconditions": [],
+        "purpose": "Extract reusable lessons only after verification passes.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What behavior does the current official API specification support?"
+      },
+      "state_fingerprint": "774976a0b7f36617"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected reflect for What behavior does the current official API specification support? through reflector."
+  },
+  {
+    "engine_name": "reflector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-f73aa93fee0b",
+      "action_type": "reflect",
+      "capability": "reflector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What behavior does the current official API specification support?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Reflected only after the independent check passed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected stop for current run from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "stop",
+        "capability": "cognitive_controller",
+        "distinguishes": [],
+        "estimated_cost": 1.0,
+        "expected_observation": "A truthful terminal status without a forced conclusion.",
+        "expected_usefulness": 0.05,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2734194fb40d",
+        "preconditions": [],
+        "purpose": "Stop safely because verified outcome reflected.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "current run"
+      },
+      "state_fingerprint": "93e927ef31f7c8d9"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected stop for current run through cognitive_controller."
+  }
+]

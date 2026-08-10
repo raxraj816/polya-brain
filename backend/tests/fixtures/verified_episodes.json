@@ -1,0 +1,42 @@
+[
+  {
+    "problem_type": "equation_solving",
+    "domain": "mathematics",
+    "core_question": "Solve a linear equation and verify the unknown by substitution.",
+    "outcome_summary": "Isolated the variable, substituted the value, and checked the original equation.",
+    "final_answer": "The verified variable value satisfies the original equation.",
+    "query": "linear equation unknown substitution verification"
+  },
+  {
+    "problem_type": "software_diagnosis",
+    "domain": "software_debugging",
+    "core_question": "Find why a reproducible bug began after a dependency change.",
+    "outcome_summary": "Compared good and bad versions and isolated the changed dependency behavior.",
+    "final_answer": "The dependency change caused the reproduced failure and the regression check passed.",
+    "query": "reproducible bug dependency version regression"
+  },
+  {
+    "problem_type": "source_research",
+    "domain": "technical_research",
+    "core_question": "Verify a current API claim using primary and independent sources.",
+    "outcome_summary": "Checked official documentation, version applicability, and independent corroboration.",
+    "final_answer": "The API claim is supported for the stated current version.",
+    "query": "current API official primary independent sources"
+  },
+  {
+    "problem_type": "dependency_planning",
+    "domain": "planning",
+    "core_question": "Decompose a broad launch goal into dependent verifiable milestones.",
+    "outcome_summary": "Identified blockers, ordered dependencies, and defined milestone checks.",
+    "final_answer": "The plan sequences blockers before reversible implementation milestones.",
+    "query": "launch plan dependencies blockers milestones"
+  },
+  {
+    "problem_type": "comparative_analysis",
+    "domain": "data_analysis",
+    "core_question": "Compare a changed metric against a consistent baseline and segments.",
+    "outcome_summary": "Validated data quality, measured baseline change, and checked segment behavior.",
+    "final_answer": "The measured change remains after consistent baseline and segment checks.",
+    "query": "metric baseline data quality segment comparison"
+  }
+]

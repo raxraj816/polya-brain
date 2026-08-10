@@ -13,12 +13,14 @@ from sqlalchemy import Engine, func, inspect, select, text
 from app.config import get_settings
 from app.db.models import (
     Artifact,
+    EpisodicMemory,
     EvidenceItem,
     Hypothesis,
     KnowledgeChunk,
     KnowledgeGap,
     PlanTask,
     ProblemSession,
+    ProceduralStrategy,
     ReasoningEvent,
 )
 from app.db.seed import SEED_RAW_INPUT, seed_database
@@ -28,6 +30,7 @@ SAFE_SEED_ENVIRONMENTS = {"local", "test"}
 ALLOW_SEED_ENV_VAR = "POLYABRAIN_ALLOW_DB_SEED"
 
 REQUIRED_TABLES = {
+    "clarification_requests",
     "problem_sessions",
     "structured_problems",
     "knowledge_gaps",
@@ -38,6 +41,8 @@ REQUIRED_TABLES = {
     "verification_reports",
     "artifacts",
     "knowledge_chunks",
+    "episodic_memories",
+    "procedural_strategies",
 }
 
 
@@ -147,8 +152,8 @@ def assert_database_baseline(engine: Engine, *, allow_seed: bool) -> None:
         )
         assert chunk is not None, "seed knowledge chunk was not inserted"
         assert chunk.content_hash is not None, "seed knowledge chunk content hash was not inserted"
-        assert chunk.embedding_provider == "local_seed", "seed embedding provider was not inserted"
-        assert chunk.embedding_model == "zero-vector-1536", "seed embedding model was not inserted"
+        assert chunk.embedding_provider is not None, "seed embedding provider was not inserted"
+        assert chunk.embedding_model is not None, "seed embedding model was not inserted"
         assert chunk.embedding_dimensions == 1536, (
             "seed embedding dimensions metadata has the wrong value"
         )
@@ -156,6 +161,8 @@ def assert_database_baseline(engine: Engine, *, allow_seed: bool) -> None:
         assert len(chunk.embedding) == 1536, (
             "seed knowledge chunk embedding has the wrong dimension"
         )
+        assert inspect(engine).has_table(EpisodicMemory.__tablename__)
+        assert inspect(engine).has_table(ProceduralStrategy.__tablename__)
 
 
 def main() -> None:

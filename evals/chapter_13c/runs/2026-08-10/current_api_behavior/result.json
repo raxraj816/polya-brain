@@ -1,0 +1,28 @@
+{
+  "actions": [
+    "search",
+    "inspect",
+    "hypothesize",
+    "plan",
+    "execute",
+    "verify",
+    "reflect",
+    "stop"
+  ],
+  "case_id": "current_api_behavior",
+  "category": "technical_research",
+  "controller_latency_ms": 0.8389581926167011,
+  "estimated_capability_cost": 0.35000000000000003,
+  "expected_first_action": "search",
+  "expected_recovery_action": "inspect",
+  "expected_verification_recovery": false,
+  "final_answer": "Use the behavior stated by the current primary source.",
+  "first_action_correct": true,
+  "model_tokens": 0,
+  "passed": true,
+  "recovery_correct": true,
+  "repeated_non_progress_count": 0,
+  "status": "completed",
+  "verification_passed": true,
+  "verification_recovery_correct": true
+}

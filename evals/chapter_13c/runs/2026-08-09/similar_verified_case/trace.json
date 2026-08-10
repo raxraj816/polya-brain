@@ -1,0 +1,296 @@
+[
+  {
+    "engine_name": "constraint_discovery",
+    "event_type": "completed",
+    "metadata": {
+      "status": "ok"
+    },
+    "reasoning_mode": "compare",
+    "summary": "Constraints are pre-discovered to isolate the next-action proof."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected retrieve_memory for a structurally similar verified case from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "retrieve_memory",
+        "capability": "memory",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An observation that resolves or materially narrows the gap: a structurally similar verified case",
+        "expected_usefulness": 0.88,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-e4e7dc58898b",
+        "preconditions": [],
+        "purpose": "The unknown blocks a verified conclusion.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "a structurally similar verified case"
+      },
+      "state_fingerprint": "db409d98f26b0971"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected retrieve_memory for a structurally similar verified case through memory."
+  },
+  {
+    "engine_name": "memory",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-e4e7dc58898b",
+      "action_type": "retrieve_memory",
+      "capability": "memory",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 1,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "a structurally similar verified case"
+    },
+    "reasoning_mode": "execute",
+    "summary": "memory returned a fixture-backed observation for a structurally similar verified case."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected hypothesize for Which previously verified strategy is structurally applicable? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "hypothesize",
+        "capability": "reasoner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Distinct candidates with expected signals and falsification criteria.",
+        "expected_usefulness": 0.82,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-18e57f13cf60",
+        "preconditions": [],
+        "purpose": "Generate testable explanations or solution paths from current evidence.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which previously verified strategy is structurally applicable?"
+      },
+      "state_fingerprint": "3c6221aa700c4067"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected hypothesize for Which previously verified strategy is structurally applicable? through reasoner."
+  },
+  {
+    "engine_name": "reasoner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-18e57f13cf60",
+      "action_type": "hypothesize",
+      "capability": "reasoner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which previously verified strategy is structurally applicable?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Generated a testable candidate from the acquired observations."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected plan for Which previously verified strategy is structurally applicable? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "plan",
+        "capability": "planner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An ordered plan whose tasks have observable outputs.",
+        "expected_usefulness": 0.79,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-daad66675e69",
+        "preconditions": [],
+        "purpose": "Turn supported hypotheses into bounded executable checks.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which previously verified strategy is structurally applicable?"
+      },
+      "state_fingerprint": "8de4e65621fc8bc6"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected plan for Which previously verified strategy is structurally applicable? through planner."
+  },
+  {
+    "engine_name": "planner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-daad66675e69",
+      "action_type": "plan",
+      "capability": "planner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which previously verified strategy is structurally applicable?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Created one bounded verification task."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected execute for verify-similar_verified_case-1 from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "execute",
+        "capability": "executor",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A deterministic pass or failure signal.",
+        "expected_usefulness": 0.84,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-444a34afea1a",
+        "preconditions": [],
+        "purpose": "Execute the independent case check.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "verify-similar_verified_case-1"
+      },
+      "state_fingerprint": "81f08be7987efa30"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected execute for verify-similar_verified_case-1 through executor."
+  },
+  {
+    "engine_name": "executor",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-444a34afea1a",
+      "action_type": "execute",
+      "capability": "executor",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "verify-similar_verified_case-1"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Executed the deterministic independent case check."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected verify for Which previously verified strategy is structurally applicable? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "verify",
+        "capability": "verifier",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Independent checks with pass, failure, or contradiction details.",
+        "expected_usefulness": 0.96,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-e006687e4614",
+        "preconditions": [],
+        "purpose": "Try to disprove the candidate conclusion before accepting it.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which previously verified strategy is structurally applicable?"
+      },
+      "state_fingerprint": "73ffd36a389c6a7d"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected verify for Which previously verified strategy is structurally applicable? through verifier."
+  },
+  {
+    "engine_name": "verifier",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-e006687e4614",
+      "action_type": "verify",
+      "capability": "verifier",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which previously verified strategy is structurally applicable?"
+    },
+    "reasoning_mode": "verify",
+    "summary": "The independent case verifier completed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected reflect for Which previously verified strategy is structurally applicable? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "reflect",
+        "capability": "reflector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Specific successful, failed, and reusable strategy observations.",
+        "expected_usefulness": 0.62,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2d5c698ce1ab",
+        "preconditions": [],
+        "purpose": "Extract reusable lessons only after verification passes.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "Which previously verified strategy is structurally applicable?"
+      },
+      "state_fingerprint": "d9ae0b6f1f65b69f"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected reflect for Which previously verified strategy is structurally applicable? through reflector."
+  },
+  {
+    "engine_name": "reflector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-2d5c698ce1ab",
+      "action_type": "reflect",
+      "capability": "reflector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "Which previously verified strategy is structurally applicable?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Reflected only after the independent check passed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected stop for current run from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "stop",
+        "capability": "cognitive_controller",
+        "distinguishes": [],
+        "estimated_cost": 1.0,
+        "expected_observation": "A truthful terminal status without a forced conclusion.",
+        "expected_usefulness": 0.05,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2734194fb40d",
+        "preconditions": [],
+        "purpose": "Stop safely because verified outcome reflected.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "current run"
+      },
+      "state_fingerprint": "a6c4f2cacb48b93e"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected stop for current run through cognitive_controller."
+  }
+]

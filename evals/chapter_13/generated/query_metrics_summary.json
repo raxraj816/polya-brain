@@ -1,0 +1,17 @@
+{
+  "runs_per_strategy": 200,
+  "strategies": {
+    "join": {
+      "median_duration_us": 9.562,
+      "p95_duration_us": 10.208,
+      "query_count": 1,
+      "row_count": 50
+    },
+    "n_plus_one": {
+      "median_duration_us": 48.959,
+      "p95_duration_us": 52.084,
+      "query_count": 51,
+      "row_count": 50
+    }
+  }
+}

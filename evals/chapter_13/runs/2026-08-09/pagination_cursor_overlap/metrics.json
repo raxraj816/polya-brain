@@ -1,0 +1,95 @@
+{
+  "artifact_preparation_ms": 417.444,
+  "benchmark_policy_overrides": {
+    "data_collection": "allow",
+    "non_confidential_fixtures_only": true,
+    "require_parameters_for_json": false
+  },
+  "case_id": "pagination_cursor_overlap",
+  "direct_model": {
+    "score": {
+      "actionability": 1.0,
+      "artifact_citation_coverage": 0.0,
+      "cited_artifact_ids": [],
+      "correctness": 1.0,
+      "evidence_quality": 0.0,
+      "human_user_feedback_collected": false,
+      "matched_correctness_terms": [
+        [
+          "page_size - 1"
+        ],
+        [
+          "page_size"
+        ]
+      ],
+      "report_completeness": 0.0,
+      "required_section_count": 0,
+      "required_sections": [],
+      "reuse_proxy_score": 0.75,
+      "would_use_again_proxy": true
+    },
+    "time_to_decision_ms": 58649.952,
+    "usage": {
+      "cached_input_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 541,
+      "output_tokens": 1003,
+      "reasoning_tokens": 718,
+      "total_tokens": 1544
+    }
+  },
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "overhead": {
+    "latency_ms": 48186.951,
+    "latency_ratio": 1.822,
+    "token_count": 6600,
+    "token_ratio": 5.275
+  },
+  "polya": {
+    "score": {
+      "actionability": 1.0,
+      "artifact_citation_coverage": 1.0,
+      "cited_artifact_ids": [
+        "pagination_code",
+        "pagination_test",
+        "pagination_pytest_log"
+      ],
+      "correctness": 1.0,
+      "evidence_quality": 1.0,
+      "human_user_feedback_collected": false,
+      "matched_correctness_terms": [
+        [
+          "page_size - 1"
+        ],
+        [
+          "page_size"
+        ]
+      ],
+      "report_completeness": 1.0,
+      "required_section_count": 8,
+      "required_sections": [
+        "Final conclusion",
+        "Confidence level",
+        "Evidence used",
+        "Evidence against",
+        "Checks performed",
+        "Open questions",
+        "Recommended next action",
+        "Audit trace"
+      ],
+      "reuse_proxy_score": 0.9,
+      "would_use_again_proxy": true
+    },
+    "time_to_decision_ms": 106836.903,
+    "usage": {
+      "cached_input_tokens": 0,
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 5314,
+      "output_tokens": 2830,
+      "reasoning_tokens": 1618,
+      "total_tokens": 8144
+    }
+  },
+  "provider": "openrouter",
+  "title": "Duplicate records after pagination refactor"
+}

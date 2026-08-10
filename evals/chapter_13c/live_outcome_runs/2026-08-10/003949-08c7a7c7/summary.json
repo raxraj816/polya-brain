@@ -1,0 +1,194 @@
+{
+  "automated_gate": {
+    "metrics": {
+      "categories": {
+        "mathematical_reasoning": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        }
+      },
+      "completed_comparison_pairs": 1,
+      "direct_pass_rate": 1.0,
+      "direct_passed": 1,
+      "expected_comparison_pairs": 1,
+      "pass_rate_advantage": 0.0,
+      "polya_pass_rate": 1.0,
+      "polya_passed": 1,
+      "recovery_trials": 0,
+      "recovery_trials_passed": 0,
+      "unsupported_forced_conclusions": 0
+    },
+    "passed": false,
+    "requirements": {
+      "all_comparison_pairs_completed": true,
+      "all_recovery_trials_passed": false,
+      "every_category_pass_rate_at_least_two_thirds": true,
+      "minimum_three_repetitions": false,
+      "polya_pass_rate_advantage_at_least_ten_points": false,
+      "polya_pass_rate_at_least_15_of_18": true,
+      "zero_unsupported_forced_conclusions": true
+    }
+  },
+  "case_count": 1,
+  "cases": [
+    {
+      "case_id": "equation_outcome",
+      "category": "mathematical_reasoning",
+      "direct": {
+        "actions": [
+          "calculate"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Algebraic solution: (10 - 4) / 2 = 3",
+          "Substitution verification: 2*3 + 4 = 10"
+        ],
+        "conclusion": "x = 3",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/equation_outcome/calculator"
+        ],
+        "latency_ms": 13711.2467919942,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "calculate",
+            "call_index": 1,
+            "capability": "calculator",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+              "status": "succeeded",
+              "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+            },
+            "target": "(10-4)/2"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 900,
+          "model_calls": 2,
+          "output_tokens": 401,
+          "total_tokens": 1301
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "polya",
+        "direct"
+      ],
+      "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "polya": {
+        "actions": [
+          "calculate",
+          "hypothesize",
+          "plan",
+          "execute",
+          "verify",
+          "reflect",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verify substitution: 2*3+4 == 10 via execution output",
+          "Confirm algebraic claim x=3 from evidence"
+        ],
+        "conclusion": "x = 3 satisfies 2x + 4 = 10.",
+        "cycles": 7,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/equation_outcome/calculator"
+        ],
+        "latency_ms": 132316.14349992014,
+        "observation_trace": [
+          {
+            "capability": "calculator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+          },
+          {
+            "capability": "reasoner",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Generated 2 testable candidate(s)."
+          },
+          {
+            "capability": "planner",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Created 1 bounded plan task(s)."
+          },
+          {
+            "capability": "executor",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Executed verification code: 2*3+4 = 10, confirming the solution x=3 satisfies the original equation."
+          },
+          {
+            "capability": "verifier",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Verification passed all declared checks."
+          },
+          {
+            "capability": "reflector",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Extracted bounded lessons from the verified run."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 7784,
+          "model_calls": 5,
+          "output_tokens": 3974,
+          "total_tokens": 11758
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    }
+  ],
+  "comparison_pair_count": 1,
+  "comparison_type": "live_full_outcome_same_model_same_tools",
+  "direct_mean_latency_ms": 13711.2467919942,
+  "direct_passed": 1,
+  "direct_total_tokens": 1301,
+  "fairness": {
+    "condition_order_alternates_by_case_and_repetition": true,
+    "same_model": true,
+    "same_model_call_budget": 6,
+    "same_output_token_limit_per_call": 1800,
+    "same_prestructured_problem": true,
+    "same_tools_and_observations": true,
+    "synthetic_nonconfidential_cases": true
+  },
+  "human_review_status": "pending",
+  "limitations": [
+    "Synthetic tools isolate orchestration value but do not prove field performance.",
+    "Scoring checks expected conclusion terms, source provenance, verification, and recovery.",
+    "A win requires repeated runs and blinded human review before market claims."
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "polya_mean_latency_ms": 132316.14349992014,
+  "polya_passed": 1,
+  "polya_total_tokens": 11758,
+  "product_value_claim_ready": false,
+  "repetitions": 1,
+  "run_id": "003949-08c7a7c7",
+  "started_at": "2026-08-10T00:39:49.326250+00:00",
+  "status": "complete"
+}

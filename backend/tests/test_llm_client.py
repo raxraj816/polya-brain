@@ -137,6 +137,24 @@ def test_retryable_failures_use_bounded_exponential_backoff() -> None:
     assert len(client.requests) == 3
 
 
+def test_provider_retry_after_is_honored_within_request_delay_cap() -> None:
+    rate_limit = LLMClientError(
+        LLMErrorCode.RATE_LIMIT,
+        "Rate limited.",
+        provider="fake",
+        retryable=True,
+        status_code=429,
+        retry_after_seconds=60,
+    )
+    client = FakeLLMClient([rate_limit, successful_response()])
+    delays: list[float] = []
+
+    response = complete_with_retry(client, request_with(), sleep=delays.append)
+
+    assert response == successful_response()
+    assert delays == [1.0]
+
+
 def test_non_retryable_failure_stops_after_first_attempt() -> None:
     invalid = LLMClientError(
         LLMErrorCode.INVALID_REQUEST,

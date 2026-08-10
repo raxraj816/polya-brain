@@ -16,9 +16,8 @@ from app.graph.state import (
     StateEvent,
     create_initial_state,
 )
+from app.graph.version import GRAPH_VERSION
 from app.models.contracts import ReasoningMode
-
-GRAPH_VERSION: Final = "polya_graph@0.1.0"
 
 
 class GraphNodeName(StrEnum):

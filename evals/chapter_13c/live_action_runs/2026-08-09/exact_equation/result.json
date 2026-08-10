@@ -1,0 +1,27 @@
+{
+  "accepted_actions": [
+    "calculate"
+  ],
+  "case_id": "exact_equation",
+  "category": "mathematical_reasoning",
+  "controller_action": "calculate",
+  "controller_correct": true,
+  "controller_latency_ms": 0.18474995158612728,
+  "controller_model_tokens": 0,
+  "direct_action": "calculate",
+  "direct_capability": "calculator",
+  "direct_correct": true,
+  "direct_latency_ms": 16210.298459045589,
+  "direct_rationale": "Compute the value of x by solving the linear equation 2x + 4 = 10.",
+  "direct_supported": true,
+  "direct_target": "(10-4)/2",
+  "direct_usage": {
+    "cached_input_tokens": 0,
+    "estimated_cost_usd": 0.0,
+    "input_tokens": 1239,
+    "output_tokens": 196,
+    "reasoning_tokens": 117
+  },
+  "expected_action": "calculate",
+  "parse_error": null
+}

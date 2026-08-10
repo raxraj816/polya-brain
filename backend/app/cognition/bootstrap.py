@@ -1,0 +1,285 @@
+"""Composition helpers for the first persisted cognitive session path."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from os import pathsep
+from pathlib import Path
+
+from app.acquisition import (
+    AvailableDataSourceRegistry,
+    BraveSearchProvider,
+    DataSourceDefinition,
+    DataSourceKind,
+    LocalArtifactInspector,
+    ResearchBudget,
+    evidence_evaluator_capability,
+    local_artifact_capability,
+    web_search_capability,
+)
+from app.cognition.adapters import (
+    constraint_discovery_capability,
+    problem_representation_capability,
+)
+from app.cognition.capabilities import CapabilityRegistry
+from app.cognition.controller import CognitiveController, ProceduralPreferenceProvider
+from app.cognition.local_capabilities import calculator_capability, human_input_capability
+from app.cognition.model_capabilities import model_reasoning_capabilities
+from app.cognition.model_gateway import CognitiveModelGateway
+from app.cognition.runtime import CognitiveRuntime
+from app.cognition.session_runner import CognitiveSessionRunner
+from app.config import Settings
+from app.engines import ConstraintDiscoveryEngine, ProblemRepresentationEngine
+from app.execution import (
+    DockerPythonSandbox,
+    DockerSandboxLimits,
+    TableMeasurementTool,
+    controlled_experiment_capability,
+    python_sandbox_capability,
+    scenario_simulation_capability,
+    table_measurement_capability,
+)
+from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
+from app.memory.capability import SemanticMemorySearch, semantic_memory_capability
+from app.models.contracts import EvidenceItem, RiskLevel
+
+
+def build_representation_session_runner(
+    settings: Settings,
+    *,
+    prior_research_query_count: Callable[[str], int] | None = None,
+    prior_evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
+    semantic_memory: SemanticMemorySearch | None = None,
+    procedural_memory: ProceduralPreferenceProvider | None = None,
+) -> CognitiveSessionRunner:
+    """Build the honest representation-only persisted cognitive runner.
+
+    Deterministic fallbacks still work without credentials. Unrecognized inputs
+    fail closed at the provider boundary instead of silently using the old stub.
+    """
+    configured_key = settings.openrouter_api_key.get_secret_value().strip()
+    configured_model = settings.openrouter_model.strip()
+    client: LLMClient
+    if configured_key and configured_model:
+        client = OpenRouterLLMClient.from_settings(settings)
+        model = configured_model
+    else:
+        client = FakeLLMClient([])
+        model = configured_model or "unconfigured-representation-provider"
+
+    engine = ProblemRepresentationEngine(
+        client=client,
+        model=model,
+    )
+    gateway = CognitiveModelGateway(client, model)
+    sensitive_data_approved = bool(
+        configured_key
+        and configured_model
+        and settings.openrouter_data_collection == "deny"
+        and settings.openrouter_zdr
+    )
+    registry = CapabilityRegistry()
+    registry.register(problem_representation_capability(engine))
+    registry.register(constraint_discovery_capability(ConstraintDiscoveryEngine()))
+    registry.register(calculator_capability())
+    registry.register(human_input_capability())
+    if semantic_memory is not None:
+        registry.register(semantic_memory_capability(semantic_memory))
+    registry.register(scenario_simulation_capability(gateway if sensitive_data_approved else None))
+    registry.register(
+        controlled_experiment_capability(gateway if sensitive_data_approved else None)
+    )
+    sources = AvailableDataSourceRegistry()
+    sources.register(
+        DataSourceDefinition(
+            name="deterministic calculator",
+            kind=DataSourceKind.CALCULATOR,
+            description="Exact local arithmetic without a model or external network.",
+            capability="calculator",
+            approved_for_sensitive_data=True,
+        )
+    )
+    sources.register(
+        DataSourceDefinition(
+            name="deterministic scenario simulation",
+            kind=DataSourceKind.SIMULATION,
+            description=(
+                "Bounded exact sensitivity projections over explicit baselines, periods, "
+                "rates, and thresholds."
+            ),
+            capability="simulator",
+            approved_for_sensitive_data=True,
+        )
+    )
+    sources.register(
+        DataSourceDefinition(
+            name="controlled numeric experiment evaluation",
+            kind=DataSourceKind.EXPERIMENT,
+            description=(
+                "Evaluate explicit randomized independent control/treatment observations "
+                "with effect size and uncertainty."
+            ),
+            capability="experiment",
+            approved_for_sensitive_data=True,
+        )
+    )
+    if settings.code_execution_enabled:
+        registry.register(
+            python_sandbox_capability(
+                DockerPythonSandbox(
+                    image=settings.code_execution_image,
+                    limits=DockerSandboxLimits(
+                        timeout_seconds=settings.code_execution_timeout_seconds,
+                        memory_megabytes=settings.code_execution_memory_mb,
+                    ),
+                )
+            )
+        )
+        sources.register(
+            DataSourceDefinition(
+                name="isolated Python execution",
+                kind=DataSourceKind.CODE_EXECUTION,
+                description=(
+                    "Run bounded Python and assertions in an ephemeral networkless, "
+                    "read-only, non-root container."
+                ),
+                capability="python_sandbox",
+                risk_level=RiskLevel.MEDIUM,
+            )
+        )
+    sources.register(
+        DataSourceDefinition(
+            name="focused human input",
+            kind=DataSourceKind.HUMAN,
+            description="Ask the user for an unavailable fact or decision boundary.",
+            capability="human_input",
+            approved_for_sensitive_data=True,
+        )
+    )
+    configured_search_key = settings.search_api_key.get_secret_value().strip()
+    requires_evidence_evaluator = False
+    if settings.search_provider.casefold() == "brave" and configured_search_key:
+        provider = BraveSearchProvider(
+            configured_search_key,
+            base_url=settings.search_base_url,
+        )
+        registry.register(
+            web_search_capability(
+                provider,
+                budget=ResearchBudget(
+                    max_queries=settings.research_max_queries,
+                    max_results_per_query=settings.research_max_results_per_query,
+                    max_total_candidates=settings.research_max_total_candidates,
+                ),
+                prior_query_count=prior_research_query_count,
+            )
+        )
+        requires_evidence_evaluator = True
+        sources.register(
+            DataSourceDefinition(
+                name="bounded web search",
+                kind=DataSourceKind.WEB_SEARCH,
+                description=(
+                    "Current public sources acquired under a query budget and evaluated "
+                    "before evidence promotion."
+                ),
+                capability="web_search",
+                risk_level=RiskLevel.LOW,
+            )
+        )
+    configured_artifact_roots = [
+        Path(item.strip())
+        for item in settings.artifact_allowed_roots.split(pathsep)
+        if item.strip()
+    ]
+    if configured_artifact_roots:
+        inspector = LocalArtifactInspector(
+            configured_artifact_roots,
+            max_file_bytes=settings.artifact_max_file_bytes,
+        )
+        registry.register(local_artifact_capability(inspector))
+        registry.register(
+            table_measurement_capability(
+                TableMeasurementTool(
+                    configured_artifact_roots,
+                    max_file_bytes=settings.artifact_max_file_bytes,
+                )
+            )
+        )
+        requires_evidence_evaluator = True
+        sources.register(
+            DataSourceDefinition(
+                name="explicit local text artifact",
+                kind=DataSourceKind.LOCAL_ARTIFACT,
+                description=(
+                    "A user-referenced text file contained by an approved local root; "
+                    "no directory-wide implicit scanning."
+                ),
+                capability="inspector",
+                approved_for_sensitive_data=True,
+            )
+        )
+        sources.register(
+            DataSourceDefinition(
+                name="local CSV or JSON measurement",
+                kind=DataSourceKind.MEASUREMENT,
+                description=(
+                    "Deterministic row counts, numeric distributions, percentiles, and "
+                    "categorical frequencies from an explicitly referenced table."
+                ),
+                capability="measurement",
+                approved_for_sensitive_data=True,
+            )
+        )
+    if requires_evidence_evaluator:
+
+        def memory_evidence_loader(query: str) -> list[EvidenceItem]:
+            if semantic_memory is None:
+                return []
+            return [
+                EvidenceItem(
+                    source_type=f"memory:{item.source_type}",
+                    source_uri=item.source_uri or f"memory://knowledge/{item.id}",
+                    claim=item.content,
+                    reliability_score=item.reliability_score,
+                    relevance_score=item.similarity_score,
+                )
+                for item in semantic_memory.search_semantic(
+                    query,
+                    limit=3,
+                    minimum_reliability=0.5,
+                    minimum_similarity=0.08,
+                )
+            ]
+
+        registry.register(
+            evidence_evaluator_capability(
+                gateway if configured_key and configured_model else None,
+                model_approved_for_sensitive_data=sensitive_data_approved,
+                memory_evidence_loader=memory_evidence_loader,
+            )
+        )
+    for capability in model_reasoning_capabilities(
+        gateway,
+        approved_for_sensitive_data=sensitive_data_approved,
+        available_sources=sources.prompt_description(),
+        available_execution_tools=(
+            "calculator",
+            "executor",
+            "simulator",
+            "experiment",
+            *(("python_sandbox",) if settings.code_execution_enabled else ()),
+            *(("measurement",) if configured_artifact_roots else ()),
+        ),
+    ):
+        registry.register(capability)
+    return CognitiveSessionRunner(
+        CognitiveRuntime(
+            registry,
+            controller=CognitiveController(
+                procedural_memory=procedural_memory,
+                semantic_memory=semantic_memory,
+            ),
+        ),
+        evidence_loader=prior_evidence_loader,
+    )

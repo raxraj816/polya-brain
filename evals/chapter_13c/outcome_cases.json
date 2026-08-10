@@ -1,0 +1,133 @@
+[
+  {
+    "id": "equation_outcome",
+    "category": "mathematical_reasoning",
+    "problem_statement": "Solve 2x + 4 = 10 and verify the result.",
+    "core_question": "What value of x satisfies 2x + 4 = 10?",
+    "problem_type": "mathematical_reasoning",
+    "domain": "mathematics",
+    "knowns": ["The equation is 2x + 4 = 10."],
+    "unknown": "the exact value of x",
+    "gap_type": "numeric_computation",
+    "suggested_source": "calculator",
+    "success_criteria": ["State x and verify it in the original equation."],
+    "tools": {
+      "calculator": {
+        "action_type": "calculate",
+        "observation": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+      }
+    },
+    "expected_answer_terms": ["x = 3"],
+    "expected_first_action": "calculate"
+  },
+  {
+    "id": "pagination_outcome",
+    "category": "software_debugging",
+    "problem_statement": "Find why the local pagination test fails only on page 2 and identify the fix.",
+    "core_question": "Which code defect causes the page-2 failure?",
+    "problem_type": "software_debugging",
+    "domain": "software_debugging",
+    "knowns": ["Page 1 passes and page 2 skips one page of records."],
+    "unknown": "the failing pagination code path",
+    "gap_type": "missing_code_context",
+    "suggested_source": "repository artifact",
+    "success_criteria": ["Identify the faulty offset and the corrected expression."],
+    "tools": {
+      "inspector": {
+        "action_type": "inspect",
+        "observation": "The code computes offset = page * page_size. With one-based page numbers it must compute offset = (page - 1) * page_size."
+      }
+    },
+    "expected_answer_terms": ["(page - 1) * page_size"],
+    "expected_first_action": "inspect"
+  },
+  {
+    "id": "conversion_outcome",
+    "category": "data_analysis",
+    "problem_statement": "Determine whether conversion changed materially from baseline.",
+    "core_question": "How much did conversion change from the comparable baseline?",
+    "problem_type": "data_analysis",
+    "domain": "data_analysis",
+    "knowns": ["Current conversion is measured with the same definition as baseline."],
+    "unknown": "the baseline comparison and percent change",
+    "gap_type": "missing_baseline",
+    "suggested_source": "dataset measurement",
+    "success_criteria": ["Report baseline, current value, and percent change."],
+    "tools": {
+      "measurement": {
+        "action_type": "measure",
+        "observation": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+      }
+    },
+    "expected_answer_terms": ["10.0%", "13.0%", "30.0%"],
+    "expected_first_action": "measure"
+  },
+  {
+    "id": "capacity_outcome",
+    "category": "planning",
+    "problem_statement": "Choose the least costly capacity plan that survives a peak demand of 145 units.",
+    "core_question": "Which available plan satisfies the peak-demand constraint at lowest cost?",
+    "problem_type": "planning",
+    "domain": "planning",
+    "knowns": ["Plan A costs 80 and Plan B costs 100."],
+    "unknown": "whether each plan survives peak demand",
+    "gap_type": "simulation",
+    "suggested_source": "simulate alternatives",
+    "success_criteria": ["Select the lowest-cost plan whose capacity is at least 145."],
+    "tools": {
+      "simulator": {
+        "action_type": "simulate",
+        "observation": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+      }
+    },
+    "expected_answer_terms": ["Plan B", "160"],
+    "expected_first_action": "simulate"
+  },
+  {
+    "id": "mechanism_outcome",
+    "category": "scientific_reasoning",
+    "problem_statement": "Choose between mechanism A and B using a discriminating controlled experiment.",
+    "core_question": "Which mechanism matches the treatment response?",
+    "problem_type": "scientific_reasoning",
+    "domain": "scientific_reasoning",
+    "knowns": ["Mechanism A predicts no increase; mechanism B predicts an increase."],
+    "unknown": "which prediction matches the controlled observation",
+    "gap_type": "controlled_experiment",
+    "suggested_source": "controlled test",
+    "success_criteria": ["Select the mechanism matching the observed direction and state the limitation."],
+    "tools": {
+      "experiment": {
+        "action_type": "experiment",
+        "observation": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+      }
+    },
+    "expected_answer_terms": ["mechanism B", "2.0"],
+    "expected_first_action": "experiment"
+  },
+  {
+    "id": "research_recovery_outcome",
+    "category": "technical_research_recovery",
+    "problem_statement": "Determine the current official timeout behavior and recover if primary search is unavailable.",
+    "core_question": "What timeout does the current official material specify?",
+    "problem_type": "technical_research",
+    "domain": "technical_research",
+    "knowns": ["The behavior may have changed since training."],
+    "unknown": "the current official request timeout",
+    "gap_type": "current_external_fact",
+    "suggested_source": "official web source",
+    "success_criteria": ["State the timeout from a source-visible current artifact."],
+    "tools": {
+      "web_search": {
+        "action_type": "search",
+        "failure": "The search provider returned no results."
+      },
+      "inspector": {
+        "action_type": "inspect",
+        "observation": "The bundled current official specification states request_timeout_seconds = 45."
+      }
+    },
+    "expected_answer_terms": ["45"],
+    "expected_first_action": "search",
+    "expected_recovery_action": "inspect"
+  }
+]

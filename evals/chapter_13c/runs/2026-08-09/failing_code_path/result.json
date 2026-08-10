@@ -1,0 +1,27 @@
+{
+  "actions": [
+    "inspect",
+    "hypothesize",
+    "plan",
+    "execute",
+    "verify",
+    "reflect",
+    "stop"
+  ],
+  "case_id": "failing_code_path",
+  "category": "software_debugging",
+  "controller_latency_ms": 0.43933303095400333,
+  "estimated_capability_cost": 0.30000000000000004,
+  "expected_first_action": "inspect",
+  "expected_recovery_action": null,
+  "expected_verification_recovery": false,
+  "final_answer": "The inspected code path explains the reproduced failure.",
+  "first_action_correct": true,
+  "model_tokens": 0,
+  "passed": true,
+  "recovery_correct": true,
+  "repeated_non_progress_count": 0,
+  "status": "completed",
+  "verification_passed": true,
+  "verification_recovery_correct": true
+}

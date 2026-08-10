@@ -22,6 +22,7 @@ from app.db.models import (
     VerificationReport,
 )
 from app.db.session import create_database_engine, create_session_factory
+from app.memory.embeddings import HashingEmbeddingProvider
 
 SEED_RAW_INPUT = (
     "Chapter 4 seed: API p95 latency jumped after deploy; decide whether to add Redis "
@@ -153,6 +154,7 @@ def seed_database(session: Session) -> UUID:
     knowledge_content = (
         "Inspect the query path before adding Redis when latency changes immediately after deploy."
     )
+    embedding_provider = HashingEmbeddingProvider()
     knowledge_chunk = KnowledgeChunk(
         session_id=problem_session.id,
         source_artifact_id=artifact.id,
@@ -160,15 +162,19 @@ def seed_database(session: Session) -> UUID:
         content_hash=_content_hash(knowledge_content),
         source_type="local_seed",
         source_uri="seed://chapter-4/knowledge/query-path-before-cache",
+        domain="software_debugging",
+        reliability_score=0.8,
+        tags=["database", "latency", "investigation"],
+        admission_status="verified_seed",
         chunk_metadata={
             "memory_type": "semantic",
             "chapter": 4,
             "embedding_provenance_required": True,
         },
-        embedding_provider="local_seed",
-        embedding_model="zero-vector-1536",
+        embedding_provider=embedding_provider.name,
+        embedding_model=embedding_provider.model,
         embedding_dimensions=SEED_EMBEDDING_DIMENSIONS,
-        embedding=[0.0] * SEED_EMBEDDING_DIMENSIONS,
+        embedding=embedding_provider.embed(knowledge_content),
     )
     session.add(knowledge_chunk)
 

@@ -24,6 +24,17 @@ PolyaBrain should not compete on:
 4. Broad enterprise platform claims before a narrow workflow is loved.
 5. Research complexity that delays product usefulness.
 
+The technical-investigation workbench is the first proof surface, not the
+definition of the product. The enduring product is the domain-independent
+cognitive kernel that selects and evaluates problem-solving actions. Proof work
+must therefore show that the same controller transfers beyond technical
+investigation instead of hardcoding incident-specific behavior into the core.
+
+The architecture itself is not the moat. Durable advantage must come from a
+better action-selection policy, verified problem-solving trajectories, reusable
+procedural strategies, domain evaluation corpora, and evidence that the kernel
+improves outcomes across new problems.
+
 ## Missing Product Constraint
 
 The current architecture correctly defines a general problem-solving platform, but speed requires a sharper initial wedge.

@@ -1,0 +1,434 @@
+[
+  {
+    "engine_name": "constraint_discovery",
+    "event_type": "completed",
+    "metadata": {
+      "status": "ok"
+    },
+    "reasoning_mode": "compare",
+    "summary": "Constraints are pre-discovered to isolate the next-action proof."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected calculate for the exact value of x from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [
+        {
+          "candidate_id": "action-04d1d67af5ea",
+          "rationale": "Lower bounded utility (0.788) than selected action (0.868)."
+        },
+        {
+          "candidate_id": "action-ea848451e28c",
+          "rationale": "Lower bounded utility (0.708) than selected action (0.868)."
+        }
+      ],
+      "selected": {
+        "action_type": "calculate",
+        "capability": "calculator",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An observation that resolves or materially narrows the gap: the exact value of x",
+        "expected_usefulness": 0.88,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-32abb0482c8f",
+        "preconditions": [],
+        "purpose": "The unknown blocks a verified conclusion.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "the exact value of x"
+      },
+      "state_fingerprint": "c0ca884ef2763458"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected calculate for the exact value of x through calculator."
+  },
+  {
+    "engine_name": "calculator",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-32abb0482c8f",
+      "action_type": "calculate",
+      "capability": "calculator",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 1,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "the exact value of x"
+    },
+    "reasoning_mode": "execute",
+    "summary": "calculator returned a fixture-backed observation for the exact value of x."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected hypothesize for What value of x satisfies the equation? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "hypothesize",
+        "capability": "reasoner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Distinct candidates with expected signals and falsification criteria.",
+        "expected_usefulness": 0.82,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-266d441ddcd2",
+        "preconditions": [],
+        "purpose": "Generate testable explanations or solution paths from current evidence.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What value of x satisfies the equation?"
+      },
+      "state_fingerprint": "d63997df5e1654e8"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected hypothesize for What value of x satisfies the equation? through reasoner."
+  },
+  {
+    "engine_name": "reasoner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-266d441ddcd2",
+      "action_type": "hypothesize",
+      "capability": "reasoner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What value of x satisfies the equation?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Generated a testable candidate from the acquired observations."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected plan for What value of x satisfies the equation? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "plan",
+        "capability": "planner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "An ordered plan whose tasks have observable outputs.",
+        "expected_usefulness": 0.79,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-08980274e32a",
+        "preconditions": [],
+        "purpose": "Turn supported hypotheses into bounded executable checks.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What value of x satisfies the equation?"
+      },
+      "state_fingerprint": "bc875fac862bfe78"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected plan for What value of x satisfies the equation? through planner."
+  },
+  {
+    "engine_name": "planner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-08980274e32a",
+      "action_type": "plan",
+      "capability": "planner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What value of x satisfies the equation?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Created one bounded verification task."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected execute for verify-exact_equation-1 from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "execute",
+        "capability": "executor",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A deterministic pass or failure signal.",
+        "expected_usefulness": 0.84,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-430e55cf8732",
+        "preconditions": [],
+        "purpose": "Execute the independent case check.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "verify-exact_equation-1"
+      },
+      "state_fingerprint": "74caa668a1f6358f"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected execute for verify-exact_equation-1 through executor."
+  },
+  {
+    "engine_name": "executor",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-430e55cf8732",
+      "action_type": "execute",
+      "capability": "executor",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "verify-exact_equation-1"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Executed the deterministic independent case check."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected verify for What value of x satisfies the equation? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "verify",
+        "capability": "verifier",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Independent checks with pass, failure, or contradiction details.",
+        "expected_usefulness": 0.96,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-c7861c26cd52",
+        "preconditions": [],
+        "purpose": "Try to disprove the candidate conclusion before accepting it.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What value of x satisfies the equation?"
+      },
+      "state_fingerprint": "6577ff7fd0e98538"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected verify for What value of x satisfies the equation? through verifier."
+  },
+  {
+    "engine_name": "verifier",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-c7861c26cd52",
+      "action_type": "verify",
+      "capability": "verifier",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What value of x satisfies the equation?"
+    },
+    "reasoning_mode": "verify",
+    "summary": "The independent case verifier completed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected replan for What value of x satisfies the equation? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "replan",
+        "capability": "planner",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A revised plan targeting failed checks or contradictions.",
+        "expected_usefulness": 0.9,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-c757b47019b5",
+        "preconditions": [],
+        "purpose": "Respond to failed verification with a materially different plan.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What value of x satisfies the equation?"
+      },
+      "state_fingerprint": "003e95b07dfc0e34"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected replan for What value of x satisfies the equation? through planner."
+  },
+  {
+    "engine_name": "planner",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-c757b47019b5",
+      "action_type": "replan",
+      "capability": "planner",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What value of x satisfies the equation?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Created one bounded verification task."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected execute for verify-exact_equation-2 from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "execute",
+        "capability": "executor",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "A deterministic pass or failure signal.",
+        "expected_usefulness": 0.84,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-f561530d219a",
+        "preconditions": [],
+        "purpose": "Execute the independent case check.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "verify-exact_equation-2"
+      },
+      "state_fingerprint": "7a9c1b8ebda137ae"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected execute for verify-exact_equation-2 through executor."
+  },
+  {
+    "engine_name": "executor",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-f561530d219a",
+      "action_type": "execute",
+      "capability": "executor",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "verify-exact_equation-2"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Executed the deterministic independent case check."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected verify for What value of x satisfies the equation? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "verify",
+        "capability": "verifier",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Independent checks with pass, failure, or contradiction details.",
+        "expected_usefulness": 0.96,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-c7861c26cd52",
+        "preconditions": [],
+        "purpose": "Try to disprove the candidate conclusion before accepting it.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What value of x satisfies the equation?"
+      },
+      "state_fingerprint": "d3b68e4d55bf0b77"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected verify for What value of x satisfies the equation? through verifier."
+  },
+  {
+    "engine_name": "verifier",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-c7861c26cd52",
+      "action_type": "verify",
+      "capability": "verifier",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What value of x satisfies the equation?"
+    },
+    "reasoning_mode": "verify",
+    "summary": "The independent case verifier completed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected reflect for What value of x satisfies the equation? from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "reflect",
+        "capability": "reflector",
+        "distinguishes": [],
+        "estimated_cost": 0.05,
+        "expected_observation": "Specific successful, failed, and reusable strategy observations.",
+        "expected_usefulness": 0.62,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-696c9fe28a3e",
+        "preconditions": [],
+        "purpose": "Extract reusable lessons only after verification passes.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "What value of x satisfies the equation?"
+      },
+      "state_fingerprint": "b281c48d6a936325"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected reflect for What value of x satisfies the equation? through reflector."
+  },
+  {
+    "engine_name": "reflector",
+    "event_type": "capability_observation",
+    "metadata": {
+      "action_id": "action-696c9fe28a3e",
+      "action_type": "reflect",
+      "capability": "reflector",
+      "capability_version": "chapter-13c-proof-v1",
+      "evidence_count": 0,
+      "failure_kind": null,
+      "status": "succeeded",
+      "target": "What value of x satisfies the equation?"
+    },
+    "reasoning_mode": "execute",
+    "summary": "Reflected only after the independent check passed."
+  },
+  {
+    "engine_name": "cognitive_controller",
+    "event_type": "cognitive_action_decision",
+    "metadata": {
+      "policy_version": "cognitive-controller-v0.1.0",
+      "rationale": "Selected stop for current run from explicit state using usefulness, cost, risk, failure history, and declared capability availability.",
+      "rejected": [],
+      "selected": {
+        "action_type": "stop",
+        "capability": "cognitive_controller",
+        "distinguishes": [],
+        "estimated_cost": 1.0,
+        "expected_observation": "A truthful terminal status without a forced conclusion.",
+        "expected_usefulness": 0.05,
+        "failure_condition": "The capability fails, is blocked, or does not reduce the target obstacle.",
+        "id": "action-2734194fb40d",
+        "preconditions": [],
+        "purpose": "Stop safely because verified outcome reflected.",
+        "risk_level": "low",
+        "success_condition": "The expected observation is produced with inspectable provenance.",
+        "target": "current run"
+      },
+      "state_fingerprint": "b384d6d89dc0937c"
+    },
+    "reasoning_mode": "explore",
+    "summary": "Selected stop for current run through cognitive_controller."
+  }
+]
