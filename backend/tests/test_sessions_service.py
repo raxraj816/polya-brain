@@ -378,7 +378,10 @@ def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
         assert completed.session.verification_status == "passed"
         assert report.final_conclusion == "17 * 6 = 102."
         assert report.confidence_level == "high"
-        assert len(report.evidence_used) == 2
+        # Fused arithmetic retains the calculator evidence once; its independent
+        # recalculation is an execution artifact, not a duplicated source.
+        assert len(report.evidence_used) == 1
+        assert report.evidence_used[0].source_type == "deterministic_calculator"
         assert report.evidence_against == []
         assert report.checks_performed
         assert report.open_questions == []
@@ -406,7 +409,7 @@ def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
         )
 
         assert gap is not None and gap.filled
-        assert len(evidence) == 2
+        assert len(evidence) == 1
         assert {item.claim for item in evidence} == {"17 * 6 = 102."}
         assert hypothesis is not None and hypothesis.statement == "17 * 6 = 102."
         assert plan_task is not None
@@ -414,6 +417,15 @@ def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
         assert verification is not None and verification.passed
         assert reflection_event is not None
         assert reflection_event.event_metadata["strategy_notes"] == ["calculate_then_recalculate"]
+        execution_event = db_session.scalar(
+            select(ReasoningEvent).where(
+                ReasoningEvent.session_id == session_id,
+                ReasoningEvent.event_type == "execution_output_recorded",
+            )
+        )
+        assert execution_event is not None
+        assert execution_event.event_metadata["task_id"] == "independent-recalculation"
+        assert execution_event.event_metadata["output"] == {"expression": "17 * 6", "result": "102"}
 
 
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)

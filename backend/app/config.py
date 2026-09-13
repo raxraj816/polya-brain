@@ -37,6 +37,10 @@ class Settings(BaseSettings):
         alias="OPENROUTER_BASE_URL",
     )
     openrouter_model: str = Field(default="", alias="OPENROUTER_MODEL")
+    openrouter_fallback_models: str = Field(
+        default="",
+        alias="OPENROUTER_FALLBACK_MODELS",
+    )
     openrouter_app_url: str | None = Field(default=None, alias="OPENROUTER_APP_URL")
     openrouter_app_title: str = Field(default="PolyaBrain", alias="OPENROUTER_APP_TITLE")
     openrouter_data_collection: str = Field(
@@ -67,6 +71,42 @@ class Settings(BaseSettings):
         ge=1,
         le=100,
         alias="RESEARCH_MAX_TOTAL_CANDIDATES",
+    )
+    cognitive_max_model_calls: int = Field(
+        default=12,
+        ge=0,
+        le=100,
+        alias="COGNITIVE_MAX_MODEL_CALLS",
+    )
+    cognitive_max_external_calls: int = Field(
+        default=3,
+        ge=0,
+        le=100,
+        alias="COGNITIVE_MAX_EXTERNAL_CALLS",
+    )
+    cognitive_max_input_tokens: int = Field(
+        default=120_000,
+        ge=0,
+        le=10_000_000,
+        alias="COGNITIVE_MAX_INPUT_TOKENS",
+    )
+    cognitive_max_output_tokens: int = Field(
+        default=16_000,
+        ge=0,
+        le=1_000_000,
+        alias="COGNITIVE_MAX_OUTPUT_TOKENS",
+    )
+    cognitive_max_normalized_cost: float = Field(
+        default=6.0,
+        ge=0.0,
+        le=1_000.0,
+        alias="COGNITIVE_MAX_NORMALIZED_COST",
+    )
+    cognitive_max_duration_ms: float = Field(
+        default=300_000.0,
+        ge=0.0,
+        le=3_600_000.0,
+        alias="COGNITIVE_MAX_DURATION_MS",
     )
     artifact_allowed_roots: str = Field(default="", alias="ARTIFACT_ALLOWED_ROOTS")
     artifact_max_file_bytes: int = Field(

@@ -22,12 +22,23 @@ from app.cognition.adapters import (
     problem_representation_capability,
 )
 from app.cognition.capabilities import CapabilityRegistry
+from app.cognition.contracts import CapabilityKind
 from app.cognition.controller import CognitiveController, ProceduralPreferenceProvider
 from app.cognition.local_capabilities import calculator_capability, human_input_capability
-from app.cognition.model_capabilities import model_reasoning_capabilities
+from app.cognition.model_capabilities import planner_capability
 from app.cognition.model_gateway import CognitiveModelGateway
+from app.cognition.on_demand_capabilities import on_demand_cognitive_capabilities
+from app.cognition.performance import CapabilityPerformanceLedger
+from app.cognition.procedure_compiler import ProcedureCompiler
 from app.cognition.runtime import CognitiveRuntime
+from app.cognition.semantic_broker import (
+    RoutedCognitiveModelGateway,
+    RoutedProblemUnderstandingProvider,
+    SemanticModelRoute,
+    SemanticRouteHealthLedger,
+)
 from app.cognition.session_runner import CognitiveSessionRunner
+from app.cognition.task_model import CognitiveResourceBudget
 from app.config import Settings
 from app.engines import ConstraintDiscoveryEngine, ProblemRepresentationEngine
 from app.execution import (
@@ -44,19 +55,21 @@ from app.memory.capability import SemanticMemorySearch, semantic_memory_capabili
 from app.models.contracts import EvidenceItem, RiskLevel
 
 
-def build_representation_session_runner(
+def build_cognitive_runtime(
     settings: Settings,
     *,
     prior_research_query_count: Callable[[str], int] | None = None,
-    prior_evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
     semantic_memory: SemanticMemorySearch | None = None,
     procedural_memory: ProceduralPreferenceProvider | None = None,
-) -> CognitiveSessionRunner:
-    """Build the honest representation-only persisted cognitive runner.
+    performance_ledger: CapabilityPerformanceLedger | None = None,
+    semantic_route_health_ledger: SemanticRouteHealthLedger | None = None,
+) -> CognitiveRuntime:
+    """Compose the shared production runtime for API and local investigations.
 
     Deterministic fallbacks still work without credentials. Unrecognized inputs
     fail closed at the provider boundary instead of silently using the old stub.
     """
+    adaptive_ledger = performance_ledger or CapabilityPerformanceLedger()
     configured_key = settings.openrouter_api_key.get_secret_value().strip()
     configured_model = settings.openrouter_model.strip()
     client: LLMClient
@@ -67,11 +80,46 @@ def build_representation_session_runner(
         client = FakeLLMClient([])
         model = configured_model or "unconfigured-representation-provider"
 
+    fallback_models = list(
+        dict.fromkeys(
+            item.strip()
+            for item in settings.openrouter_fallback_models.split(",")
+            if item.strip() and item.strip() != model
+        )
+    )
+    if len(fallback_models) > 1:
+        raise ValueError("the first semantic broker supports at most one fallback model")
+    semantic_routes = [
+        SemanticModelRoute(model_slug=model, priority=0),
+        *[
+            SemanticModelRoute(model_slug=fallback, priority=index)
+            for index, fallback in enumerate(fallback_models, start=1)
+        ],
+    ]
+    route_health = semantic_route_health_ledger or SemanticRouteHealthLedger()
+    understanding_provider = (
+        RoutedProblemUnderstandingProvider(
+            client,
+            semantic_routes,
+            health_ledger=route_health,
+        )
+        if configured_key and configured_model
+        else None
+    )
     engine = ProblemRepresentationEngine(
         client=client,
         model=model,
+        understanding_provider=understanding_provider,
     )
-    gateway = CognitiveModelGateway(client, model)
+    gateway = (
+        RoutedCognitiveModelGateway(
+            client,
+            semantic_routes,
+            health_ledger=route_health,
+        )
+        if configured_key and configured_model
+        else CognitiveModelGateway(client, model)
+    )
     sensitive_data_approved = bool(
         configured_key
         and configured_model
@@ -79,7 +127,9 @@ def build_representation_session_runner(
         and settings.openrouter_zdr
     )
     registry = CapabilityRegistry()
-    registry.register(problem_representation_capability(engine))
+    if configured_key and configured_model:
+        registry.register(problem_representation_capability(engine))
+    registry.register(problem_representation_capability(engine, deterministic_only=True))
     registry.register(constraint_discovery_capability(ConstraintDiscoveryEngine()))
     registry.register(calculator_capability())
     registry.register(human_input_capability())
@@ -259,27 +309,68 @@ def build_representation_session_runner(
                 memory_evidence_loader=memory_evidence_loader,
             )
         )
-    for capability in model_reasoning_capabilities(
+    for capability in on_demand_cognitive_capabilities(
         gateway,
         approved_for_sensitive_data=sensitive_data_approved,
-        available_sources=sources.prompt_description(),
-        available_execution_tools=(
-            "calculator",
-            "executor",
-            "simulator",
-            "experiment",
-            *(("python_sandbox",) if settings.code_execution_enabled else ()),
-            *(("measurement",) if configured_artifact_roots else ()),
-        ),
     ):
+        if capability.definition.kind is CapabilityKind.MODEL and not (
+            configured_key and configured_model
+        ):
+            continue
         registry.register(capability)
+    if configured_key and configured_model:
+        registry.register(
+            planner_capability(
+                gateway,
+                approved_for_sensitive_data=sensitive_data_approved,
+                available_execution_tools=(
+                    "calculator",
+                    "simulator",
+                    "experiment",
+                    *(("python_sandbox",) if settings.code_execution_enabled else ()),
+                    *(("measurement",) if configured_artifact_roots else ()),
+                ),
+            )
+        )
+    return CognitiveRuntime(
+        registry,
+        controller=CognitiveController(
+            procedural_memory=procedural_memory,
+            semantic_memory=semantic_memory,
+            performance_policy=adaptive_ledger,
+        ),
+        budget=CognitiveResourceBudget(
+            max_model_calls=settings.cognitive_max_model_calls,
+            max_external_calls=settings.cognitive_max_external_calls,
+            max_input_tokens=settings.cognitive_max_input_tokens,
+            max_output_tokens=settings.cognitive_max_output_tokens,
+            max_normalized_cost=settings.cognitive_max_normalized_cost,
+            max_duration_ms=settings.cognitive_max_duration_ms,
+        ),
+        procedure_compiler=ProcedureCompiler(),
+        performance_ledger=adaptive_ledger,
+    )
+
+
+def build_representation_session_runner(
+    settings: Settings,
+    *,
+    prior_research_query_count: Callable[[str], int] | None = None,
+    prior_evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
+    semantic_memory: SemanticMemorySearch | None = None,
+    procedural_memory: ProceduralPreferenceProvider | None = None,
+    performance_ledger: CapabilityPerformanceLedger | None = None,
+    semantic_route_health_ledger: SemanticRouteHealthLedger | None = None,
+) -> CognitiveSessionRunner:
+    """Adapt the shared runtime to durable API session dispositions."""
     return CognitiveSessionRunner(
-        CognitiveRuntime(
-            registry,
-            controller=CognitiveController(
-                procedural_memory=procedural_memory,
-                semantic_memory=semantic_memory,
-            ),
+        build_cognitive_runtime(
+            settings,
+            prior_research_query_count=prior_research_query_count,
+            semantic_memory=semantic_memory,
+            procedural_memory=procedural_memory,
+            performance_ledger=performance_ledger,
+            semantic_route_health_ledger=semantic_route_health_ledger,
         ),
         evidence_loader=prior_evidence_loader,
     )

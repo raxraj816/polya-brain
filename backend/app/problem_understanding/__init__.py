@@ -24,6 +24,11 @@ from app.problem_understanding.prompt import (
     problem_understanding_json_schema,
     problem_understanding_system_prompt,
 )
+from app.problem_understanding.routing import (
+    ProblemUnderstandingExecution,
+    ProblemUnderstandingProvider,
+    ProblemUnderstandingProviderError,
+)
 from app.problem_understanding.service import generate_problem_understanding
 
 __all__ = [
@@ -37,6 +42,9 @@ __all__ = [
     "ProblemUnderstandingParseError",
     "ProblemUnderstandingParseResult",
     "ProblemUnderstandingRunResult",
+    "ProblemUnderstandingExecution",
+    "ProblemUnderstandingProvider",
+    "ProblemUnderstandingProviderError",
     "PromptExampleCategory",
     "build_problem_understanding_repair_request",
     "build_problem_understanding_request",

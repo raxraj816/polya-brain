@@ -25,8 +25,8 @@ production adapter planned for Chapter 12-B.
   scripted responses or typed failures.
 - Added explicit JSON-mode capability declaration and fail-closed capability
   validation before an adapter is called.
-- Added per-request temperature, output-token, timeout, retry-count, and
-  exponential-backoff controls.
+- Added per-request temperature, output-token, per-attempt timeout, total retry
+  deadline, retry-count, and exponential-backoff controls.
 - Added bounded retry behavior for typed retryable failures. Invalid requests,
   unsupported capabilities, and other non-retryable failures stop immediately.
 - Added typed error categories for invalid requests, authentication,
@@ -45,15 +45,20 @@ Future engines should create an `LLMRequest`, then call
 successful response into `LLMResponse` and map provider failures into
 `LLMClientError`.
 
-The timeout value is part of every request and must be honored by the provider
-adapter's network call. The Chapter 12-A wrapper owns bounded retry decisions;
-it does not attempt to cancel arbitrary synchronous provider code from another
+The per-attempt timeout is part of every request and must be honored by the
+provider adapter's network call. When `total_timeout_seconds` is present, the
+Chapter 12-A wrapper clamps each retry to the remaining wall-clock budget and
+refuses backoff that would cross the deadline. Cognitive structured-output
+repair receives only the remaining originating capability budget. The wrapper
+does not attempt to cancel arbitrary synchronous provider code from another
 thread.
 
 ## Failure Guardrails
 
 - JSON mode cannot be requested from an adapter that did not declare support.
 - Retry count is capped at five per request.
+- A total retry deadline, when declared, covers attempts and backoff rather than
+  resetting for each attempt.
 - Retry delays use deterministic exponential backoff with a configured cap.
 - Only typed, explicitly retryable failures are retried.
 - Error text is sanitized before it can be exposed to callers.

@@ -1,0 +1,2 @@
+Solune Packet Standard — S-4
+The retry ceiling is 14 for indigo control packets.

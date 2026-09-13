@@ -10,6 +10,25 @@ PolyaBrain is not intended to be another large language model optimized primaril
 
 PolyaBrain aims to become a real intelligence system focused on understanding and solving problems, including entirely unseen and unknown problems.
 
+Binding product identity:
+
+> **PolyaBrain is a product-first, initially cloud-hosted, model-agnostic
+> Cognitive Runtime that turns difficult objectives into verified outcomes by
+> acquiring knowledge on demand, using deterministic procedures whenever
+> possible, invoking bounded model reasoning when necessary, and learning
+> reusable procedures from verified work.**
+
+PolyaBrain Investigator is the initial user-facing technical problem-solving
+workbench. The Cognitive Runtime is the enduring intelligence core. A managed
+cloud product and API are the initial delivery, while the runtime remains
+portable to sovereign, private, and local deployment. PolyaBrain Intelligence
+OS is an eventual platform category that must be earned through dependent
+applications, developers, and cross-domain evidence. Language models and tools
+remain replaceable capabilities.
+
+General-purpose intelligence is the long-term architectural ambition, not the
+initial market category or an unverified claim.
+
 Primary inspiration:
 
 1. Understand the problem.
@@ -232,7 +251,12 @@ An adaptive intelligence system capable of understanding, reasoning, learning, v
 
 ## Final Definition
 
-PolyaBrain is an intelligence architecture inspired by George Polya's problem-solving methodology. It prioritizes reasoning over memorization, understanding over prediction, verification over plausibility, and adaptive knowledge acquisition over storing everything internally.
+PolyaBrain is a product-first Cognitive Runtime inspired by George Polya's
+problem-solving methodology. It prioritizes reasoning over memorization,
+understanding over prediction, verification over plausibility, and adaptive
+knowledge acquisition over storing everything internally. Its unit of value is
+a verified problem outcome. Its primary optimization target is verified useful
+outcomes per unit of money, time, tokens, compute, risk, and human attention.
 
 ## Guiding Principle
 

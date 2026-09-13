@@ -19,6 +19,76 @@ Each benchmark case should include:
 - Expected clarifying questions, when relevant.
 - Expected verification checks.
 - Scoring rubric.
+- Knowledge that is available at run time and knowledge deliberately withheld.
+- Model-call, token, acquisition, latency, and normalized-cost budgets.
+- Whether the case is a first encounter or a held-out structural transfer case.
+
+## On-Demand Learning Track
+
+Maintain an unfamiliar micro-world track in addition to normal real-world
+cases. A micro-world supplies a fictional manual, API, rule system, table, or
+tool at run time so success cannot be credited to memorized model knowledge.
+Cases must require targeted acquisition and at least one verifiable consequence
+of the supplied rules.
+
+Compare:
+
+1. A direct model with the same answer budget.
+2. A full-context model given every available document.
+3. An ordinary retrieve-then-answer baseline.
+4. PolyaBrain using gap-driven acquisition and the cognitive resource ledger.
+
+Use paired held-out cases to measure procedural transfer. The second case must
+change surface details while preserving only the intended structural procedure;
+the evaluator must reject answer memorization and unverifiable shortcuts.
+
+## Executable Verifier Track
+
+Maintain held-out verification checkpoints in which the candidate, mandatory
+success criteria, and independent observations are fixed. Compare a direct
+model with complete observations, a full-context model, ordinary retrieval, and
+PolyaBrain's typed verifier factory. Report verdict correctness, false-pass and
+false-reject rate, criterion coverage, calls, tokens, latency, and parsing or
+provider failures.
+
+This track isolates verifier value. It must never be reported as end-to-end
+problem-solving evidence. A verifier shape learned or compiled on one source
+case must be retested on changed surface details, failed criteria, missing
+observations, stale capability versions, poisoned memory, and safety-constraint
+mismatches before reuse.
+
+## Adaptive Scheduler Track
+
+Maintain held-out task families with prior capability-health histories and a
+separate present-case route oracle. Cover healthy, repeatedly degraded,
+recovered, and version-changed capabilities. Compare the declared-cost static
+controller with the adaptive controller using rotated execution order and at
+least five repetitions.
+
+Report verified route outcome, wrong-route rate, external/model calls, tokens,
+capability latency, regret relative to the best eligible route, and scheduler
+overhead. Test explicitly that sparse failures do not blacklist a capability,
+new versions do not inherit stale health, recovery can restore a route, and
+fabricated strong performance cannot bypass privacy, approval, or hard budget
+gates. Keep this track separate from end-to-end intelligence claims.
+
+## Adversarial Epistemic-Control Track
+
+Maintain paired answerable and intentionally unanswerable cases in which the
+runtime receives incomplete, conflicting, stale, misleading, or unavailable
+information. Include retrieved prompt injections and false-premise questions.
+The same-model baseline must receive the same tools, observations, budgets, and
+untrusted-data warning.
+
+Score correct answers and correct abstentions separately. Report abstention
+precision and recall, unsupported-conclusion rate, contradiction-resolution
+accuracy, temporal-source selection, criterion coverage, prompt-injection
+success rate, acquisition non-progress, external/model calls, tokens, latency,
+and cost. A system must not improve its score by refusing answerable tasks or
+by guessing on unanswerable tasks.
+
+This track isolates evidence governance. It is not by itself proof of broad
+end-to-end product value or general intelligence.
 
 ## Categories
 
@@ -51,6 +121,10 @@ Each benchmark case should include:
 - Report usefulness.
 - Latency.
 - Estimated cost.
+- Model calls and tokens by logical stage.
+- External acquisitions and irrelevant context consumed.
+- Expected verified progress per cost for selected actions.
+- First-encounter versus transfer-case efficiency.
 
 ## Chapter 60 Minimum
 

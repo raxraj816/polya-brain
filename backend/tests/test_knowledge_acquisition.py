@@ -476,9 +476,14 @@ def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path
     )
     state = _research_state()
     state["raw_input"] = f'Inspect "{source}" to find the request timeout.'
+    gap_description = "Request timeout in the referenced service.py code file"
+    assert state["structured_problem"] is not None
+    state["structured_problem"] = state["structured_problem"].model_copy(
+        update={"unknowns": [gap_description]}
+    )
     state["gaps"] = [
         KnowledgeGap(
-            description="Request timeout in the referenced service.py code file",
+            description=gap_description,
             gap_type="missing_code_context",
             priority=PriorityLevel.HIGH,
             why_needed="The configured timeout is needed for diagnosis.",
@@ -486,8 +491,15 @@ def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path
         )
     ]
     registry = CapabilityRegistry()
+    client = FakeLLMClient([])
+    gateway = CognitiveModelGateway(client, "unused-local-evaluator")
     registry.register(local_artifact_capability(LocalArtifactInspector([tmp_path])))
-    registry.register(evidence_evaluator_capability())
+    registry.register(
+        evidence_evaluator_capability(
+            gateway,
+            model_approved_for_sensitive_data=True,
+        )
+    )
 
     result = CognitiveKernel(registry).run(state, max_cycles=3)
 
@@ -497,11 +509,105 @@ def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path
         CognitiveActionType.STOP,
     ]
     assert result.state["gaps"][0].filled
+    assert result.state["structured_problem"] is not None
+    assert result.state["structured_problem"].unknowns == []
     assert len(result.state["evidence"]) == 1
     assert "REQUEST_TIMEOUT_SECONDS = 45" in result.state["evidence"][0].claim
+    assert client.requests == []
     acquired = next(
         event
         for event in result.state["events"]
         if event.event_type == "evidence_candidates_acquired"
     )
     assert "not executed as instructions" in str(acquired.metadata["instruction_boundary"])
+    evaluated = next(
+        event
+        for event in result.state["events"]
+        if event.event_type == "evidence_evaluation_completed"
+    )
+    assert evaluated.metadata["semantic_model_used"] is False
+
+
+def test_local_source_line_metadata_does_not_create_a_numeric_contradiction(
+    tmp_path: Path,
+) -> None:
+    issue = tmp_path / "issue.md"
+    issue.write_text("# Path output fails on first write\n", encoding="utf-8")
+    source = tmp_path / "worker.py"
+    source.write_text(
+        "\n\n\n\n\n\ndef get_write_function(output: str):\n    return output\n",
+        encoding="utf-8",
+    )
+    state = _research_state()
+    gap_description = "Path output failure and get_write_function output parameter"
+    state["raw_input"] = f'Inspect "{issue}" and "{source}".'
+    assert state["structured_problem"] is not None
+    state["structured_problem"] = state["structured_problem"].model_copy(
+        update={"unknowns": [gap_description]}
+    )
+    state["gaps"] = [
+        KnowledgeGap(
+            description=gap_description,
+            gap_type="missing_artifact_knowledge",
+            priority=PriorityLevel.HIGH,
+            why_needed="The source-visible relationship is required.",
+            suggested_source="local artifact",
+        )
+    ]
+    registry = CapabilityRegistry()
+    registry.register(local_artifact_capability(LocalArtifactInspector([tmp_path])))
+    registry.register(evidence_evaluator_capability())
+
+    result = CognitiveKernel(registry).run(state, max_cycles=3)
+
+    assert result.state["gaps"][0].filled is True
+    evaluation = next(
+        event
+        for event in result.state["events"]
+        if event.event_type == "evidence_evaluation_completed"
+    )
+    assert evaluation.metadata["contradiction_pairs"] == []
+    assessments = evaluation.metadata["assessments"]
+    assert isinstance(assessments, list)
+    assert all(
+        not str(assessment["extracted_claim"]).split(maxsplit=1)[0].rstrip(":").isdigit()
+        for assessment in assessments
+        if isinstance(assessment, dict)
+    )
+
+
+def test_unchanged_local_snapshot_stops_reacquisition_loop(tmp_path: Path) -> None:
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("The timeout limit is 30 seconds.\n", encoding="utf-8")
+    second.write_text("The timeout limit is 45 seconds.\n", encoding="utf-8")
+    state = _research_state()
+    gap_description = "The timeout limit in the supplied local artifacts"
+    state["raw_input"] = f'Inspect "{first}" and "{second}".'
+    assert state["structured_problem"] is not None
+    state["structured_problem"] = state["structured_problem"].model_copy(
+        update={"unknowns": [gap_description]}
+    )
+    state["gaps"] = [
+        KnowledgeGap(
+            description=gap_description,
+            gap_type="missing_artifact_knowledge",
+            priority=PriorityLevel.HIGH,
+            why_needed="The conflict must be resolved before conclusion.",
+            suggested_source="local artifact",
+        )
+    ]
+    registry = CapabilityRegistry()
+    registry.register(local_artifact_capability(LocalArtifactInspector([tmp_path])))
+    registry.register(evidence_evaluator_capability())
+
+    result = CognitiveKernel(registry).run(state, max_cycles=6)
+
+    assert result.status.value == "insufficient_evidence"
+    duplicate = next(
+        observation
+        for observation in result.observations
+        if observation.failure_kind == "duplicate_artifact_snapshot"
+    )
+    assert duplicate.status.value == "inconclusive"
+    assert result.cycles < 6

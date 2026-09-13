@@ -55,6 +55,7 @@ def generate_problem_understanding(
     sleep: Callable[[float], None] = time.sleep,
 ) -> ProblemUnderstandingRunResult:
     """Run the Chapter 11 boundary and stop safely after bounded repair attempts."""
+    started = time.perf_counter()
     retry_policy = parser_retry_policy or ParserRetryPolicy()
     request = build_problem_understanding_request(
         state,
@@ -63,6 +64,7 @@ def generate_problem_understanding(
         domain_hint=domain_hint,
         options=request_options,
     )
+    overall_timeout = request.options.total_timeout_seconds
     responses: list[LLMResponse] = []
     response = complete_with_retry(client, request, sleep=sleep)
     responses.append(response)
@@ -101,6 +103,27 @@ def generate_problem_understanding(
                 invalid_response=response.text,
                 parse_error=exc.safe_message,
             )
+            if overall_timeout is not None:
+                remaining = overall_timeout - (time.perf_counter() - started)
+                if remaining <= 0:
+                    raise LLMClientError(
+                        LLMErrorCode.TIMEOUT,
+                        "Problem-understanding deadline was exhausted before repair.",
+                        provider=client.provider,
+                    ) from exc
+                request = request.model_copy(
+                    update={
+                        "options": request.options.model_copy(
+                            update={
+                                "timeout_seconds": min(
+                                    request.options.timeout_seconds,
+                                    remaining,
+                                ),
+                                "total_timeout_seconds": remaining,
+                            }
+                        )
+                    }
+                )
             response = complete_with_retry(client, request, sleep=sleep)
             responses.append(response)
 

@@ -101,7 +101,8 @@ def build_problem_understanding_request(
         max_output_tokens=1800,
         json_mode=True,
         timeout_seconds=45,
-        max_retries=2,
+        total_timeout_seconds=90,
+        max_retries=1,
     )
     if not resolved_options.json_mode:
         raise ValueError("problem-understanding request requires JSON mode")

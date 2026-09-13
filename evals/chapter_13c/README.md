@@ -58,7 +58,8 @@ real environments.
 The complete outcome gate uses six synthetic categories, identical
 pre-structured problems, the same configured model, the same typed tools and
 observations, an equal six-call model budget, an equal per-call output limit,
-and alternating execution order:
+and alternating execution order. Polya uses its current fused deliberator and
+fused conclusion checker rather than the superseded five-stage model path:
 
 ```bash
 POLYABRAIN_ALLOW_NONCONFIDENTIAL_LIVE_EVAL=1 \
@@ -69,9 +70,9 @@ OPENROUTER_REQUIRE_PARAMETERS_FOR_JSON=false \
 
 It scores conclusion terms, source provenance, explicit verification, recovery,
 latency, calls, and tokens across three repetitions by default. Provider
-failures create a sanitized `blocked.json`
-instead of being counted as a win or loss. The 2026-08-09 attempt was blocked
-before case completion by HTTP 429 from the configured free OpenRouter model.
+failures create a sanitized `blocked.json` instead of being counted as a win or
+loss. The model capability deadline includes retries and structured-output
+repair rather than resetting for every attempt.
 
 After a complete run, build the separately keyed, condition-blinded review
 packet:
@@ -87,5 +88,13 @@ in `../../docs/03_implementation/Chapter_13C_Outcome_Benchmark_Operations.md`.
 This is deliberately labeled a structural proof. Fixture capabilities establish
 that the controller, capability boundary, state updates, verification gate, and
 cross-domain routing work. These checks do not establish superior real-world
-problem solving. The full comparison harness is implemented, contract-tested,
-and provider-blocked; Chapter 13-C remains open until it records complete runs.
+problem solving. A 2026-08-22 paid-route qualification completed all six pairs
+with both conditions passing 6/6, while Polya used about 2.19 times the tokens.
+Chapter 13-C remains open: revise the runtime and add adversarial evidence cases
+before running the unchanged three-repetition gate.
+
+Chapter 13-I subsequently reran all 18 pairs after adding exact trusted evidence
+closure. Polya passed 18/18 with zero model tokens; direct passed 17/18 using
+47,656 tokens. The general automated gate remains false because the correctness
+advantage is below its predeclared threshold. The result is evidence only for a
+narrow known-procedure compute win.

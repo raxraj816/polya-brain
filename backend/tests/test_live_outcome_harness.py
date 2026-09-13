@@ -23,6 +23,7 @@ from evals.chapter_13c.run_live_outcome_comparison import (
     _score_direct,
     _score_polya,
     _tool_definition,
+    _usage,
 )
 
 from app.cognition import (
@@ -35,6 +36,8 @@ from app.cognition import (
 from app.cognition.kernel import CognitiveKernel
 from app.llm import (
     FakeLLMClient,
+    LLMClientError,
+    LLMErrorCode,
     LLMMessage,
     LLMRequest,
     LLMResponse,
@@ -69,6 +72,36 @@ def _response(text: str) -> LLMResponse:
         finish_reason="stop",
         usage=LLMTokenUsage(input_tokens=40, output_tokens=20),
     )
+
+
+def test_recording_client_counts_failed_provider_attempts_against_budget() -> None:
+    client = RecordingClient(
+        FakeLLMClient(
+            [
+                LLMClientError(
+                    LLMErrorCode.TIMEOUT,
+                    "Synthetic timeout.",
+                    provider="fake",
+                    retryable=True,
+                ),
+                _response('{"status":"final"}'),
+            ]
+        ),
+        max_calls=1,
+    )
+    request = LLMRequest(
+        model="same-fake-model",
+        messages=[LLMMessage(role=LLMRole.USER, content="Return JSON.")],
+    )
+
+    with pytest.raises(LLMClientError):
+        client.complete(request)
+    with pytest.raises(RuntimeError, match="budget exhausted"):
+        client.complete(request)
+
+    assert client.attempt_count == 1
+    assert client.responses == []
+    assert _usage(client)["model_calls"] == 1
 
 
 def test_all_outcome_cases_route_to_the_expected_first_shared_tool() -> None:
@@ -295,7 +328,7 @@ def test_blind_review_packet_separates_condition_identity(tmp_path: Path) -> Non
     }
 
 
-def test_both_full_outcome_conditions_execute_and_pass_offline() -> None:
+def test_both_conditions_pass_and_polya_closes_attested_evidence_without_model() -> None:
     case = _load_cases(None)[1]
     source_uri = "fixture://chapter-13c-outcome/pagination_outcome/inspector"
     polya_responses = [
@@ -308,25 +341,20 @@ def test_both_full_outcome_conditions_execute_and_pass_offline() -> None:
                 "expected_signals": ["Page 2 begins after two page widths."],
                 "verification_checks": ["Compare the expression with one-based indexing."],
                 "falsification_criteria": ["The implementation already subtracts one."]
-              }]
-            }"""
-        ),
-        _response(
-            """{
+              }],
               "tasks": [{
                 "id": "check-pagination-offset",
                 "action": "Check the proposed correction against the inspected expression.",
-                "tool_name": "executor",
+                "tool_name": "deliberator",
                 "params": {},
                 "expected_output": "A source-grounded corrected offset.",
                 "risk_level": "low"
+              }],
+              "execution_outputs": [{
+                "task_id": "check-pagination-offset",
+                "summary": "The inspected expression is off by one page.",
+                "output": {"corrected_expression": "(page - 1) * page_size"}
               }]
-            }"""
-        ),
-        _response(
-            """{
-              "summary": "The inspected expression is off by one page.",
-              "output": {"corrected_expression": "(page - 1) * page_size"}
             }"""
         ),
         _response(
@@ -338,11 +366,7 @@ def test_both_full_outcome_conditions_execute_and_pass_offline() -> None:
                 "contradictions": [],
                 "confidence_delta": 0.3
               },
-              "final_answer": "Replace the faulty offset with (page - 1) * page_size."
-            }"""
-        ),
-        _response(
-            """{
+              "final_answer": "Replace the faulty offset with (page - 1) * page_size.",
               "reflection": {
                 "outcome_summary": "The pagination defect was source-grounded and verified.",
                 "what_worked": ["Inspected the failing expression."],
@@ -387,5 +411,6 @@ def test_both_full_outcome_conditions_execute_and_pass_offline() -> None:
     assert parse_error is None
     assert _score_polya(case, polya_result)["passed"] is True
     assert _score_direct(case, direct_final, direct_history)["passed"] is True
-    assert len(polya_client.responses) == 5
+    assert len(polya_client.responses) == 0
+    assert polya_client.attempt_count == 0
     assert len(direct_client.responses) == 2

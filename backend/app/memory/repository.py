@@ -16,6 +16,13 @@ from app.cognition.contracts import (
     LearnedActionPreference,
     ObservationStatus,
 )
+from app.cognition.procedure_compiler import (
+    PROCEDURE_COMPILED_EVENT,
+    PROCEDURE_REPLAYED_EVENT,
+    CompiledProcedure,
+    ProcedureLifecycle,
+    procedure_integrity_valid,
+)
 from app.db.models import (
     EpisodicMemory,
     KnowledgeChunk,
@@ -343,9 +350,83 @@ class SQLAlchemyMemoryRepository:
             )
             self._db_session.add(episode)
 
+        self._store_compiled_procedure_artifacts(session_id, state)
         self._learn_procedures(session_id, state)
         self._db_session.flush()
         return True
+
+    def _store_compiled_procedure_artifacts(
+        self,
+        session_id: UUID,
+        state: PolyaState,
+    ) -> None:
+        """Persist trace-validated compiled artifacts as untrusted playbooks first."""
+        for event in state["events"]:
+            if event.event_type not in {PROCEDURE_COMPILED_EVENT, PROCEDURE_REPLAYED_EVENT}:
+                continue
+            try:
+                procedure = CompiledProcedure.model_validate(event.metadata)
+            except ValueError:
+                continue
+            if not procedure_integrity_valid(procedure):
+                continue
+            capability = f"compiled_procedure:{procedure.id}"
+            existing = self._db_session.scalar(
+                select(ProceduralStrategy).where(
+                    ProceduralStrategy.problem_type == procedure.task_family,
+                    ProceduralStrategy.gap_type == "compiled_procedure",
+                    ProceduralStrategy.action_type == CognitiveActionType.EXECUTE.value,
+                    ProceduralStrategy.capability == capability,
+                )
+            )
+            trusted = procedure.lifecycle in {
+                ProcedureLifecycle.VERIFIED,
+                ProcedureLifecycle.DEPLOYED,
+                ProcedureLifecycle.MONITORED,
+            }
+            passing_replays = len(
+                {item.case_id for item in procedure.regression_cases if item.verification_passed}
+            )
+            source_ids = list(dict.fromkeys([*procedure.source_session_ids, str(session_id)]))
+            steps = [{"compiled_procedure": procedure.model_dump(mode="json")}]
+            preconditions = [
+                f"task_family={procedure.task_family}",
+                *procedure.safety_constraints,
+            ]
+            if existing is None:
+                self._db_session.add(
+                    ProceduralStrategy(
+                        name=f"compiled:{procedure.id}:v{procedure.version}",
+                        problem_type=procedure.task_family,
+                        gap_type="compiled_procedure",
+                        action_type=CognitiveActionType.EXECUTE.value,
+                        capability=capability,
+                        preconditions=preconditions,
+                        steps=steps,
+                        verified_successes=passing_replays if trusted else 0,
+                        verified_failures=0,
+                        success_rate=1.0 if trusted else 0.0,
+                        source_session_ids=source_ids,
+                    )
+                )
+                continue
+            stored_payload = (
+                existing.steps[0].get("compiled_procedure")
+                if existing.steps and isinstance(existing.steps[0], dict)
+                else None
+            )
+            stored_version = (
+                stored_payload.get("version", 0) if isinstance(stored_payload, dict) else 0
+            )
+            if isinstance(stored_version, int) and stored_version > procedure.version:
+                continue
+            existing.name = f"compiled:{procedure.id}:v{procedure.version}"
+            existing.preconditions = preconditions
+            existing.steps = steps
+            existing.verified_successes = passing_replays if trusted else 0
+            existing.success_rate = 1.0 if trusted else 0.0
+            existing.source_session_ids = source_ids
+            existing.updated_at = utc_now()
 
     def _learn_procedures(self, session_id: UUID, state: PolyaState) -> None:
         problem = state["structured_problem"]

@@ -1,0 +1,2 @@
+Orinox Service Manual — Diagnostic M-42
+Required corrective action for M-42: purge the amber coolant loop for 9 seconds.

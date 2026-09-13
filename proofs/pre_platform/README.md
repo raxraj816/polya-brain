@@ -1,15 +1,17 @@
 # Pre-Platform Proof Harness
 
-This is the executable proof gate before full platform infrastructure.
+This is the historical curated-template proof before full platform infrastructure.
+Its reports demonstrate the artifact shape; they do not run the production
+Cognitive Runtime. Use `./polyabrain investigate` for a real runtime outcome.
 
 It tests whether a thin PolyaBrain investigation loop can produce a more
 auditable artifact than a direct model-style answer on the same realistic
 technical investigation case.
 
-## Run A Free-Form Investigation
+## Run A Free-Form Template Demonstration
 
 ```bash
-./polyabrain investigate "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?" --clean
+./polyabrain proof "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?" --clean
 python3 proofs/pre_platform/verify_pre_platform_proof.py --run-dir proofs/pre_platform/runs/our_api_p95_latency_jumped_after_deploy
 ```
 
@@ -43,10 +45,10 @@ Generated artifacts:
 ## Run Curated Cases
 
 ```bash
-./polyabrain investigate --case proofs/pre_platform/cases/deploy_healthcheck_regression.json --clean
-./polyabrain investigate --case proofs/pre_platform/cases/memory_growth_worker.json --clean
-./polyabrain investigate --case proofs/pre_platform/cases/search_ranking_drop.json --clean
-./polyabrain investigate --case proofs/pre_platform/cases/billing_webhook_duplicates.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/deploy_healthcheck_regression.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/memory_growth_worker.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/search_ranking_drop.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/billing_webhook_duplicates.json --clean
 python3 proofs/pre_platform/verify_pre_platform_proof.py --all
 ```
 
@@ -64,14 +66,14 @@ To force an OpenRouter baseline:
 set -a
 . ./.env
 set +a
-./polyabrain investigate --case proofs/pre_platform/cases/cache_investigation.json \
+./polyabrain proof --case proofs/pre_platform/cases/cache_investigation.json \
   --baseline-provider openrouter --clean
 ```
 
 To force a real OpenAI baseline:
 
 ```bash
-OPENAI_API_KEY=... ./polyabrain investigate "Investigate this technical problem..." --baseline-provider openai --clean
+OPENAI_API_KEY=... ./polyabrain proof "Investigate this technical problem..." --baseline-provider openai --clean
 ```
 
 To smoke-test the OpenAI-compatible HTTP runner without an external API call:

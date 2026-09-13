@@ -40,6 +40,7 @@ class LLMRequestOptions(ContractModel):
     max_output_tokens: PositiveTokenCount = 1024
     json_mode: bool = False
     timeout_seconds: PositiveSeconds = 30.0
+    total_timeout_seconds: PositiveSeconds | None = None
     max_retries: BoundedRetryCount = 2
     initial_retry_delay_seconds: NonNegativeSeconds = 0.25
     max_retry_delay_seconds: PositiveSeconds = 4.0
@@ -91,3 +92,13 @@ class LLMResponse(ContractModel):
     response_id: NonEmptyStr | None = None
     finish_reason: NonEmptyStr | None = None
     duration_ms: Annotated[float, Field(ge=0.0)] = 0.0
+
+
+class LLMRouteAttemptTelemetry(ContractModel):
+    """Safe non-content telemetry for one explicitly configured model route."""
+
+    route: NonEmptyStr
+    succeeded: bool
+    duration_ms: Annotated[float, Field(ge=0.0)]
+    provider_attempts: NonNegativeInt
+    failure_kind: NonEmptyStr | None = None

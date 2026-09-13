@@ -83,6 +83,8 @@ def get_session_service(
         ),
         semantic_memory=memory_repository,
         procedural_memory=memory_repository,
+        performance_ledger=request.app.state.capability_performance_ledger,
+        semantic_route_health_ledger=request.app.state.semantic_route_health_ledger,
     )
     return PolyaSessionService(
         db_session,

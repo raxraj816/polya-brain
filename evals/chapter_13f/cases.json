@@ -1,0 +1,86 @@
+[
+  {
+    "id": "healthy-api-schema",
+    "problem_type": "api_schema_research",
+    "condition": "healthy",
+    "question": "What is the current supported schema behavior?",
+    "gap": "the current supported schema behavior"
+  },
+  {
+    "id": "healthy-runtime-policy",
+    "problem_type": "runtime_policy_research",
+    "condition": "healthy",
+    "question": "What is the current public runtime policy?",
+    "gap": "the current public runtime policy"
+  },
+  {
+    "id": "healthy-provider-limit",
+    "problem_type": "provider_limit_research",
+    "condition": "healthy",
+    "question": "What is the current official provider limit?",
+    "gap": "the current official provider limit"
+  },
+  {
+    "id": "degraded-auth-behavior",
+    "problem_type": "auth_behavior_research",
+    "condition": "degraded",
+    "question": "What is the current supported authentication behavior?",
+    "gap": "the current supported authentication behavior"
+  },
+  {
+    "id": "degraded-version-support",
+    "problem_type": "version_support_research",
+    "condition": "degraded",
+    "question": "What is the current public version support rule?",
+    "gap": "the current public version support rule"
+  },
+  {
+    "id": "degraded-service-status",
+    "problem_type": "service_status_research",
+    "condition": "degraded",
+    "question": "What is the current official service status behavior?",
+    "gap": "the current official service status behavior"
+  },
+  {
+    "id": "recovered-rate-policy",
+    "problem_type": "rate_policy_research",
+    "condition": "recovered",
+    "question": "What is the current supported rate policy?",
+    "gap": "the current supported rate policy"
+  },
+  {
+    "id": "recovered-routing-rule",
+    "problem_type": "routing_rule_research",
+    "condition": "recovered",
+    "question": "What is the current public routing rule?",
+    "gap": "the current public routing rule"
+  },
+  {
+    "id": "recovered-retention-policy",
+    "problem_type": "retention_policy_research",
+    "condition": "recovered",
+    "question": "What is the current official retention policy?",
+    "gap": "the current official retention policy"
+  },
+  {
+    "id": "changed-api-compatibility",
+    "problem_type": "api_compatibility_research",
+    "condition": "version_changed",
+    "question": "What is the current supported compatibility behavior?",
+    "gap": "the current supported compatibility behavior"
+  },
+  {
+    "id": "changed-region-support",
+    "problem_type": "region_support_research",
+    "condition": "version_changed",
+    "question": "What is the current public region support rule?",
+    "gap": "the current public region support rule"
+  },
+  {
+    "id": "changed-feature-policy",
+    "problem_type": "feature_policy_research",
+    "condition": "version_changed",
+    "question": "What is the current official feature policy?",
+    "gap": "the current official feature policy"
+  }
+]

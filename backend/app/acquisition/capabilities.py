@@ -6,6 +6,7 @@ import hashlib
 import re
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
+from typing import cast
 from urllib.parse import urlsplit
 
 from pydantic import JsonValue
@@ -23,15 +24,23 @@ from app.acquisition.providers import SearchProvider, SearchProviderError
 from app.cognition.capabilities import FunctionCapability
 from app.cognition.contracts import (
     CapabilityDefinition,
+    CapabilityKind,
     CognitiveActionCandidate,
     CognitiveActionType,
     CognitiveObservation,
     CognitiveStateUpdate,
     ObservationStatus,
 )
+from app.cognition.epistemic_control import (
+    EPISTEMIC_CONTROL_POLICY_VERSION,
+    EpistemicStatus,
+    derive_epistemic_requirement,
+    derive_epistemic_status,
+    epistemic_query_directive,
+)
 from app.cognition.model_gateway import CognitiveModelGateway
 from app.graph.state import PolyaState, StateEvent
-from app.models.contracts import EvidenceItem, ReasoningMode, RiskLevel
+from app.models.contracts import EvidenceItem, KnowledgeGap, ReasoningMode, RiskLevel
 
 ACQUISITION_EVENT = "evidence_candidates_acquired"
 EVALUATION_EVENT = "evidence_evaluation_completed"
@@ -72,13 +81,23 @@ def _candidate_count(state: PolyaState) -> int:
     return count
 
 
-def _bounded_query(action: CognitiveActionCandidate, state: PolyaState) -> str:
+def _active_gap(state: PolyaState, target: str) -> KnowledgeGap | None:
+    return next((gap for gap in state["gaps"] if gap.description == target), None)
+
+
+def _bounded_query(
+    action: CognitiveActionCandidate,
+    state: PolyaState,
+) -> tuple[str, EpistemicStatus | None, str]:
     """Turn the selected gap into a provider-safe query without model control."""
     problem = state["structured_problem"]
     core = problem.core_question if problem is not None else state["raw_input"]
-    query = f"{action.target} {core} authoritative source"
+    gap = _active_gap(state, action.target)
+    status = derive_epistemic_status(state, gap) if gap is not None else None
+    directive = epistemic_query_directive(status) if status is not None else "authoritative source"
+    query = f"{action.target} {core} {directive}"
     words = query.split()[:50]
-    return " ".join(words)[:400].strip()
+    return " ".join(words)[:400].strip(), status, directive
 
 
 def web_search_capability(
@@ -97,6 +116,8 @@ def web_search_capability(
         approved_for_sensitive_data=False,
         timeout_seconds=20.0,
         estimated_cost=0.12,
+        kind=CapabilityKind.EXTERNAL,
+        max_external_calls=1,
     )
 
     def execute(
@@ -113,10 +134,11 @@ def web_search_capability(
                 capability_version=definition.version,
                 status=ObservationStatus.BLOCKED,
                 summary="Per-run research budget is exhausted.",
+                payload={"external_calls": 0},
                 failure_kind="research_budget_exhausted",
             )
 
-        query = _bounded_query(action, state)
+        query, epistemic_status, query_directive = _bounded_query(action, state)
         acquisition_id = (
             "acq-"
             + hashlib.sha256(
@@ -135,6 +157,14 @@ def web_search_capability(
                 "max_queries": resolved_budget.max_queries,
                 "target_gap": action.target,
                 "provider": provider.name,
+                "epistemic_policy_version": EPISTEMIC_CONTROL_POLICY_VERSION,
+                "residual_epistemic_need": (
+                    epistemic_status.residual_need.value if epistemic_status is not None else None
+                ),
+                "epistemic_no_progress_batches": (
+                    epistemic_status.no_progress_batches if epistemic_status is not None else 0
+                ),
+                "query_strategy": query_directive,
             },
         )
         request = SearchRequest(
@@ -180,6 +210,7 @@ def web_search_capability(
                 "target_gap": action.target,
                 "query": response.query,
                 "provider": response.provider,
+                "source_type": "web_search",
                 "candidate_count": len(response.candidates),
                 "candidates": [
                     EvidenceCandidate(
@@ -207,6 +238,7 @@ def web_search_capability(
                 "acquisition_id": acquisition_id,
                 "candidate_count": len(response.candidates),
                 "provider": response.provider,
+                "external_calls": 1,
             },
             proposed_update=CognitiveStateUpdate(trace_events_to_add=[started, acquired]),
         )
@@ -222,6 +254,31 @@ def _pending_batch(state: PolyaState, acquisition_id: str) -> StateEvent | None:
         ):
             return event
     return None
+
+
+def _evaluations_for_target(state: PolyaState, target: str) -> list[StateEvent]:
+    acquisition_ids = {
+        acquisition_id
+        for event in state["events"]
+        if event.event_type == ACQUISITION_EVENT
+        and event.metadata.get("target_gap") == target
+        and isinstance((acquisition_id := event.metadata.get("acquisition_id")), str)
+    }
+    return [
+        event
+        for event in state["events"]
+        if event.event_type == EVALUATION_EVENT
+        and event.metadata.get("acquisition_id") in acquisition_ids
+    ]
+
+
+def _trace_string_values(events: list[StateEvent], key: str) -> set[str]:
+    values: set[str] = set()
+    for event in events:
+        raw_values = event.metadata.get(key)
+        if isinstance(raw_values, list):
+            values.update(str(item) for item in raw_values)
+    return values
 
 
 def _source_reliability(url: str) -> float:
@@ -290,14 +347,39 @@ def _claims_corroborate(left: EvidenceCandidate, right: EvidenceCandidate) -> bo
 
 def _extract_claim(candidate: EvidenceCandidate, target: str) -> str:
     passages = [
-        passage.strip()
+        re.sub(r"^\s*\d+:\s?", "", passage).strip()
         for passage in re.split(r"(?<=[.!?])\s+|\n+", candidate.excerpt)
         if passage.strip()
     ]
     if not passages:
         return candidate.excerpt
     target_terms = _terms(target)
-    return max(passages, key=lambda passage: _overlap(target_terms, _terms(passage)))
+
+    def claim_score(passage: str) -> float:
+        passage_terms = _terms(passage)
+        target_coverage = (
+            len(target_terms & passage_terms) / len(target_terms) if target_terms else 0.0
+        )
+        informative_signal = 0.0
+        if "=" in passage:
+            informative_signal += 0.2
+        if _NUMBER.search(passage) is not None:
+            informative_signal += 0.04
+        if passage_terms & {
+            "approval",
+            "ceiling",
+            "interval",
+            "purge",
+            "required",
+            "requires",
+            "reseat",
+            "states",
+            "timeout",
+        }:
+            informative_signal += 0.16
+        return target_coverage + informative_signal
+
+    return max(passages, key=claim_score)
 
 
 def _temporal_validity(
@@ -368,6 +450,9 @@ def evidence_evaluator_capability(
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
         estimated_cost=0.03,
+        kind=CapabilityKind.MODEL if gateway is not None else CapabilityKind.DETERMINISTIC,
+        max_model_calls=2 if gateway is not None else 0,
+        max_output_tokens=2400 if gateway is not None else 0,
     )
 
     def execute(
@@ -393,8 +478,10 @@ def evidence_evaluator_capability(
                 candidates.append(EvidenceCandidate.model_validate(item))
             except ValueError:
                 continue
-        batch_is_web = bool(candidates) and all(
-            candidate.source_type == "web_search_result" for candidate in candidates
+        batch_is_web = bool(
+            batch.metadata.get("source_type") == "web_search"
+            or candidates
+            and all(candidate.source_type == "web_search_result" for candidate in candidates)
         )
 
         target_for_relevance = batch.metadata.get("target_gap")
@@ -411,11 +498,12 @@ def evidence_evaluator_capability(
         }
         semantic_model_used = False
         model_gap_supported: bool | None = None
-        if (
-            gateway is not None
-            and candidates
-            and (batch_is_web or model_approved_for_sensitive_data)
-        ):
+        model_payload: JsonValue = {"procedure": "deterministic", "model_calls": 0}
+        model_evaluation_allowed = batch_is_web or (
+            model_approved_for_sensitive_data
+            and any(candidate.source_type != "local_text_artifact" for candidate in candidates)
+        )
+        if gateway is not None and candidates and model_evaluation_allowed:
             candidate_context: list[JsonValue] = [
                 candidate.model_dump(mode="json") for candidate in candidates
             ]
@@ -457,6 +545,12 @@ def evidence_evaluator_capability(
             }
             semantic_model_used = True
             model_gap_supported = result.output.gap_supported
+            model_payload = {
+                "provider": result.provider,
+                "model": result.model,
+                "usage": result.usage.model_dump(mode="json"),
+                "model_calls": result.model_calls,
+            }
 
         existing_uris = {item.source_uri for item in comparison_evidence if item.source_uri}
         accepted: list[EvidenceItem] = []
@@ -513,6 +607,11 @@ def evidence_evaluator_capability(
 
         target_gap = batch.metadata.get("target_gap")
         target = target_gap if isinstance(target_gap, str) and target_gap.strip() else None
+        active_gap = _active_gap(state, target) if target is not None else None
+        requirement = (
+            derive_epistemic_requirement(state, active_gap) if active_gap is not None else None
+        )
+        prior_evaluations = _evaluations_for_target(state, target) if target is not None else []
         total_independent_web_sources = len(
             {
                 urlsplit(item.source_uri).hostname
@@ -528,18 +627,35 @@ def evidence_evaluator_capability(
             }
         )
         independent_count = total_independent_web_sources if batch_is_web else total_local_artifacts
-        required_count = 2 if batch_is_web else 1
-        contradiction_pairs: list[JsonValue] = []
-        corroborating_pairs: list[JsonValue] = []
+        required_count = (
+            requirement.minimum_independent_sources
+            if requirement is not None
+            else 2
+            if batch_is_web
+            else 1
+        )
+        prior_contradictions = _trace_string_values(prior_evaluations, "contradiction_pairs")
+        prior_corroboration = _trace_string_values(prior_evaluations, "corroborating_pairs")
+        contradiction_pairs: list[str] = sorted(prior_contradictions)
+        corroborating_pairs: list[str] = sorted(prior_corroboration)
         for index, left in enumerate(accepted_candidates):
             for right in accepted_candidates[index + 1 :]:
                 pair = f"{left.id} <-> {right.id}"
-                if _claims_contradict(left, right):
+                left_claim = left.model_copy(
+                    update={"excerpt": assessments[left.id].extracted_claim}
+                )
+                right_claim = right.model_copy(
+                    update={"excerpt": assessments[right.id].extracted_claim}
+                )
+                if _claims_contradict(left_claim, right_claim):
                     contradiction_pairs.append(pair)
-                elif _claims_corroborate(left, right):
+                elif _claims_corroborate(left_claim, right_claim):
                     corroborating_pairs.append(pair)
         for candidate in accepted_candidates:
             assessment = assessments[candidate.id]
+            assessed_candidate = candidate.model_copy(
+                update={"excerpt": assessment.extracted_claim}
+            )
             for contradicted_id in assessment.contradicts_candidate_ids:
                 pair = f"{candidate.id} <-> {contradicted_id}"
                 if pair not in contradiction_pairs:
@@ -550,13 +666,17 @@ def evidence_evaluator_capability(
                     source_type=existing.source_type,
                     source_uri=existing.source_uri or f"state:evidence:{evidence_index}",
                     title="Existing canonical evidence",
-                    excerpt=existing.raw_excerpt or existing.claim,
+                    excerpt=existing.claim,
                     source_rank=evidence_index,
                 )
-                if _claims_contradict(candidate, existing_candidate):
+                if _claims_contradict(assessed_candidate, existing_candidate):
                     pair = f"{candidate.id} <-> existing-evidence-{evidence_index}"
                     if pair not in contradiction_pairs:
                         contradiction_pairs.append(pair)
+                elif _claims_corroborate(assessed_candidate, existing_candidate):
+                    pair = f"{candidate.id} <-> existing-evidence-{evidence_index}"
+                    if pair not in corroborating_pairs:
+                        corroborating_pairs.append(pair)
         supporting_candidates = [
             candidate
             for candidate in accepted_candidates
@@ -564,15 +684,46 @@ def evidence_evaluator_capability(
             and assessments[candidate.id].temporal_validity
             in {TemporalValidity.CURRENT, TemporalValidity.TIMELESS}
         ]
+        current_supporting_source_keys = {
+            (urlsplit(candidate.source_uri).hostname or candidate.source_uri).casefold()
+            for candidate in supporting_candidates
+        }
+        prior_current_supporting_source_keys = _trace_string_values(
+            prior_evaluations,
+            "current_supporting_source_keys",
+        )
+        total_current_supporting_source_keys = (
+            prior_current_supporting_source_keys | current_supporting_source_keys
+        )
+        current_authoritative_source_keys = {
+            (urlsplit(candidate.source_uri).hostname or candidate.source_uri).casefold()
+            for candidate in supporting_candidates
+            if assessments[candidate.id].reliability_score >= 0.8
+        }
+        prior_authoritative_source_keys = _trace_string_values(
+            prior_evaluations,
+            "authoritative_source_keys",
+        )
+        authoritative_source_keys = (
+            prior_authoritative_source_keys | current_authoritative_source_keys
+        )
         semantic_gate = bool(corroborating_pairs) if batch_is_web else bool(accepted)
         if batch_is_web and semantic_model_used:
-            semantic_gate = bool(model_gap_supported) and len(supporting_candidates) >= 2
-        temporal_gate = len(supporting_candidates) >= required_count
+            semantic_gate = bool(model_gap_supported) and (
+                len(total_current_supporting_source_keys) >= required_count
+            )
+        temporal_gate = len(total_current_supporting_source_keys) >= required_count
+        authority_gate = bool(
+            requirement is None
+            or not requirement.requires_authoritative_source
+            or authoritative_source_keys
+        )
         resolves = bool(
             target
             and independent_count >= required_count
             and semantic_gate
             and temporal_gate
+            and authority_gate
             and not contradiction_pairs
         )
         evaluated = StateEvent(
@@ -589,10 +740,22 @@ def evidence_evaluator_capability(
                 "near_duplicate_count": duplicate_count,
                 "independent_source_count": independent_count,
                 "required_source_count": required_count,
-                "corroborating_pairs": corroborating_pairs,
-                "contradiction_pairs": contradiction_pairs,
+                "corroborating_pairs": cast(JsonValue, corroborating_pairs),
+                "contradiction_pairs": cast(JsonValue, contradiction_pairs),
                 "semantic_gate_passed": semantic_gate,
                 "temporal_gate_passed": temporal_gate,
+                "authority_gate_passed": authority_gate,
+                "current_supporting_source_keys": cast(
+                    JsonValue,
+                    sorted(total_current_supporting_source_keys),
+                ),
+                "authoritative_source_keys": cast(
+                    JsonValue,
+                    sorted(authoritative_source_keys),
+                ),
+                "epistemic_requirement": (
+                    requirement.model_dump(mode="json") if requirement is not None else None
+                ),
                 "semantic_model_used": semantic_model_used,
                 "memory_crosscheck_count": len(memory_evidence),
                 "assessments": [
@@ -600,9 +763,9 @@ def evidence_evaluator_capability(
                 ],
                 "gap_resolved": resolves,
                 "limitation": (
-                    "Source quality, lexical relevance, independence, bounded corroboration, "
-                    "and obvious numeric/negation conflicts were checked. Full semantic, "
-                    "temporal, and factual verification remains mandatory."
+                    "Source quality, lexical relevance, independence, authority, bounded "
+                    "corroboration, and obvious numeric/negation conflicts were checked. "
+                    "Full semantic, temporal, and factual verification remains mandatory."
                 ),
             },
         )
@@ -613,6 +776,7 @@ def evidence_evaluator_capability(
             capability_version=definition.version,
             status=status,
             summary=evaluated.summary,
+            payload=model_payload,
             evidence=accepted,
             failure_kind="no_acceptable_candidates" if not accepted else None,
             proposed_update=CognitiveStateUpdate(

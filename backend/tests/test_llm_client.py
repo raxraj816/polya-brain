@@ -75,6 +75,7 @@ def test_llm_contracts_round_trip_and_compute_total_usage() -> None:
         ("temperature", 2.1),
         ("max_output_tokens", 0),
         ("timeout_seconds", 0),
+        ("total_timeout_seconds", 0),
         ("max_retries", 6),
         ("initial_retry_delay_seconds", -0.1),
     ],
@@ -135,6 +136,41 @@ def test_retryable_failures_use_bounded_exponential_backoff() -> None:
     assert response == successful_response()
     assert delays == [0.25, 0.5]
     assert len(client.requests) == 3
+
+
+def test_total_deadline_clamps_attempt_timeout_and_stops_retry_backoff() -> None:
+    now = 0.0
+
+    def clock() -> float:
+        return now
+
+    def advance(seconds: float) -> None:
+        nonlocal now
+        now += seconds
+
+    timeout = LLMClientError(
+        LLMErrorCode.TIMEOUT,
+        "Provider timed out.",
+        provider="fake",
+        retryable=True,
+    )
+    client = FakeLLMClient([timeout, timeout, successful_response()])
+    request = request_with(
+        timeout_seconds=12.0,
+        total_timeout_seconds=0.6,
+        max_retries=2,
+        initial_retry_delay_seconds=0.25,
+        max_retry_delay_seconds=1.0,
+    )
+
+    with pytest.raises(LLMClientError) as exc_info:
+        complete_with_retry(client, request, sleep=advance, clock=clock)
+
+    assert exc_info.value.code is LLMErrorCode.TIMEOUT
+    assert exc_info.value.retryable is False
+    assert len(client.requests) == 2
+    assert client.requests[0].options.timeout_seconds == pytest.approx(0.6)
+    assert client.requests[1].options.timeout_seconds == pytest.approx(0.35)
 
 
 def test_provider_retry_after_is_honored_within_request_delay_cap() -> None:

@@ -9,6 +9,7 @@ from app.llm import (
     FakeLLMClient,
     LLMClientError,
     LLMErrorCode,
+    LLMRequestOptions,
     LLMResponse,
     LLMTokenUsage,
 )
@@ -180,6 +181,41 @@ def test_zero_parser_retries_stops_after_first_invalid_response() -> None:
         )
 
     assert exc_info.value.code is LLMErrorCode.MALFORMED_RESPONSE
+    assert len(client.requests) == 1
+
+
+def test_parser_repair_cannot_restart_the_total_deadline(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client = FakeLLMClient(
+        [
+            response("not-json", response_id="invalid"),
+            response(
+                PROBLEM_UNDERSTANDING_EXAMPLES[0].output.model_dump_json(),
+                response_id="must-not-run",
+            ),
+        ]
+    )
+    clock = iter([0.0, 2.0])
+    monkeypatch.setattr(
+        "app.problem_understanding.service.time.perf_counter",
+        lambda: next(clock),
+    )
+
+    with pytest.raises(LLMClientError) as exc_info:
+        generate_problem_understanding(
+            client,
+            create_initial_state("Investigate a failure."),
+            model="fake-problem-model",
+            request_options=LLMRequestOptions(
+                json_mode=True,
+                total_timeout_seconds=1.0,
+                max_retries=0,
+            ),
+            sleep=lambda _: None,
+        )
+
+    assert exc_info.value.code is LLMErrorCode.TIMEOUT
     assert len(client.requests) == 1
 
 

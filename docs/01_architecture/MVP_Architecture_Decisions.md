@@ -6,7 +6,9 @@ Source of truth: `../../PolyaBrain_Product_Implementation_Master_Plan.md`
 
 ## MVP Shape
 
-Build PolyaBrain Core Platform first as a modular monolith:
+Build **PolyaBrain Investigator** through the **PolyaBrain Cognitive Runtime** as
+a modular monolith. This is the implementation shape of the first product, not
+a decision to build a broad platform before proving user value:
 
 - One Python/FastAPI backend.
 - One LangGraph state machine.
@@ -19,10 +21,29 @@ Build PolyaBrain Core Platform first as a modular monolith:
 
 The code should be modular by engine, but deployment should stay simple until the end-to-end loop is useful.
 
+After the local product proof, the initial delivery target is a managed cloud
+product and API. Runtime, capability, persistence, and provider boundaries must
+remain portable to Indian or other sovereign cloud, enterprise private cloud,
+and local execution. No model vendor or cloud provider owns the cognitive loop.
+
+“PolyaBrain Intelligence OS” describes the eventual governed capability and
+application platform. It is not MVP positioning and may be claimed only after
+dependent applications, developers, and cross-domain proof exist.
+
 ## Build Now
 
 - A domain-independent cognitive controller that selects state-dependent
   actions; models and external systems remain replaceable capabilities.
+- A trace-derived temporary task model and hard per-run resource ledger kept in
+  the experimental cognitive layer rather than duplicated in core state.
+- Impasse-driven knowledge acquisition: retrieve or observe only when a
+  verification-blocking gap exists, and select among memory, artifacts, APIs,
+  web, calculation, measurement, simulation, experiment, code, and human input.
+- Deterministic cognition for known procedures and fused semantic calls for
+  compatible stages; nine logical engine responsibilities never imply nine
+  model calls.
+- Verified procedural consolidation whose transfer must be rechecked on the
+  current task.
 - An experimental cognitive-action model and capability registry kept outside
   core contracts until cross-domain evaluation proves promotion.
 - Typed engine interfaces.
@@ -54,6 +75,7 @@ The code should be modular by engine, but deployment should stay simple until th
 - Multi-agent debate.
 - Autonomous production changes.
 - Real PII storage.
+- A broad capability marketplace or Intelligence OS positioning.
 
 ## Memory Decision
 
@@ -81,6 +103,11 @@ The MVP implementation uses nine logical modules:
 
 Each engine needs typed input/output, tests, prompts, and telemetry.
 
+An engine is a logical responsibility, not a required provider invocation.
+Several compatible responsibilities may share one schema-validated semantic
+call, while a known deterministic procedure may satisfy an engine with zero
+model calls. The audit trace must disclose which occurred.
+
 The engines do not own the run independently. The cognitive controller owns
 selection of the next action from canonical state. Engine, model, memory, and
 tool results enter as observations and cannot directly finalize, verify, or
@@ -90,9 +117,17 @@ Creative problem-solving behavior belongs inside these engines, not in a separat
 
 ## Product Boundary
 
-PolyaBrain is the core problem-solving platform. Domain-specific behavior belongs in use-case packs only.
+PolyaBrain Investigator is the initial user-facing product. The PolyaBrain
+Cognitive Runtime is its domain-independent intelligence core. The managed cloud
+service is the initial delivery model. Language models, tools, knowledge sources,
+and infrastructure providers are replaceable capabilities rather than product
+identity.
 
 Payment fraud, coding contests, DevOps incidents, compliance, research, tutoring, and enterprise decision support are validation or packaging surfaces, not separate core architectures.
+
+The architecture wins only when it improves verified outcomes per unit of total
+cost and user effort. General-purpose intelligence and Intelligence OS are
+measured future claims, not properties conferred by modular architecture.
 
 ## Source-Of-Truth Rule
 

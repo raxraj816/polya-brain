@@ -243,7 +243,10 @@ class OpenRouterLLMClient:
             "model": request.model,
             "messages": [message.model_dump(mode="json") for message in request.messages],
             "temperature": request.options.temperature,
-            "max_completion_tokens": request.options.max_output_tokens,
+            # OpenRouter's provider eligibility metadata currently standardizes
+            # this portable field as ``max_tokens``. Using the newer alias can
+            # eliminate otherwise compatible routes when require_parameters is on.
+            "max_tokens": request.options.max_output_tokens,
             "stream": False,
             "provider": provider,
         }

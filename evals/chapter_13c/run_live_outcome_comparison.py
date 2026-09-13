@@ -32,9 +32,11 @@ from app.cognition import (
     CognitiveStateUpdate,
     FunctionCapability,
     ObservationStatus,
+    TrustedEvidenceAttester,
+    deterministic_evidence_attestation_event,
 )
 from app.cognition.kernel import CognitiveKernel, CognitiveRunResult
-from app.cognition.model_capabilities import model_reasoning_capabilities
+from app.cognition.on_demand_capabilities import on_demand_cognitive_capabilities
 from app.config import Settings
 from app.graph.state import PolyaState, StateEvent, create_initial_state
 from app.llm import (
@@ -98,12 +100,14 @@ class RecordingClient:
         self.provider = delegate.provider
         self.capabilities = delegate.capabilities
         self.max_calls = max_calls
+        self.attempt_count = 0
         self.responses: list[LLMResponse] = []
         self.errors: list[LLMClientError] = []
 
     def complete(self, request: LLMRequest) -> LLMResponse:
-        if self.max_calls is not None and len(self.responses) >= self.max_calls:
+        if self.max_calls is not None and self.attempt_count >= self.max_calls:
             raise RuntimeError("evaluation model-call budget exhausted")
+        self.attempt_count += 1
         try:
             response = self.delegate.complete(request)
         except LLMClientError as exc:
@@ -212,26 +216,36 @@ def _fixture_executor(
             )
         observation = str(spec["observation"])
         source_uri = _fixture_uri(case, name)
+        evidence = EvidenceItem(
+            source_type="chapter_13c_outcome_fixture",
+            source_uri=source_uri,
+            claim=observation,
+            raw_excerpt=observation,
+            reliability_score=1.0,
+            relevance_score=1.0,
+        )
+        criteria = [str(item) for item in case["success_criteria"]]
+        checks = [f"Deterministic fixture covers criterion: {criterion}" for criterion in criteria]
         return CognitiveObservation(
             action_id=action.id,
             capability=name,
             capability_version=definition.version,
             status=ObservationStatus.SUCCEEDED,
             summary=observation,
-            evidence=[
-                EvidenceItem(
-                    source_type="chapter_13c_outcome_fixture",
-                    source_uri=source_uri,
-                    claim=observation,
-                    raw_excerpt=observation,
-                    reliability_score=1.0,
-                    relevance_score=1.0,
-                )
-            ],
+            evidence=[evidence],
             proposed_update=CognitiveStateUpdate(
                 knowns_to_add=[observation],
                 unknowns_to_resolve=[str(case["unknown"])],
                 resolved_gap_targets=[str(case["unknown"])],
+                trace_events_to_add=[
+                    deterministic_evidence_attestation_event(
+                        evidence,
+                        producer_capability=name,
+                        producer_version=definition.version,
+                        covered_success_criteria=criteria,
+                        checks_run=checks,
+                    )
+                ],
             ),
         )
 
@@ -240,16 +254,24 @@ def _fixture_executor(
 
 def _registry(case: dict[str, Any], gateway: CognitiveModelGateway) -> CapabilityRegistry:
     registry = CapabilityRegistry()
+    trusted_attesters: list[TrustedEvidenceAttester] = []
     for name, spec in case["tools"].items():
         action_type = CognitiveActionType(str(spec["action_type"]))
         definition = _tool_definition(name, action_type)
         registry.register(FunctionCapability(definition, _fixture_executor(case, name, definition)))
-    for capability in model_reasoning_capabilities(
+        trusted_attesters.append(
+            TrustedEvidenceAttester(
+                capability=name,
+                version=definition.version,
+                allowed_source_types={"chapter_13c_outcome_fixture"},
+            )
+        )
+    for capability in on_demand_cognitive_capabilities(
         gateway,
         approved_for_sensitive_data=True,
-        available_sources="Synthetic typed fixture tools declared in the current registry.",
-        available_execution_tools=("executor",),
-        max_plan_tasks=2,
+        max_output_tokens_per_call=MAX_OUTPUT_TOKENS,
+        timeout_seconds_per_call=60.0,
+        trusted_evidence_attesters=tuple(trusted_attesters),
     ):
         registry.register(capability)
     return registry
@@ -278,6 +300,7 @@ def _direct_request(model: str, messages: list[LLMMessage]) -> LLMRequest:
             max_output_tokens=MAX_OUTPUT_TOKENS,
             json_mode=True,
             timeout_seconds=120,
+            total_timeout_seconds=120,
             max_retries=1,
             max_retry_delay_seconds=8,
         ),
@@ -353,6 +376,15 @@ def _execute_direct_tool(
         "status": "succeeded",
         "summary": spec["observation"],
         "source_uri": _fixture_uri(case, turn.capability),
+        "deterministic_attestation": {
+            "producer_capability": turn.capability,
+            "producer_version": "outcome-fixture-v1",
+            "covered_success_criteria": case["success_criteria"],
+            "checks_run": [
+                f"Deterministic fixture covers criterion: {criterion}"
+                for criterion in case["success_criteria"]
+            ],
+        },
     }
 
 
@@ -413,9 +445,10 @@ def _run_direct(
     return None, history, (perf_counter() - started) * 1000, last_parse_error
 
 
-def _usage(responses: list[LLMResponse]) -> dict[str, int]:
+def _usage(client: RecordingClient) -> dict[str, int]:
+    responses = client.responses
     return {
-        "model_calls": len(responses),
+        "model_calls": client.attempt_count,
         "input_tokens": sum(item.usage.input_tokens for item in responses),
         "output_tokens": sum(item.usage.output_tokens for item in responses),
         "total_tokens": sum(
@@ -654,8 +687,6 @@ def main() -> int:
                 _initial_state(case, "polya"), max_cycles=12
             )
             polya_latency_ms = (perf_counter() - polya_started) * 1000
-            if polya_client.errors:
-                raise polya_client.errors[0]
             if execution_order[0] == "polya":
                 direct_final, direct_history, direct_latency_ms, direct_parse_error = _run_direct(
                     case, settings.openrouter_model, direct_client
@@ -676,8 +707,8 @@ def main() -> int:
             print(json.dumps(blocked, indent=2, sort_keys=True))
             return 2
 
-        polya_usage = _usage(polya_client.responses)
-        direct_usage = _usage(direct_client.responses)
+        polya_usage = _usage(polya_client)
+        direct_usage = _usage(direct_client)
         polya_score = _score_polya(case, polya_result)
         direct_score = _score_direct(case, direct_final, direct_history)
         polya_score["budget_passed"] = polya_usage["model_calls"] <= MAX_MODEL_CALLS

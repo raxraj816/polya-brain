@@ -314,7 +314,15 @@ def test_kernel_runs_observe_decide_act_update_verify_reflect_end_to_end() -> No
         CognitiveActionType.STOP,
     ]
     assert any(event.event_type == "cognitive_action_decision" for event in result.state["events"])
-    assert any(event.event_type == "capability_observation" for event in result.state["events"])
+    observation_events = [
+        event for event in result.state["events"] if event.event_type == "capability_observation"
+    ]
+    assert observation_events
+    assert all(
+        isinstance(event.metadata.get("duration_ms"), int | float)
+        and event.metadata["duration_ms"] >= 0
+        for event in observation_events
+    )
 
 
 def test_raw_input_runs_through_real_representation_adapter_and_kernel() -> None:

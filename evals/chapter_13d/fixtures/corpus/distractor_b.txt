@@ -1,0 +1,2 @@
+Nemoris Field Manual — N-8
+Reset the green lattice only after two silent pulses.

@@ -95,7 +95,8 @@ def test_openrouter_adapter_normalizes_response_usage_and_json_policy() -> None:
     assert captured["url"] == "https://openrouter.test/api/v1/chat/completions"
     payload = captured["payload"]
     assert isinstance(payload, dict)
-    assert payload["max_completion_tokens"] == 321
+    assert payload["max_tokens"] == 321
+    assert "max_completion_tokens" not in payload
     assert payload["response_format"] == {"type": "json_object"}
     assert payload["provider"] == {
         "data_collection": "deny",

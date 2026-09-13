@@ -33,3 +33,6 @@ temp/
 # Local databases and artifacts
 *.sqlite
 *.db
+
+# Private local investigation inputs, evidence, and reports
+/runs/

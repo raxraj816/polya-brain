@@ -1,6 +1,6 @@
 """Chapter 12-A provider-neutral LLM boundary."""
 
-from app.llm.client import LLMClient, complete_with_retry
+from app.llm.client import AttemptCountingLLMClient, LLMClient, complete_with_retry
 from app.llm.contracts import (
     LLMCapabilities,
     LLMMessage,
@@ -8,6 +8,7 @@ from app.llm.contracts import (
     LLMRequestOptions,
     LLMResponse,
     LLMRole,
+    LLMRouteAttemptTelemetry,
     LLMTokenUsage,
 )
 from app.llm.errors import LLMClientError, LLMErrorCode
@@ -17,6 +18,7 @@ from app.llm.openrouter import OpenRouterLLMClient
 __all__ = [
     "FakeLLMClient",
     "LLMCapabilities",
+    "AttemptCountingLLMClient",
     "LLMClient",
     "LLMClientError",
     "LLMErrorCode",
@@ -24,6 +26,7 @@ __all__ = [
     "LLMRequest",
     "LLMRequestOptions",
     "LLMResponse",
+    "LLMRouteAttemptTelemetry",
     "LLMRole",
     "LLMTokenUsage",
     "OpenRouterLLMClient",

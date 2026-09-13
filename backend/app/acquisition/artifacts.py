@@ -214,9 +214,26 @@ def local_artifact_capability(inspector: LocalArtifactInspector) -> FunctionCapa
         acquisition_id = (
             "acq-"
             + hashlib.sha256(
-                f"{state['session_id']}|{action.id}|{candidates[0].id}".encode()
+                (
+                    f"{state['session_id']}|{action.target}|"
+                    + "|".join(candidate.id for candidate in candidates)
+                ).encode()
             ).hexdigest()[:16]
         )
+        if any(
+            event.event_type == ACQUISITION_EVENT
+            and event.metadata.get("acquisition_id") == acquisition_id
+            for event in state["events"]
+        ):
+            return CognitiveObservation(
+                action_id=action.id,
+                capability=definition.name,
+                capability_version=definition.version,
+                status=ObservationStatus.INCONCLUSIVE,
+                summary="The explicit local artifact snapshot is unchanged; no new evidence was acquired.",
+                payload={"acquisition_id": acquisition_id, "candidate_count": 0},
+                failure_kind="duplicate_artifact_snapshot",
+            )
         event = StateEvent(
             engine_name=definition.name,
             event_type=ACQUISITION_EVENT,

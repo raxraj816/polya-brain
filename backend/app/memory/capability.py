@@ -7,6 +7,7 @@ from typing import Protocol
 from app.cognition.capabilities import CognitiveCapability, FunctionCapability
 from app.cognition.contracts import (
     CapabilityDefinition,
+    CapabilityKind,
     CognitiveActionCandidate,
     CognitiveActionType,
     CognitiveObservation,
@@ -110,6 +111,7 @@ def semantic_memory_capability(repository: SemanticMemorySearch) -> CognitiveCap
             approved_for_sensitive_data=True,
             timeout_seconds=5.0,
             estimated_cost=0.02,
+            kind=CapabilityKind.MEMORY,
         ),
         executor=execute,
     )

@@ -1,0 +1,2 @@
+Orinox Service Manual — Diagnostic Q-17
+Required corrective action for Q-17: reseat the blue phase coupler before restart.

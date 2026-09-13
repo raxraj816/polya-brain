@@ -367,6 +367,40 @@ class PolyaSessionService:
         execution: SessionExecutionResult,
     ) -> SessionRunResult:
         events = list(execution.state["events"])
+        # Persist the accepted state, independent of each producer's event name.
+        # Fused and deterministic capabilities do not necessarily emit the
+        # legacy reflection/execution events themselves.
+        for output in execution.state["execution_outputs"]:
+            metadata = output.model_dump(mode="json")
+            if not any(
+                event.event_type == "execution_output_recorded" and event.metadata == metadata
+                for event in events
+            ):
+                events.append(
+                    StateEvent(
+                        engine_name="cognitive_runtime",
+                        event_type="execution_output_recorded",
+                        reasoning_mode=ReasoningMode.EXECUTE,
+                        summary=output.summary,
+                        metadata=metadata,
+                    )
+                )
+        reflection = execution.state["reflection"]
+        if reflection is not None:
+            metadata = reflection.model_dump(mode="json")
+            if not any(
+                event.event_type == "reflection_recorded" and event.metadata == metadata
+                for event in events
+            ):
+                events.append(
+                    StateEvent(
+                        engine_name="cognitive_runtime",
+                        event_type="reflection_recorded",
+                        reasoning_mode=ReasoningMode.REFLECT,
+                        summary=reflection.outcome_summary,
+                        metadata=metadata,
+                    )
+                )
         if execution.awaiting_user_input:
             events.append(
                 StateEvent(

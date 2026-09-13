@@ -73,6 +73,8 @@ def test_request_formats_polya_state_and_user_override_without_trace_leakage() -
     user_payload = json.loads(request.messages[1].content)
 
     assert request.options.json_mode is True
+    assert request.options.max_retries == 1
+    assert request.options.total_timeout_seconds == 90
     assert request.model == "fake-model"
     assert user_payload == {
         "raw_input": "Review whether our queue migration plan is safe.",
