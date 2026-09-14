@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import difflib
 import hashlib
 import json
 import os
@@ -37,6 +38,24 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
                 questions = [*observation.proposed_update.questions_to_ask, *questions]
                 break
     reflection = state["reflection"]
+    conclusion = state["final_answer"] if verified else "No verified conclusion is available."
+    if verified:
+        patch_task = next(
+            (task for task in state["plan"] if task.tool_name == "source_patch_sandbox"), None
+        )
+        if patch_task is not None:
+            # The proposal was written before execution. Its future-tense check
+            # statements must not masquerade as the current measured outcome.
+            conclusion = (
+                "The supplied regression check failed on the original source and passed on the candidate edit.\n\n"
+                f"Proposed diagnosis: {patch_task.params.get('diagnosis', 'Not supplied.')}\n"
+                f"Candidate edit: replace {patch_task.params.get('old_text')!r} with {patch_task.params.get('new_text')!r}.\n"
+                "Scope: supplied-check coverage only. Causal correctness, other regressions, and hostile-code attestation remain unproven. "
+                "The hypothesis artifact preserves the original proposal and its uncertainties before execution."
+            )
+            questions.append(
+                "Do additional integration or regression checks support this candidate edit?"
+            )
     next_action = (
         "Review the evidence and checks before acting on the conclusion."
         if verified
@@ -59,13 +78,13 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
             item.reliability_score is not None and item.reliability_score >= 0.9 for item in used
         ):
             confidence = "high"
+        if any(task.tool_name == "source_patch_sandbox" for task in state["plan"]):
+            confidence = "medium"
     elif verification is not None:
         confidence = "low"
     return SessionReportResponse(
         session_id=UUID(state["session_id"]),
-        final_conclusion=state["final_answer"]
-        if verified
-        else "No verified conclusion is available.",
+        final_conclusion=conclusion,
         confidence_level=confidence,
         verification_status="passed" if verified else result.status.value,
         evidence_used=concise(list(used)),
@@ -143,6 +162,50 @@ def export_run(
     ):
         write_json(directory / f"{name}.json", state[key])
     write_json(directory / "report.json", report.model_dump(mode="json"))
+    for task in result.state["plan"]:
+        if task.tool_name != "source_patch_sandbox":
+            continue
+        params = task.params
+        source_uri, old, new = (
+            params.get("source_uri"),
+            params.get("old_text"),
+            params.get("new_text"),
+        )
+        if not all(isinstance(value, str) for value in (source_uri, old, new)):
+            continue
+        assert isinstance(source_uri, str) and isinstance(old, str) and isinstance(new, str)
+        original = next(
+            (
+                item.raw_excerpt
+                for item in result.state["evidence"]
+                if item.source_uri == source_uri and item.raw_excerpt
+            ),
+            None,
+        )
+        if original is None or original.count(old) != 1:
+            continue
+        write_json(
+            directory / "candidate_edit.json",
+            {
+                "source_uri": source_uri,
+                "old_text": old,
+                "new_text": new,
+                "source_sha256": hashlib.sha256(original.encode()).hexdigest(),
+                "host_files_modified": False,
+                "verification_scope": "Supplied regression check only; proposed diagnosis is not independently proven.",
+            },
+        )
+        patch = "".join(
+            line if line.endswith("\n") else line + "\n\\ No newline at end of file\n"
+            for line in difflib.unified_diff(
+                original.splitlines(keepends=True),
+                original.replace(old, new, 1).splitlines(keepends=True),
+                fromfile="original.py",
+                tofile="candidate.py",
+            )
+        )
+        _write_private(directory / "candidate.patch", sanitize_text(patch))
+        break
     write_json(
         directory / "run.json",
         {

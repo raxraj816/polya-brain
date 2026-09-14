@@ -20,6 +20,7 @@ from app.config import Settings
 from app.graph.state import create_initial_state
 from app.investigator.artifacts import export_run, write_json
 from app.investigator.recovery import RecoveryError, RecoveryStore, runtime_fingerprint
+from app.investigator.source_patch import source_patch_state
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -34,6 +35,17 @@ def _parser() -> argparse.ArgumentParser:
     )
     investigate.add_argument(
         "problem", nargs="+", help="The problem and explicit quoted artifact paths."
+    )
+    investigate.add_argument(
+        "--source", type=Path, help="Explicit Python source for experimental patch investigation."
+    )
+    investigate.add_argument(
+        "--check", type=Path, help="Python artifact defining verify(implementation)."
+    )
+    investigate.add_argument(
+        "--experimental-source-patch",
+        action="store_true",
+        help="Opt into supplied-check patch investigation; no host edits or hostile-code attestation.",
     )
     resume = commands.add_parser(
         "resume", help="Continue a local checkpoint without replaying completed work."
@@ -102,6 +114,16 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("The problem must contain 1–100000 characters.")
     if not 1 <= args.max_cycles <= 100:
         parser.error("--max-cycles must be between 1 and 100.")
+    if (
+        args.command == "investigate"
+        and any((args.source, args.check, args.experimental_source_patch))
+        and not all(
+            (args.source, args.check, args.experimental_source_patch, args.allow_code_execution)
+        )
+    ):
+        parser.error(
+            "Source-patch investigation requires --source, --check, --experimental-source-patch, and --allow-code-execution."
+        )
     if args.run_id is not None and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", args.run_id):
         parser.error(
             "--run-id must be a new plain folder name (letters, digits, underscores, hyphens; at most 80 characters)."
@@ -132,7 +154,6 @@ def main(argv: list[str] | None = None) -> int:
             settings.search_provider = ""
             settings.cognitive_max_model_calls = 0
             settings.cognitive_max_external_calls = 0
-        runtime = build_cognitive_runtime(settings)
         store = RecoveryStore()
         parent_token = None
         if args.command == "resume":
@@ -150,11 +171,21 @@ def main(argv: list[str] | None = None) -> int:
                 runtime_fingerprint(settings, args.run_directory),
                 problem if args.answer is not None else None,
             )
+        elif args.experimental_source_patch:
+            state = source_patch_state(problem, args.source, args.check, settings)
+            state["max_iterations"] = args.max_cycles
         else:
             state = create_initial_state(
                 problem, session_id=str(uuid4()), max_iterations=args.max_cycles
             )
         session_id = state["session_id"]
+        runtime = build_cognitive_runtime(
+            settings,
+            enable_source_patch=bool(
+                state["structured_problem"] is not None
+                and state["structured_problem"].problem_type == "source_patch_investigation"
+            ),
+        )
         root = args.output_root.resolve()
         root.mkdir(parents=True, exist_ok=True, mode=0o700)
         directory = root / (

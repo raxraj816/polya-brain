@@ -24,7 +24,7 @@ from app.execution.sandbox import DockerPythonSandbox
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import ContractModel, EvidenceItem, NonEmptyStr, ReasoningMode, RiskLevel
 
-SOURCE_PATCH_SANDBOX_VERSION = "source_patch_sandbox@0.2.0"
+SOURCE_PATCH_SANDBOX_VERSION = "source_patch_sandbox@0.3.0"
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _QUALIFIED_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+")
 
@@ -142,8 +142,8 @@ def source_patch_sandbox_capability(
         supported_actions={CognitiveActionType.EXECUTE},
         risk_level=RiskLevel.MEDIUM,
         approved_for_sensitive_data=False,
-        timeout_seconds=sandbox.limits.timeout_seconds + 3,
-        estimated_cost=0.08,
+        timeout_seconds=2 * (sandbox.limits.timeout_seconds + 3),
+        estimated_cost=0.16,
     )
 
     def execute(action: CognitiveActionCandidate, state: PolyaState) -> CognitiveObservation:
@@ -173,6 +173,10 @@ def source_patch_sandbox_capability(
             patched = source.replace(params.old_text, params.new_text, 1)
             edit_applied = patched != source and params.new_text in patched
             diagnosis_grounded = _diagnosis_grounded(params)
+            baseline = sandbox.execute(
+                _sandbox_program(source, check),
+                ["check.verify(implementation)"],
+            )
             result = sandbox.execute(
                 _sandbox_program(patched, check),
                 ["check.verify(implementation)"],
@@ -186,8 +190,17 @@ def source_patch_sandbox_capability(
                 summary=f"Source-patch verification failed at a governed boundary ({type(exc).__name__}).",
                 failure_kind="source_patch_boundary_failure",
             )
+        baseline_failed = bool(
+            baseline.exit_code != 0
+            and not baseline.timed_out
+            and not baseline.output_truncated
+            and baseline.tests_run == 1
+            and len(baseline.test_results) == 1
+            and not baseline.test_results[0].passed
+        )
         patch_verified = bool(
-            result.exit_code == 0
+            baseline_failed
+            and result.exit_code == 0
             and not result.timed_out
             and not result.output_truncated
             and result.tests_run == 1
@@ -195,9 +208,9 @@ def source_patch_sandbox_capability(
             and result.test_results[0].passed
         )
         summary = (
-            "The isolated patched source passed the admitted regression check."
+            "The admitted regression check failed on the original source and passed on the candidate edit."
             if patch_verified
-            else "The isolated patched source failed the admitted regression check."
+            else "The candidate edit did not establish a failing-original / passing-patched regression check."
         )
         correction_verified = edit_applied and patch_verified
         check_admitted_and_passed = source_admitted and patch_verified
@@ -206,6 +219,10 @@ def source_patch_sandbox_capability(
             summary=summary,
             output={
                 "patch_verified": patch_verified,
+                "baseline_failed": baseline_failed,
+                "baseline": baseline.model_dump(mode="json"),
+                "patched": result.model_dump(mode="json"),
+                "verification_scope": "supplied_regression_check",
                 "diagnosis_grounded": diagnosis_grounded,
                 "source_admitted": source_admitted,
                 "edit_applied": edit_applied,
@@ -232,6 +249,9 @@ def source_patch_sandbox_capability(
                 summary=summary,
                 metadata={
                     "patch_verified": patch_verified,
+                    "baseline_failed": baseline_failed,
+                    "baseline_exit_code": baseline.exit_code,
+                    "baseline_tests_run": baseline.tests_run,
                     "diagnosis_grounded": diagnosis_grounded,
                     "source_admitted": source_admitted,
                     "edit_applied": edit_applied,
@@ -239,7 +259,7 @@ def source_patch_sandbox_capability(
                     "check_admitted_and_passed": check_admitted_and_passed,
                     "exit_code": result.exit_code,
                     "tests_run": result.tests_run,
-                    "runtime_ms": result.runtime_ms,
+                    "runtime_ms": baseline.runtime_ms + result.runtime_ms,
                     "network": "none",
                     "root_filesystem": "read_only",
                     "host_mounts": 0,
@@ -260,7 +280,7 @@ def source_patch_sandbox_capability(
                 "procedure": "deterministic_sandbox",
                 "model_calls": 0,
                 "patch_verified": patch_verified,
-                "runtime_ms": result.runtime_ms,
+                "runtime_ms": baseline.runtime_ms + result.runtime_ms,
             },
             evidence=[
                 EvidenceItem(

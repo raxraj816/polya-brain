@@ -29,7 +29,7 @@ from app.cognition.verification_factory import deterministic_verification_availa
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.3.0"
+POLICY_VERSION = "cognitive-controller-v0.4.0"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -551,7 +551,8 @@ class CognitiveController:
                 if problem.problem_type == "simple_arithmetic"
                 and registry.supports("arithmetic_deliberator", CognitiveActionType.HYPOTHESIZE)
                 else "source_patch_investigator"
-                if problem.problem_type == "field_derived_technical_investigation"
+                if problem.problem_type
+                in {"field_derived_technical_investigation", "source_patch_investigation"}
                 and registry.supports(
                     "source_patch_investigator",
                     CognitiveActionType.HYPOTHESIZE,

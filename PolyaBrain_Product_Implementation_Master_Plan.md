@@ -2071,6 +2071,35 @@ zero model calls and preserved session identity. See
 private-store retention, frozen-evidence semantics, and unreconciled in-flight
 or terminal-export failure boundaries.
 
+#### Chapter 13-N: Source-Visible Investigation Delivery
+
+Status: public workflow implemented and locally verified; fresh user-case proof
+remains pending. Bring the source-patch investigation procedure into the
+public Investigator without making a broader repository-repair claim.
+
+An explicit source/check pair may initialize a deterministic task representation
+and complete, provenance-bearing local snapshots. Require allowed artifact roots
+and code-execution opt-in. Register the proposal and sandbox capabilities through
+the shared runtime composer only for this explicit workflow. The model proposes
+one bounded exact edit; the original host source and check remain unchanged.
+
+The sandbox must run the same admitted check against the original and patched
+source in separate ephemeral containers. Require a completed failing original
+check followed by a completed passing patched check. A preexisting pass, timeout,
+truncated output, missing test results, or patched failure cannot verify a fix.
+Record both outcomes, content hashes, tool version, and total execution cost.
+Reports must label the diagnosis as proposed, disclose the supplied-check scope,
+and export a reviewable edit. The in-process Python check harness still lacks
+hostile-code attestation; this workflow is explicitly experimental and may not
+claim independent causal verification or general repository repair.
+
+Delivery gates: public CLI parsing and permission failures; shared-composer
+end-to-end proposal and before/after verification; vacuous-check and failed-fix
+regressions; unchanged host files; private edit artifacts and checkpoint resume;
+and a fresh non-secret technical investigation through the public entrypoint.
+Continue into the user-facing workbench after the actual investigation path is
+usable. Independent review, fresh-case superiority, and repeat-use gates remain.
+
 #### Chapter 14: Constraint Discovery Engine
 
 Status: complete on `feature/chapter-12b-13-openrouter-representation`.
@@ -2830,6 +2859,13 @@ Done when:
 ### Phase 10: Frontend Product Experience
 
 #### Chapter 61: Frontend Bootstrap
+
+Status: in progress following public source/check runtime delivery. Build the
+usable local workbench to obtain real user feedback; this does not declare the
+broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
+API sessions and reports, truthful loading/failure states, and capability-bound
+trace updates. Do not substitute demo records or fabricated progress for runtime
+outputs. Authentication and tenant isolation must precede public cloud launch.
 
 Tasks:
 

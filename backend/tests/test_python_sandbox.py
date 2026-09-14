@@ -16,7 +16,7 @@ def _docker_available() -> bool:
         return False
     return (
         subprocess.run(
-            ["docker", "image", "inspect", "python:3.14-alpine"],
+            ["docker", "image", "inspect", DockerPythonSandbox().image],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,

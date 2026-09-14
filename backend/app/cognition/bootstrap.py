@@ -38,6 +38,7 @@ from app.cognition.semantic_broker import (
     SemanticRouteHealthLedger,
 )
 from app.cognition.session_runner import CognitiveSessionRunner
+from app.cognition.source_patch_investigation import source_patch_investigator_capability
 from app.cognition.task_model import CognitiveResourceBudget
 from app.config import Settings
 from app.engines import ConstraintDiscoveryEngine, ProblemRepresentationEngine
@@ -48,6 +49,7 @@ from app.execution import (
     controlled_experiment_capability,
     python_sandbox_capability,
     scenario_simulation_capability,
+    source_patch_sandbox_capability,
     table_measurement_capability,
 )
 from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
@@ -58,6 +60,7 @@ from app.models.contracts import EvidenceItem, RiskLevel
 def build_cognitive_runtime(
     settings: Settings,
     *,
+    enable_source_patch: bool = False,
     prior_research_query_count: Callable[[str], int] | None = None,
     semantic_memory: SemanticMemorySearch | None = None,
     procedural_memory: ProceduralPreferenceProvider | None = None,
@@ -242,6 +245,30 @@ def build_cognitive_runtime(
         for item in settings.artifact_allowed_roots.split(pathsep)
         if item.strip()
     ]
+    if enable_source_patch:
+        if not settings.code_execution_enabled or not configured_artifact_roots:
+            raise ValueError(
+                "Source-patch investigation requires explicit execution and artifact permissions."
+            )
+        registry.register(
+            source_patch_sandbox_capability(
+                DockerPythonSandbox(
+                    image=settings.code_execution_image,
+                    limits=DockerSandboxLimits(
+                        timeout_seconds=settings.code_execution_timeout_seconds,
+                        memory_megabytes=settings.code_execution_memory_mb,
+                    ),
+                ),
+                configured_artifact_roots,
+            )
+        )
+        if configured_key and configured_model:
+            registry.register(
+                source_patch_investigator_capability(
+                    gateway,
+                    approved_for_sensitive_data=sensitive_data_approved,
+                )
+            )
     if configured_artifact_roots:
         inspector = LocalArtifactInspector(
             configured_artifact_roots,

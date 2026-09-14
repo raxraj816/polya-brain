@@ -212,6 +212,21 @@ uses the existing `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` configuration.
 Use `--artifact-root /path/to/folder` to permit explicitly referenced files;
 code execution remains disabled unless `--allow-code-execution` is supplied.
 
+For an explicit Python source/check investigation, the experimental workflow
+proposes one bounded edit and checks failing-original / passing-candidate behavior:
+
+```bash
+./polyabrain investigate "Explain the defect and propose a minimal correction" \
+  --source /path/to/case/source.py --check /path/to/case/check.py \
+  --artifact-root /path/to/case \
+  --experimental-source-patch --allow-code-execution --max-model-calls 4
+```
+
+The check defines `verify(implementation)`. Original files remain unchanged;
+the run exports the candidate edit and both check results. This is supplied-check
+coverage, not independent causal or hostile-code verification. See
+[Chapter 13-N](docs/03_implementation/Chapter_13N_Source_Visible_Investigation_Delivery.md).
+
 Exit codes: `0` verified completion, `2` clarification or invalid CLI syntax,
 `3` no verified outcome, `1` configuration/runtime failure, `130` interruption.
 Use `--json` for a machine-readable summary. No database service is required:

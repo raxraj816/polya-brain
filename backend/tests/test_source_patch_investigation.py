@@ -32,7 +32,7 @@ def _docker_available() -> bool:
         return False
     return (
         subprocess.run(
-            ["docker", "image", "inspect", "python:3.14-alpine"],
+            ["docker", "image", "inspect", DockerPythonSandbox().image],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
@@ -187,7 +187,7 @@ def test_controller_selects_one_call_source_patch_proposal(tmp_path: Path) -> No
         "projection_version",
         "success_criteria",
     }
-    assert projected["projection_version"] == "source_patch_context@0.1.0"
+    assert projected["projection_version"] == "source_patch_context@0.2.0"
     assert len(projected["admitted_evidence"]) == 2
     assert "Investigate the explicit Python failure" not in json.dumps(projected)
 

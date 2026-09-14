@@ -31,8 +31,8 @@ from app.models.contracts import (
     RiskLevel,
 )
 
-SOURCE_PATCH_INVESTIGATOR_VERSION = "source_patch_investigator@0.1.0"
-SOURCE_PATCH_CONTEXT_PROJECTION_VERSION = "source_patch_context@0.1.0"
+SOURCE_PATCH_INVESTIGATOR_VERSION = "source_patch_investigator@0.2.0"
+SOURCE_PATCH_CONTEXT_PROJECTION_VERSION = "source_patch_context@0.2.0"
 
 
 class SourcePatchProposal(ContractModel):
@@ -90,9 +90,12 @@ def _failure_observation(raw_input: str) -> str:
     marker = "The executable buggy reproduction failed with this observation:\n"
     end_marker = "\nSuccess requires:"
     if marker not in raw_input:
-        return "The represented task declares a failing reproduction."
+        return "The supplied check has not been executed yet; do not assume a failure mechanism."
     observation = raw_input.partition(marker)[2].partition(end_marker)[0].strip()
-    return observation[:4_000] or "The represented task declares a failing reproduction."
+    return (
+        observation[:4_000]
+        or "The supplied check has not been executed yet; do not assume a failure mechanism."
+    )
 
 
 def _source_patch_state_projection(
@@ -146,7 +149,10 @@ def source_patch_investigator_capability(
         state: PolyaState,
     ) -> CognitiveObservation:
         problem = state["structured_problem"]
-        if problem is None or problem.problem_type != "field_derived_technical_investigation":
+        if problem is None or problem.problem_type not in {
+            "field_derived_technical_investigation",
+            "source_patch_investigation",
+        }:
             raise ValueError("source patch investigator requires its declared task shape")
         evidence_by_uri = {
             _base_uri(item.source_uri): item
@@ -207,12 +213,16 @@ def source_patch_investigator_capability(
                 payload=failure_payload,
             )
         report = (
-            f"Root cause: {proposal.diagnosis}\n"
+            f"Proposed diagnosis: {proposal.diagnosis}\n"
             f"Implicated source: {source_uri}\n"
             f"Correction: replace {proposal.old_text!r} with {proposal.new_text!r}. "
             f"{proposal.correction_rationale}\n"
-            f"Regression check: {proposal.regression_check_summary} ({check_uri})."
+            f"Regression check: {proposal.regression_check_summary} ({check_uri}).\n"
+            "Scope: the supplied check tests this candidate edit. It does not prove the "
+            "diagnosis, cover all regressions, or independently attest hostile code."
         )
+        if proposal.remaining_uncertainty:
+            report += "\nRemaining uncertainty: " + "; ".join(proposal.remaining_uncertainty)
         task_id = "verify-source-patch"
         verification_paths = (
             "diagnosis_grounded",
