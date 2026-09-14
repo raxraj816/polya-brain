@@ -52,6 +52,7 @@ from app.execution import (
     source_patch_sandbox_capability,
     table_measurement_capability,
 )
+from app.graph.state import StateEvent
 from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
 from app.memory.capability import SemanticMemorySearch, semantic_memory_capability
 from app.models.contracts import EvidenceItem, RiskLevel
@@ -388,6 +389,7 @@ def build_representation_session_runner(
     procedural_memory: ProceduralPreferenceProvider | None = None,
     performance_ledger: CapabilityPerformanceLedger | None = None,
     semantic_route_health_ledger: SemanticRouteHealthLedger | None = None,
+    progress_writer: Callable[[str, list[StateEvent]], None] | None = None,
 ) -> CognitiveSessionRunner:
     """Adapt the shared runtime to durable API session dispositions."""
     return CognitiveSessionRunner(
@@ -400,4 +402,5 @@ def build_representation_session_runner(
             semantic_route_health_ledger=semantic_route_health_ledger,
         ),
         evidence_loader=prior_evidence_loader,
+        progress_writer=progress_writer,
     )

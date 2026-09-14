@@ -2860,8 +2860,13 @@ Done when:
 
 #### Chapter 61: Frontend Bootstrap
 
-Status: in progress following public source/check runtime delivery. Build the
-usable local workbench to obtain real user feedback; this does not declare the
+Status: local workbench implemented and verified against the full Docker stack.
+The UI provides persisted sessions, live checkpoint traces, actual resource
+measurements, evidence, hypotheses, reports, history, clarification, export, and
+manual-review feedback. See `docs/03_implementation/Chapter_61_70_Local_Investigator_Workbench.md`
+for delivered behavior and remaining per-chapter gates. Source/check input in the
+browser, full mode overrides, and fresh technical user runs remain open. This
+does not declare the
 broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
 API sessions and reports, truthful loading/failure states, and capability-bound
 trace updates. Do not substitute demo records or fabricated progress for runtime

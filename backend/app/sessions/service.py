@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Protocol
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
@@ -101,8 +101,11 @@ class SessionExecutionResult:
     state: PolyaState
     awaiting_user_input: bool = False
     clarifying_questions: tuple[str, ...] = ()
+    persisted_event_count: int = 0
 
     def __post_init__(self) -> None:
+        if not 0 <= self.persisted_event_count <= len(self.state["events"]):
+            raise ValueError("persisted trace prefix must fit the returned state")
         if self.awaiting_user_input and not self.clarifying_questions:
             raise ValueError("awaiting_user_input requires clarifying_questions")
         if not self.awaiting_user_input and self.clarifying_questions:
@@ -238,6 +241,19 @@ class PolyaSessionService:
             confidence_level = "insufficient_evidence"
 
         reflection = reflection_event.event_metadata if reflection_event is not None else None
+        questions = [item.description for item in gaps if not item.filled]
+        if problem_session.status == SESSION_STATUS_AWAITING_USER_INPUT:
+            clarification = self._db_session.scalar(
+                select(ClarificationRequest)
+                .where(
+                    ClarificationRequest.session_id == session_id,
+                    ClarificationRequest.status == CLARIFICATION_STATUS_PENDING,
+                )
+                .order_by(ClarificationRequest.requested_at.desc())
+                .limit(1)
+            )
+            if clarification is not None:
+                questions = list(dict.fromkeys([*clarification.questions, *questions]))
         follow_ups = reflection.get("follow_up_actions", []) if reflection else []
         if isinstance(follow_ups, list) and follow_ups and isinstance(follow_ups[0], str):
             recommended_next_action = follow_ups[0]
@@ -269,7 +285,7 @@ class PolyaSessionService:
             checks_performed=list(verification.checks_run) if verification else [],
             failed_checks=list(verification.failed_checks) if verification else [],
             contradictions=list(verification.contradictions) if verification else [],
-            open_questions=[item.description for item in gaps if not item.filled],
+            open_questions=questions,
             recommended_next_action=recommended_next_action,
             reflection=reflection,
             audit_trace_path=f"/api/v1/sessions/{session_id}/events",
@@ -411,9 +427,9 @@ class PolyaSessionService:
                     metadata={"questions": list(execution.clarifying_questions)},
                 )
             )
-        records = self._trace_repository.persist_events(
+        self._trace_repository.persist_events(
             session_id=problem_session.id,
-            events=events,
+            events=events[execution.persisted_event_count :],
         )
         structured_problem = execution.state["structured_problem"]
         if structured_problem is not None:
@@ -453,7 +469,14 @@ class PolyaSessionService:
         self._db_session.refresh(problem_session)
         return SessionRunResult(
             session=problem_session,
-            event_count=len(records),
+            event_count=int(
+                self._db_session.scalar(
+                    select(func.count(ReasoningEvent.id)).where(
+                        ReasoningEvent.session_id == problem_session.id
+                    )
+                )
+                or 0
+            ),
             clarifying_questions=execution.clarifying_questions,
         )
 

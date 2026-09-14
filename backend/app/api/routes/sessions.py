@@ -12,6 +12,7 @@ from app.api.dependencies import get_db_session
 from app.cognition.bootstrap import build_representation_session_runner
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
 from app.db.models import ProblemSession
+from app.graph.state import StateEvent
 from app.memory import SQLAlchemyMemoryRepository
 from app.models.contracts import ProductMode
 from app.models.sessions import (
@@ -72,6 +73,16 @@ def get_session_service(
     trace_repository = SQLAlchemyTraceRepository(db_session)
     cognitive_repository = SQLAlchemyCognitiveStateRepository(db_session)
     memory_repository = SQLAlchemyMemoryRepository(db_session)
+
+    def publish_progress(session_id: str, events: list[StateEvent]) -> None:
+        if not events:
+            return
+        with request.app.state.session_factory() as progress_session:
+            SQLAlchemyTraceRepository(progress_session).persist_events(
+                session_id=UUID(session_id), events=events
+            )
+            progress_session.commit()
+
     runner = build_representation_session_runner(
         request.app.state.settings,
         prior_research_query_count=lambda session_id: trace_repository.count_events(
@@ -85,6 +96,7 @@ def get_session_service(
         procedural_memory=memory_repository,
         performance_ledger=request.app.state.capability_performance_ledger,
         semantic_route_health_ledger=request.app.state.semantic_route_health_ledger,
+        progress_writer=publish_progress,
     )
     return PolyaSessionService(
         db_session,

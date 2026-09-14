@@ -248,9 +248,16 @@ the API workflow. See [Chapter 13-M](docs/03_implementation/Chapter_13M_Recovera
 for recovery boundaries and private-store retention.
 
 See [Chapter 13-L](docs/03_implementation/Chapter_13L_Investigator_Runtime_Delivery.md)
-for examples, verification scope, and remaining delivery work. The frontend and
-cloud product are not yet delivered, and the independent product-value gate
-remains open.
+for examples, verification scope, and remaining delivery work. A local workbench
+now supports persisted reports, live recorded activity, evidence, hypotheses,
+history, export, clarification, and feedback. See [frontend setup](frontend/README.md)
+and the [workbench verification record](docs/03_implementation/Chapter_61_70_Local_Investigator_Workbench.md).
+The public cloud product and independent product-value gate remain open.
+
+To use the local UI, run `make migrate && make dev`, then in another terminal
+run `make frontend-install && make frontend-dev`. Open `http://127.0.0.1:3010`.
+Alternatively, `docker compose up --build --wait` starts the full local stack.
+Ports bind to localhost; no authentication or tenant isolation is claimed.
 
 Run the legacy curated-template demonstration explicitly:
 
@@ -377,7 +384,7 @@ The system must preserve uncertainty and say when evidence is insufficient.
 
 ```text
 backend/      Python/FastAPI backend, health route, Alembic, DB models, seed/smoke checks.
-frontend/     Future Next.js investigation workbench UI.
+frontend/     Local Next.js Investigator workbench and browser checks.
 infra/        Infrastructure notes; Docker Compose lives at repo root.
 scripts/      Local developer scripts and notes.
 evals/        Benchmark and evaluation runners plus reproducible run artifacts.

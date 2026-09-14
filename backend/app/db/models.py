@@ -57,6 +57,23 @@ class ProblemSession(Base):
     )
 
 
+class HumanFeedback(Base):
+    """User corrections for manual review; never automatic verified knowledge."""
+
+    __tablename__ = "human_feedback"
+
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("problem_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    feedback_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    correction: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    __table_args__ = (Index("ix_human_feedback_session_created", "session_id", "created_at"),)
+
+
 class ClarificationRequest(Base):
     """One persisted pause for missing user-owned information."""
 

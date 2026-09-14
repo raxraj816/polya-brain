@@ -182,6 +182,18 @@ Organization/project:
 
 ## Feedback
 
+The current local workbench implements a bounded persistence subset in
+`human_feedback`: `id`, `session_id`, `feedback_type`, `correction` (optional
+user-authored comment/corrected answer, at most 10,000 characters), and
+`created_at`. A user produces this record; per-session feedback and history
+feedback filters consume it for manual review. Tests verify it cannot overwrite
+a report or become verified memory. This is application data, not a new cognitive
+ranking signal. Identity, rating, and review-status transitions below remain
+planned; all current entries await manual review. Feedback is sanitized before
+storage and must still be treated as untrusted input.
+
+Planned full contract:
+
 - `id`
 - `session_id`
 - `user_id`

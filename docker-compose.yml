@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: polyabrain
       POSTGRES_PASSWORD: polyabrain
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POLYABRAIN_DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,7 +18,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "127.0.0.1:${POLYABRAIN_REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -34,8 +34,13 @@ services:
       POLYABRAIN_LOG_LEVEL: INFO
       DATABASE_URL: postgresql+psycopg://polyabrain:polyabrain@postgres:5432/polyabrain
       REDIS_URL: redis://redis:6379/0
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-}
+      OPENROUTER_FALLBACK_MODELS: ${OPENROUTER_FALLBACK_MODELS:-}
+      SEARCH_PROVIDER: ${SEARCH_PROVIDER:-}
+      SEARCH_API_KEY: ${SEARCH_API_KEY:-}
     ports:
-      - "8000:8000"
+      - "127.0.0.1:${POLYABRAIN_API_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -47,6 +52,23 @@ services:
           "CMD-SHELL",
           "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()\"",
         ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      POLYABRAIN_API_URL: http://backend:8000
+    ports:
+      - "127.0.0.1:${POLYABRAIN_UI_PORT:-3010}:3010"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3010/api/backend/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 5s
       timeout: 5s
       retries: 10

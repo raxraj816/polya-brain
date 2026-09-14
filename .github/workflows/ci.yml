@@ -88,3 +88,70 @@ jobs:
 
       - name: Run database smoke check
         run: make db-smoke
+
+  investigator-workbench:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: polyabrain
+          POSTGRES_USER: polyabrain
+          POSTGRES_PASSWORD: polyabrain
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U polyabrain -d polyabrain"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://polyabrain:polyabrain@127.0.0.1:5432/polyabrain
+      OPENROUTER_API_KEY: ""
+      OPENROUTER_MODEL: ""
+      SEARCH_API_KEY: ""
+      NEXT_TELEMETRY_DISABLED: "1"
+      POLYABRAIN_API_URL: http://127.0.0.1:18000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install and migrate backend
+        run: |
+          python -m pip install -e ".[dev]"
+          alembic upgrade head
+      - name: Install and verify frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+          npm run build
+          npx playwright install --with-deps chromium
+      - name: Verify browser against real backend
+        shell: bash
+        run: |
+          uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 18000 > /tmp/polyabrain-api.log 2>&1 &
+          api_pid=$!
+          npm --prefix frontend start > /tmp/polyabrain-ui.log 2>&1 &
+          ui_pid=$!
+          trap 'kill "$api_pid" "$ui_pid" 2>/dev/null || true' EXIT
+          python - <<'PY'
+          import time, urllib.request
+          for url in ["http://127.0.0.1:18000/health", "http://127.0.0.1:3010"]:
+              for attempt in range(60):
+                  try:
+                      urllib.request.urlopen(url, timeout=1).close()
+                      break
+                  except OSError:
+                      time.sleep(0.5)
+              else:
+                  raise SystemExit(f"Service did not start: {url}")
+          PY
+          npm --prefix frontend run test:e2e

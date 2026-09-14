@@ -36,3 +36,8 @@ temp/
 
 # Private local investigation inputs, evidence, and reports
 /runs/
+
+# Frontend verification artifacts
+*.tsbuildinfo
+/frontend/test-results/
+/frontend/playwright-report/
