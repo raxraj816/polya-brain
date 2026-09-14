@@ -1,6 +1,8 @@
 # Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Broader product delivery remains open.
+Chapter 13-M adds local checkpoint recovery and clarification continuation to
+the delivery baseline described here.
 
 ## Product behavior
 
@@ -60,8 +62,9 @@ data; the default output root is gitignored.
 Exit codes are `0` for a verified outcome, `2` for a clarification pause or
 invalid CLI syntax, `3` for no verified outcome, `1` for configuration/runtime
 failure, and `130` for interruption. `--json` supplies the precise runtime
-status for automation. A clarification should be answered in a revised problem
-statement for the local CLI; the persisted API supports responding in-session.
+status for automation. Chapter 13-M supports `polyabrain resume RUN_DIRECTORY
+--answer "full revised problem"` using the original runtime options; the
+persisted API also supports responding in-session.
 
 ## Verification fixes
 
@@ -104,7 +107,7 @@ traces or the remaining fresh-case and human-use gates.
 
 This is local delivery, not completion of the end-to-end product. Independent
 blind review, fresh field cases, controlled procedure transfer, broader
-repository investigation, durable local recovery, frontend interaction,
+repository investigation, broader recovery beyond Chapter 13-M's safe boundaries, frontend interaction,
 authentication, tenant isolation, deployment, and pilot repeat use remain open.
 Confidence labels are heuristic. Normalized cost is not currency. Local runs
 do not load the API's durable memory stores. None of this chapter's checks

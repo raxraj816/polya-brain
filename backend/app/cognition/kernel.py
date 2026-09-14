@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from time import perf_counter
 
@@ -15,11 +16,13 @@ from app.cognition.contracts import (
 )
 from app.cognition.controller import CognitiveController
 from app.cognition.task_model import (
+    USAGE_EVENT,
     CognitiveResourceBudget,
     accumulated_usage,
     budget_event,
     configured_budget,
     derive_task_model,
+    reservation_fits,
     resource_usage_for,
     task_model_event,
     usage_event,
@@ -278,6 +281,7 @@ class CognitiveKernel:
         *,
         max_cycles: int | None = None,
         budget: CognitiveResourceBudget | None = None,
+        checkpoint: Callable[[PolyaState, bool], None] | None = None,
     ) -> CognitiveRunResult:
         """Execute a bounded state-dependent loop without delegating control to an LLM."""
         cycle_budget = max_cycles or initial_state["max_iterations"]
@@ -295,6 +299,28 @@ class CognitiveKernel:
         run_started = perf_counter()
         decisions: list[CognitiveActionDecision] = []
         observations: list[CognitiveObservation] = []
+
+        def save(in_flight: bool = False) -> None:
+            nonlocal state
+            if checkpoint is not None:
+                # Retain active controller/storage time across process boundaries;
+                # time spent waiting for the user is outside the execution budget.
+                active_ms = prior_duration_ms + (perf_counter() - run_started) * 1000
+                overhead_ms = max(0.0, active_ms - accumulated_usage(state).duration_ms)
+                if overhead_ms:
+                    state = _append_event(
+                        state,
+                        StateEvent(
+                            engine_name="cognitive_kernel",
+                            event_type=USAGE_EVENT,
+                            reasoning_mode=ReasoningMode.EXECUTE,
+                            summary="Recorded active controller and checkpoint overhead.",
+                            metadata={"capability": "runtime_overhead", "duration_ms": overhead_ms},
+                        ),
+                    )
+                checkpoint(state, in_flight)
+
+        save()
 
         for cycle in range(1, cycle_budget + 1):
             elapsed_ms = prior_duration_ms + ((perf_counter() - run_started) * 1000)
@@ -335,6 +361,41 @@ class CognitiveKernel:
                     cycles=cycle,
                 )
 
+            # Persist dispatch intent before a tool/provider can perform work.
+            # An interrupted call has unknown usage and is never safe to replay.
+            save(in_flight=True)
+            if checkpoint is not None and active_budget is not None:
+                # A slow durable write must not invalidate the reservation and
+                # then dispatch anyway. No capability has run at this point.
+                elapsed_ms = prior_duration_ms + (perf_counter() - run_started) * 1000
+                current_usage = accumulated_usage(state).model_copy(
+                    update={"duration_ms": elapsed_ms}
+                )
+                selected_capability = self.registry.get(decision.selected.capability)
+                if elapsed_ms >= active_budget.max_duration_ms or (
+                    selected_capability is not None
+                    and not reservation_fits(
+                        selected_capability.definition, active_budget, current_usage
+                    )
+                ):
+                    state = _append_event(
+                        state,
+                        StateEvent(
+                            engine_name="cognitive_kernel",
+                            event_type="cognitive_dispatch_budget_exhausted",
+                            reasoning_mode=ReasoningMode.VERIFY,
+                            summary="Stopped before dispatch because checkpoint overhead exhausted the action reservation.",
+                            metadata={"elapsed_ms": elapsed_ms},
+                        ),
+                    )
+                    save()
+                    return CognitiveRunResult(
+                        status=CognitiveRunStatus.INSUFFICIENT_EVIDENCE,
+                        state=state,
+                        decisions=tuple(decisions),
+                        observations=tuple(observations),
+                        cycles=cycle - 1,
+                    )
             started = perf_counter()
             observation = self.registry.execute(decision.selected, state)
             duration_ms = (perf_counter() - started) * 1000
@@ -358,6 +419,7 @@ class CognitiveKernel:
                     ),
                 )
             state = apply_cognitive_observation(state, observation)
+            save()
 
             if observation.status is ObservationStatus.BLOCKED and (
                 observation.failure_kind in {"approval_required", "human_input_required"}

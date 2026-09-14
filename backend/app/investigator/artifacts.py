@@ -42,10 +42,12 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
         if verified
         else "Supply the missing evidence or resolve the reported failure, then run again."
     )
+    if result.status is CognitiveRunStatus.MAX_CYCLES:
+        next_action = "Resume this run with the original runtime options to continue within its remaining resource budget."
     if reflection and reflection.follow_up_actions:
         next_action = reflection.follow_up_actions[0]
     if result.status is CognitiveRunStatus.NEEDS_INPUT:
-        next_action = "Answer the open questions in a revised problem statement and run again."
+        next_action = "Resume this run with --answer containing the full revised problem and the original runtime options."
 
     def concise(items: list[object]) -> list[SessionReportEvidence]:
         return [SessionReportEvidence.model_validate(item, from_attributes=True) for item in items]
@@ -144,7 +146,7 @@ def export_run(
     write_json(
         directory / "run.json",
         {
-            "artifact_version": "investigator_run@0.1.0",
+            "artifact_version": "investigator_run@0.2.0",
             "session_id": result.state["session_id"],
             "status": result.status.value,
             "created_at": datetime.now(UTC).isoformat(),
@@ -155,13 +157,21 @@ def export_run(
             "usage": usage.model_dump(mode="json"),
             "capabilities_used": cast(
                 JsonValue,
-                sorted({observation.capability_version for observation in result.observations}),
+                sorted(
+                    {
+                        str(event.metadata["capability_version"])
+                        for event in result.state["events"]
+                        if event.event_type == "capability_observation"
+                        and isinstance(event.metadata.get("capability_version"), str)
+                    }
+                    | {observation.capability_version for observation in result.observations}
+                ),
             ),
             "limitations": [
                 "Verification covers the recorded checks, not every possible failure.",
                 "Confidence is a rule-based label, not a calibrated probability.",
                 "Normalized cost is a scheduling unit, not a currency amount.",
-                "Local runs do not yet recall durable memory or resume after interruption.",
+                "Local recovery requires this host's private store and unchanged code/configuration; in-flight interruptions cannot be replayed.",
             ],
         },
     )
@@ -207,7 +217,7 @@ def export_run(
             "",
             "## Resources",
             "",
-            f"{usage.model_calls} model calls · {usage.input_tokens + usage.output_tokens} tokens · {usage.external_calls} external calls · {elapsed_ms / 1000:.2f} seconds.",
+            f"{usage.model_calls} model calls · {usage.input_tokens + usage.output_tokens} tokens · {usage.external_calls} external calls (cumulative). This invocation: {elapsed_ms / 1000:.2f} seconds.",
             "",
             "## Audit trace",
             "",

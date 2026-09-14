@@ -214,8 +214,23 @@ code execution remains disabled unless `--allow-code-execution` is supplied.
 
 Exit codes: `0` verified completion, `2` clarification or invalid CLI syntax,
 `3` no verified outcome, `1` configuration/runtime failure, `130` interruption.
-Use `--json` for a machine-readable summary. No database is required for local
-runs; durable memory and clarification resumption remain in the API workflow.
+Use `--json` for a machine-readable summary. No database service is required:
+local checkpoints use private SQLite storage under `~/.local/state/polyabrain`.
+Continue a cycle pause, or answer a missing-input pause with a full revised problem:
+
+```bash
+./polyabrain investigate "What is 17 * 6?" --offline --max-cycles 3 --run-id arithmetic-start
+./polyabrain resume runs/investigator/arithmetic-start --offline --run-id arithmetic-finish
+./polyabrain investigate "Fix it." --offline --run-id clarification-start
+./polyabrain resume runs/investigator/clarification-start --offline --answer "What is 17 * 6?"
+```
+
+Use the same runtime options, code, and configuration when resuming. Resource
+budgets carry forward, earlier reports remain intact, and a checkpoint can be
+continued once. Interrupted in-flight calls require investigation before a new
+run; they are never automatically replayed. Durable learned memory remains in
+the API workflow. See [Chapter 13-M](docs/03_implementation/Chapter_13M_Recoverable_Local_Investigations.md)
+for recovery boundaries and private-store retention.
 
 See [Chapter 13-L](docs/03_implementation/Chapter_13L_Investigator_Runtime_Delivery.md)
 for examples, verification scope, and remaining delivery work. The frontend and

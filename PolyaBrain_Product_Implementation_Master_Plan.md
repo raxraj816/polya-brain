@@ -2035,6 +2035,42 @@ legacy proof artifacts, Chapter 11 examples, and Compose validation pass. No
 new live provider superiority claim is made. The complete product, fresh-case
 evaluation, independent review, frontend, and cloud gates remain open.
 
+#### Chapter 13-M: Recoverable Local Investigations
+
+Status: local recovery gate complete. Close the local workflow gap between a
+bounded run, a clarification, and the next useful action before frontend polish.
+
+Persist validated state at capability boundaries in an owner-private local
+recovery store. Reports are exports, never executable checkpoints: recovery
+must load only the local store, preserve the original budget and accumulated
+usage, require the same runtime code and capability configuration, and consume
+each checkpoint at most once. Record an in-flight marker before dispatch;
+uncertain interrupted calls must never be silently replayed or charged as zero.
+Concurrent recovery must not duplicate external work. Redaction that changes
+state makes that snapshot ineligible for execution.
+
+Expose `polyabrain resume RUN_DIRECTORY`. Continue safely completed cycles
+without repeating their tools. For a missing-input pause, accept a full revised
+problem through `--answer`, revalidate its representation and all conclusions,
+and preserve session identity, prior resource charges, and parent audit lineage.
+Answering does not grant additional tool permissions or reset any resource cap.
+Export each continuation into a new private directory and retain earlier reports.
+
+Verification gates: public CLI continuation and clarification; uninterrupted
+versus resumed outcome equivalence; cumulative budget enforcement; concurrent
+and repeated claim rejection; modified export and checkpoint rejection;
+in-flight interruption refusal; configuration/code mismatch refusal; and honest
+documentation of recovery limits. This does not complete fresh-case evaluation,
+independent review, repeat-use, frontend, or cloud delivery gates.
+
+Validation: 433 tests pass with database integration enabled against an isolated
+fresh Postgres/pgvector instance; repository lint, backend formatting, and strict
+mypy pass. A public CLI pause/resume produces a verified arithmetic report with
+zero model calls and preserved session identity. See
+`docs/03_implementation/Chapter_13M_Recoverable_Local_Investigations.md` for
+private-store retention, frozen-evidence semantics, and unreconciled in-flight
+or terminal-export failure boundaries.
+
 #### Chapter 14: Constraint Discovery Engine
 
 Status: complete on `feature/chapter-12b-13-openrouter-representation`.

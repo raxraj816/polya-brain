@@ -34,6 +34,7 @@ def _run(tmp_path: Path, problem: str, *options: str) -> subprocess.CompletedPro
         "SEARCH_PROVIDER": "",
         "ARTIFACT_ALLOWED_ROOTS": "",
         "PYTHONWARNINGS": "ignore",
+        "POLYABRAIN_RECOVERY_HOME": str(tmp_path / "private-recovery"),
     }
     return subprocess.run(
         [

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from app.cognition.capabilities import CapabilityRegistry
 from app.cognition.controller import CognitiveController
 from app.cognition.kernel import CognitiveKernel, CognitiveRunResult
@@ -46,6 +48,7 @@ class CognitiveRuntime:
         max_cycles: int = 12,
         seed_evidence: list[EvidenceItem] | None = None,
         budget: CognitiveResourceBudget | None = None,
+        checkpoint: Callable[[PolyaState, bool], None] | None = None,
     ) -> CognitiveRunResult:
         """Create explicit initial state, then run observe-decide-act-update."""
         state = create_initial_state(
@@ -54,10 +57,22 @@ class CognitiveRuntime:
             max_iterations=max_cycles,
         )
         state["evidence"] = list(seed_evidence or [])
+        return self.run_state(state, max_cycles=max_cycles, budget=budget, checkpoint=checkpoint)
+
+    def run_state(
+        self,
+        state: PolyaState,
+        *,
+        max_cycles: int = 12,
+        budget: CognitiveResourceBudget | None = None,
+        checkpoint: Callable[[PolyaState, bool], None] | None = None,
+    ) -> CognitiveRunResult:
+        """Continue validated state with its original resource ledger intact."""
         result = self._kernel.run(
             state,
             max_cycles=max_cycles,
             budget=budget or self._budget,
+            checkpoint=checkpoint,
         )
         if self._performance_ledger is not None:
             self._performance_ledger.observe_run(result)

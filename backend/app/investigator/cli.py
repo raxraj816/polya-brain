@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sqlite3
 import sys
 from os import pathsep
 from pathlib import Path
@@ -16,7 +17,9 @@ from pydantic import SecretStr, ValidationError
 from app.cognition.bootstrap import build_cognitive_runtime
 from app.cognition.contracts import CognitiveRunStatus
 from app.config import Settings
+from app.graph.state import create_initial_state
 from app.investigator.artifacts import export_run, write_json
+from app.investigator.recovery import RecoveryError, RecoveryStore, runtime_fingerprint
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -32,6 +35,20 @@ def _parser() -> argparse.ArgumentParser:
     investigate.add_argument(
         "problem", nargs="+", help="The problem and explicit quoted artifact paths."
     )
+    resume = commands.add_parser(
+        "resume", help="Continue a local checkpoint without replaying completed work."
+    )
+    resume.add_argument("run_directory", type=Path)
+    resume.add_argument("--answer", help="Full revised problem answering a missing-input pause.")
+    for command in (investigate, resume):
+        _run_options(command)
+    commands.add_parser(
+        "proof", help="Run the legacy curated-template demonstration (repository checkout only)."
+    )
+    return parser
+
+
+def _run_options(investigate: argparse.ArgumentParser) -> None:
     investigate.add_argument(
         "--offline",
         action="store_true",
@@ -66,20 +83,22 @@ def _parser() -> argparse.ArgumentParser:
     investigate.add_argument(
         "--json", action="store_true", help="Print a machine-readable summary."
     )
-    commands.add_parser(
-        "proof", help="Run the legacy curated-template demonstration (repository checkout only)."
-    )
-    return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     """Return 0 for verified completion, 2 for input, 3 for no verified outcome."""
     parser = _parser()
     args = parser.parse_args(argv)
-    if args.command != "investigate":
+    if args.command == "proof":
         parser.error("Run ./polyabrain proof from the repository for the legacy demonstration.")
-    problem = " ".join(args.problem).strip()
-    if not problem or len(problem) > 100_000:
+    problem = (
+        " ".join(args.problem).strip()
+        if args.command == "investigate"
+        else (args.answer or "").strip()
+    )
+    if (args.command == "investigate" or args.answer is not None) and (
+        not problem or len(problem) > 100_000
+    ):
         parser.error("The problem must contain 1–100000 characters.")
     if not 1 <= args.max_cycles <= 100:
         parser.error("--max-cycles must be between 1 and 100.")
@@ -88,6 +107,7 @@ def main(argv: list[str] | None = None) -> int:
             "--run-id must be a new plain folder name (letters, digits, underscores, hyphens; at most 80 characters)."
         )
 
+    store: RecoveryStore | None = None
     try:
         settings = Settings()
         if args.artifact_root is not None:
@@ -113,23 +133,68 @@ def main(argv: list[str] | None = None) -> int:
             settings.cognitive_max_model_calls = 0
             settings.cognitive_max_external_calls = 0
         runtime = build_cognitive_runtime(settings)
-        session_id = str(uuid4())
+        store = RecoveryStore()
+        parent_token = None
+        if args.command == "resume":
+            descriptor_path = args.run_directory / "recovery.json"
+            if descriptor_path.stat().st_size > 4096:
+                raise RecoveryError("Invalid recovery descriptor.")
+            descriptor = json.loads(descriptor_path.read_text(encoding="utf-8"))
+            if not isinstance(descriptor, dict) or not isinstance(
+                descriptor.get("recovery_id"), str
+            ):
+                raise RecoveryError("Invalid recovery descriptor.")
+            parent_token = descriptor["recovery_id"]
+            state = store.load(
+                parent_token,
+                runtime_fingerprint(settings, args.run_directory),
+                problem if args.answer is not None else None,
+            )
+        else:
+            state = create_initial_state(
+                problem, session_id=str(uuid4()), max_iterations=args.max_cycles
+            )
+        session_id = state["session_id"]
         root = args.output_root.resolve()
         root.mkdir(parents=True, exist_ok=True, mode=0o700)
-        directory = root / (args.run_id or session_id)
+        directory = root / (
+            args.run_id or (str(uuid4()) if parent_token is not None else session_id)
+        )
         directory.mkdir(mode=0o700)
+        token = store.create(runtime_fingerprint(settings, directory))
+        write_json(
+            directory / "recovery.json",
+            {
+                "version": "local_recovery@0.1.0",
+                "recovery_id": token,
+                "parent_recovery_id": parent_token,
+            },
+        )
+        # Transfer recovery rights and save state in one durable transaction.
+        store.initialize(token, state, parent_token)
+    except RecoveryError as exc:
+        if store is not None:
+            store.close()
+        print(f"polyabrain: {exc}", file=sys.stderr)
+        return 1
     except ValidationError:
+        if store is not None:
+            store.close()
         print(
             "polyabrain: Invalid environment configuration. Check .env against .env.example.",
             file=sys.stderr,
         )
         return 1
     except FileExistsError:
+        if store is not None:
+            store.close()
         print(
             "polyabrain: That run directory already exists. Choose a new --run-id.", file=sys.stderr
         )
         return 1
-    except OSError, ValueError:
+    except OSError, ValueError, sqlite3.Error:
+        if store is not None:
+            store.close()
         print(
             "polyabrain: Invalid options, unavailable artifact roots, or unwritable output directory. Check --help and your configuration.",
             file=sys.stderr,
@@ -138,7 +203,12 @@ def main(argv: list[str] | None = None) -> int:
 
     started = perf_counter()
     try:
-        result = runtime.run_problem(problem, session_id=session_id, max_cycles=args.max_cycles)
+        result = runtime.run_state(
+            state,
+            max_cycles=args.max_cycles,
+            checkpoint=lambda current, in_flight: store.save(token, current, in_flight),
+        )
+        store.finish(token, result)
         report = export_run(result, directory, elapsed_ms=(perf_counter() - started) * 1000)
     except (Exception, KeyboardInterrupt) as exc:
         # Preserve failure evidence without serializing exception arguments or credentials.
@@ -156,6 +226,8 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 130 if isinstance(exc, KeyboardInterrupt) else 1
+    finally:
+        store.close()
 
     if args.json:
         print(
@@ -174,6 +246,11 @@ def main(argv: list[str] | None = None) -> int:
         for question in report.open_questions:
             print(f"Open question: {question}")
         print(f"Report: {directory / 'report.md'}")
+    if (
+        result.status in {CognitiveRunStatus.NEEDS_INPUT, CognitiveRunStatus.MAX_CYCLES}
+        and not args.json
+    ):
+        print(f"Continue with: ./polyabrain resume {directory} (use the same runtime options)")
     if result.status is CognitiveRunStatus.NEEDS_INPUT:
         return 2
     return 0 if report.verification_status == "passed" else 3
