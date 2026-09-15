@@ -145,3 +145,16 @@ end-to-end product value or general intelligence.
 ## Guardrail
 
 Do not optimize only for impressive demos. Benchmark repeatability is a product requirement.
+
+
+## Mode-delivery regression expectations
+
+API/user overrides must be preserved in problem representation and downstream
+capability context. Compare cases must identify explicit alternatives and shared
+criteria; missing comparative evidence must prevent an unsupported winner.
+Review cases must distinguish confirmed defects from unresolved risks and state
+acceptance checks. Investigation cases must distinguish observed symptoms from
+unverified causes and seek discriminating evidence. Mode labels and successful
+arithmetic wiring tests do not count as substantive mode-quality evidence.
+Chapter 62 adds transport/prompt-context regression checks; fresh verified
+Compare/Review tasks remain part of the product-value evaluation gate.

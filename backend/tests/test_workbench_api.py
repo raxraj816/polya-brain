@@ -153,3 +153,18 @@ def test_feedback_is_persisted_for_manual_review_without_changing_conclusion(
         ).status_code
         == 422
     )
+
+
+@pytest.mark.parametrize("mode", ["compare", "review"])
+def test_api_composer_preserves_persisted_mode_and_domain(client: TestClient, mode: str) -> None:
+    session = client.post(
+        "/api/v1/sessions",
+        json={"raw_input": "What is 5 + 3?", "mode": mode, "domain": "quantity_check"},
+    ).json()
+    result = client.post(f"/api/v1/sessions/{session['id']}/run")
+    assert result.status_code == 200, result.text
+    events = client.get(f"/api/v1/sessions/{session['id']}/events?limit=500").json()["events"]
+    approach = next(e for e in events if e["event_type"] == "approach_selected")
+    assert approach["metadata"]["selected_mode"] == mode
+    artifacts = client.get(f"/api/v1/sessions/{session['id']}/artifacts").json()
+    assert artifacts["structured_problem"]["domain"] == "quantity_check"

@@ -226,7 +226,15 @@ class ProblemRepresentationEngine:
         if not 1 <= max_provider_attempts <= 10:
             raise ValueError("problem representation must reserve between 1 and 10 model calls")
         self.max_provider_attempts = max_provider_attempts
-        route_fingerprint = hashlib.sha256(route_identity.encode()).hexdigest()[:12]
+        route_fingerprint = hashlib.sha256(
+            (
+                route_identity
+                + "|"
+                + (mode_hint.value if mode_hint else "infer")
+                + "|"
+                + (domain_hint or "")
+            ).encode()
+        ).hexdigest()[:12]
         self.version = EngineVersion(
             engine=f"{PROBLEM_REPRESENTATION_ENGINE_VERSION}+route-{route_fingerprint}",
             prompt=PROBLEM_UNDERSTANDING_PROMPT_VERSION,

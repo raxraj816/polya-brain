@@ -53,8 +53,10 @@ address. CI runs the tests against a production frontend build and a real backen
 
 - Local, single-workspace preview; no authentication or tenant isolation. The UI
   and proxy accept localhost access only. Do not expose the backend publicly.
-- The input screen currently offers Investigate. Compare/Review selection and
-  optional structured input fields remain pending end-to-end mode wiring.
+- Investigate, Compare, and Review are wired into framing and downstream prompt
+  guidance. Optional time, metric, and entity context is preserved as user input.
+  Mode selection cannot bypass evidence or verification requirements. Substantive
+  mode-specific quality still requires fresh evaluations.
 - Trace uses one-second polling while a run is active. Events persist at runtime
   checkpoints; evidence and hypotheses persist when the run pauses or finishes.
   Stage markers indicate recorded activity, not success. Trace metadata contains

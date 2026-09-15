@@ -2865,8 +2865,9 @@ The UI provides persisted sessions, live checkpoint traces, actual resource
 measurements, evidence, hypotheses, reports, history, clarification, export, and
 manual-review feedback. See `docs/03_implementation/Chapter_61_70_Local_Investigator_Workbench.md`
 for delivered behavior and remaining per-chapter gates. Source/check input in the
-browser is now delivered through Chapter 13-O; full mode overrides and fresh
-technical user runs remain open. This does not declare the broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
+browser is now delivered through Chapter 13-O; explicit mode/context wiring is
+delivered in Chapter 62. Fresh technical user runs and substantive mode-quality
+evaluations remain open. This does not declare the broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
 API sessions and reports, truthful loading/failure states, and capability-bound
 trace updates. Do not substitute demo records or fabricated progress for runtime
 outputs. Authentication and tenant isolation must precede public cloud launch.
@@ -2898,6 +2899,19 @@ confidence, with scope and uncertainty visible. Source retention, provider-data
 consent, unavailable sandbox handling, tamper refusal, exact diff export, and
 positive/negative integration checks are delivery requirements. Full-repository
 execution and adversarial-code attestation remain excluded.
+
+Mode-delivery increment (implemented; see `Chapter_62_Mode_And_Context_Delivery.md`): pass the persisted user mode and optional domain into
+problem representation, preserve its validated choice in approach trace events,
+and supply the selected mode plus its verification checklist to downstream model
+capabilities as prompt context. Compare requires explicit alternatives and common
+criteria; Review requires inspectable claims and checks; Investigate requires
+competing explanations and discriminating evidence. Missing information still
+routes to clarification or insufficient evidence. This is trace/prompt policy,
+not a new state field, score, or reason to bypass existing verifier gates. CLI
+calls without a mode hint continue to infer mode. The UI exposes the existing
+three modes and optional user-authored context fields; source/check stays an
+explicit Investigate workflow. Verification must cover overridden modes through
+the actual API composer, downstream request context, and browser request payloads.
 
 Tasks:
 

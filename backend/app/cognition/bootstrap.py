@@ -55,13 +55,15 @@ from app.execution import (
 from app.graph.state import StateEvent
 from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
 from app.memory.capability import SemanticMemorySearch, semantic_memory_capability
-from app.models.contracts import EvidenceItem, RiskLevel
+from app.models.contracts import EvidenceItem, ProductMode, RiskLevel
 
 
 def build_cognitive_runtime(
     settings: Settings,
     *,
     enable_source_patch: bool = False,
+    mode_hint: ProductMode | None = None,
+    domain_hint: str | None = None,
     prior_research_query_count: Callable[[str], int] | None = None,
     semantic_memory: SemanticMemorySearch | None = None,
     procedural_memory: ProceduralPreferenceProvider | None = None,
@@ -113,6 +115,8 @@ def build_cognitive_runtime(
     engine = ProblemRepresentationEngine(
         client=client,
         model=model,
+        mode_hint=mode_hint,
+        domain_hint=domain_hint,
         understanding_provider=understanding_provider,
     )
     gateway = (
@@ -383,6 +387,8 @@ def build_cognitive_runtime(
 def build_representation_session_runner(
     settings: Settings,
     *,
+    mode_hint: ProductMode | None = None,
+    domain_hint: str | None = None,
     prior_research_query_count: Callable[[str], int] | None = None,
     prior_evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
     semantic_memory: SemanticMemorySearch | None = None,
@@ -395,6 +401,8 @@ def build_representation_session_runner(
     return CognitiveSessionRunner(
         build_cognitive_runtime(
             settings,
+            mode_hint=mode_hint,
+            domain_hint=domain_hint,
             prior_research_query_count=prior_research_query_count,
             semantic_memory=semantic_memory,
             procedural_memory=procedural_memory,

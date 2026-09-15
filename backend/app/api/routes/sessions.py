@@ -85,8 +85,26 @@ def get_session_service(
             )
             progress_session.commit()
 
+    source_input = None
+    stored_session = None
+    path_session_id = request.path_params.get("session_id")
+    if path_session_id:
+        try:
+            parsed_session_id = UUID(str(path_session_id))
+        except ValueError:
+            parsed_session_id = None
+        if parsed_session_id is not None:
+            stored_session = db_session.get(ProblemSession, parsed_session_id)
+            source_input = db_session.scalar(
+                select(Artifact).where(
+                    Artifact.session_id == parsed_session_id,
+                    Artifact.artifact_type == "source_check_input",
+                )
+            )
     runner = build_representation_session_runner(
         request.app.state.settings,
+        mode_hint=ProductMode(stored_session.mode) if stored_session is not None else None,
+        domain_hint=stored_session.domain if stored_session is not None else None,
         prior_research_query_count=lambda session_id: trace_repository.count_events(
             UUID(session_id),
             event_type="research_query_started",
@@ -100,20 +118,6 @@ def get_session_service(
         semantic_route_health_ledger=request.app.state.semantic_route_health_ledger,
         progress_writer=publish_progress,
     )
-    source_input = None
-    path_session_id = request.path_params.get("session_id")
-    if path_session_id:
-        try:
-            parsed_session_id = UUID(str(path_session_id))
-        except ValueError:
-            parsed_session_id = None
-        if parsed_session_id is not None:
-            source_input = db_session.scalar(
-                select(Artifact).where(
-                    Artifact.session_id == parsed_session_id,
-                    Artifact.artifact_type == "source_check_input",
-                )
-            )
     return PolyaSessionService(
         db_session,
         runner=(

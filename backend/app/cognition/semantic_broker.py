@@ -14,6 +14,7 @@ from pydantic import Field, JsonValue
 
 from app.cognition.capabilities import AuditedCapabilityError
 from app.cognition.model_gateway import (
+    COGNITIVE_CAPABILITY_PROMPT_VERSION,
     CognitiveModelGateway,
     ModelCapabilityParseError,
     ModelCapabilityResult,
@@ -495,7 +496,11 @@ class RoutedCognitiveModelGateway(CognitiveModelGateway):
     def capability_version(self, implementation_version: str) -> str:
         fingerprint = hashlib.sha256(
             (
-                BROKER_POLICY_VERSION + "|" + "|".join(route.version for route in self._routes)
+                BROKER_POLICY_VERSION
+                + "|"
+                + COGNITIVE_CAPABILITY_PROMPT_VERSION
+                + "|"
+                + "|".join(route.version for route in self._routes)
             ).encode()
         ).hexdigest()[:12]
         return f"{implementation_version}+broker-{fingerprint}"

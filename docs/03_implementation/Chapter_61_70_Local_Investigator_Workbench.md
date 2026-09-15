@@ -1,7 +1,8 @@
 # Chapters 61–70: Local Investigator workbench
 
 Status: a usable local workbench is implemented. The full frontend integration
-gate remains open for explicit mode overrides and fresh user investigations.
+gate remains open for fresh user investigations and substantive mode-quality evaluation.
+Explicit mode overrides and optional context are delivered in Chapter 62.
 Browser source/check input and candidate edits are now delivered in Chapter 13-O. This work does not close Chapter
 60 or the independent product-value requirements of Chapter 13-K.
 
@@ -51,7 +52,8 @@ and actual repeat-use feedback remain required.
 
 ## Remaining chapter work
 
-- Chapter 62: Compare/Review override propagation and optional structured inputs.
+- Chapter 62: mode/context wiring is delivered; evaluate substantive Compare/Review
+  results against explicit evidence and acceptance criteria.
 - Chapter 63: cursor-based streaming to replace bounded polling if throughput
   warrants it; explicit duration and combined-stage meanings already appear.
 - Chapter 65: confidence history only after a reliable producer exists.

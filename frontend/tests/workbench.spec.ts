@@ -234,3 +234,50 @@ test("source upload produces a reviewable checked diff through the configured pr
     fullPage: true,
   });
 });
+
+test("selected mode and explicit context reach the investigation request", async ({
+  page,
+}) => {
+  let submitted: Record<string, unknown> | undefined;
+  await page.route("**/api/backend/api/v1/sessions", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    submitted = route.request().postDataJSON();
+    await route.fulfill({
+      status: 502,
+      contentType: "application/json",
+      body: JSON.stringify({
+        detail: "Request captured by browser verification fixture.",
+      }),
+    });
+  });
+  await page.goto("/");
+  await page.getByLabel("Investigation mode").selectOption("review");
+  await page
+    .getByLabel("What are you trying to solve?")
+    .fill("Review the deployment rollback proposal.");
+  await page.getByText("Add context", { exact: false }).click();
+  await page
+    .getByLabel("Time window", { exact: true })
+    .fill("Since the latest deployment");
+  await page
+    .getByLabel("Metric or success criterion")
+    .fill("p95 latency below 300 ms");
+  await page.getByLabel("Affected entity").fill("Checkout API");
+  await page
+    .getByRole("button", { name: "Start investigation", exact: true })
+    .click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Request captured" }),
+  ).toBeVisible();
+  expect(submitted?.mode).toBe("review");
+  expect(submitted?.raw_input).toContain(
+    "Time window: Since the latest deployment",
+  );
+  expect(submitted?.raw_input).toContain(
+    "Metric / success criterion: p95 latency below 300 ms",
+  );
+  expect(submitted?.raw_input).toContain("Affected entity: Checkout API");
+});

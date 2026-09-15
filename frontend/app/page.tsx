@@ -147,6 +147,8 @@ export default function Workbench() {
   const [id, setId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("Report");
   const [problem, setProblem] = useState("");
+  const [mode, setMode] = useState("investigate");
+  const [context, setContext] = useState({ time: "", metric: "", entity: "" });
   const [sourceEnabled, setSourceEnabled] = useState(false);
   const [sourceInput, setSourceInput] = useState<SourceInput>({
     source_code: "",
@@ -184,6 +186,8 @@ export default function Workbench() {
   function select(next: string | null) {
     setId(next);
     if (!next) {
+      setMode("investigate");
+      setContext({ time: "", metric: "", entity: "" });
       setSourceEnabled(false);
       setSourceInput({
         source_code: "",
@@ -256,11 +260,24 @@ export default function Workbench() {
     setBusy(true);
     setError(null);
     try {
+      const extras = [
+        ["Time window", context.time],
+        ["Metric / success criterion", context.metric],
+        ["Affected entity", context.entity],
+      ].filter(([, value]) => value.trim());
+      const rawInput =
+        problem.trim() +
+        (extras.length
+          ? "\n\nUser-provided context:\n" +
+            extras
+              .map(([label, value]) => `${label}: ${value.trim()}`)
+              .join("\n")
+          : "");
       const created = await api<Session>(
         sourceEnabled ? "api/v1/source-check" : "api/v1/sessions",
         sourceEnabled
-          ? { raw_input: problem.trim(), ...sourceInput }
-          : { raw_input: problem.trim(), mode: "investigate" },
+          ? { raw_input: rawInput, ...sourceInput }
+          : { raw_input: rawInput, mode },
       );
       cache.setQueryData(["session", created.id], created);
       setActiveRun(created.id);
@@ -490,7 +507,16 @@ export default function Workbench() {
                 <div className="form-heading">
                   <FileSearch size={19} />
                   <label htmlFor="problem">What are you trying to solve?</label>
-                  <span>Investigate</span>
+                  <select
+                    aria-label="Investigation mode"
+                    value={sourceEnabled ? "investigate" : mode}
+                    disabled={sourceEnabled}
+                    onChange={(e) => setMode(e.target.value)}
+                  >
+                    <option value="investigate">Investigate</option>
+                    <option value="compare">Compare</option>
+                    <option value="review">Review</option>
+                  </select>
                 </div>
                 <textarea
                   id="problem"
@@ -501,6 +527,46 @@ export default function Workbench() {
                   placeholder="Describe the problem, what you’ve observed, and what a successful outcome looks like…"
                   rows={7}
                 />
+                <details className="input-context">
+                  <summary>
+                    Add context <span>(optional)</span>
+                  </summary>
+                  <div>
+                    <label>
+                      Time window
+                      <input
+                        maxLength={200}
+                        value={context.time}
+                        onChange={(e) =>
+                          setContext({ ...context, time: e.target.value })
+                        }
+                        placeholder="e.g. since the latest deployment"
+                      />
+                    </label>
+                    <label>
+                      Metric or success criterion
+                      <input
+                        maxLength={200}
+                        value={context.metric}
+                        onChange={(e) =>
+                          setContext({ ...context, metric: e.target.value })
+                        }
+                        placeholder="e.g. p95 latency below 300 ms"
+                      />
+                    </label>
+                    <label>
+                      Affected entity
+                      <input
+                        maxLength={200}
+                        value={context.entity}
+                        onChange={(e) =>
+                          setContext({ ...context, entity: e.target.value })
+                        }
+                        placeholder="e.g. checkout API"
+                      />
+                    </label>
+                  </div>
+                </details>
                 <div className="source-toggle">
                   <label>
                     <input
@@ -606,7 +672,7 @@ export default function Workbench() {
             session.data && (
               <div className="investigation">
                 <div className="detail-kicker">
-                  <span className="eyebrow">Investigation</span>
+                  <span className="eyebrow">{words(session.data.mode)}</span>
                   <span className="session-id">{id.slice(0, 8)}</span>
                 </div>
                 <h1>{session.data.raw_input}</h1>

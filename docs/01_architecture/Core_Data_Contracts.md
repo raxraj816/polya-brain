@@ -254,3 +254,14 @@ Evidence `raw_excerpt` preserves its leading/trailing whitespace so executable
 snapshots remain byte-faithful through validation and persistence. Empty or
 whitespace-only excerpts remain invalid; normal claim/identifier trimming is
 unchanged. Source/check tests include leading and trailing blank lines.
+
+
+## Mode context propagation
+
+The persisted session mode and optional domain are consumed by the representation
+composer. The validated `approach_selected` trace event supplies mode/checklist
+prompt context to downstream model capabilities. Existing core state models are
+unchanged. Representation identity includes the mode/domain hint, and model
+capability identity includes the shared prompt policy version. Optional UI
+context remains clearly labeled user input in `raw_input`, rather than an inferred
+fact or additional first-class ranking field.
