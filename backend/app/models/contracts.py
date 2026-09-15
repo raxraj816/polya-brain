@@ -5,7 +5,14 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Annotated, Any, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 Score = Annotated[float, Field(ge=0.0, le=1.0)]
@@ -114,11 +121,20 @@ class EvidenceItem(ContractModel):
     source_type: NonEmptyStr
     source_uri: NonEmptyStr | None = None
     claim: NonEmptyStr
-    raw_excerpt: NonEmptyStr | None = None
+    raw_excerpt: Annotated[str, StringConstraints(min_length=1, strip_whitespace=False)] | None = (
+        None
+    )
     reliability_score: Score | None = None
     relevance_score: Score | None = None
     supports_hypothesis_ids: list[NonEmptyStr] = Field(default_factory=list)
     contradicts_hypothesis_ids: list[NonEmptyStr] = Field(default_factory=list)
+
+    @field_validator("raw_excerpt")
+    @classmethod
+    def excerpt_must_have_content(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("evidence excerpt must not be blank")
+        return value
 
     @model_validator(mode="after")
     def evidence_must_keep_provenance(self) -> Self:

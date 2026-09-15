@@ -18,6 +18,11 @@ import {
   Waypoints,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  SourceCheckInput,
+  CandidatePanel,
+  type SourceInput,
+} from "@/components/source-check";
 import { RunOverview } from "@/components/run-overview";
 import { FeedbackPanel } from "@/components/feedback";
 import {
@@ -142,6 +147,19 @@ export default function Workbench() {
   const [id, setId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("Report");
   const [problem, setProblem] = useState("");
+  const [sourceEnabled, setSourceEnabled] = useState(false);
+  const [sourceInput, setSourceInput] = useState<SourceInput>({
+    source_code: "",
+    check_code: "",
+    execution_approved: false,
+    provider_approved: false,
+  });
+  const sourceReady =
+    !sourceEnabled ||
+    (sourceInput.source_code &&
+      sourceInput.check_code &&
+      sourceInput.execution_approved &&
+      sourceInput.provider_approved);
   const [answer, setAnswer] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
@@ -165,6 +183,15 @@ export default function Workbench() {
   }, []);
   function select(next: string | null) {
     setId(next);
+    if (!next) {
+      setSourceEnabled(false);
+      setSourceInput({
+        source_code: "",
+        check_code: "",
+        execution_approved: false,
+        provider_approved: false,
+      });
+    }
     setTab("Report");
     setAnswer("");
     setError(null);
@@ -213,7 +240,7 @@ export default function Workbench() {
   const pending = session.data?.status === "awaiting_user_input";
   useEffect(() => {
     if (id && session.data?.status && session.data.status !== "running") {
-      for (const key of ["report", "artifacts", "trace"])
+      for (const key of ["report", "artifacts", "trace", "candidate"])
         void cache.invalidateQueries({ queryKey: [key, id] });
     }
   }, [cache, id, session.data?.status]);
@@ -225,14 +252,16 @@ export default function Workbench() {
   }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!problem.trim() || busy) return;
+    if (!problem.trim() || busy || !sourceReady) return;
     setBusy(true);
     setError(null);
     try {
-      const created = await api<Session>("api/v1/sessions", {
-        raw_input: problem.trim(),
-        mode: "investigate",
-      });
+      const created = await api<Session>(
+        sourceEnabled ? "api/v1/source-check" : "api/v1/sessions",
+        sourceEnabled
+          ? { raw_input: problem.trim(), ...sourceInput }
+          : { raw_input: problem.trim(), mode: "investigate" },
+      );
       cache.setQueryData(["session", created.id], created);
       setActiveRun(created.id);
       select(created.id);
@@ -472,11 +501,39 @@ export default function Workbench() {
                   placeholder="Describe the problem, what you’ve observed, and what a successful outcome looks like…"
                   rows={7}
                 />
+                <div className="source-toggle">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={sourceEnabled}
+                      onChange={(e) => {
+                        setSourceEnabled(e.target.checked);
+                        setSourceInput({
+                          source_code: "",
+                          check_code: "",
+                          execution_approved: false,
+                          provider_approved: false,
+                        });
+                      }}
+                    />{" "}
+                    Investigate Python source with a regression check{" "}
+                    <span>Experimental</span>
+                  </label>
+                </div>
+                {sourceEnabled && (
+                  <SourceCheckInput
+                    value={sourceInput}
+                    onChange={setSourceInput}
+                  />
+                )}
                 <div className="form-footer">
                   <span>
                     Include constraints and evidence you already have.
                   </span>
-                  <Button type="submit" disabled={!problem.trim() || busy}>
+                  <Button
+                    type="submit"
+                    disabled={!problem.trim() || busy || !sourceReady}
+                  >
                     {busy ? (
                       <LoaderCircle className="spin" size={16} />
                     ) : (
@@ -693,6 +750,10 @@ export default function Workbench() {
                           </span>
                         </div>
                         <ReportPanel report={report.data} />
+                        <CandidatePanel
+                          sessionId={id}
+                          running={running || busyHere}
+                        />
                         {[
                           "completed",
                           "failed",

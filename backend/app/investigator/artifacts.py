@@ -16,6 +16,7 @@ from pydantic import JsonValue, TypeAdapter
 
 from app.cognition.contracts import CognitiveRunStatus
 from app.cognition.kernel import CognitiveRunResult
+from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
 from app.cognition.task_model import accumulated_usage, configured_budget
 from app.graph.state import PolyaState
 from app.models.sessions import SessionReportEvidence, SessionReportResponse
@@ -46,13 +47,7 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
         if patch_task is not None:
             # The proposal was written before execution. Its future-tense check
             # statements must not masquerade as the current measured outcome.
-            conclusion = (
-                "The supplied regression check failed on the original source and passed on the candidate edit.\n\n"
-                f"Proposed diagnosis: {patch_task.params.get('diagnosis', 'Not supplied.')}\n"
-                f"Candidate edit: replace {patch_task.params.get('old_text')!r} with {patch_task.params.get('new_text')!r}.\n"
-                "Scope: supplied-check coverage only. Causal correctness, other regressions, and hostile-code attestation remain unproven. "
-                "The hypothesis artifact preserves the original proposal and its uncertainties before execution."
-            )
+            conclusion = source_patch_conclusion(patch_task.params)
             questions.append(
                 "Do additional integration or regression checks support this candidate edit?"
             )
@@ -89,7 +84,13 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
         verification_status="passed" if verified else result.status.value,
         evidence_used=concise(list(used)),
         evidence_against=concise(list(against)),
-        checks_performed=verification.checks_run if verification else [],
+        checks_performed=(
+            source_patch_checks()
+            if verified and any(task.tool_name == "source_patch_sandbox" for task in state["plan"])
+            else verification.checks_run
+            if verification
+            else []
+        ),
         failed_checks=verification.failed_checks if verification else [],
         contradictions=verification.contradictions if verification else [],
         open_questions=list(dict.fromkeys(questions)),

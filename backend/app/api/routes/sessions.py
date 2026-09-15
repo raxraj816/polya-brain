@@ -6,12 +6,13 @@ from typing import Protocol
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db_session
 from app.cognition.bootstrap import build_representation_session_runner
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
-from app.db.models import ProblemSession
+from app.db.models import Artifact, ProblemSession
 from app.graph.state import StateEvent
 from app.memory import SQLAlchemyMemoryRepository
 from app.models.contracts import ProductMode
@@ -29,6 +30,7 @@ from app.sessions import (
     SessionRunFailedError,
 )
 from app.sessions.service import SessionRunResult
+from app.sessions.source_check import SourceCheckSessionRunner
 from app.tracing.persistence import SQLAlchemyTraceRepository
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
@@ -98,9 +100,31 @@ def get_session_service(
         semantic_route_health_ledger=request.app.state.semantic_route_health_ledger,
         progress_writer=publish_progress,
     )
+    source_input = None
+    path_session_id = request.path_params.get("session_id")
+    if path_session_id:
+        try:
+            parsed_session_id = UUID(str(path_session_id))
+        except ValueError:
+            parsed_session_id = None
+        if parsed_session_id is not None:
+            source_input = db_session.scalar(
+                select(Artifact).where(
+                    Artifact.session_id == parsed_session_id,
+                    Artifact.artifact_type == "source_check_input",
+                )
+            )
     return PolyaSessionService(
         db_session,
-        runner=runner,
+        runner=(
+            SourceCheckSessionRunner(
+                request.app.state.settings,
+                source_input.artifact_metadata,
+                progress_writer=publish_progress,
+            )
+            if source_input is not None
+            else runner
+        ),
         memory_repository=memory_repository,
     )
 

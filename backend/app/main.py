@@ -6,6 +6,7 @@ from app.api.routes.events import router as events_router
 from app.api.routes.health import router as health_router
 from app.api.routes.memory import router as memory_router
 from app.api.routes.sessions import router as sessions_router
+from app.api.routes.source_check import router as source_check_router
 from app.api.routes.workbench import router as workbench_router
 from app.cognition.performance import CapabilityPerformanceLedger
 from app.cognition.semantic_broker import SemanticRouteHealthLedger
@@ -32,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(events_router)
     app.include_router(memory_router)
     app.include_router(workbench_router)
+    app.include_router(source_check_router)
     return app
 
 

@@ -1,8 +1,8 @@
 # Chapters 61–70: Local Investigator workbench
 
 Status: a usable local workbench is implemented. The full frontend integration
-gate remains open for technical source/check delivery in the browser, explicit
-mode overrides, and fresh user investigations. This work does not close Chapter
+gate remains open for explicit mode overrides and fresh user investigations.
+Browser source/check input and candidate edits are now delivered in Chapter 13-O. This work does not close Chapter
 60 or the independent product-value requirements of Chapter 13-K.
 
 ## Delivered behavior
@@ -57,8 +57,8 @@ and actual repeat-use feedback remain required.
 - Chapter 65: confidence history only after a reliable producer exists.
 - Chapter 68: review status transitions, reviewer identity, and a governed path
   from reviewed corrections into future reflection.
-- Chapter 70: source/check input and candidate edit delivery in the browser,
-  plus fresh technical runs and user review. Three arithmetic runs are not a
+- Chapter 70: fresh technical runs and user review following browser source/check
+  and candidate edit delivery in Chapter 13-O. Three arithmetic runs are not a
   substitute for this technical product gate.
 - Authentication, tenant isolation, cancellation/reconciliation, retention,
   and deployment operational gates remain before public cloud exposure.
@@ -72,5 +72,6 @@ and actual repeat-use feedback remain required.
    the feedback review filter. Confirm the original report is unchanged.
 5. Run an under-specified semantic problem with a configured provider. If the
    runtime requests clarification, reload before supplying the missing details.
-6. For the technical source/check path, use the documented CLI until UI delivery
-   lands; do not imply that arithmetic screenshots demonstrate source debugging.
+6. Use the experimental source/check selector with an enabled local host backend
+   for technical work. Review the candidate diff and scope; arithmetic screenshots
+   and synthetic source checks are not independent debugging-quality evidence.

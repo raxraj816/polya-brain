@@ -55,7 +55,7 @@ db-smoke: setup
 	$(PYTHON_BIN) -m app.db.smoke
 
 db-test: setup
-	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py backend/tests/test_sessions_service.py backend/tests/test_memory_persistence.py backend/tests/test_workbench_api.py
+	POLYABRAIN_RUN_DB_TESTS=1 $(PYTHON_BIN) -m pytest backend/tests/test_database_baseline.py backend/tests/test_sessions_service.py backend/tests/test_memory_persistence.py backend/tests/test_workbench_api.py backend/tests/test_source_check_api.py
 
 memory-seed: setup
 	$(PYTHON_BIN) scripts/ingest_knowledge_base.py

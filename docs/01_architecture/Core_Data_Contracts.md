@@ -234,3 +234,23 @@ Planned full contract:
 ## Implementation Rule
 
 Define these first as Pydantic models. Database schemas can follow the same contracts, with migrations added only after the model fields are stable.
+
+
+## Local source/check input artifacts
+
+The browser source/check workflow stores one `source_check_input` application
+artifact containing the exact selected source and check snapshots, their SHA-256
+hashes, and explicit execution/provider consent. Its producer is the user request;
+its consumer is the session runner, which validates the record again and admits
+it into a private temporary directory for the existing source-patch runtime.
+It is not a new cognitive state field or ranking signal. The API rejects changed
+hashes, missing consent, oversized/empty files, and known secret-like content
+instead of silently rewriting executable snapshots. Canonical evidence retains
+complete admitted excerpts; temporary execution files are removed after the run.
+The local database retains user-selected input until its database retention is
+managed. Public multi-tenant storage and retention controls remain pending.
+
+Evidence `raw_excerpt` preserves its leading/trailing whitespace so executable
+snapshots remain byte-faithful through validation and persistence. Empty or
+whitespace-only excerpts remain invalid; normal claim/identifier trimming is
+unchanged. Source/check tests include leading and trailing blank lines.

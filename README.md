@@ -258,6 +258,10 @@ To use the local UI, run `make migrate && make dev`, then in another terminal
 run `make frontend-install && make frontend-dev`. Open `http://127.0.0.1:3010`.
 Alternatively, `docker compose up --build --wait` starts the full local stack.
 Ports bind to localhost; no authentication or tenant isolation is claimed.
+The browser also supports experimental Python source/check investigations with
+explicit consent and a local host backend enabled for sandbox execution. See
+[Chapter 13-O](docs/03_implementation/Chapter_13O_Browser_Source_Check_Delivery.md)
+for setup, exact-snapshot handling, and the supplied-check verification boundary.
 
 Run the legacy curated-template demonstration explicitly:
 

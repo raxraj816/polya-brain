@@ -11,11 +11,13 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
+from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
 from app.config import get_settings
 from app.db.models import (
     ClarificationRequest,
     EvidenceItem,
     KnowledgeGap,
+    PlanTask,
     ProblemSession,
     ReasoningEvent,
     VerificationReport,
@@ -240,6 +242,13 @@ class PolyaSessionService:
         else:
             confidence_level = "insufficient_evidence"
 
+        source_patch_plan = self._db_session.scalar(
+            select(PlanTask).where(
+                PlanTask.session_id == session_id, PlanTask.tool_name == "source_patch_sandbox"
+            )
+        )
+        if source_patch_plan is not None and verification is not None and verification.passed:
+            confidence_level = "medium"
         reflection = reflection_event.event_metadata if reflection_event is not None else None
         questions = [item.description for item in gaps if not item.filled]
         if problem_session.status == SESSION_STATUS_AWAITING_USER_INPUT:
@@ -254,6 +263,10 @@ class PolyaSessionService:
             )
             if clarification is not None:
                 questions = list(dict.fromkeys([*clarification.questions, *questions]))
+        if source_patch_plan is not None:
+            questions.append(
+                "Do additional integration or regression checks support this candidate edit?"
+            )
         follow_ups = reflection.get("follow_up_actions", []) if reflection else []
         if isinstance(follow_ups, list) and follow_ups and isinstance(follow_ups[0], str):
             recommended_next_action = follow_ups[0]
@@ -265,6 +278,11 @@ class PolyaSessionService:
             recommended_next_action = verification.recommended_route
         else:
             recommended_next_action = "Gather the missing evidence before drawing a conclusion."
+
+        if source_patch_plan is not None:
+            recommended_next_action = (
+                "Review the candidate diff and run broader integration checks before applying it."
+            )
 
         def report_evidence(item: EvidenceItem) -> SessionReportEvidence:
             return SessionReportEvidence(
@@ -282,7 +300,15 @@ class PolyaSessionService:
             verification_status=problem_session.verification_status or "not_verified",
             evidence_used=[report_evidence(item) for item in evidence_used],
             evidence_against=[report_evidence(item) for item in evidence_against],
-            checks_performed=list(verification.checks_run) if verification else [],
+            checks_performed=(
+                source_patch_checks()
+                if source_patch_plan is not None
+                and verification is not None
+                and verification.passed
+                else list(verification.checks_run)
+                if verification
+                else []
+            ),
             failed_checks=list(verification.failed_checks) if verification else [],
             contradictions=list(verification.contradictions) if verification else [],
             open_questions=questions,
@@ -458,6 +484,20 @@ class PolyaSessionService:
             problem_session.status = SESSION_STATUS_COMPLETED
             problem_session.completed_at = now
             problem_session.final_answer = execution.state["final_answer"]
+            patch_task = next(
+                (
+                    task
+                    for task in execution.state["plan"]
+                    if task.tool_name == "source_patch_sandbox"
+                ),
+                None,
+            )
+            if (
+                patch_task is not None
+                and execution.state["verification"]
+                and execution.state["verification"].passed
+            ):
+                problem_session.final_answer = source_patch_conclusion(patch_task.params)
             problem_session.confidence = None
             problem_session.verification_status = _verification_status(execution.state)
             if self._memory_repository is not None:

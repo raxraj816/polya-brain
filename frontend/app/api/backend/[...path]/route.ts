@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const maxDuration = 360;
 const allowed =
-  /^(health|api\/v1\/sessions(?:\/[0-9a-f-]{36}(?:\/(?:run|respond|report|artifacts|feedback|events(?:\/stream)?))?)?)$/;
+  /^(health|api\/v1\/source-check|api\/v1\/sessions(?:\/[0-9a-f-]{36}(?:\/(?:run|respond|report|artifacts|feedback|candidate|events(?:\/stream)?))?)?)$/;
 async function proxy(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },

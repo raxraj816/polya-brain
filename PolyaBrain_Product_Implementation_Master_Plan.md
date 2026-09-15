@@ -2865,9 +2865,8 @@ The UI provides persisted sessions, live checkpoint traces, actual resource
 measurements, evidence, hypotheses, reports, history, clarification, export, and
 manual-review feedback. See `docs/03_implementation/Chapter_61_70_Local_Investigator_Workbench.md`
 for delivered behavior and remaining per-chapter gates. Source/check input in the
-browser, full mode overrides, and fresh technical user runs remain open. This
-does not declare the
-broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
+browser is now delivered through Chapter 13-O; full mode overrides and fresh
+technical user runs remain open. This does not declare the broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
 API sessions and reports, truthful loading/failure states, and capability-bound
 trace updates. Do not substitute demo records or fabricated progress for runtime
 outputs. Authentication and tenant isolation must precede public cloud launch.
@@ -2885,6 +2884,20 @@ Done when:
 - Frontend runs and can call backend health endpoint.
 
 #### Chapter 62: Problem Input Screen
+
+Current technical-delivery increment (implemented; Chapter 13-O): expose the existing opt-in single-source /
+supplied-check workflow in the local UI. User-selected Python snapshots are
+stored as application artifacts with content hashes and explicit per-run consent;
+the API admits only those immutable bytes into a private temporary directory,
+then invokes the same source/check runtime and isolated before/after verifier as
+the CLI. Backend code execution must also be enabled. No host file is edited, no
+Docker socket is granted to the general Compose API, and no new cognitive ranking
+signal is introduced. Candidate edits remain proposals until the supplied check
+passes; the final API report must use measured execution outcome and medium
+confidence, with scope and uncertainty visible. Source retention, provider-data
+consent, unavailable sandbox handling, tamper refusal, exact diff export, and
+positive/negative integration checks are delivery requirements. Full-repository
+execution and adversarial-code attestation remain excluded.
 
 Tasks:
 

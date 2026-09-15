@@ -64,8 +64,12 @@ address. CI runs the tests against a production frontend build and a real backen
 - Clarification posts additional context to the existing API resume workflow;
   canonical questions survive reload. This is not the CLI's private SQLite
   recovery mechanism or provider-call reconciliation.
-- Source/check sandbox investigations and reviewable candidate patches are
-  available through `./polyabrain investigate`; source upload in the UI is pending.
+- Source/check investigations are available in the UI with explicit consent and
+  an enabled local host backend (`CODE_EXECUTION_ENABLED=true`) that can access
+  Docker and the pinned sandbox image. The general Compose backend does not
+  receive a Docker socket. See [Chapter 13-O](../docs/03_implementation/Chapter_13O_Browser_Source_Check_Delivery.md).
+  Inputs are retained as exact snapshots in the local database, and candidate
+  diffs are checked against recorded execution hashes. No original file is edited.
 - Feedback is append-only and scoped to a session. History feedback filters form
   a manual review list. Corrections never silently overwrite evidence, conclusions,
   or learned verified procedures. Review disposition and identity are pending.
@@ -74,3 +78,13 @@ address. CI runs the tests against a production frontend build and a real backen
 
 The UI is a way to collect real usage evidence, not proof that PolyaBrain has
 passed the broader alpha or product-value gates.
+
+
+The optional live source browser test uses the configured provider and Docker:
+
+```sh
+POLYABRAIN_TEST_LIVE_SOURCE=1 npm --prefix frontend run test:e2e -- --grep "source upload" --timeout 210000
+```
+
+Run it only against a disposable local workspace with a configured provider. It
+verifies a known synthetic defect and is not an independent quality benchmark.

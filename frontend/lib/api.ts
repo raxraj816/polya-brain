@@ -78,7 +78,11 @@ export async function api<T>(path: string, body?: unknown): Promise<T> {
     throw new Error(
       typeof payload.detail === "string"
         ? payload.detail
-        : `Request failed (${response.status}). Check the input and refresh the session.`,
+        : Array.isArray(payload.detail)
+          ? payload.detail
+              .map((entry: { msg?: string }) => entry.msg || "Invalid input")
+              .join("; ")
+          : `Request failed (${response.status}). Check the input and refresh the session.`,
     );
   return payload as T;
 }
