@@ -27,6 +27,9 @@ test("OIDC browser login, private history, logout and account switching", async 
     page.getByText("Private workspace", { exact: true }),
   ).toBeVisible();
   await expect(page.getByText("Service connected")).toBeVisible();
+  await expect(page.locator(".usage-allowance")).toContainText(
+    "runs available today",
+  );
   await page
     .getByLabel("What are you trying to solve?")
     .fill("What is 19 * 7?");

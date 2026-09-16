@@ -277,3 +277,12 @@ retrieval, deduplication and learning update. These are security persistence
 fields, not reasoning scores or user-supplied core problem fields. Cross-user
 negative API/memory tests verify the boundary. Local legacy records remain in
 `__local__`; no default shared memory is promoted. See Chapter 73 delivery notes.
+
+## Chapter 77 admission persistence
+
+`RunAdmission` is an operational record produced atomically with an authenticated
+run/resume claim, before provider dispatch. It stores owner/session, start/finish,
+outcome, and a snapshot of resource ceilings. Quota checks and the user's usage
+view consume it; it is not a cognitive ranking signal or a currency ledger.
+Unknown in-flight work retains its slot. Concurrent database and recovery tests
+verify admission and release behavior. Details: Chapter 77 durable run allowances.

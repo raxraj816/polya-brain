@@ -1495,3 +1495,27 @@ main {
   background: white;
   font-size: 13px;
 }
+
+.usage-allowance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 24px;
+  background: #f6f2e8;
+  color: #5b5039;
+  font-size: 12px;
+}
+.usage-allowance details {
+  max-width: 680px;
+}
+.usage-allowance p {
+  line-height: 1.6;
+}
+@media print {
+  .usage-allowance,
+  .account-bar {
+    display: none;
+  }
+}

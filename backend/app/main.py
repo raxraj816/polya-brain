@@ -9,6 +9,7 @@ from app.api.routes.health import router as health_router
 from app.api.routes.memory import router as memory_router
 from app.api.routes.sessions import router as sessions_router
 from app.api.routes.source_check import router as source_check_router
+from app.api.routes.usage import router as usage_router
 from app.api.routes.workbench import router as workbench_router
 from app.auth import configure_auth, require_principal
 from app.auth import router as auth_router
@@ -53,6 +54,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(events_router)
     app.include_router(memory_router)
     app.include_router(workbench_router)
+    app.include_router(usage_router)
     app.include_router(source_check_router)
     return app
 

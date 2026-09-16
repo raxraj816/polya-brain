@@ -23,6 +23,18 @@ class Settings(BaseSettings):
     oidc_client_id: str = Field(default="", alias="OIDC_CLIENT_ID")
     oidc_client_secret: SecretStr = Field(default=SecretStr(""), alias="OIDC_CLIENT_SECRET")
     oidc_allowed_subjects: str = Field(default="", alias="OIDC_ALLOWED_SUBJECTS")
+    daily_user_run_limit: int = Field(
+        default=20, ge=0, le=10000, alias="POLYABRAIN_DAILY_USER_RUN_LIMIT"
+    )
+    daily_global_run_limit: int = Field(
+        default=100, ge=0, le=100000, alias="POLYABRAIN_DAILY_GLOBAL_RUN_LIMIT"
+    )
+    concurrent_user_run_limit: int = Field(
+        default=1, ge=1, le=100, alias="POLYABRAIN_CONCURRENT_USER_RUN_LIMIT"
+    )
+    concurrent_global_run_limit: int = Field(
+        default=4, ge=1, le=1000, alias="POLYABRAIN_CONCURRENT_GLOBAL_RUN_LIMIT"
+    )
     auth_session_seconds: int = Field(
         default=3600, ge=60, le=28800, alias="POLYABRAIN_AUTH_SESSION_SECONDS"
     )

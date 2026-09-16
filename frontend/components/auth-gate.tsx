@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { UsageAllowance } from "@/components/usage-allowance";
 import { Button } from "@/components/ui/button";
 
 type Identity = {
@@ -102,7 +103,10 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
           {error && <span role="alert">{error}</span>}
         </div>
       )}
-      <Workspace key={auth.data.workspace_id || "local"}>{children}</Workspace>
+      <Workspace key={auth.data.workspace_id || "local"}>
+        {auth.data.required && <UsageAllowance />}
+        {children}
+      </Workspace>
     </>
   );
 }

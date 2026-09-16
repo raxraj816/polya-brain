@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 export const maxDuration = 360;
 const allowed =
-  /^(health|api\/v1\/source-check|api\/v1\/auth\/(?:session|login|callback|logout)|api\/v1\/sessions(?:\/[0-9a-f-]{36}(?:\/(?:run|respond|report|artifacts|feedback|candidate|events(?:\/stream)?))?)?)$/;
+  /^(health|api\/v1\/source-check|api\/v1\/usage|api\/v1\/auth\/(?:session|login|callback|logout)|api\/v1\/sessions(?:\/[0-9a-f-]{36}(?:\/(?:run|respond|report|artifacts|feedback|candidate|events(?:\/stream)?))?)?)$/;
 async function proxy(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
@@ -109,6 +109,8 @@ async function proxy(
     });
     for (const cookie of response.headers.getSetCookie())
       headers.append("Set-Cookie", cookie);
+    const retryAfter = response.headers.get("retry-after");
+    if (retryAfter) headers.set("Retry-After", retryAfter);
     const location = response.headers.get("location");
     if (location) {
       if (!/^api\/v1\/auth\/(login|callback)$/.test(route))

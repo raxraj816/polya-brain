@@ -472,3 +472,7 @@ and remaining launch requirements are in
 [Chapter 73](docs/03_implementation/Chapter_73_Authentication_And_Isolation.md).
 Local bypass is for loopback operator use only. Public deployments require
 authentication, an admitted subject allowlist, and HTTPS.
+
+Authenticated deployments also enforce durable daily run and concurrency
+allowances. See [Chapter 77](docs/03_implementation/Chapter_77_Durable_Run_Allowances.md)
+for settings, user-visible limits, and recovery of interrupted worker slots.

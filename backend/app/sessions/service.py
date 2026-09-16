@@ -32,6 +32,7 @@ from app.models.sessions import (
     SessionReportResponse,
 )
 from app.problem_understanding.persistence import SQLAlchemyStructuredProblemRepository
+from app.sessions.admission import RunAdmissionPolicy, UsageLimitError, resource_limits
 from app.tracing.persistence import SQLAlchemyTraceRepository
 from app.tracing.sanitization import sanitize_text
 
@@ -137,6 +138,7 @@ class PolyaSessionService:
         stale_run_timeout_seconds: int | None = None,
         clarification_timeout_seconds: int | None = None,
         memory_repository: SQLAlchemyMemoryRepository | None = None,
+        admission_policy: RunAdmissionPolicy | None = None,
     ) -> None:
         self._db_session = db_session
         self._runner = runner
@@ -145,6 +147,8 @@ class PolyaSessionService:
         self._structured_problem_repository = SQLAlchemyStructuredProblemRepository(db_session)
         self._cognitive_state_repository = SQLAlchemyCognitiveStateRepository(db_session)
         self._memory_repository = memory_repository
+        self._admission_policy = admission_policy
+        self._admission_id: UUID | None = None
         timeout_seconds = (
             get_settings().session_run_timeout_seconds
             if stale_run_timeout_seconds is None
@@ -318,6 +322,41 @@ class PolyaSessionService:
             audit_trace_path=f"/api/v1/sessions/{session_id}/events",
         )
 
+    def _admit_run(self, session_id: UUID) -> None:
+        if self._admission_policy is None:
+            return
+        try:
+            self._admission_id = self._admission_policy.acquire(session_id)
+        except UsageLimitError:
+            self._db_session.rollback()
+            raise
+        self._trace_repository.persist_events(
+            session_id=session_id,
+            events=[
+                StateEvent(
+                    engine_name="run_admission",
+                    event_type="run_admitted",
+                    reasoning_mode=ReasoningMode.EXECUTE,
+                    summary="Reserved one daily invocation and an active run slot before dispatch.",
+                    metadata={
+                        "admission_id": str(self._admission_id),
+                        "allowance_unit": "bounded_invocation",
+                        "resource_limits": resource_limits(self._admission_policy.settings),
+                    },
+                )
+            ],
+        )
+
+    def _finish_admission(self, session_id: UUID) -> None:
+        if self._admission_policy is None or self._admission_id is None:
+            return
+        record = self._db_session.get(ProblemSession, session_id)
+        if record is None or record.status == SESSION_STATUS_RUNNING:
+            # An interrupted or unrecorded outcome must retain its concurrency slot.
+            return
+        self._admission_policy.finish(self._admission_id, record.status)
+        self._admission_id = None
+
     def _claim_created_session_for_run(self, session_id: UUID) -> ProblemSession:
         """Atomically move one created session to running, or raise."""
         now = utc_now()
@@ -343,6 +382,7 @@ class PolyaSessionService:
             self._db_session.rollback()
             raise SessionConflictError(conflict_message)
 
+        self._admit_run(session_id)
         self._db_session.commit()
         problem_session = self._db_session.get(ProblemSession, claimed_session_id)
         if problem_session is None:
@@ -559,6 +599,8 @@ class PolyaSessionService:
                 self._db_session.commit()
             sanitized_error = sanitize_text(f"{type(exc).__name__}: {exc}")
             raise SessionRunFailedError(sanitized_error) from exc
+        finally:
+            self._finish_admission(session_id)
 
     def respond_to_session(self, session_id: UUID, answer: str) -> SessionRunResult:
         """Persist one clarification answer and resume the same session."""
@@ -600,6 +642,7 @@ class PolyaSessionService:
                 f"clarification request expired for problem session {session_id}"
             )
 
+        self._admit_run(session_id)
         clarification.answer = normalized_answer
         clarification.answered_at = now
         clarification.status = CLARIFICATION_STATUS_ANSWERED
@@ -645,3 +688,5 @@ class PolyaSessionService:
                 self._db_session.commit()
             sanitized_error = sanitize_text(f"{type(exc).__name__}: {exc}")
             raise SessionRunFailedError(sanitized_error) from exc
+        finally:
+            self._finish_admission(session_id)

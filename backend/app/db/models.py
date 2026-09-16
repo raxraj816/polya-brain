@@ -58,6 +58,30 @@ class ProblemSession(Base):
     )
 
 
+class RunAdmission(Base):
+    """Durable quota charge and concurrency slot, acquired before run dispatch."""
+
+    __tablename__ = "run_admissions"
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("problem_sessions.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    user_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    outcome: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    resource_limits: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    __table_args__ = (
+        Index("ix_run_admissions_user_started", "user_id", "started_at"),
+        Index("ix_run_admissions_started", "started_at"),
+        Index("ix_run_admissions_finished", "finished_at"),
+    )
+
+
 class AuthSession(Base):
     """Revocable browser session; raw credentials and provider tokens are never stored."""
 

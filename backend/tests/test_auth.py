@@ -409,3 +409,22 @@ def test_discovery_cannot_downgrade_identity_transport(identity_app):
     start_login(client, provider)
     app.state.oidc.server_metadata["token_endpoint"] = "http://identity.example/token"
     assert client.get("/api/v1/auth/login", follow_redirects=False).status_code == 503
+
+
+@DB
+def test_authenticated_api_quota_denial_is_retryable_and_does_not_consume_input(identity_app):
+    app, provider, alice, _ = identity_app
+    owner = sign_in(app, provider, alice)
+    app.state.settings.daily_user_run_limit = 0
+    response = owner.post("/api/v1/sessions", json={"raw_input": "What is 17 * 6?"})
+    session_id = response.json()["id"]
+    denied = owner.post(f"/api/v1/sessions/{session_id}/run", json={})
+    assert denied.status_code == 429, denied.text
+    assert int(denied.headers["retry-after"]) > 0
+    assert owner.get(f"/api/v1/sessions/{session_id}").json()["status"] == "created"
+    assert owner.get("/api/v1/usage").json()["daily_remaining"] == 0
+    assert owner.get("/api/v1/usage").json()["active_runs"] == 0
+    app.state.settings.daily_user_run_limit = 1
+    assert owner.post(f"/api/v1/sessions/{session_id}/run", json={}).status_code == 200
+    assert owner.get("/api/v1/usage").json()["daily_used"] == 1
+    assert owner.get("/api/v1/usage").json()["active_runs"] == 0

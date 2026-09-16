@@ -3143,6 +3143,17 @@ Done when:
 
 #### Chapter 77: Cost Controls
 
+Initial authenticated delivery: atomically admit each run or clarification resume
+against per-user and service-wide UTC daily invocation allowances and concurrency
+limits. Persist admission and the configured per-invocation resource ceilings
+before any provider/tool dispatch. Count failed and interrupted work conservatively;
+never silently refund uncertain calls. An unfinished admission retains its slot
+until completion or explicit operator release after confirming the worker stopped.
+Expose the user's remaining allowance and reset time in the workbench. This bounds
+how many already-budgeted invocations can start; it is not a currency-denominated
+billing cap. Actual price reconciliation, caching, retention and hosted operational
+proof remain separate parts of this chapter.
+
 Tasks:
 
 1. Add per-session token budget.

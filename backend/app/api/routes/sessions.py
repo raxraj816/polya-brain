@@ -29,6 +29,7 @@ from app.sessions import (
     SessionNotFoundError,
     SessionRunFailedError,
 )
+from app.sessions.admission import RunAdmissionPolicy, UsageLimitError
 from app.sessions.service import SessionRunResult
 from app.sessions.source_check import SourceCheckSessionRunner
 from app.tracing.persistence import SQLAlchemyTraceRepository
@@ -135,6 +136,13 @@ def get_session_service(
             else runner
         ),
         memory_repository=memory_repository,
+        stale_run_timeout_seconds=settings.session_run_timeout_seconds,
+        clarification_timeout_seconds=settings.clarification_timeout_seconds,
+        admission_policy=(
+            RunAdmissionPolicy(db_session, settings, db_session.info["owner_id"])
+            if settings.auth_required
+            else None
+        ),
     )
 
 
@@ -230,6 +238,10 @@ def run_session(
     """Run a created session synchronously through the available capabilities."""
     try:
         run_result = session_service.run_session(session_id)
+    except UsageLimitError as exc:
+        raise HTTPException(
+            429, detail=str(exc), headers={"Retry-After": str(exc.retry_after)}
+        ) from exc
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except SessionConflictError as exc:
@@ -263,6 +275,10 @@ def respond_to_session(
     """Resume an awaiting session without discarding its persisted trace."""
     try:
         run_result = session_service.respond_to_session(session_id, request.answer)
+    except UsageLimitError as exc:
+        raise HTTPException(
+            429, detail=str(exc), headers={"Retry-After": str(exc.retry_after)}
+        ) from exc
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except SessionConflictError as exc:
