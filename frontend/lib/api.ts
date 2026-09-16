@@ -73,6 +73,8 @@ export async function api<T>(path: string, body?: unknown): Promise<T> {
     body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
   });
+  if (response.status === 401 && typeof window !== "undefined")
+    window.dispatchEvent(new Event("polya-auth-expired"));
   const payload = await response.json();
   if (!response.ok)
     throw new Error(

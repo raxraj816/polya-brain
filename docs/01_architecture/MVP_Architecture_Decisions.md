@@ -132,3 +132,13 @@ measured future claims, not properties conferred by modular architecture.
 ## Source-Of-Truth Rule
 
 If this document or any architecture/research document disagrees with the master plan, follow the master plan.
+
+## Chapter 73 identity boundary
+
+Use OIDC through Authlib and revocable hashed opaque browser sessions for the
+private beta. The API owns authentication/authorization; the frontend proxy and
+screen are additional controls. Session ownership and private memory namespaces
+are enforced in request dependencies and repository queries. Operator-local data
+is not automatically shared. No database RLS claim is made. See
+[Chapter 73](../03_implementation/Chapter_73_Authentication_And_Isolation.md) for
+configuration, protocol tests, namespace migration, and remaining deployment gates.

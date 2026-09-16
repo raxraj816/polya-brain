@@ -265,3 +265,15 @@ unchanged. Representation identity includes the mode/domain hint, and model
 capability identity includes the shared prompt policy version. Optional UI
 context remains clearly labeled user input in `raw_input`, rather than an inferred
 fact or additional first-class ranking field.
+
+## Chapter 73 persistence ownership
+
+Existing `ProblemSession.user_id` is produced exclusively from a validated OIDC
+principal in authenticated API requests; child records inherit the session owner.
+`AuthSession` stores only a token digest, opaque issuer/subject-derived user ID,
+creation and absolute expiry. `owner_id` on semantic, episodic, and procedural
+memory is produced by the trusted repository context and consumed by every
+retrieval, deduplication and learning update. These are security persistence
+fields, not reasoning scores or user-supplied core problem fields. Cross-user
+negative API/memory tests verify the boundary. Local legacy records remain in
+`__local__`; no default shared memory is promoted. See Chapter 73 delivery notes.

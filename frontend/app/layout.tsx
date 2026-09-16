@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import "./globals.css";
+import { AuthGate } from "@/components/auth-gate";
 export const metadata: Metadata = {
   title: "PolyaBrain · Investigator",
   description:
@@ -12,7 +13,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AuthGate>{children}</AuthGate>
+        </Providers>
       </body>
     </html>
   );

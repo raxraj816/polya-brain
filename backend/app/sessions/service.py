@@ -183,6 +183,7 @@ class PolyaSessionService:
     ) -> ProblemSession:
         """Create and commit a durable problem session."""
         problem_session = ProblemSession(
+            user_id=self._db_session.info.get("owner_id"),
             raw_input=raw_input.strip(),
             mode=mode.value,
             domain=domain.strip() if domain is not None else None,

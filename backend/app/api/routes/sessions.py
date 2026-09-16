@@ -101,8 +101,13 @@ def get_session_service(
                     Artifact.artifact_type == "source_check_input",
                 )
             )
+    settings = request.app.state.settings
+    if settings.auth_required:
+        # Uploaded snapshots have their own explicitly consented temporary root.
+        # Global host roots are operator-only until project permissions exist.
+        settings = settings.model_copy(update={"artifact_allowed_roots": ""})
     runner = build_representation_session_runner(
-        request.app.state.settings,
+        settings,
         mode_hint=ProductMode(stored_session.mode) if stored_session is not None else None,
         domain_hint=stored_session.domain if stored_session is not None else None,
         prior_research_query_count=lambda session_id: trace_repository.count_events(

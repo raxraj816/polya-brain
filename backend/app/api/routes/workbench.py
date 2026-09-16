@@ -52,7 +52,9 @@ def list_sessions(
     feedback_type: Literal["useful", "wrong", "incomplete", "unsafe"] | None = None,
     db: Session = DB,
 ) -> SessionHistoryResponse:
-    statement = select(records.ProblemSession)
+    statement = select(records.ProblemSession).where(
+        records.ProblemSession.user_id == db.info.get("owner_id")
+    )
     if q.strip():
         statement = statement.where(
             records.ProblemSession.raw_input.icontains(q.strip(), autoescape=True)

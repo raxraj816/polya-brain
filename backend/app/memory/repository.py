@@ -26,6 +26,7 @@ from app.cognition.procedure_compiler import (
 from app.db.models import (
     EpisodicMemory,
     KnowledgeChunk,
+    ProblemSession,
     ProceduralStrategy,
     utc_now,
 )
@@ -68,7 +69,13 @@ class SQLAlchemyMemoryRepository:
         embeddings: EmbeddingProvider | None = None,
     ) -> None:
         self._db_session = db_session
+        self._owner_id: str = db_session.info.get("owner_id") or "__local__"
         self._embeddings = embeddings or HashingEmbeddingProvider()
+
+    def _require_owned_session(self, session_id: UUID) -> None:
+        record = self._db_session.get(ProblemSession, session_id)
+        if record is None or (record.user_id or "__local__") != self._owner_id:
+            raise ValueError("Memory source session is outside this owner namespace")
 
     def ingest_semantic(
         self,
@@ -85,6 +92,8 @@ class SQLAlchemyMemoryRepository:
         admission_status: str = "evaluated",
     ) -> KnowledgeChunk:
         """Stage one evaluated semantic unit with source and freshness metadata."""
+        if session_id is not None:
+            self._require_owned_session(session_id)
         normalized = content.strip()
         normalized_source = source_uri.strip()
         if not normalized or len(normalized) > _MAX_CONTENT_CHARACTERS:
@@ -98,7 +107,9 @@ class SQLAlchemyMemoryRepository:
 
         content_hash = hashlib.sha256(normalized.encode()).hexdigest()
         existing = self._db_session.scalar(
-            select(KnowledgeChunk).where(
+            select(KnowledgeChunk)
+            .where(KnowledgeChunk.owner_id == self._owner_id)
+            .where(
                 KnowledgeChunk.content_hash == content_hash,
                 KnowledgeChunk.source_uri == normalized_source,
             )
@@ -108,6 +119,7 @@ class SQLAlchemyMemoryRepository:
 
         embedding = self._embeddings.embed(normalized)
         chunk = KnowledgeChunk(
+            owner_id=self._owner_id,
             session_id=session_id,
             content=normalized,
             content_hash=content_hash,
@@ -204,15 +216,19 @@ class SQLAlchemyMemoryRepository:
             raise ValueError("minimum_similarity must be between 0 and 1")
         query_vector = self._embeddings.embed(normalized)
         distance = KnowledgeChunk.embedding.cosine_distance(query_vector).label("distance")
-        statement = select(KnowledgeChunk, distance).where(
-            KnowledgeChunk.embedding.is_not(None),
-            KnowledgeChunk.reliability_score >= minimum_reliability,
-            KnowledgeChunk.admission_status.in_(_ADMITTED_STATUSES),
-            distance <= 1.0 - minimum_similarity,
-            or_(
-                KnowledgeChunk.valid_until.is_(None),
-                KnowledgeChunk.valid_until >= (now or utc_now()),
-            ),
+        statement = (
+            select(KnowledgeChunk, distance)
+            .where(KnowledgeChunk.owner_id == self._owner_id)
+            .where(
+                KnowledgeChunk.embedding.is_not(None),
+                KnowledgeChunk.reliability_score >= minimum_reliability,
+                KnowledgeChunk.admission_status.in_(_ADMITTED_STATUSES),
+                distance <= 1.0 - minimum_similarity,
+                or_(
+                    KnowledgeChunk.valid_until.is_(None),
+                    KnowledgeChunk.valid_until >= (now or utc_now()),
+                ),
+            )
         )
         if domain is not None:
             statement = statement.where(KnowledgeChunk.domain == domain)
@@ -253,7 +269,11 @@ class SQLAlchemyMemoryRepository:
             raise ValueError("minimum_similarity must be between 0 and 1")
         vector = self._embeddings.embed(query)
         distance = EpisodicMemory.embedding.cosine_distance(vector).label("distance")
-        statement = select(EpisodicMemory, distance).where(distance <= 1.0 - minimum_similarity)
+        statement = (
+            select(EpisodicMemory, distance)
+            .where(EpisodicMemory.owner_id == self._owner_id)
+            .where(distance <= 1.0 - minimum_similarity)
+        )
         if problem_type is not None:
             statement = statement.where(EpisodicMemory.problem_type == problem_type)
         if domain is not None:
@@ -312,6 +332,7 @@ class SQLAlchemyMemoryRepository:
 
     def learn_verified_outcome(self, session_id: UUID, state: PolyaState) -> bool:
         """Persist episode and successful procedures only after verification/reflection."""
+        self._require_owned_session(session_id)
         verification = state["verification"]
         reflection = state["reflection"]
         problem = state["structured_problem"]
@@ -326,13 +347,16 @@ class SQLAlchemyMemoryRepository:
             return False
 
         episode = self._db_session.scalar(
-            select(EpisodicMemory).where(EpisodicMemory.source_session_id == session_id)
+            select(EpisodicMemory)
+            .where(EpisodicMemory.owner_id == self._owner_id)
+            .where(EpisodicMemory.source_session_id == session_id)
         )
         if episode is None:
             episode_text = "\n".join(
                 [problem.core_question, reflection.outcome_summary, final_answer]
             )
             episode = EpisodicMemory(
+                owner_id=self._owner_id,
                 source_session_id=session_id,
                 problem_type=problem.problem_type,
                 domain=problem.domain,
@@ -372,7 +396,9 @@ class SQLAlchemyMemoryRepository:
                 continue
             capability = f"compiled_procedure:{procedure.id}"
             existing = self._db_session.scalar(
-                select(ProceduralStrategy).where(
+                select(ProceduralStrategy)
+                .where(ProceduralStrategy.owner_id == self._owner_id)
+                .where(
                     ProceduralStrategy.problem_type == procedure.task_family,
                     ProceduralStrategy.gap_type == "compiled_procedure",
                     ProceduralStrategy.action_type == CognitiveActionType.EXECUTE.value,
@@ -396,6 +422,7 @@ class SQLAlchemyMemoryRepository:
             if existing is None:
                 self._db_session.add(
                     ProceduralStrategy(
+                        owner_id=self._owner_id,
                         name=f"compiled:{procedure.id}:v{procedure.version}",
                         problem_type=procedure.task_family,
                         gap_type="compiled_procedure",
@@ -496,7 +523,9 @@ class SQLAlchemyMemoryRepository:
         if action_type not in _LEARNABLE_ACTIONS or not isinstance(capability, str):
             return
         strategy = self._db_session.scalar(
-            select(ProceduralStrategy).where(
+            select(ProceduralStrategy)
+            .where(ProceduralStrategy.owner_id == self._owner_id)
+            .where(
                 ProceduralStrategy.problem_type == problem_type,
                 ProceduralStrategy.gap_type == gap_type,
                 ProceduralStrategy.action_type == action_type,
@@ -506,6 +535,7 @@ class SQLAlchemyMemoryRepository:
         session_key = str(session_id)
         if strategy is None:
             strategy = ProceduralStrategy(
+                owner_id=self._owner_id,
                 name=f"{problem_type}:{gap_type}:{action_type}",
                 problem_type=problem_type,
                 gap_type=gap_type,
@@ -546,6 +576,7 @@ class SQLAlchemyMemoryRepository:
         """Return the strongest verified procedural preference for a structural gap."""
         strategy = self._db_session.scalar(
             select(ProceduralStrategy)
+            .where(ProceduralStrategy.owner_id == self._owner_id)
             .where(
                 ProceduralStrategy.problem_type == problem_type,
                 ProceduralStrategy.gap_type == gap_type,
@@ -582,7 +613,7 @@ class SQLAlchemyMemoryRepository:
         """Inspect learned procedures and human-authored unverified playbooks."""
         if not 1 <= limit <= 100:
             raise ValueError("strategy result limit must be between 1 and 100")
-        statement = select(ProceduralStrategy)
+        statement = select(ProceduralStrategy).where(ProceduralStrategy.owner_id == self._owner_id)
         if problem_type is not None:
             statement = statement.where(ProceduralStrategy.problem_type == problem_type)
         if gap_type is not None:

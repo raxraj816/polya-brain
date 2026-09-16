@@ -466,3 +466,9 @@ trace without creating a canonical row.
 
 See `docs/03_implementation/Phase_2_Action_Items.md` and
 `docs/03_implementation/Chapter_Backlog.md` for the active local backlog.
+
+Private workspace authentication is available through OIDC; setup, test evidence,
+and remaining launch requirements are in
+[Chapter 73](docs/03_implementation/Chapter_73_Authentication_And_Isolation.md).
+Local bypass is for loopback operator use only. Public deployments require
+authentication, an admitted subject allowlist, and HTTPS.

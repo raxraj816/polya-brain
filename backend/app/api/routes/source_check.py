@@ -85,6 +85,7 @@ def create_source_check(
     if not gate.available:
         raise HTTPException(status_code=409, detail=gate.reason)
     session = ProblemSession(
+        user_id=db.info.get("owner_id"),
         raw_input=payload.raw_input,
         mode="investigate",
         domain="software_debugging",

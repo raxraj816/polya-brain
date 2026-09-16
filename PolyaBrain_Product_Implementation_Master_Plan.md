@@ -3069,6 +3069,24 @@ Done when:
 
 #### Chapter 73: Authentication
 
+Implementation direction (Chapter 73): use provider-agnostic OpenID Connect
+through Authlib (authorization code, PKCE, validated ID token), followed by a
+short-lived, revocable opaque browser session. Persist only its hash and an
+issuer/subject-derived user identifier. Authenticated deployments fail closed
+without explicit HTTPS public origin, issuer/client configuration, signing
+secret, and admitted subject allowlist. Local/test bypass remains explicit in
+the environment and is not a public deployment mode.
+
+Authorize every private API request and every session identifier before access.
+Assign ownership from the authenticated principal, never request content.
+Namespace semantic, episodic, and procedural memory by the same principal,
+including deduplication and learned strategy updates. Historical unowned records
+remain local-only. Browser proxy, CSRF checks, login/logout, negative cross-user
+API and memory tests, and actual protocol validation are part of this gate.
+OIDC provider provisioning, public hosting, operational retention, and daily
+spending controls remain separate launch gates; a passing local auth test does
+not establish public beta readiness.
+
 Tasks:
 
 1. Add simple auth for MVP.

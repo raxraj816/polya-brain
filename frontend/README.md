@@ -90,3 +90,11 @@ POLYABRAIN_TEST_LIVE_SOURCE=1 npm --prefix frontend run test:e2e -- --grep "sour
 
 Run it only against a disposable local workspace with a configured provider. It
 verifies a known synthetic defect and is not an independent quality benchmark.
+
+Authentication: set `POLYABRAIN_PUBLIC_ORIGIN` consistently on the frontend and
+backend to enable the configured public Host. The proxy refuses public mode
+against a bypass backend. The browser signs in through OIDC, uses HttpOnly
+cookies, and clears private query state across accounts. See
+[Chapter 73](../docs/03_implementation/Chapter_73_Authentication_And_Isolation.md).
+Run `scripts/verify_auth_browser.sh` from the repository root after building this
+frontend and migrating a scratch Postgres database to verify the full login flow.

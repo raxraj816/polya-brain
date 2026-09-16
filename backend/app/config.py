@@ -1,8 +1,9 @@
 """Runtime settings for the PolyaBrain backend."""
 
 from functools import lru_cache
+from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,6 +17,61 @@ class Settings(BaseSettings):
     environment: str = Field(default="local", alias="POLYABRAIN_ENV")
     log_level: str = Field(default="INFO", alias="POLYABRAIN_LOG_LEVEL")
     secret_key: str = Field(default="", alias="POLYABRAIN_SECRET_KEY")
+    auth_required: bool = Field(default=False, alias="POLYABRAIN_AUTH_REQUIRED")
+    public_origin: str = Field(default="", alias="POLYABRAIN_PUBLIC_ORIGIN")
+    oidc_issuer: str = Field(default="", alias="OIDC_ISSUER")
+    oidc_client_id: str = Field(default="", alias="OIDC_CLIENT_ID")
+    oidc_client_secret: SecretStr = Field(default=SecretStr(""), alias="OIDC_CLIENT_SECRET")
+    oidc_allowed_subjects: str = Field(default="", alias="OIDC_ALLOWED_SUBJECTS")
+    auth_session_seconds: int = Field(
+        default=3600, ge=60, le=28800, alias="POLYABRAIN_AUTH_SESSION_SECONDS"
+    )
+
+    @model_validator(mode="after")
+    def validate_auth_configuration(self) -> Settings:
+        if not self.auth_required:
+            if self.environment not in {"local", "test"}:
+                raise ValueError("Authentication is required outside local/test environments")
+            return self
+        if (
+            len(self.secret_key) < 32
+            or not self.oidc_client_id
+            or not self.oidc_client_secret.get_secret_value()
+            or not any(sub.strip() for sub in self.oidc_allowed_subjects.split(","))
+        ):
+            raise ValueError(
+                "Authentication requires a signing secret (32+ characters), OIDC client and admitted subjects"
+            )
+        for name, value in (
+            ("public origin", self.public_origin),
+            ("OIDC issuer", self.oidc_issuer),
+        ):
+            url = urlsplit(value)
+            if (
+                not value.startswith(("https://", "http://"))
+                or value != value.strip()
+                or any(ord(char) < 32 for char in value)
+                or not url.hostname
+                or url.username
+                or url.password
+                or url.query
+                or url.fragment
+                or (
+                    url.scheme != "https"
+                    and not (
+                        self.environment in {"local", "test"}
+                        and url.scheme == "http"
+                        and url.hostname in {"localhost", "127.0.0.1", "::1"}
+                    )
+                )
+            ):
+                raise ValueError(
+                    f"Invalid {name}: HTTPS is required (loopback HTTP only in local/test)"
+                )
+            if name == "public origin" and url.path:
+                raise ValueError("Public origin must not contain a path or trailing slash")
+        return self
+
     session_run_timeout_seconds: int = Field(
         default=900,
         ge=1,
