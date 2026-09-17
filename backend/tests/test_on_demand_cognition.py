@@ -18,6 +18,7 @@ from app.graph.state import StateEvent, create_initial_state
 from app.llm import FakeLLMClient, LLMResponse, LLMTokenUsage
 from app.models.contracts import (
     EvidenceItem,
+    KnowledgeGap,
     ReasoningMode,
     StructuredProblem,
 )
@@ -320,3 +321,48 @@ def test_model_route_is_part_of_capability_version_and_timeout_contract() -> Non
     assert first["conclusion_checker"].version != second["conclusion_checker"].version
     assert first["deliberator"].max_output_tokens == 1800
     assert first["deliberator"].timeout_seconds == 60.0
+
+
+def test_json_dependency_evidence_routes_to_inspection_not_measurement_or_user() -> None:
+    from app.cognition.controller import _preferred_action_for_gap
+    from app.cognition.on_demand_capabilities import _gap_type, _source_for_unknown
+
+    unknown = "Which compatible versions satisfy the files in /Users/reviewer/audit.json?"
+    source = _source_for_unknown(unknown, ["explicit local artifact /Users/reviewer/audit.json"])
+    assert source == "local artifact"
+    gap = KnowledgeGap(
+        description=unknown,
+        gap_type=_gap_type(unknown, source),
+        suggested_source=source,
+        why_needed="Resolve dependency constraints.",
+    )
+    assert _preferred_action_for_gap(gap) is CognitiveActionType.INSPECT
+
+
+def test_explicit_measurement_and_human_sources_keep_their_routing() -> None:
+    from app.cognition.controller import _preferred_action_for_gap
+    from app.cognition.on_demand_capabilities import _gap_type, _source_for_unknown
+
+    for unknown, sources, expected in [
+        (
+            "Compute the median request latency",
+            ["dataset measurement in requests.csv"],
+            CognitiveActionType.MEASURE,
+        ),
+        ("The user's risk preference", ["human input"], CognitiveActionType.CLARIFY),
+    ]:
+        source = _source_for_unknown(unknown, sources)
+        gap = KnowledgeGap(
+            description=unknown,
+            gap_type=_gap_type(unknown, source),
+            suggested_source=source,
+            why_needed="Required for this decision.",
+        )
+        assert _preferred_action_for_gap(gap) is expected
+
+
+def test_source_filenames_do_not_imply_numeric_or_measurement_operations() -> None:
+    from app.cognition.on_demand_capabilities import _source_for_unknown
+
+    for path in ("/Users/numeric/table/policy.json", "median.json", "calculator.toml"):
+        assert _source_for_unknown("Find the configured policy", [path]) == "local artifact"

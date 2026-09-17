@@ -27,7 +27,7 @@ from app.llm import (
 )
 from app.models.contracts import ContractModel
 
-COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.2.0"
+COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.3.0"
 
 OutputT = TypeVar("OutputT", bound=ContractModel)
 
@@ -223,7 +223,7 @@ OUTPUT_JSON_SCHEMA:
                 temperature=0.1,
                 max_output_tokens=max_output_tokens,
                 json_mode=True,
-                timeout_seconds=min(45.0, total_timeout_seconds),
+                timeout_seconds=total_timeout_seconds,
                 total_timeout_seconds=total_timeout_seconds,
                 max_retries=1,
             ),

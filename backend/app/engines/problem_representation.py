@@ -35,8 +35,9 @@ from app.problem_understanding import (
     generate_problem_understanding,
 )
 from app.problem_understanding.fallbacks import deterministic_problem_understanding
+from app.problem_understanding.prompt import PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS
 
-PROBLEM_REPRESENTATION_ENGINE_VERSION: Final = "problem_representation@1.0.0"
+PROBLEM_REPRESENTATION_ENGINE_VERSION: Final = "problem_representation@1.1.0"
 
 
 @dataclass(frozen=True)
@@ -195,7 +196,7 @@ class ProblemRepresentationEngine:
         self._domain_hint = domain_hint
         resolved_options = request_options or LLMRequestOptions(
             temperature=0.1,
-            max_output_tokens=1800,
+            max_output_tokens=PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
             json_mode=True,
             timeout_seconds=min(45.0, total_timeout_seconds),
             total_timeout_seconds=total_timeout_seconds,

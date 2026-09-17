@@ -35,6 +35,7 @@ Current chapter notes:
 - `Chapter_13J_Adversarial_Epistemic_Control_Gate.md`
 - `Chapter_13K_Non_Synthetic_Investigator_Gate.md`
 - `Chapter_13L_Investigator_Runtime_Delivery.md`
+- `Chapter_13P_Core_Value_Recovery.md`
 - `Chapter_14_Constraint_Discovery_Engine.md`
 - `Chapter_15_Clarifying_Question_Flow.md`
 - `Chapter_16_20_Memory_Foundation.md`

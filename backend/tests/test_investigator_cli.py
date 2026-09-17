@@ -183,3 +183,21 @@ def test_deterministic_runtime_keeps_unknown_inputs_out_of_zero_call_route() -> 
     result = runtime.run_problem("Diagnose this completely unspecified deployment.")
     assert result.status is CognitiveRunStatus.INSUFFICIENT_EVIDENCE
     assert result.observations == ()
+
+
+def test_public_cli_inspects_json_policy_under_a_user_directory(tmp_path: Path) -> None:
+    artifact_dir = tmp_path / "Users" / "reviewer"
+    artifact_dir.mkdir(parents=True)
+    manual = artifact_dir / "policy.json"
+    manual.write_text(json.dumps({"revision": 7, "rule": "Z7.4: request_timeout_ticks = 37."}))
+    process = _run(
+        tmp_path,
+        f"Using only the manual at '{manual}', determine what request timeout revision 7 requires and state the exact rule.",
+        "--offline",
+        "--artifact-root",
+        str(artifact_dir),
+    )
+    assert process.returncode == 0, process.stdout + process.stderr
+    report = json.loads((tmp_path / "result/report.json").read_text())
+    assert "37" in report["final_conclusion"]
+    assert report["evidence_used"]

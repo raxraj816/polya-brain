@@ -20,6 +20,7 @@ from app.problem_understanding.contracts import (
     ParserRetryPolicy,
     ProblemUnderstandingRunResult,
 )
+from app.problem_understanding.fallbacks import explicit_artifact_references
 from app.problem_understanding.parser import (
     ProblemUnderstandingParseError,
     parse_problem_understanding,
@@ -76,9 +77,23 @@ def generate_problem_understanding(
                 raise ProblemUnderstandingParseError(
                     "selected_mode must preserve the supplied user mode_hint"
                 )
+            # Source references belong to the request, not to the model's
+            # paraphrase. Access still passes through the inspector's root checks.
+            sources = list(
+                dict.fromkeys(
+                    [
+                        *parsed.output.required_data_sources,
+                        *(
+                            f"explicit local artifact {path}"
+                            for path in explicit_artifact_references(state["raw_input"])
+                        ),
+                    ]
+                )
+            )
+            output = parsed.output.model_copy(update={"required_data_sources": sources})
             return ProblemUnderstandingRunResult(
-                output=parsed.output,
-                structured_problem=parsed.output.to_structured_problem(),
+                output=output,
+                structured_problem=output.to_structured_problem(),
                 prompt_version=PROBLEM_UNDERSTANDING_PROMPT_VERSION,
                 provider=response.provider,
                 model=response.model,

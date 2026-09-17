@@ -13,7 +13,8 @@ from app.problem_understanding.contracts import (
 )
 from app.problem_understanding.examples import PROBLEM_UNDERSTANDING_EXAMPLES
 
-PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.0.0"
+PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.1.0"
+PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS = 3000
 PROBLEM_UNDERSTANDING_REPAIR_PROMPT_VERSION = "problem_understanding_repair@1.0.0"
 
 
@@ -62,6 +63,8 @@ Rules:
    information in unknown and required sources in required_data_sources.
 6. success_criteria must state what can be checked to decide that the problem is solved.
 7. time_window must contain only explicit temporal information from the input.
+8. Represent the investigation; do not solve it in this response. Keep fields brief,
+   reference supplied paths once in required_data_sources, and avoid repeating them.
 
 OUTPUT_JSON_SCHEMA:
 {schema}
@@ -98,7 +101,7 @@ def build_problem_understanding_request(
     """Build a JSON-mode LLM request from the current Polya state."""
     resolved_options = options or LLMRequestOptions(
         temperature=0.1,
-        max_output_tokens=1800,
+        max_output_tokens=PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
         json_mode=True,
         timeout_seconds=45,
         total_timeout_seconds=90,

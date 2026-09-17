@@ -32,6 +32,7 @@ from app.llm import (
 )
 from app.models.contracts import ContractModel, NonEmptyStr, ProductMode, Score
 from app.problem_understanding import ProblemUnderstandingRunResult, generate_problem_understanding
+from app.problem_understanding.prompt import PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS
 from app.problem_understanding.routing import (
     ProblemUnderstandingExecution,
     ProblemUnderstandingProviderError,
@@ -431,7 +432,7 @@ class RoutedProblemUnderstandingProvider:
                 domain_hint=domain_hint,
                 request_options=LLMRequestOptions(
                     temperature=0.1,
-                    max_output_tokens=1800,
+                    max_output_tokens=PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
                     json_mode=True,
                     timeout_seconds=min(45.0, route_budget),
                     total_timeout_seconds=route_budget,

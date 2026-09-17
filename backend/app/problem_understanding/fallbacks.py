@@ -15,7 +15,7 @@ from app.problem_understanding.examples import PROBLEM_UNDERSTANDING_EXAMPLES
 from app.problem_understanding.prompt import PROBLEM_UNDERSTANDING_PROMPT_VERSION
 
 DETERMINISTIC_PROVIDER = "deterministic"
-DETERMINISTIC_MODEL = "problem_understanding_fallback@1.1.0"
+DETERMINISTIC_MODEL = "problem_understanding_fallback@1.2.0"
 
 _SIMPLE_ARITHMETIC = re.compile(
     r"^(?:what\s+is\s+)?(?P<left>-?\d+(?:\.\d+)?)\s*"
@@ -56,6 +56,17 @@ _MEASURABLE_OR_CONSTRAINED_TERMS = {
     "success",
     "time",
 }
+
+
+def explicit_artifact_references(raw_input: str) -> list[str]:
+    """Preserve user-supplied text references; this does not authorize file access."""
+    return list(
+        dict.fromkeys(
+            match.group("path")
+            for match in _EXPLICIT_ARTIFACT.finditer(raw_input)
+            if "://" not in match.group("path")
+        )
+    )
 
 
 def _example_fallback(
@@ -150,10 +161,13 @@ def _explicit_artifact_fallback(
 ) -> ProblemUnderstandingOutput | None:
     """Represent an explicit read-only artifact lookup without semantic inference."""
     raw_input = " ".join(state["raw_input"].split())
-    match = _EXPLICIT_ARTIFACT.search(raw_input)
-    if match is None:
+    matches = list(_EXPLICIT_ARTIFACT.finditer(raw_input))
+    if len(matches) != 1:
         return None
-    normalized = raw_input.casefold()
+    match = matches[0]
+    if "://" in match.group("path"):
+        return None
+    normalized = raw_input.replace(match.group(0), "the referenced artifact").casefold()
     if any(
         marker in normalized
         for marker in (
@@ -167,6 +181,10 @@ def _explicit_artifact_fallback(
             "root cause",
             "review",
             "summarize",
+            "investigat",
+            "remediat",
+            "propos",
+            "compatib",
         )
     ):
         return None

@@ -1985,6 +1985,41 @@ defects. It would not establish contamination-free current frontier
 superiority, general software-engineering autonomy, or cross-domain general
 intelligence.
 
+#### Core-value priority: Chapter 13-P production-path investigation proof
+
+Pause additional deployment and account-flow work until the actual public runtime
+can complete realistic artifact-grounded investigations and its overhead is
+measured against a direct same-model answer. A real repository dependency-remediation
+task exposed zero evidence acquisition and unnecessary clarification; unit-test
+counts and earlier reduced source-patch benchmarks did not catch that failure.
+
+Narrow deterministic lookup applicability to genuinely single-artifact fact
+lookup. Multi-artifact synthesis must preserve all evidence inputs and use bounded
+semantic framing. Existing typed gap/source hints take precedence over incidental
+words in file paths; a JSON filename alone is not a request for numerical
+measurement. Version these behavior changes, add regressions at the public runtime
+boundary, and rerun the frozen failing task without overwriting the failed record.
+Exclude quoted artifact paths from lookup-intent classification. Allow bounded
+semantic framing enough output space for its schema (3,000 tokens per response,
+still subject to the shared run budget); avoid spending the same insufficient
+allowance twice on a truncated framing response.
+Inspect complete small text artifacts within a shared 64,000-character acquisition
+allowance instead of silently stopping at 40 lines. Allocate space across explicit
+files, label partial coverage in the admitted excerpt, and keep line provenance
+accurate when a long line must be cut. Reading an excerpt is not proof that a
+multi-part evidence gap has been resolved.
+Keep fused deliberation concise: two meaningful alternatives and at most two
+grouped analytic tasks, with no repeated long evidence quotations. Let one model
+attempt use the existing capability deadline rather than imposing a shorter
+45-second cutoff and repeating the same slow generation. The shared duration,
+call and token budgets continue to apply.
+Preserve explicitly quoted artifact references from the user's original request
+in the validated framing sources even when a model abbreviates their names. Model
+paraphrasing must not erase the evidence inputs used for source routing.
+Track evidence coverage, outcome correctness, unsupported claims, latency, tokens,
+and remaining manual work. Dogfooding is not independent blind evaluation or
+repeat-use proof; those product-value gates remain open.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

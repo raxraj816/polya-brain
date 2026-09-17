@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Iterable
 from typing import Protocol
 
@@ -29,7 +30,7 @@ from app.cognition.verification_factory import deterministic_verification_availa
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.4.0"
+POLICY_VERSION = "cognitive-controller-v0.5.0"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -179,32 +180,43 @@ def _state_fingerprint(state: PolyaState) -> str:
 
 def _preferred_action_for_gap(gap: KnowledgeGap) -> CognitiveActionType:
     """Map the nature of an obstacle to a general cognitive action."""
+    typed = {
+        "numeric_computation": CognitiveActionType.CALCULATE,
+        "missing_measurement": CognitiveActionType.MEASURE,
+        "missing_artifact_knowledge": CognitiveActionType.INSPECT,
+        "controlled_experiment": CognitiveActionType.EXPERIMENT,
+        "simulation": CognitiveActionType.SIMULATE,
+        "current_external_fact": CognitiveActionType.SEARCH,
+        "user_owned_information": CognitiveActionType.CLARIFY,
+    }.get(gap.gap_type)
+    if typed is not None:
+        return typed
     text = " ".join(
         part for part in (gap.gap_type, gap.description, gap.suggested_source or "") if part
     ).lower()
+    # Paths are data references, not instructions to ask their named users.
+    text = re.sub(r"(?:file://)?(?:[A-Za-z]:)?[/\\][^\s]+", " ", text)
 
-    if any(token in text for token in ("ambiguous", "clarif", "user", "human input")):
+    def contains(terms: tuple[str, ...]) -> bool:
+        return any(re.search(r"\b" + re.escape(term) + r"\w*\b", text) for term in terms)
+
+    if contains(("ambiguous", "clarif", "user", "human input")):
         return CognitiveActionType.CLARIFY
-    if any(token in text for token in ("contradiction", "wrong problem", "reframe")):
+    if contains(("contradiction", "wrong problem", "reframe")):
         return CognitiveActionType.REFRAME
-    if any(token in text for token in ("calculator", "arithmetic", "compute", "numeric")):
+    if contains(("calculator", "arithmetic", "compute", "numeric")):
         return CognitiveActionType.CALCULATE
-    if any(token in text for token in ("experiment", "falsif", "controlled test")):
+    if contains(("experiment", "falsif", "controlled test")):
         return CognitiveActionType.EXPERIMENT
-    if any(token in text for token in ("simulation", "simulate")):
+    if contains(("simulation", "simulate")):
         return CognitiveActionType.SIMULATE
-    if any(token in text for token in ("measure", "metric", "baseline", "dataset")):
+    if contains(("measure", "metric", "baseline", "dataset")):
         return CognitiveActionType.MEASURE
-    if any(
-        token in text for token in ("code", "file", "log", "document", "repository", "artifact")
-    ):
+    if contains(("code", "file", "log", "document", "repository", "artifact")):
         return CognitiveActionType.INSPECT
-    if any(token in text for token in ("memory", "past case", "prior strategy")):
+    if contains(("memory", "past case", "prior strategy")):
         return CognitiveActionType.RETRIEVE_MEMORY
-    if any(
-        token in text
-        for token in ("web", "official", "public", "current", "source", "research", "api")
-    ):
+    if contains(("web", "official", "public", "current", "source", "research", "api")):
         return CognitiveActionType.SEARCH
     return CognitiveActionType.OBSERVE
 

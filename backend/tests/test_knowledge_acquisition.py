@@ -468,6 +468,40 @@ def test_local_artifact_requires_explicit_contained_text_file(tmp_path: Path) ->
     assert rejected == []
 
 
+def test_local_inspection_covers_late_lines_and_reserves_smaller_files(tmp_path: Path) -> None:
+    audit = tmp_path / "audit.json"
+    audit.write_text(
+        "\n".join(f'{{"record": {i}, "detail": "' + "x" * 400 + '"}' for i in range(110))
+    )
+    manifest = tmp_path / "requirements.txt"
+    manifest.write_text("\n" * 70 + "important-package>=9.0\n")
+    candidates = LocalArtifactInspector([tmp_path]).inspect(
+        f"Read '{audit}' and '{manifest}'.", "Identify all affected dependencies"
+    )
+    assert len(candidates) == 2
+    assert all("complete file" in candidate.excerpt for candidate in candidates)
+    assert '"record": 109' in candidates[0].excerpt
+    assert "71: important-package>=9.0" in candidates[1].excerpt
+    assert candidates[1].source_uri.endswith("#L1-L71")
+
+
+def test_local_inspection_labels_truncated_line_and_preserves_other_file(tmp_path: Path) -> None:
+    large = tmp_path / "large.log"
+    large.write_text("x" * 90_000 + "\nnot displayed\n")
+    small = tmp_path / "small.txt"
+    small.write_text("Complete small reference.\n")
+    candidates = LocalArtifactInspector([tmp_path]).inspect(
+        f"Read '{large}' and '{small}'.", "Read supplied artifacts"
+    )
+    assert "partial file" in candidates[0].excerpt
+    assert "last displayed line is truncated" in candidates[0].excerpt
+    assert "not displayed" not in candidates[0].excerpt
+    assert candidates[0].source_uri.endswith("#L1-L1")
+    assert "complete file" in candidates[1].excerpt
+    assert "Complete small reference." in candidates[1].excerpt
+    assert sum(len(c.excerpt) for c in candidates) < 65_000
+
+
 def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path: Path) -> None:
     source = tmp_path / "service.py"
     source.write_text(

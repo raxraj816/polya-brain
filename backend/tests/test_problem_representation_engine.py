@@ -303,3 +303,11 @@ def test_golden_examples_use_stable_validated_fallback(example_index: int) -> No
         assert result.result.status is EngineStatus.OK
         assert result.state_delta["structured_problem"] == example.output.to_structured_problem()
     assert client.requests == []
+
+
+def test_multi_artifact_synthesis_is_not_reduced_to_one_lookup() -> None:
+    state = create_initial_state(
+        "Using '/Users/reviewer/audit.json' and '/Users/reviewer/pyproject.toml', "
+        "identify which dependency upper bounds block compatible versions and propose a plan."
+    )
+    assert deterministic_problem_understanding(state) is None

@@ -20,6 +20,7 @@ from app.engines import EngineStatus, PolyaEngine, engine_event_metadata, run_en
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import RiskLevel, StructuredProblem
 from app.problem_understanding.fallbacks import deterministic_problem_understanding
+from app.problem_understanding.prompt import PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS
 from app.tracing.sanitization import sanitize_text
 
 
@@ -48,7 +49,7 @@ def problem_representation_capability(
         approved_for_sensitive_data=deterministic_only,
         kind=CapabilityKind.DETERMINISTIC if deterministic_only else CapabilityKind.MODEL,
         max_model_calls=0 if deterministic_only else max_model_calls,
-        max_output_tokens=0 if deterministic_only else 3000,
+        max_output_tokens=0 if deterministic_only else PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
         timeout_seconds=1.0 if deterministic_only else 90.0,
     )
 

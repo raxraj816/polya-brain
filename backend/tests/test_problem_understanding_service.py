@@ -69,6 +69,29 @@ def test_all_ten_local_examples_complete_end_to_end(example_index: int) -> None:
     assert example.raw_input in client.requests[0].messages[1].content
 
 
+def test_model_paraphrase_cannot_drop_explicit_artifact_sources() -> None:
+    output = PROBLEM_UNDERSTANDING_EXAMPLES[2].output.model_copy(
+        update={"required_data_sources": ["audit.", "pyproject.toml"]}
+    )
+    client = FakeLLMClient([response(output.model_dump_json(), response_id="abbreviated")])
+    result = generate_problem_understanding(
+        client,
+        create_initial_state(
+            "Investigate '/Users/reviewer/audit.json' and '/tmp/pyproject.toml'. "
+            "Compare with 'https://example.com/public.json'."
+        ),
+        model="fake-problem-model",
+        sleep=lambda _: None,
+    )
+    assert result.structured_problem.required_data_sources == [
+        "audit.",
+        "pyproject.toml",
+        "explicit local artifact /Users/reviewer/audit.json",
+        "explicit local artifact /tmp/pyproject.toml",
+    ]
+    assert result.llm_call_count == 1
+
+
 def test_local_json_repair_does_not_spend_another_llm_call() -> None:
     output = PROBLEM_UNDERSTANDING_EXAMPLES[0].output
     malformed = output.model_dump_json()[:-1] + ",}"

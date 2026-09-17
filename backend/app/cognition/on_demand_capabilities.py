@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from pydantic import JsonValue
 
 from app.cognition.arithmetic_pack import is_simple_arithmetic
@@ -41,49 +43,62 @@ from app.models.contracts import (
 )
 
 
+def _has_terms(text: str, terms: tuple[str, ...]) -> bool:
+    # Do not confuse "compatible" with "table" or a username/path with a source kind.
+    return any(re.search(r"\b" + re.escape(term) + r"\b", text) for term in terms)
+
+
 def _source_for_unknown(unknown: str, declared_sources: list[str]) -> str:
     combined = " ".join([unknown, *declared_sources]).casefold()
-    if any(token in combined for token in ("calculate", "calculator", "arithmetic", "numeric")):
+    combined = re.sub(r"(?:file://)?(?:[A-Za-z]:)?[/\\][^\s]+", " local artifact ", combined)
+    combined = re.sub(
+        r"\b[^\s/\\]+\.(?:cfg|conf|csv|ini|json|log|md|py|sql|toml|txt|xml|ya?ml)\b",
+        " local artifact ",
+        combined,
+    )
+    if _has_terms(combined, ("calculate", "calculator", "arithmetic", "numeric")):
         return "calculator"
-    if any(token in combined for token in ("csv", "json", "dataset", "measurement", "table")):
+    if _has_terms(
+        combined,
+        ("dataset", "measurement", "table", "percentile", "median", "average", "row count"),
+    ):
         return "dataset measurement"
-    if any(token in combined for token in ("file", "document", "manual", "repository", "artifact")):
+    if _has_terms(
+        combined,
+        ("file", "document", "manual", "repository", "artifact", "artifacts", "csv", "json"),
+    ):
+        # Format does not determine the question: JSON can be a dependency report,
+        # configuration or policy document rather than a table to aggregate.
         return "local artifact"
-    if any(token in combined for token in ("experiment", "controlled test")):
+    if _has_terms(combined, ("experiment", "controlled test")):
         return "controlled experiment"
-    if any(token in combined for token in ("simulation", "scenario")):
+    if _has_terms(combined, ("simulation", "scenario")):
         return "simulation"
-    if any(token in combined for token in ("web", "official", "current", "public", "api")):
+    if _has_terms(combined, ("web", "official", "current", "public", "api")):
         return "official web source"
-    if any(token in combined for token in ("user", "preference", "intent", "approval")):
+    if _has_terms(combined, ("user", "preference", "intent", "approval")):
         return "human input"
     return declared_sources[0] if declared_sources else "direct observation or human input"
 
 
 def _gap_type(unknown: str, source: str) -> str:
-    text = f"{unknown} {source}".casefold()
-    if "calculator" in text:
-        return "numeric_computation"
-    if any(token in text for token in ("dataset", "measurement", "table")):
-        return "missing_measurement"
-    if any(token in text for token in ("artifact", "file", "manual", "repository")):
-        return "missing_artifact_knowledge"
-    if "experiment" in text:
-        return "controlled_experiment"
-    if "simulation" in text:
-        return "simulation"
-    if any(token in text for token in ("web", "official", "current", "public", "api")):
-        return "current_external_fact"
-    if "human" in text:
-        return "user_owned_information"
-    return "missing_observation"
+    del unknown
+    return {
+        "calculator": "numeric_computation",
+        "dataset measurement": "missing_measurement",
+        "local artifact": "missing_artifact_knowledge",
+        "controlled experiment": "controlled_experiment",
+        "simulation": "simulation",
+        "official web source": "current_external_fact",
+        "human input": "user_owned_information",
+    }.get(source, "missing_observation")
 
 
 def task_gap_detector_capability() -> FunctionCapability:
     """Convert explicit unknowns into actionable gaps without a model call."""
     definition = CapabilityDefinition(
         name="task_gap_detector",
-        version="explicit_unknown_gap_detector@0.1.0",
+        version="explicit_unknown_gap_detector@0.2.0",
         supported_actions={CognitiveActionType.DETECT_GAPS},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -351,7 +366,7 @@ def deliberator_capability(
         name="arithmetic_deliberator" if deterministic_only else "deliberator",
         version="arithmetic_deliberator@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_deliberator@0.2.0"),
+        else gateway.capability_version("fused_deliberator@0.3.0"),
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -390,7 +405,11 @@ def deliberator_capability(
                     "This call combines hypothesis, planning, and bounded analysis; it does not "
                     "verify or finalize. Every task tool_name must be 'deliberator'. Every output "
                     "must distinguish evidence-backed claims from assumptions and must never "
-                    "claim new search, measurement, code execution, or external action."
+                    "claim new search, measurement, code execution, or external action. "
+                    "Keep the response compact: propose two meaningful alternatives and at "
+                    "most two grouped analytic tasks covering the success criteria. Use source "
+                    "references and concise findings, not repeated evidence quotations. "
+                    "Do not fill optional fields with redundant prose."
                 ),
                 output_type=DeliberationCapabilityOutput,
                 state=state,
