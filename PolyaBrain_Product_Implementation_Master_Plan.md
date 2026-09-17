@@ -2016,6 +2016,26 @@ call and token budgets continue to apply.
 Preserve explicitly quoted artifact references from the user's original request
 in the validated framing sources even when a model abbreviates their names. Model
 paraphrasing must not erase the evidence inputs used for source routing.
+Enforce the provider request's total wall-clock allowance across connection,
+headers, and response-body reads. An individual socket read timeout is insufficient
+when a provider sends periodic bytes without a completion. Cancel and close the
+local request at the deadline, preserve a typed timeout, and never claim that local
+cancellation proves remote generation or billing stopped.
+Make the existing temperature option nullable and omit it unless explicitly
+requested. Structured runtime calls and their repairs must not force a sampling
+parameter that reasoning models reject. Keep JSON support and provider data-policy
+requirements enabled; do not silently weaken those routing requirements to make
+an incompatible request pass.
+Preserve the requested deliverable's scope in framing and verification. A request
+for a proposed remediation plan must be checked for factual coverage, constraints,
+uncertainty, and a valid future test plan; it must not silently become a request to
+execute remediation. Conversely, a request for an implemented fix still requires
+observed execution and checks. Analytic task outputs must contain the actual
+findings, not only disclaimers that external actions were not performed.
+Allow the fused analysis response up to 6,000 output tokens. The isolated repaired
+route needed 3,894 tokens for valid findings, exceeding the previous 3,600-token
+ceiling. This remains bounded by admission and run accounting; prefer one complete
+analytic response to a truncated response followed by repair.
 Track evidence coverage, outcome correctness, unsupported claims, latency, tokens,
 and remaining manual work. Dogfooding is not independent blind evaluation or
 repeat-use proof; those product-value gates remain open.

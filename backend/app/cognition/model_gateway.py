@@ -27,7 +27,7 @@ from app.llm import (
 )
 from app.models.contracts import ContractModel
 
-COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.3.0"
+COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.4.0"
 
 OutputT = TypeVar("OutputT", bound=ContractModel)
 
@@ -220,7 +220,6 @@ OUTPUT_JSON_SCHEMA:
                 ),
             ],
             options=LLMRequestOptions(
-                temperature=0.1,
                 max_output_tokens=max_output_tokens,
                 json_mode=True,
                 timeout_seconds=total_timeout_seconds,
@@ -270,7 +269,6 @@ OUTPUT_JSON_SCHEMA:
                 ],
                 options=request.options.model_copy(
                     update={
-                        "temperature": 0.0,
                         "timeout_seconds": min(
                             request.options.timeout_seconds,
                             remaining_seconds,

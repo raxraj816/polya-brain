@@ -96,9 +96,9 @@ def build_cognitive_runtime(
     if len(fallback_models) > 1:
         raise ValueError("the first semantic broker supports at most one fallback model")
     semantic_routes = [
-        SemanticModelRoute(model_slug=model, priority=0),
+        SemanticModelRoute(model_slug=model, priority=0, timeout_seconds=90.0),
         *[
-            SemanticModelRoute(model_slug=fallback, priority=index)
+            SemanticModelRoute(model_slug=fallback, priority=index, timeout_seconds=90.0)
             for index, fallback in enumerate(fallback_models, start=1)
         ],
     ]

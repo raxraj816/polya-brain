@@ -286,3 +286,19 @@ outcome, and a snapshot of resource ceilings. Quota checks and the user's usage
 view consume it; it is not a cognitive ranking signal or a currency ledger.
 Unknown in-flight work retains its slot. Concurrent database and recovery tests
 verify admission and release behavior. Details: Chapter 77 durable run allowances.
+
+
+## Chapter 13-P provider options and deliverable scope
+
+The existing `LLMRequestOptions.temperature` is optional (`None` by default).
+Runtime prompt builders produce the unset value, and the provider adapter omits
+it from the request; explicit numeric overrides remain bounded and are forwarded.
+This permits strict JSON routing to models that reject temperature without
+weakening required-parameter or data-policy controls. Adapter tests cover both
+omission and explicit values. No new cognitive state or ranking field is added.
+
+Requested deliverable scope remains in `raw_input`, framing constraints and
+success criteria. Proposal verification checks factual completeness, evidence,
+conditional feasibility and future checks. Implemented-outcome verification still
+requires observed implementation and execution. Analytic outputs must contain
+findings; disclaimers alone do not fulfill the requested analysis.

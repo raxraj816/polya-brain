@@ -3,6 +3,21 @@
 Prompt behavior is versioned in code so benchmark and trace results can identify
 the exact instruction contract that produced them.
 
+## `problem_understanding@1.3.0` - Chapter 13-P
+
+- Preserve whether the requested deliverable is a proposal or an implemented
+  outcome. Future test plans are not silently promoted to required execution now.
+- Deliberation and conclusion-check prompts require actual analytic findings and
+  factual coverage while keeping unsupported execution claims forbidden.
+
+## `problem_understanding@1.2.0` - Chapter 13-P
+
+- Omit temperature from default structured calls and repairs. Models that do not
+  support sampling temperature can now satisfy strict provider parameter routing.
+- Preserve explicitly configured sampling values at the provider boundary.
+- Pair with `cognitive_capability@0.4.0` and `semantic-route-broker@0.2.0` so prior
+  route-performance records are not silently reused across the request change.
+
 ## `problem_understanding@1.1.0` - Chapter 13-P
 
 - Keep initial framing concise and avoid solving the investigation during framing.

@@ -13,7 +13,7 @@ from app.problem_understanding.contracts import (
 )
 from app.problem_understanding.examples import PROBLEM_UNDERSTANDING_EXAMPLES
 
-PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.1.0"
+PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.3.0"
 PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS = 3000
 PROBLEM_UNDERSTANDING_REPAIR_PROMPT_VERSION = "problem_understanding_repair@1.0.0"
 
@@ -65,6 +65,10 @@ Rules:
 7. time_window must contain only explicit temporal information from the input.
 8. Represent the investigation; do not solve it in this response. Keep fields brief,
    reference supplied paths once in required_data_sources, and avoid repeating them.
+9. Success criteria evaluate the deliverable requested now. A request for a proposal,
+   diagnosis, or future test plan does not require implementing it or running future
+   checks. Preserve explicit prohibitions on execution. A request for an implemented
+   and tested fix, however, requires actual implementation and observed checks.
 
 OUTPUT_JSON_SCHEMA:
 {schema}
@@ -100,7 +104,6 @@ def build_problem_understanding_request(
 ) -> LLMRequest:
     """Build a JSON-mode LLM request from the current Polya state."""
     resolved_options = options or LLMRequestOptions(
-        temperature=0.1,
         max_output_tokens=PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
         json_mode=True,
         timeout_seconds=45,
@@ -148,7 +151,10 @@ Do not add facts. Correct JSON syntax and schema violations only.
         sort_keys=True,
     )
     repair_options = original_request.options.model_copy(
-        update={"temperature": 0.0, "json_mode": True}
+        update={
+            "temperature": 0.0 if original_request.options.temperature is not None else None,
+            "json_mode": True,
+        }
     )
     return LLMRequest(
         model=original_request.model,

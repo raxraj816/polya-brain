@@ -353,7 +353,7 @@ def deliberator_capability(
     gateway: CognitiveModelGateway,
     *,
     approved_for_sensitive_data: bool = False,
-    max_output_tokens: int = 3600,
+    max_output_tokens: int = 6000,
     timeout_seconds: float = 90.0,
     deterministic_only: bool = False,
 ) -> FunctionCapability:
@@ -366,7 +366,7 @@ def deliberator_capability(
         name="arithmetic_deliberator" if deterministic_only else "deliberator",
         version="arithmetic_deliberator@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_deliberator@0.3.0"),
+        else gateway.capability_version("fused_deliberator@0.4.0"),
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -409,7 +409,13 @@ def deliberator_capability(
                     "Keep the response compact: propose two meaningful alternatives and at "
                     "most two grouped analytic tasks covering the success criteria. Use source "
                     "references and concise findings, not repeated evidence quotations. "
-                    "Do not fill optional fields with redundant prose."
+                    "Do not fill optional fields with redundant prose. Each execution_output.output "
+                    "must contain your actual analytic findings, such as an itemized inventory or "
+                    "comparison with source references. Written analysis of supplied evidence is "
+                    "allowed; it does not claim external execution. A null output or a statement "
+                    "that no tools were run is not a completed analytic task. Cover every requested "
+                    "item. When the deliverable is a proposal, keep feasibility conditional on "
+                    "the future checks instead of claiming it has been demonstrated."
                 ),
                 output_type=DeliberationCapabilityOutput,
                 state=state,
@@ -472,7 +478,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.2.0"),
+        else gateway.capability_version("fused_conclusion_checker@0.3.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -501,7 +507,14 @@ def conclusion_checker_capability(
                     "criterion. Name at least one explicit check per criterion. If any check lacks "
                     "support, return a failing report with no answer and no reflection. Only after "
                     "all checks pass, return a concise evidence-bounded answer and reflection. "
-                    "Reflection may generalize a procedure only within stated preconditions."
+                    "Reflection may generalize a procedure only within stated preconditions. "
+                    "Verify the deliverable requested in raw_input. For a proposed plan, check "
+                    "its factual coverage, constraint consistency, uncertainties, and future "
+                    "verification steps; do not require executing those future steps now or "
+                    "claim that they passed. Do require observed execution when the user requests "
+                    "an implemented or tested outcome. Reject missing requested items and "
+                    "unsupported feasibility claims; accurately labeled conditional proposals "
+                    "are not claims of demonstrated feasibility."
                 ),
                 output_type=ConclusionCheckOutput,
                 state=state,
@@ -578,7 +591,7 @@ def on_demand_cognitive_capabilities(
         deliberator_capability(
             gateway,
             approved_for_sensitive_data=approved_for_sensitive_data,
-            max_output_tokens=max_output_tokens_per_call or 3600,
+            max_output_tokens=max_output_tokens_per_call or 6000,
             timeout_seconds=timeout_seconds_per_call or 90.0,
         ),
         conclusion_checker_capability(

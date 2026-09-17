@@ -36,7 +36,7 @@ class LLMMessage(ContractModel):
 class LLMRequestOptions(ContractModel):
     """Per-request generation, timeout, and bounded retry controls."""
 
-    temperature: Temperature = 0.0
+    temperature: Temperature | None = None
     max_output_tokens: PositiveTokenCount = 1024
     json_mode: bool = False
     timeout_seconds: PositiveSeconds = 30.0

@@ -38,7 +38,7 @@ from app.problem_understanding.routing import (
     ProblemUnderstandingProviderError,
 )
 
-BROKER_POLICY_VERSION = "semantic-route-broker@0.1.0"
+BROKER_POLICY_VERSION = "semantic-route-broker@0.2.0"
 _FALLBACK_CODES = {
     LLMErrorCode.RATE_LIMIT,
     LLMErrorCode.TIMEOUT,
@@ -431,7 +431,6 @@ class RoutedProblemUnderstandingProvider:
                 mode_hint=mode_hint,
                 domain_hint=domain_hint,
                 request_options=LLMRequestOptions(
-                    temperature=0.1,
                     max_output_tokens=PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
                     json_mode=True,
                     timeout_seconds=min(45.0, route_budget),

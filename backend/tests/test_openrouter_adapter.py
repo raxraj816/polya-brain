@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+import time
 
 import httpx
 import pytest
@@ -16,6 +18,7 @@ from app.llm import (
     LLMRequestOptions,
     LLMRole,
     OpenRouterLLMClient,
+    complete_with_retry,
 )
 
 
@@ -96,6 +99,7 @@ def test_openrouter_adapter_normalizes_response_usage_and_json_policy() -> None:
     payload = captured["payload"]
     assert isinstance(payload, dict)
     assert payload["max_tokens"] == 321
+    assert payload["temperature"] == 0.1
     assert "max_completion_tokens" not in payload
     assert payload["response_format"] == {"type": "json_object"}
     assert payload["provider"] == {
@@ -103,6 +107,82 @@ def test_openrouter_adapter_normalizes_response_usage_and_json_policy() -> None:
         "require_parameters": True,
         "zdr": True,
     }
+
+
+def test_unspecified_temperature_is_omitted_without_weakening_json_routing() -> None:
+    def handler(http_request: httpx.Request) -> httpx.Response:
+        payload = json.loads(http_request.content)
+        assert "temperature" not in payload
+        assert payload["response_format"] == {"type": "json_object"}
+        assert payload["provider"]["require_parameters"] is True
+        assert payload["provider"]["data_collection"] == "deny"
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"ok":true}'}}]})
+
+    client = OpenRouterLLMClient(api_key="test-key", transport=httpx.MockTransport(handler))
+    model_request = request().model_copy(update={"options": LLMRequestOptions(json_mode=True)})
+    assert client.complete(model_request).text == '{"ok":true}'
+
+
+@pytest.mark.parametrize("phase", ["headers", "trickling_body"])
+@pytest.mark.parametrize("inside_event_loop", [False, True])
+def test_request_deadline_cancels_slow_response_and_does_not_retry_after_budget(
+    phase: str,
+    inside_event_loop: bool,
+) -> None:
+    attempts = 0
+    closed = False
+    chunks = 0
+
+    class SlowBody(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            nonlocal chunks
+            # Each byte arrives sooner than the socket timeout. The total
+            # request must nevertheless stop before the response completes.
+            for _ in range(100):
+                chunks += 1
+                yield b" "
+                await asyncio.sleep(0.02)
+
+        async def aclose(self) -> None:
+            nonlocal closed
+            closed = True
+
+    async def handler(http_request: httpx.Request) -> httpx.Response:
+        nonlocal attempts, closed
+        attempts += 1
+        if phase == "headers":
+            try:
+                await asyncio.sleep(2)
+            finally:
+                closed = True
+        return httpx.Response(200, stream=SlowBody())
+
+    client = OpenRouterLLMClient(api_key="test-key", transport=httpx.MockTransport(handler))
+    bounded = request().model_copy(
+        update={
+            "options": LLMRequestOptions(
+                timeout_seconds=0.08,
+                total_timeout_seconds=0.08,
+                max_retries=1,
+            )
+        }
+    )
+
+    async def from_event_loop() -> None:
+        complete_with_retry(client, bounded)
+
+    started = time.monotonic()
+    with pytest.raises(LLMClientError) as error:
+        if inside_event_loop:
+            asyncio.run(from_event_loop())
+        else:
+            complete_with_retry(client, bounded)
+    assert error.value.code is LLMErrorCode.TIMEOUT
+    assert time.monotonic() - started < 1.0
+    assert attempts == 1
+    assert closed
+    if phase == "trickling_body":
+        assert 0 < chunks < 100
 
 
 @pytest.mark.parametrize(
