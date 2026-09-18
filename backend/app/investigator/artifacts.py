@@ -16,6 +16,7 @@ from pydantic import JsonValue, TypeAdapter
 
 from app.cognition.contracts import CognitiveRunStatus
 from app.cognition.kernel import CognitiveRunResult
+from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
 from app.cognition.task_model import accumulated_usage, configured_budget
 from app.graph.state import PolyaState
@@ -33,6 +34,12 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
     used = [item for item in state["evidence"] if not item.contradicts_hypothesis_ids]
     against = [item for item in state["evidence"] if item.contradicts_hypothesis_ids]
     questions = [item.description for item in state["gaps"] if not item.filled]
+    metadata_event = next(
+        (event for event in reversed(state["events"]) if event.event_type == REPORT_METADATA_EVENT),
+        None,
+    )
+    if verified and metadata_event is not None:
+        questions.extend(report_questions(metadata_event.metadata, state["final_answer"]))
     if result.status is CognitiveRunStatus.NEEDS_INPUT:
         for observation in reversed(result.observations):
             if observation.proposed_update.questions_to_ask:

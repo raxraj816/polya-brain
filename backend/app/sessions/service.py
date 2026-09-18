@@ -11,6 +11,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
+from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
 from app.config import get_settings
 from app.db.models import (
@@ -256,6 +257,24 @@ class PolyaSessionService:
             confidence_level = "medium"
         reflection = reflection_event.event_metadata if reflection_event is not None else None
         questions = [item.description for item in gaps if not item.filled]
+        if (
+            problem_session.status == SESSION_STATUS_COMPLETED
+            and verification
+            and verification.passed
+        ):
+            metadata_event = self._db_session.scalar(
+                select(ReasoningEvent)
+                .where(
+                    ReasoningEvent.session_id == session_id,
+                    ReasoningEvent.event_type == REPORT_METADATA_EVENT,
+                )
+                .order_by(ReasoningEvent.sequence_number.desc())
+                .limit(1)
+            )
+            if metadata_event is not None:
+                questions.extend(
+                    report_questions(metadata_event.event_metadata, problem_session.final_answer)
+                )
         if problem_session.status == SESSION_STATUS_AWAITING_USER_INPUT:
             clarification = self._db_session.scalar(
                 select(ClarificationRequest)
@@ -316,7 +335,7 @@ class PolyaSessionService:
             ),
             failed_checks=list(verification.failed_checks) if verification else [],
             contradictions=list(verification.contradictions) if verification else [],
-            open_questions=questions,
+            open_questions=list(dict.fromkeys(questions)),
             recommended_next_action=recommended_next_action,
             reflection=reflection,
             audit_trace_path=f"/api/v1/sessions/{session_id}/events",

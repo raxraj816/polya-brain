@@ -366,3 +366,28 @@ def test_source_filenames_do_not_imply_numeric_or_measurement_operations() -> No
 
     for path in ("/Users/numeric/table/policy.json", "median.json", "calculator.toml"):
         assert _source_for_unknown("Find the configured policy", [path]) == "local artifact"
+
+
+def test_conclusion_checker_records_residual_questions_without_blocking_completion():
+    import json
+
+    from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions
+
+    conclusion = json.loads(_conclusion_json())
+    conclusion["report_metadata"] = {
+        "open_questions": ["Does the next revision retain this timeout?"]
+    }
+    client = FakeLLMClient([_response(_deliberation_json()), _response(json.dumps(conclusion))])
+    registry = CapabilityRegistry()
+    for capability in on_demand_cognitive_capabilities(
+        CognitiveModelGateway(client, "same-fake-model")
+    ):
+        registry.register(capability)
+    result = CognitiveKernel(registry).run(_ready_state(), max_cycles=8)
+    assert result.status is CognitiveRunStatus.COMPLETED
+    event = next(
+        event for event in result.state["events"] if event.event_type == REPORT_METADATA_EVENT
+    )
+    assert report_questions(event.metadata, result.state["final_answer"]) == [
+        "Does the next revision retain this timeout?"
+    ]

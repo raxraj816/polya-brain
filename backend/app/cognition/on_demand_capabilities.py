@@ -28,6 +28,7 @@ from app.cognition.model_capabilities import (
 )
 from app.cognition.model_contracts import ConclusionCheckOutput, DeliberationCapabilityOutput
 from app.cognition.model_gateway import CognitiveModelGateway
+from app.cognition.report_metadata import report_metadata_event
 from app.cognition.verification_factory import verifier_factory_capability
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import (
@@ -481,7 +482,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.5.0"),
+        else gateway.capability_version("fused_conclusion_checker@0.6.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -519,7 +520,12 @@ def conclusion_checker_capability(
                     "claim that they passed. Do require observed execution when the user requests "
                     "an implemented or tested outcome. Reject missing requested items and "
                     "unsupported feasibility claims; accurately labeled conditional proposals "
-                    "are not claims of demonstrated feasibility. " + INSTRUCTIONS
+                    "are not claims of demonstrated feasibility. In report_metadata.open_questions, "
+                    "list up to eight concrete unresolved questions or conditions remaining after "
+                    "this deliverable, including unknown environment choices and unverified future "
+                    "feasibility. Keep these consistent with the answer. They do not block a "
+                    "requested conditional proposal, but they must remain visible to its reader. "
+                    "Use an empty list when none remain. " + INSTRUCTIONS
                 ),
                 output_type=ConclusionCheckOutput,
                 state=state,
@@ -582,6 +588,14 @@ def conclusion_checker_capability(
                         )
                     }
                 )
+        if output.report.passed and output.final_answer and output.report_metadata is not None:
+            source_events.append(
+                report_metadata_event(
+                    answer=output.final_answer,
+                    metadata=output.report_metadata,
+                    engine_name=definition.name,
+                )
+            )
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,

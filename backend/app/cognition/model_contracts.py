@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pydantic import Field, JsonValue, model_validator
 
+from app.cognition.report_metadata import ConclusionReportMetadata
 from app.graph.state import ExecutionOutput
 from app.models.contracts import (
     ContractModel,
@@ -98,6 +99,7 @@ class ConclusionCheckOutput(ContractModel):
     report: VerificationReport
     final_answer: NonEmptyStr | None = None
     reflection: Reflection | None = None
+    report_metadata: ConclusionReportMetadata | None = None
 
     @model_validator(mode="after")
     def terminal_artifacts_must_match_verification(self) -> ConclusionCheckOutput:

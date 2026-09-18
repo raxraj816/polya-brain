@@ -596,3 +596,37 @@ def test_session_service_expires_running_session_without_start_timestamp(
         assert persisted.verification_status == VERIFICATION_STATUS_RUN_EXPIRED
         assert persisted.completed_at is not None
         assert runner_calls == 0
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_completed_persisted_report_keeps_answer_bound_residual_questions(
+    session_factory: sessionmaker,
+) -> None:
+    from app.cognition.report_metadata import ConclusionReportMetadata, report_metadata_event
+
+    def conditional_runner(raw_input: str, *, session_id: str) -> PolyaState:
+        state = successful_runner(raw_input, session_id=session_id)
+        state["events"].append(
+            report_metadata_event(
+                answer=state["final_answer"],
+                metadata=ConclusionReportMetadata(open_questions=["Which target version applies?"]),
+                engine_name="conclusion_checker",
+            )
+        )
+        return state
+
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=conditional_runner)
+        session_id = service.create_session(
+            raw_input="Give a conditional proposal.", mode=ProductMode.INVESTIGATE, domain=None
+        ).id
+        service.run_session(session_id)
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=conditional_runner)
+        report = service.get_report(session_id)
+        assert report.verification_status == "passed"
+        assert report.open_questions == ["Which target version applies?"]
+        problem = db_session.get(ProblemSession, session_id)
+        problem.final_answer = "A revised conclusion unrelated to the recorded conditions."
+        db_session.commit()
+        assert service.get_report(session_id).open_questions == []

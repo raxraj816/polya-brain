@@ -2072,6 +2072,14 @@ facts needed from the supplied sources and any uncertainty that prevents even a
 useful conditional answer. Never apply this exception to requested execution,
 unconditional feasibility, or an ambiguous objective. Prove this boundary with a
 real conditional-plan run and retain the existing execution-evidence negative case.
+Keep residual uncertainty visible after a conditional investigation completes.
+The conclusion checker may produce bounded optional report metadata listing open
+questions that do not block the requested deliverable. Store it as a trace event
+bound to that exact final conclusion; the CLI and persisted report consume it
+alongside existing unfilled gaps. Do not change the canonical gap/state contracts,
+promote conditions to verified facts, or change completion/confidence solely because
+nonblocking questions remain. Reject malformed metadata and ignore stale answer
+bindings. This starts as experimental reporting metadata, not a new core concept.
 
 #### Chapter 13-L: Investigator Runtime Delivery
 

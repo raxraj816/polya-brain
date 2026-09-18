@@ -228,3 +228,30 @@ Postgres integration database; Ruff, formatting, strict mypy and diff whitespace
 checks passed. No frontend or cloud changes were made in this repair. Fresh
 unchanged-runtime comparisons, aggregate resource-budget repair, independently
 reviewed outcomes and repeat-use evidence remain open.
+
+## Persisted workbench proof and residual uncertainty
+
+Commit `15c1192` passed both CI workflows (35309479011 and 35309481774). The
+conditional transfer task also completed through the frontend proxy and persisted
+session service; its report reloaded from Postgres with three evidence records,
+eight checks, and the actual runtime trace. Browser inspection confirmed the
+visible completed report. The local development frontend had stalled while
+compiling and recovered after restarting its existing process; this was not a
+backend investigation failure.
+
+That inspection exposed a reporting inconsistency: uncertainty remained in the
+conclusion but the dedicated Open questions section contained no entries. The
+conclusion capability now supplies bounded optional reporting metadata, recorded
+as an answer-bound trace event and consumed by both CLI and persisted reports.
+Canonical gaps, confidence and completion rules are unchanged. Legacy runs are
+not retroactively rewritten.
+
+A new live persisted run (`1fb08847-91f8-4814-8386-22597eeb7176`) completed with nine
+checks and eight recorded residual questions, including target Python/extras,
+candidate parent metadata, resolver compatibility and unperformed tests. Browser
+inspection confirmed these questions appear in the completed report. This closes
+the reporting inconsistency on that integration case; it is not a new independent
+quality or efficiency comparison. All 552 backend tests passed with Postgres,
+including local/persisted report consistency, invalid and stale metadata, and
+suppression of metadata from rejected conclusions. Ruff, formatting and strict
+mypy passed.

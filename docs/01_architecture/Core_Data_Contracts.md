@@ -342,3 +342,22 @@ Framing 1.4.0 keeps explicitly accepted proposal conditions in existing
 acquisition. This is prompt behavior within existing fields, not a new certainty
 score or permission to assume environment choices. Execution and unconditional
 compatibility claims retain their required observation boundary.
+
+### Residual questions in a completed report
+
+The conclusion capability's optional `report_metadata` starts as experimental
+presentation metadata. Its producer is the final checker; its consumers are the
+CLI report and persisted session report. It carries at most eight nonempty
+questions (500 characters each) in the existing trace surface. The runtime binds
+that event to a hash of the final answer, so a later answer cannot silently reuse
+old conditions. Invalid or unknown-version metadata is ignored on report reads;
+invalid model output is rejected at the model boundary. No canonical gap field,
+completion rule, confidence score, or database migration is added.
+
+Passing a conditional proposal does not settle its environmental or feasibility
+questions. These questions appear in the existing `open_questions` report field
+alongside unfilled gaps, without turning them into blocking gaps. An empty latest
+metadata event clears earlier questions. Legacy runs without metadata retain their
+original recorded uncertainty; the reader does not invent questions from prose.
+Unit and persisted-report tests cover limits, stale answer binding, deduplication,
+completed outcomes with questions, and failed outcomes without reused metadata.

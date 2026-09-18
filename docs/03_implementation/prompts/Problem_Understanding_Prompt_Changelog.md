@@ -74,3 +74,11 @@ the exact instruction contract that produced them.
   checks. Continue investigating unknown facts in supplied artifacts.
 - Preserve clarification for ambiguous objectives and execution evidence for an
   implemented/tested or unconditional outcome. Pair with representation 1.3.0.
+
+## `fused_conclusion_checker@0.6.0` - Chapter 13-P
+
+- Preserve remaining nonblocking questions in optional report metadata after a
+  conditional proposal passes its stated criteria. Keep questions consistent with
+  the final answer and distinct from claims of execution or verified facts.
+- The runtime binds those questions to the exact answer in a trace event consumed
+  by both report paths. Canonical gaps and completion behavior are unchanged.

@@ -217,6 +217,9 @@ def test_conclusion_gate_blocks_false_pass_and_reflection_but_keeps_usage(includ
                         },
                         "final_answer": answer,
                         "reflection": {"outcome_summary": "Analyzed supplied requirements."},
+                        "report_metadata": {
+                            "open_questions": ["Which target environment applies?"]
+                        },
                     }
                 ),
             )
@@ -241,6 +244,13 @@ def test_conclusion_gate_blocks_false_pass_and_reflection_but_keeps_usage(includ
     assert (update.reflection is not None) is include_facts
     assert (update.final_answer is not None) is include_facts
     assert observation.payload["model_calls"] == 1
+    assert (
+        any(
+            event.event_type == "conclusion_report_metadata_recorded"
+            for event in update.trace_events_to_add
+        )
+        is include_facts
+    )
     assert update.trace_events_to_add[0].metadata["passed"] is include_facts
     assert (
         not any(
