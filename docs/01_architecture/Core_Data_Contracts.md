@@ -379,3 +379,16 @@ always wins. Historical content does not change confidence, completion, the fina
 answer, or learning eligibility. Regression tests cover kernel invalidation,
 report precedence, malformed/pass history, and Postgres readback. Legacy runs that
 never recorded the event cannot recover lost diagnostics from this mechanism.
+
+### Planner clarification boundary
+
+Experimental `PlanGenerationOutput` now requires exactly one nonempty branch:
+up to six existing `PlanTask` objects or up to three clarification questions.
+The planner produces this output; its capability adapter consumes questions as an
+existing `blocked` observation with `human_input_required`, preserving usage and
+the current failed verification. The kernel and durable session adapter already
+support this disposition. Questions must ask for evidence the available tools
+cannot obtain, not reinterpret a conditional proposal as a demand for execution.
+Empty or mixed branches fail output validation. This adds no canonical state
+field, engine, score, or permission. Tests cover the plan branch, bounded/mixed
+questions, kernel stop, retained diagnostics/resources, and session disposition.

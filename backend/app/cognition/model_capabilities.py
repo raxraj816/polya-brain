@@ -228,7 +228,7 @@ def planner_capability(
     """Translate hypotheses into bounded executable checks."""
     definition = CapabilityDefinition(
         name="planner",
-        version=gateway.capability_version("model_planner@0.1.0"),
+        version=gateway.capability_version("model_planner@0.2.0"),
         supported_actions={CognitiveActionType.PLAN, CognitiveActionType.REPLAN},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
@@ -252,7 +252,14 @@ def planner_capability(
                 instructions=(
                     "Create the smallest plan that can test the surviving candidates and every "
                     f"success criterion using at most {max_plan_tasks} task(s). "
-                    "success criterion. tool_name MUST be one of AVAILABLE_EXECUTION_TOOLS. "
+                    "If required observations are absent and the available tools cannot obtain "
+                    "them, return no tasks and up to three focused clarifying_questions asking "
+                    "for that evidence. Otherwise return tasks and no clarifying_questions. "
+                    "Use failed verification to identify what is still missing. Never replace "
+                    "missing real installation, execution, or test records with analysis, "
+                    "simulation, or a measurement of dependency metadata. Do not ask again for "
+                    "supplied sources, or for future observations not needed to deliver an "
+                    "explicitly conditional proposal. tool_name MUST be one of AVAILABLE_EXECUTION_TOOLS. "
                     "Use calculator for binary arithmetic only when calculator appears in that "
                     "list, and put the expression in params. When arithmetic evidence was already "
                     "acquired but calculator is not an execution tool, use executor to check the "
@@ -275,6 +282,19 @@ def planner_capability(
                 total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
+        if output.clarifying_questions:
+            return CognitiveObservation(
+                action_id=action.id,
+                capability=definition.name,
+                capability_version=definition.version,
+                status=ObservationStatus.BLOCKED,
+                failure_kind="human_input_required",
+                summary="Planning requires missing evidence that available execution tools cannot obtain.",
+                payload=_payload(result) if result is not None else {"procedure": "deterministic"},
+                proposed_update=CognitiveStateUpdate(
+                    questions_to_ask=output.clarifying_questions,
+                ),
+            )
         unsupported = [
             task.tool_name
             for task in output.tasks

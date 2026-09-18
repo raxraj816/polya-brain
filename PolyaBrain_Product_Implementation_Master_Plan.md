@@ -2109,6 +2109,18 @@ Current verification takes precedence; malformed history and invalidated passing
 reports cannot act as fallback verification. This uses trace metadata and existing
 report fields, not a new canonical contract or completion mechanism.
 
+Planning must have a truthful recovery exit when required observations cannot be
+obtained through available execution capabilities. Extend the experimental planner
+response to choose either bounded executable tasks or at most three focused
+clarification questions, never both or neither. Route the latter through the
+existing blocked/human-input-required observation and durable clarification flow,
+preserving failed verification and resource usage. Ask only for genuinely missing
+evidence needed by the requested deliverable; supplied sources and explicitly
+allowed conditions in a proposal must not trigger redundant questions. Do not
+substitute table measurement, simulation, or analysis for missing real execution
+records. Validate this with actual failed-state planner input and local/persisted
+recovery regressions; no new core gap type or autonomous permission is introduced.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

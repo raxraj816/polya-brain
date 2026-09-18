@@ -324,3 +324,23 @@ and explicitly requested installation output and the full test-suite report.
 That live run verifies the refusal boundary, but does not exercise the historical
 fallback; deterministic recovery and persistence regressions verify that path.
 The extra recovery calls and inappropriate measurement choice remain unresolved.
+
+The subsequent planner repair adds a truthful exit for missing evidence. Its
+experimental response chooses either executable tasks or at most three focused
+questions. Questions become an existing `human_input_required` blocked observation,
+so the kernel pauses without erasing failed verification or claiming progress.
+Supplied files and permitted conditions of a proposal must not become redundant
+clarification requests.
+
+A live isolated planner test started from a synthetic failed-execution fixture
+with executor, measurement and Python execution listed as available. It requested
+the actual full-suite command, exit status, result summary and revision, retaining
+the failed checks. It used one call, 1,383 tokens and 3.64 seconds. This exercises
+the previously unavailable planner exit; it is not a fresh public end-to-end
+comparison or proof that every recovery route now makes the right choice. Invalid
+mixed/empty branches, maximum questions, kernel resource accounting and the durable
+session adapter are covered by regression tests.
+
+Validation after planner recovery: all 569 backend tests passed with Postgres;
+Ruff, formatting and strict mypy passed. The local workbench backend was restarted
+with this code after confirming no investigation was running.

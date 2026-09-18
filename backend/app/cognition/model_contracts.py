@@ -31,12 +31,15 @@ class HypothesisGenerationOutput(ContractModel):
 
 
 class PlanGenerationOutput(ContractModel):
-    """Bounded tasks that can produce inspectable observations."""
+    """Executable tasks or a request for evidence the available tools cannot obtain."""
 
-    tasks: list[PlanTask] = Field(min_length=1, max_length=6)
+    tasks: list[PlanTask] = Field(default_factory=list, max_length=6)
+    clarifying_questions: list[NonEmptyStr] = Field(default_factory=list, max_length=3)
 
     @model_validator(mode="after")
     def task_ids_must_be_unique(self) -> PlanGenerationOutput:
+        if bool(self.tasks) == bool(self.clarifying_questions):
+            raise ValueError("planner requires either tasks or clarification questions, never both")
         ids = [task.id for task in self.tasks]
         if len(ids) != len(set(ids)):
             raise ValueError("plan task ids must be unique")

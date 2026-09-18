@@ -3,6 +3,15 @@
 Prompt behavior is versioned in code so benchmark and trace results can identify
 the exact instruction contract that produced them.
 
+## `model_planner@0.2.0` - Chapter 13-P
+
+- Permit a bounded request for genuinely missing evidence instead of requiring an
+  executable task when no available tool can obtain that evidence.
+- Require exactly one branch: tasks or clarification questions. Preserve failed
+  verification and record model usage when pausing through the existing flow.
+- Explicitly forbid substituting metadata analysis, simulation, or measurement for
+  actual execution records. Preserve the scope of conditional proposals.
+
 ## `problem_understanding@1.5.1` - Chapter 13-P
 
 - Retain all ten validated examples. Omit only example values that reconstruct
