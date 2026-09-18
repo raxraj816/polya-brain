@@ -158,3 +158,17 @@ unverified causes and seek discriminating evidence. Mode labels and successful
 arithmetic wiring tests do not count as substantive mode-quality evidence.
 Chapter 62 adds transport/prompt-context regression checks; fresh verified
 Compare/Review tasks remain part of the product-value evaluation gate.
+
+## Production-path dependency investigation regressions (Chapter 13-P)
+
+Freeze the task and complete artifacts before running the public Investigator CLI
+and a direct same-model baseline. Score outcome facts independently of the
+runtime's own `passed` flag. Include direct upper bounds, installed parent pins,
+multiple fixed release branches, optional/environment-conditional dependencies,
+no listed fix, duplicate IDs, and transitive alias groups. Keep ambiguous,
+malformed and partial-source controls, and test copied facts with contradictory
+prose so necessary coverage is never mislabeled semantic verification.
+
+Retain each failed run; fixes invalidate its use as a held-out case. Fresh
+synthetic transfer cases are useful regression evidence but are not independent
+blind evaluation, learned procedure transfer, or real-user product preference.

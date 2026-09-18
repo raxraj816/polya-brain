@@ -2040,6 +2040,39 @@ Track evidence coverage, outcome correctness, unsupported claims, latency, token
 and remaining manual work. Dogfooding is not independent blind evaluation or
 repeat-use proof; those product-value gates remain open.
 
+Add an experimental deterministic source-fact check for dependency-remediation
+investigations that explicitly request constraint analysis. Parse only complete,
+admitted JSON/TOML snapshots; never inspect the host environment or execute source
+content. Compute comparisons between supplied advisory fix versions and declared
+requirements, preserving optional groups, environment markers, installed parent
+identity, and source provenance. These comparisons concern the listed versions,
+not all later releases or demonstrated resolver compatibility.
+When deduplication is requested, count affected packages, vulnerability records,
+distinct scanner IDs, and connected components of supplied IDs/aliases separately.
+An alias component is a grouping in the supplied scan, not independently confirmed
+identity or proof that different fix contexts are interchangeable.
+Provide the computed facts to analysis and conclusion checking. Require a compact
+verbatim source-fact block in a passing conclusion and reject omitted facts before
+recording a verified reflection. Keep the procedure, its coverage result, and
+limits in trace metadata rather than promoting a new core score or contract.
+This is a necessary factual-coverage gate, not a semantic proof: a copied fact can
+still be contradicted elsewhere in prose. Independent semantic falsification and
+fresh-case outcome review remain required. Unsupported, ambiguous, malformed, or
+partial source bundles cannot earn a passing deterministic source-fact check.
+Keep heuristic evidence conflicts narrow: shared digits are not a shared subject.
+Only compare numeric claims when the nonnumeric subject agrees and each claim has
+one comparable numeric value; unanchored JSON fields such as `version` do not
+identify a package. Different entities, measurements, or multi-value records need
+semantic or structured comparison. Absence of a heuristic conflict is not proof
+that sources agree. Apply the same subject boundary to numeric corroboration.
+For an explicitly conditional proposal, framing must retain acknowledged missing
+environment choices as conditions and future verification requirements, rather
+than immediately requesting those same choices. Blocking `unknowns` still include
+facts needed from the supplied sources and any uncertainty that prevents even a
+useful conditional answer. Never apply this exception to requested execution,
+unconditional feasibility, or an ambiguous objective. Prove this boundary with a
+real conditional-plan run and retain the existing execution-evidence negative case.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

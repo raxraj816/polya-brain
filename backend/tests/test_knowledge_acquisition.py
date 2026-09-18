@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import cast
 
 import httpx
+import pytest
 
 from app.acquisition import (
     AvailableDataSourceRegistry,
@@ -645,3 +646,43 @@ def test_unchanged_local_snapshot_stops_reacquisition_loop(tmp_path: Path) -> No
     )
     assert duplicate.status.value == "inconclusive"
     assert result.cycles < 6
+
+
+@pytest.mark.parametrize(
+    ("left", "right", "contradicts", "corroborates"),
+    [
+        ('"version": "2.8.1",', '"quarrycore==1.9.2"', False, False),
+        ('"version": "2.8",', '"version": "1.9"', False, False),
+        ("orchid timeout is 30 seconds", "iris timeout is 60 seconds", False, False),
+        ("orchid timeout is 30 seconds", "iris timeout is 30 seconds", False, False),
+        ("request timeout is 30 seconds", "request timeout is 60 seconds", True, False),
+        ("request timeout is 30 seconds", "request timeout is 30 seconds", False, True),
+        ("protocol 1 timeout is 30 seconds", "protocol 2 timeout is 60 seconds", False, False),
+        ("protocol 1 timeout is 30 seconds", "protocol 2 timeout is 30 seconds", False, False),
+        ("request timeout is not 30 seconds", "request timeout is 30 seconds", True, False),
+    ],
+)
+def test_numeric_evidence_requires_a_matching_anchored_subject(
+    left, right, contradicts, corroborates
+):
+    from app.acquisition.capabilities import _claims_contradict, _claims_corroborate
+    from app.acquisition.contracts import EvidenceCandidate
+
+    first = EvidenceCandidate(
+        id="first",
+        source_type="local_text_artifact",
+        source_uri="file:///a.txt",
+        title="First",
+        excerpt=left,
+        source_rank=1,
+    )
+    second = EvidenceCandidate(
+        id="second",
+        source_type="local_text_artifact",
+        source_uri="file:///b.txt",
+        title="Second",
+        excerpt=right,
+        source_rank=2,
+    )
+    assert _claims_contradict(first, second) is contradicts
+    assert _claims_corroborate(first, second) is corroborates

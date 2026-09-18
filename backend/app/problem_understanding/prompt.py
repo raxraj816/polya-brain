@@ -13,7 +13,7 @@ from app.problem_understanding.contracts import (
 )
 from app.problem_understanding.examples import PROBLEM_UNDERSTANDING_EXAMPLES
 
-PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.3.0"
+PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.4.0"
 PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS = 3000
 PROBLEM_UNDERSTANDING_REPAIR_PROMPT_VERSION = "problem_understanding_repair@1.0.0"
 
@@ -59,8 +59,8 @@ Rules:
 4. Record mode_selection_reason. If mode confidence is below
    {MODE_CLARIFICATION_THRESHOLD:.2f}, multiple modes remain plausible, or required
    problem fields are missing, set needs_clarification=true and ask focused questions.
-5. Do not fabricate evidence, measurements, entities, dates, or sources. Put missing
-   information in unknown and required sources in required_data_sources.
+5. Do not fabricate evidence, measurements, entities, dates, or sources. Put blocking
+   missing information in unknown and required sources in required_data_sources.
 6. success_criteria must state what can be checked to decide that the problem is solved.
 7. time_window must contain only explicit temporal information from the input.
 8. Represent the investigation; do not solve it in this response. Keep fields brief,
@@ -69,6 +69,14 @@ Rules:
    diagnosis, or future test plan does not require implementing it or running future
    checks. Preserve explicit prohibitions on execution. A request for an implemented
    and tested fix, however, requires actual implementation and observed checks.
+10. Distinguish blocking unknowns from acknowledged conditions. If the user explicitly
+    requests a conditional plan and says environment choices or future metadata are
+    unavailable, preserve those missing facts in given and constraints, and require
+    branches/uncertainty/future checks in success_criteria. Do not ask for those same
+    facts or put them in blocking unknown solely to produce the requested conditional
+    analysis. Facts to investigate in supplied files still belong in unknown. Ask
+    when the objective itself is ambiguous, no useful conditional answer is possible,
+    or the user requests actual execution or an unconditional compatibility claim.
 
 OUTPUT_JSON_SCHEMA:
 {schema}

@@ -319,18 +319,44 @@ def _candidate_relevance(candidate: EvidenceCandidate, target: str) -> float:
     return min(1.0, (0.65 * lexical) + (0.35 * provider_score))
 
 
+def _claim_subject(text: str) -> set[str]:
+    # Digits cannot establish entity identity. A bare JSON "version"/"value"
+    # field also lacks the parent context needed to compare it with another file.
+    text = re.sub(
+        r"^\s*(?:independent\s+)?(?:testing|documentation|evidence)\s+"
+        r"(?:confirms|states|reports|shows)\s+",
+        "",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return _terms(_NUMBER.sub(" ", text)) - _NEGATIONS
+
+
+def _same_claim_subject(left: str, right: str) -> bool:
+    left_subject = _claim_subject(left)
+    right_subject = _claim_subject(right)
+    return bool(
+        left_subject
+        and left_subject == right_subject
+        and not left_subject.issubset({"version", "value", "name", "id"})
+    )
+
+
 def _claims_contradict(left: EvidenceCandidate, right: EvidenceCandidate) -> bool:
+    if not _same_claim_subject(left.excerpt, right.excerpt):
+        return False
+    left_numbers = _NUMBER.findall(left.excerpt)
+    right_numbers = _NUMBER.findall(right.excerpt)
     left_terms = _terms(left.excerpt)
     right_terms = _terms(right.excerpt)
-    subject_overlap = _overlap(left_terms - _NEGATIONS, right_terms - _NEGATIONS)
-    if subject_overlap < 0.35:
-        return False
-    left_numbers = set(_NUMBER.findall(left.excerpt))
-    right_numbers = set(_NUMBER.findall(right.excerpt))
-    if left_numbers and right_numbers and left_numbers != right_numbers:
-        return True
     left_negated = bool(left_terms & _NEGATIONS)
     right_negated = bool(right_terms & _NEGATIONS)
+    if len(left_numbers) == len(right_numbers) == 1 and left_numbers != right_numbers:
+        return not left_negated and not right_negated
+    # Multiple numeric values may include versions, dates or ranges. This
+    # heuristic cannot establish that their qualifiers and measurement agree.
+    if len(left_numbers) > 1 or len(right_numbers) > 1:
+        return False
     return left_negated != right_negated
 
 
@@ -341,6 +367,12 @@ def _claims_corroborate(left: EvidenceCandidate, right: EvidenceCandidate) -> bo
     right_terms = _terms(right.excerpt) - _NEGATIONS
     left_numbers = set(_NUMBER.findall(left.excerpt))
     right_numbers = set(_NUMBER.findall(right.excerpt))
+    if left_numbers or right_numbers:
+        return (
+            _same_claim_subject(left.excerpt, right.excerpt)
+            and len(_NUMBER.findall(left.excerpt)) == len(_NUMBER.findall(right.excerpt)) == 1
+            and left_numbers == right_numbers
+        )
     numbers_compatible = not left_numbers or not right_numbers or left_numbers == right_numbers
     return numbers_compatible and _overlap(left_terms, right_terms) >= 0.5
 
@@ -445,7 +477,7 @@ def evidence_evaluator_capability(
     """Promote candidates after deterministic gates and optional semantic assessment."""
     definition = CapabilityDefinition(
         name="evidence_evaluator",
-        version="source_quality_evaluator@0.2.0",
+        version="source_quality_evaluator@0.3.0",
         supported_actions={CognitiveActionType.EVALUATE_EVIDENCE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -519,7 +551,8 @@ def evidence_evaluator_capability(
                     "id and no unknown ids. gap_supported may be true only when sufficiently "
                     "reliable, relevant, current evidence agrees without unresolved conflict. "
                     "Examples: two independent sources making the same current claim support; "
-                    "two sources giving different numeric values contradict; a credible but "
+                    "two sources giving different numeric values for the same entity, property, "
+                    "units and context contradict; different packages or measurements do not. A credible but "
                     "off-topic passage is background; an ungrounded or stale claim is reject."
                 ),
                 output_type=EvidenceEvaluationOutput,

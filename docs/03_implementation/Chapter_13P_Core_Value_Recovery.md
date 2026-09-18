@@ -161,3 +161,70 @@ A separate per-attempt aggregate admission repair is required before that claim.
    transferring unsupported conclusions.
 4. Observe real users bringing a second problem. Deployment is valuable only when
    it enables this proof; further launch polish is not the current priority.
+
+## Source-fact repair and fresh-case findings
+
+The first experimental source-fact check (`dependency_source_facts@0.1.0`) repaired
+the omitted direct bound and the falsely unknown exact-pin parent. The preserved
+`polya-dependency-remediation-source-facts` run still miscounted scanner identities
+while declaring success. Agent source review therefore failed it: 3 calls,
+45,689 tokens, 62.10 seconds. The failed output was not replaced.
+
+The next procedure version, `dependency_source_facts@0.2.0`, separately computes
+record count, distinct scanner IDs and connected supplied ID/alias groups. In
+`polya-dependency-remediation-counted-facts`, the public runtime reports the correct
+6 packages, 14 records, 10 scanner IDs and 9 groups, includes both direct bounds,
+and names the installed parent of the exact pin. Its proposal remains conditional
+on resolution and actual tests. Agent source review found the targeted defects
+repaired; this is a development-case result, not independent evaluation. It used
+3 calls, 43,628 tokens and 52.39 seconds, still substantially more resources than
+the direct baseline.
+
+The procedure reads only complete admitted snapshots. It uses package requirement
+and version parsers, preserves markers and optional groups, distinguishes alternative
+fixed branches, and exposes source references. A model-proposed pass missing any
+required verbatim fact is replaced with failure before its answer or reflection
+can enter state. This catches omissions, not every semantic contradiction. Correct
+paraphrases without the required block can be rejected. A copied block contradicted
+elsewhere in prose still needs independent semantic review; a regression explicitly
+records that limit. This hand-built reusable procedure is not learned intelligence.
+
+A new fictional transfer case was frozen before either the direct answer or the
+runtime run. It has three packages, four records/three IDs, an old-branch fix that
+fits the existing upper bound, an exact installed-parent pin, and an optional
+Python-conditional dependency. The unchanged runtime stopped at `needs_input`
+after one call (4,746 tokens, 11.15 seconds), while the direct model produced a
+useful conditional plan in one call (2,854 tokens, 18.55 seconds).
+
+The trace exposed a separate false conflict: the evaluator compared a bare
+`"version": "2.8.1"` line with a different package's `quarrycore==1.9.2` requirement.
+Shared digits counted as subject overlap. `source_quality_evaluator@0.3.0` now
+requires an anchored matching nonnumeric subject and one comparable numeric value
+for numeric conflicts/corroboration. Different entities, unanchored JSON fields,
+and multi-value/version-qualified records do not earn those heuristic judgments.
+Existing same-subject conflict, cross-batch corroboration, and injection-boundary
+checks remain in the regression suite. Missing a heuristic conflict does not prove
+that all sources agree. The original transfer failure remains recorded, and that
+case is now a regression case rather than held-out evidence.
+
+A subsequent transfer run with the subject fix stopped during framing and requested
+Python/extras despite the explicit request for a conditional plan. Framing 1.4.0
+now carries those acknowledged conditions in existing given/constraints and future
+checks, while retaining actual blocking acquisition in unknowns. The next public
+run, `polya-dependency-transfer-conditional-scope`, completed with the correct
+alternative-branch comparison, exact-pin parent, counts, and conditional optional
+requirement. It used 3 calls, 20,460 tokens and 50.16 seconds. Source review found
+the targeted facts correct, but its cost/latency exceeds the direct answer (about
+7.2 times the tokens and 2.7 times the time). This is no demonstrated product win.
+
+The same framing was tested again on the execution-negative case: it correctly
+returned `needs_input` for actual installation and test evidence, using one call
+and 4,445 tokens. None of these tests executed dependency upgrades. The final
+coverage/subject regressions also reject ambiguous dual audit collections and
+dynamic optional requirements. The check remains narrow and experimental.
+
+Final local validation for this repair: 542 backend tests passed with the isolated
+Postgres integration database; Ruff, formatting, strict mypy and diff whitespace
+checks passed. No frontend or cloud changes were made in this repair. Fresh
+unchanged-runtime comparisons, aggregate resource-budget repair, independently
+reviewed outcomes and repeat-use evidence remain open.

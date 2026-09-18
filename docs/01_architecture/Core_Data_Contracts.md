@@ -302,3 +302,43 @@ success criteria. Proposal verification checks factual completeness, evidence,
 conditional feasibility and future checks. Implemented-outcome verification still
 requires observed implementation and execution. Analytic outputs must contain
 findings; disclaimers alone do not fulfill the requested analysis.
+
+### Experimental dependency source facts
+
+`dependency_source_facts@0.2.0` is an internal pure procedure, not a new canonical
+engine, score, or state contract. It produces bounded prompt context and the
+`dependency_source_fact_coverage_checked` trace event from complete admitted
+JSON/TOML evidence. The fused deliberator consumes its comparisons; the conclusion
+checker consumes both comparisons and a necessary verbatim coverage check. A
+failed check replaces a proposed pass and removes its answer/reflection before
+state mutation. Provider usage remains recorded even when its answer is rejected.
+
+Supported source shapes are a pip-audit-style `dependencies` list or the recorded
+`affected_packages` extract, a PEP 621 project manifest, and an optional installed
+package-to-version/requirements mapping. Comparisons preserve declared extras and
+markers without evaluating them on the runtime host. Listed fixes are compared
+individually, including alternate release branches and prereleases. Advisory
+records, distinct IDs and connected ID/alias groups are separate quantities;
+alias grouping is a statement about supplied links, not external identity proof.
+
+This first procedure intentionally requires a compact verbatim source-fact block.
+It can falsely reject a correct paraphrase, and it cannot detect every prose
+contradiction merely because the block is present. Semantic review still applies.
+Malformed/partial recognized bundles cannot pass the source-fact check; unfamiliar
+source formats do not acquire a deterministic verification claim. Regression tests
+use different package names and cover conflicts, missing lines, markers, alternate
+fixes, missing facts, counts, and suppression of failed reflections. Any broader
+contract promotion requires fresh outcome evidence; this hand-built procedure is
+not evidence of autonomous procedure learning.
+
+The source evaluator's version 0.3.0 also narrows numeric conflict/corroboration:
+matching digits cannot supply entity identity, bare JSON fields have no parent
+context, and multi-number records require richer interpretation. Existing trace
+fields retain their shape. No conflict detected means only that this bounded
+heuristic found none; it is not a semantic consistency attestation.
+
+Framing 1.4.0 keeps explicitly accepted proposal conditions in existing
+`given`/`constraints` and success criteria. `unknown` continues to drive blocking
+acquisition. This is prompt behavior within existing fields, not a new certainty
+score or permission to assume environment choices. Execution and unconditional
+compatibility claims retain their required observation boundary.

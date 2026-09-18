@@ -17,6 +17,7 @@ from app.cognition.contracts import (
     CognitiveStateUpdate,
     ObservationStatus,
 )
+from app.cognition.dependency_facts import INSTRUCTIONS, dependency_source_facts
 from app.cognition.evidence_closure import (
     TrustedEvidenceAttester,
     attested_evidence_procedure_capability,
@@ -366,7 +367,7 @@ def deliberator_capability(
         name="arithmetic_deliberator" if deterministic_only else "deliberator",
         version="arithmetic_deliberator@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_deliberator@0.4.0"),
+        else gateway.capability_version("fused_deliberator@0.6.0"),
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -415,12 +416,14 @@ def deliberator_capability(
                     "allowed; it does not claim external execution. A null output or a statement "
                     "that no tools were run is not a completed analytic task. Cover every requested "
                     "item. When the deliverable is a proposal, keep feasibility conditional on "
-                    "the future checks instead of claiming it has been demonstrated."
+                    "the future checks instead of claiming it has been demonstrated. "
+                    + INSTRUCTIONS
                 ),
                 output_type=DeliberationCapabilityOutput,
                 state=state,
                 max_output_tokens=max_output_tokens,
                 total_timeout_seconds=definition.timeout_seconds,
+                context=dependency_source_facts(state).context(),
             )
             output = result.output
             payload = {
@@ -478,7 +481,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.3.0"),
+        else gateway.capability_version("fused_conclusion_checker@0.5.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -493,6 +496,8 @@ def conclusion_checker_capability(
         action: CognitiveActionCandidate,
         state: PolyaState,
     ) -> CognitiveObservation:
+        source_facts = dependency_source_facts(state)
+        source_events: list[StateEvent] = []
         if is_simple_arithmetic(state):
             output = _arithmetic_conclusion_output(state)
             payload: JsonValue = {"procedure": "deterministic", "model_calls": 0}
@@ -514,12 +519,13 @@ def conclusion_checker_capability(
                     "claim that they passed. Do require observed execution when the user requests "
                     "an implemented or tested outcome. Reject missing requested items and "
                     "unsupported feasibility claims; accurately labeled conditional proposals "
-                    "are not claims of demonstrated feasibility."
+                    "are not claims of demonstrated feasibility. " + INSTRUCTIONS
                 ),
                 output_type=ConclusionCheckOutput,
                 state=state,
                 max_output_tokens=max_output_tokens,
                 total_timeout_seconds=definition.timeout_seconds,
+                context=source_facts.context(),
             )
             output = result.output
             payload = {
@@ -538,6 +544,44 @@ def conclusion_checker_capability(
                     for item in result.route_attempts
                 ],
             }
+        if source_facts.applicable:
+            failures = source_facts.failures(output.final_answer or "")
+            check = "Checked required dependency source-fact coverage against complete admitted snapshots (necessary coverage only)."
+            source_events.append(
+                StateEvent(
+                    engine_name=definition.name,
+                    event_type="dependency_source_fact_coverage_checked",
+                    reasoning_mode=ReasoningMode.VERIFY,
+                    summary="Source-fact coverage failed."
+                    if failures
+                    else "Required source facts are present; semantic correctness remains separately checked.",
+                    metadata={
+                        **source_facts.context(),
+                        "passed": not failures,
+                        "failures": list(failures),
+                    },
+                )
+            )
+            report = output.report
+            if failures:
+                output = ConclusionCheckOutput(
+                    report=VerificationReport(
+                        passed=False,
+                        checks_run=[*report.checks_run, check],
+                        failed_checks=[*report.failed_checks, *failures],
+                        contradictions=report.contradictions,
+                        confidence_delta=-0.2,
+                        recommended_route="revise_analysis",
+                    )
+                )
+            else:
+                output = output.model_copy(
+                    update={
+                        "report": report.model_copy(
+                            update={"checks_run": [*report.checks_run, check]}
+                        )
+                    }
+                )
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,
@@ -553,7 +597,8 @@ def conclusion_checker_capability(
                 verification=output.report,
                 final_answer=output.final_answer,
                 reflection=output.reflection,
-                trace_events_to_add=(
+                trace_events_to_add=source_events
+                + (
                     [
                         StateEvent(
                             engine_name=definition.name,
