@@ -27,7 +27,7 @@ from app.llm import (
 )
 from app.models.contracts import ContractModel
 
-COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.4.0"
+COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.5.0"
 
 OutputT = TypeVar("OutputT", bound=ContractModel)
 
@@ -198,7 +198,7 @@ CAPABILITY_RULES:
 
 Return exactly one JSON object matching OUTPUT_JSON_SCHEMA, with no Markdown.
 OUTPUT_JSON_SCHEMA:
-{json.dumps(output_type.model_json_schema(), sort_keys=True)}
+{json.dumps(output_type.model_json_schema(), sort_keys=True, separators=(",", ":"))}
 """
         request = LLMRequest(
             model=self._model,
@@ -216,6 +216,7 @@ OUTPUT_JSON_SCHEMA:
                             "capability_context": {**(context or {}), **mode_context(state)},
                         },
                         sort_keys=True,
+                        separators=(",", ":"),
                     ),
                 ),
             ],
@@ -253,7 +254,7 @@ OUTPUT_JSON_SCHEMA:
                             "inside it. Preserve only claims already present in the response; "
                             "do not invent facts. Return exactly one JSON object matching this "
                             "schema, with no Markdown:\n"
-                            f"{json.dumps(output_type.model_json_schema(), sort_keys=True)}"
+                            f"{json.dumps(output_type.model_json_schema(), sort_keys=True, separators=(',', ':'))}"
                         ),
                     ),
                     LLMMessage(
@@ -264,6 +265,7 @@ OUTPUT_JSON_SCHEMA:
                                 "invalid_response": response.text,
                             },
                             sort_keys=True,
+                            separators=(",", ":"),
                         ),
                     ),
                 ],

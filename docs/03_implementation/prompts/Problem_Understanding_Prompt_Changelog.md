@@ -3,6 +3,24 @@
 Prompt behavior is versioned in code so benchmark and trace results can identify
 the exact instruction contract that produced them.
 
+## `problem_understanding@1.5.1` - Chapter 13-P
+
+- Retain all ten validated examples. Omit only example values that reconstruct
+  exactly from contract defaults; compact JSON separators in input and schema.
+- Preserve all rules, schema constraints, source content, and output limits.
+  Pair with representation 1.4.0 and repair prompt 1.1.0 for versioned identity.
+- An unreleased 1.5.0 experiment included only three boundary examples. Reject it:
+  four live fixture modes changed and three fixtures added clarification stops.
+- Ten same-model compatibility calls preserved expected mode, clarification,
+  explicit override, and warning behavior with 32,594 input tokens versus 36,835
+  previously. These are visible prompt fixtures, not independent quality proof.
+
+## `cognitive_capability@0.5.0` - Chapter 13-P
+
+- Compact JSON whitespace in initial and repair schemas/payloads while preserving
+  every decoded value. No evidence or verification stage is removed.
+- Whole-run savings are not guaranteed: output lengths and recovery paths vary.
+
 ## `problem_understanding@1.3.0` - Chapter 13-P
 
 - Preserve whether the requested deliverable is a proposal or an implemented

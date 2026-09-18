@@ -172,3 +172,19 @@ prose so necessary coverage is never mislabeled semantic verification.
 Retain each failed run; fixes invalidate its use as a held-out case. Fresh
 synthetic transfer cases are useful regression evidence but are not independent
 blind evaluation, learned procedure transfer, or real-user product preference.
+
+## Core-loop efficiency and recovery regressions (Chapter 13-P)
+
+Compare the unchanged runtime with a direct same-model answer on a frozen
+non-dependency incident case. Check observation/inference separation, competing
+causes, whether a proposed infrastructure purchase is justified, reversible
+experiments, residual uncertainty and unperformed-action boundaries. Record
+source-review limitations and actual tokens/latency, including baseline strengths.
+
+Prompt compression must preserve mode overrides, clarification boundaries and
+wrong-cause warnings across all ten framing fixtures. These examples appear in
+the prompts and therefore measure compatibility, not held-out quality. Keep
+failed prompt candidates and distinguish input savings from whole-run savings.
+Execution-negative cases must not pass from metadata alone; if recovery clears a
+failed verification and then stops, both report paths must retain its explicitly
+historical diagnostics without promoting them to a current verdict.

@@ -46,7 +46,21 @@ def test_system_prompt_contains_version_schema_rules_and_all_examples() -> None:
     assert "Do not return Markdown" in prompt
     assert "chain-of-thought" in prompt
     for category in PromptExampleCategory:
-        assert f"CATEGORY: {category.value}" in prompt
+        assert f"CATEGORY: {category.value}\n" in prompt
+
+
+def test_compact_examples_reconstruct_every_contract_field() -> None:
+    prompt = problem_understanding_system_prompt()
+    rendered = [
+        json.loads(line.removeprefix("OUTPUT: "))
+        for line in prompt.splitlines()
+        if line.startswith("OUTPUT: ")
+    ]
+    expected = [example.output for example in PROBLEM_UNDERSTANDING_EXAMPLES]
+
+    assert len(rendered) == len(expected) == 10
+    for payload, example in zip(rendered, expected, strict=True):
+        assert type(example).model_validate(payload) == example
 
 
 def test_request_formats_polya_state_and_user_override_without_trace_leakage() -> None:

@@ -255,3 +255,72 @@ quality or efficiency comparison. All 552 backend tests passed with Postgres,
 including local/persisted report consistency, invalid and stale metadata, and
 suppression of metadata from rejected conclusions. Ruff, formatting and strict
 mypy passed.
+
+## Non-dependency case and measured overhead
+
+A fresh fictional gateway incident was frozen before results at `3fc690f`.
+Two supplied files describe a worker pool reduced from 64 to 8, stable traffic,
+fast database queries, and slow local pool acquisition. The public runtime
+challenged the proposed database-capacity purchase, kept the pool-size diagnosis
+conditional, compared connection retention/leaks, and proposed a reversible
+canary without claiming execution. Agent review found all eight predeclared
+expectations covered. This is a synthetic developer-authored case, not independent
+or blind evaluation.
+
+The same-model direct answer was also useful and explicitly asked for worker count
+and aggregate connection headroom before the experiment. The runtime used three
+calls, 17,038 tokens and 58.79 seconds; direct used one call, 2,758 tokens and
+37.35 seconds. The runtime therefore did not demonstrate a quality or efficiency
+advantage. The original artifacts remain under `runs/core-value/incident-transfer`
+and `runs/core-value/polya-incident-transfer`.
+
+A prompt experiment reduced framing from ten examples to three. Across ten paired
+live fixture calls, input tokens fell from 36,835 to 19,375, but four mode choices
+changed and three cases added clarification stops. Its incident run also took
+62.40 seconds despite fewer tokens. That candidate was rejected and preserved.
+
+The adopted narrower serialization keeps all ten examples and all framing rules,
+omitting only reconstructible example defaults and JSON whitespace. The semantic
+gateway likewise preserves every decoded schema/state value. All ten framing
+fixtures retained expected mode, override, clarification and warning behavior;
+input tokens were 32,594 (11.5% below the previous prompt), with 2,483 output tokens
+versus 2,543 before. The fixtures are in the prompt corpus, so this checks
+compatibility, not generalization. Latency did not improve in that fixture sample.
+
+Production-path replays retained the targeted investigation behavior:
+
+| Case | Earlier total tokens / seconds | Compact serialization tokens / seconds |
+| --- | --- | --- |
+| Gateway incident | 17,038 / 58.79 | 15,453 / 42.55 |
+| Conditional dependency transfer | 20,460 / 50.16 | 20,512 / 62.45 |
+
+These are single runs; output length, provider latency, and recovery choices vary.
+Do not claim a universal end-to-end saving. Neither result establishes a win over
+the direct answer. Smaller prompts do not replace better deterministic checks,
+verified procedural transfer, or real-user validation.
+
+## Failure diagnostics across recovery
+
+The execution-negative replay still refused success, but took four calls,
+17,758 tokens and 31.98 seconds instead of the earlier one-call clarification.
+It inspected the supplied metadata, failed verification for missing installation
+and test records, replanned, and stopped after an unsuitable measurement action.
+This is a recovery-efficiency defect, not a successful optimization.
+
+It also exposed an audit defect: material replanning correctly cleared stale
+verification but erased the failed checks from the final report. The kernel now
+records a versioned `verification_invalidated` event before clearing that report.
+When no current verification exists, CLI and persisted reports can display the
+latest failed report with an explicit "Earlier attempt, before recovery" label.
+The historical result cannot establish current success, confidence, reflection,
+or learning. A new current verification takes precedence; an invalidated pass or
+malformed event cannot supply fallback checks. Older failed runs without such an
+event cannot be reconstructed retroactively.
+
+All 561 backend tests passed with Postgres, including kernel re-verification and
+historical-diagnostic readback on both report paths. Ruff, formatting and strict
+mypy passed. A further live execution-negative run stopped earlier at `needs_input`
+and explicitly requested installation output and the full test-suite report.
+That live run verifies the refusal boundary, but does not exercise the historical
+fallback; deterministic recovery and persistence regressions verify that path.
+The extra recovery calls and inappropriate measurement choice remain unresolved.

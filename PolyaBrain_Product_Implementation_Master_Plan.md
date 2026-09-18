@@ -2081,6 +2081,34 @@ promote conditions to verified facts, or change completion/confidence solely bec
 nonblocking questions remain. Reject malformed metadata and ignore stale answer
 bindings. This starts as experimental reporting metadata, not a new core concept.
 
+Measure and reduce recurring framing overhead before adding more model stages.
+Keep the ten validated framing examples as regression fixtures, but evaluate a
+smaller fixed prompt set covering ambiguous objectives, premature solution
+selection with an explicit mode override, and reversible planning. Retain all
+framing rules and the full output schema; never remove supplied evidence, success
+criteria, or independent conclusion checking to achieve a token saving. Omit
+example fields only when contract defaults reconstruct the same example exactly.
+Version the prompt and compare the candidate with the previous prompt across all
+ten framing categories and production-path positive/negative cases. Record quality
+regressions and actual provider usage before adopting the candidate. This is an
+efficiency experiment, not proof of advantage over a direct answer.
+The three-example candidate failed that compatibility gate: modes changed on four
+fixtures and three fixtures added clarification stops. Do not adopt it. Retain all
+ten examples and test the narrower alternative: omit reconstructible default
+example fields and use compact JSON separators in model-bound schemas/payloads.
+Preserve every schema constraint and canonical state value, including full admitted
+source excerpts. This serialization change still requires live regression checks.
+
+Retain failed verification diagnostics when recovery materially changes the state.
+The current verification must still be invalidated, but record its prior report in
+a versioned audit event before clearing it. If recovery then stops without a new
+verification, CLI and persisted reports may show the latest failed report with
+explicit historical labels and a request for new evidence. Historical checks must
+never establish current success, confidence, a final answer, or reusable learning.
+Current verification takes precedence; malformed history and invalidated passing
+reports cannot act as fallback verification. This uses trace metadata and existing
+report fields, not a new canonical contract or completion mechanism.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

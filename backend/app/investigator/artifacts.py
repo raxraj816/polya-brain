@@ -19,6 +19,11 @@ from app.cognition.kernel import CognitiveRunResult
 from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
 from app.cognition.task_model import accumulated_usage, configured_budget
+from app.cognition.verification_history import (
+    HISTORICAL_NEXT_ACTION,
+    VERIFICATION_INVALIDATED_EVENT,
+    historical_failure,
+)
 from app.graph.state import PolyaState
 from app.models.sessions import SessionReportEvidence, SessionReportResponse
 from app.tracing.sanitization import sanitize_json_value, sanitize_text
@@ -31,6 +36,19 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
     verified = result.status is CognitiveRunStatus.COMPLETED and bool(
         verification and verification.passed and state["final_answer"]
     )
+    history = None
+    if verification is None and result.status is not CognitiveRunStatus.COMPLETED:
+        history_event = next(
+            (
+                event
+                for event in reversed(state["events"])
+                if event.event_type == VERIFICATION_INVALIDATED_EVENT
+            ),
+            None,
+        )
+        if history_event is not None:
+            history = historical_failure(history_event.metadata)
+    display_verification = verification or history
     used = [item for item in state["evidence"] if not item.contradicts_hypothesis_ids]
     against = [item for item in state["evidence"] if item.contradicts_hypothesis_ids]
     questions = [item.description for item in state["gaps"] if not item.filled]
@@ -61,6 +79,8 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
     next_action = (
         "Review the evidence and checks before acting on the conclusion."
         if verified
+        else HISTORICAL_NEXT_ACTION
+        if history is not None
         else "Supply the missing evidence or resolve the reported failure, then run again."
     )
     if result.status is CognitiveRunStatus.MAX_CYCLES:
@@ -94,12 +114,12 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
         checks_performed=(
             source_patch_checks()
             if verified and any(task.tool_name == "source_patch_sandbox" for task in state["plan"])
-            else verification.checks_run
-            if verification
+            else display_verification.checks_run
+            if display_verification
             else []
         ),
-        failed_checks=verification.failed_checks if verification else [],
-        contradictions=verification.contradictions if verification else [],
+        failed_checks=display_verification.failed_checks if display_verification else [],
+        contradictions=display_verification.contradictions if display_verification else [],
         open_questions=list(dict.fromkeys(questions)),
         recommended_next_action=next_action,
         reflection=reflection.model_dump(mode="json") if reflection else None,

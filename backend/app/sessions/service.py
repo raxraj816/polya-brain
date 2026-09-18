@@ -13,6 +13,11 @@ from sqlalchemy.orm import Session
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
 from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
+from app.cognition.verification_history import (
+    HISTORICAL_NEXT_ACTION,
+    VERIFICATION_INVALIDATED_EVENT,
+    historical_failure,
+)
 from app.config import get_settings
 from app.db.models import (
     ClarificationRequest,
@@ -235,6 +240,21 @@ class PolyaSessionService:
             .limit(1)
         )
 
+        history = None
+        if verification is None and problem_session.verification_status != "passed":
+            history_event = self._db_session.scalar(
+                select(ReasoningEvent)
+                .where(
+                    ReasoningEvent.session_id == session_id,
+                    ReasoningEvent.event_type == VERIFICATION_INVALIDATED_EVENT,
+                )
+                .order_by(ReasoningEvent.sequence_number.desc())
+                .limit(1)
+            )
+            if history_event is not None:
+                history = historical_failure(history_event.event_metadata)
+        display_verification = verification or history
+
         evidence_used = [item for item in evidence if not item.contradicts_hypothesis_ids]
         evidence_against = [item for item in evidence if item.contradicts_hypothesis_ids]
         if verification is not None and verification.passed:
@@ -300,6 +320,8 @@ class PolyaSessionService:
             )
         elif verification is not None and verification.recommended_route:
             recommended_next_action = verification.recommended_route
+        elif history is not None:
+            recommended_next_action = HISTORICAL_NEXT_ACTION
         else:
             recommended_next_action = "Gather the missing evidence before drawing a conclusion."
 
@@ -329,12 +351,14 @@ class PolyaSessionService:
                 if source_patch_plan is not None
                 and verification is not None
                 and verification.passed
-                else list(verification.checks_run)
-                if verification
+                else list(display_verification.checks_run)
+                if display_verification
                 else []
             ),
-            failed_checks=list(verification.failed_checks) if verification else [],
-            contradictions=list(verification.contradictions) if verification else [],
+            failed_checks=list(display_verification.failed_checks) if display_verification else [],
+            contradictions=list(display_verification.contradictions)
+            if display_verification
+            else [],
             open_questions=list(dict.fromkeys(questions)),
             recommended_next_action=recommended_next_action,
             reflection=reflection,

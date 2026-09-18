@@ -719,6 +719,12 @@ def test_failed_verification_is_invalidated_then_rerun_after_replan() -> None:
     assert result.state["verification"].passed
     assert result.state["final_answer"] == "x = 3"
 
+    invalidations = [
+        event for event in result.state["events"] if event.event_type == "verification_invalidated"
+    ]
+    assert len(invalidations) == 1
+    assert invalidations[0].metadata["report"]["failed_checks"] == ["The two sides differed."]
+
 
 def test_passing_verification_without_success_criteria_coverage_is_rejected() -> None:
     state = _math_state()

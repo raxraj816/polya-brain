@@ -129,7 +129,12 @@ def test_primary_success_uses_one_route_and_one_real_provider_attempt() -> None:
 def test_routed_gateway_preserves_capability_state_projection() -> None:
     client = FakeLLMClient([_response("primary", model="provider/primary")])
     gateway = RoutedCognitiveModelGateway(client, _routes())
-    projection = {"projection_version": "test@1.0.0", "problem": "bounded"}
+    projection = {
+        "projection_version": "test@1.0.0",
+        "problem": "Preserve all source values, including punctuation and Unicode: λ.",
+        "evidence": [{"excerpt": '1: constraint = ">=1, <2"\n2: keep spaces: a  b', "value": 0}],
+        "conditions": [None, False, {}, []],
+    }
 
     gateway.complete(
         capability="test_semantic_contract",
@@ -141,6 +146,8 @@ def test_routed_gateway_preserves_capability_state_projection() -> None:
 
     payload = json.loads(client.requests[0].messages[1].content)
     assert payload["current_state"] == projection
+    schema = client.requests[0].messages[0].content.split("OUTPUT_JSON_SCHEMA:\n", 1)[1]
+    assert json.loads(schema) == BrokerOutput.model_json_schema()
 
 
 def test_typed_primary_failure_falls_back_and_counts_failed_attempts() -> None:

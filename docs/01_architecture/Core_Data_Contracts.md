@@ -361,3 +361,21 @@ metadata event clears earlier questions. Legacy runs without metadata retain the
 original recorded uncertainty; the reader does not invent questions from prose.
 Unit and persisted-report tests cover limits, stale answer binding, deduplication,
 completed outcomes with questions, and failed outcomes without reused metadata.
+
+### Historical verification after recovery
+
+When a material update invalidates current verification, the kernel emits
+`verification_invalidated` with version `verification_history@0.1.0`, the action
+identifier and the previous validated `VerificationReport`. This event is audit
+metadata, not a new first-class verification contract. Its consumers are the CLI
+and persisted report builders. It prevents a recovery stop from erasing the user's
+view of earlier failed checks.
+
+Only the latest known-version event can supply historical failure diagnostics,
+and only when current verification is absent. The display prefixes every check
+and contradiction with "Earlier attempt, before recovery". Invalidated passing
+reports and malformed metadata cannot supply fallback checks. Current verification
+always wins. Historical content does not change confidence, completion, the final
+answer, or learning eligibility. Regression tests cover kernel invalidation,
+report precedence, malformed/pass history, and Postgres readback. Legacy runs that
+never recorded the event cannot recover lost diagnostics from this mechanism.

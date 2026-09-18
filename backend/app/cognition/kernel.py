@@ -27,6 +27,7 @@ from app.cognition.task_model import (
     task_model_event,
     usage_event,
 )
+from app.cognition.verification_history import verification_invalidated_event
 from app.graph.state import PolyaState, StateEvent, append_state_events
 from app.models.contracts import KnowledgeGap, ReasoningMode, StructuredProblem
 
@@ -173,6 +174,11 @@ def apply_cognitive_observation(
     if state["verification"] is not None and update.verification is None and materially_revised:
         # A changed evidence or execution state invalidates the earlier check.
         # The revised state must be verified again before it can be accepted.
+        next_events = append_state_events(
+            next_events,
+            verification_invalidated_event(state["verification"], action_id=observation.action_id),
+        )
+        next_state["events"] = next_events
         next_state["verification"] = None
         next_state["final_answer"] = None
         next_state["reflection"] = None

@@ -630,3 +630,66 @@ def test_completed_persisted_report_keeps_answer_bound_residual_questions(
         problem.final_answer = "A revised conclusion unrelated to the recorded conditions."
         db_session.commit()
         assert service.get_report(session_id).open_questions == []
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_persisted_report_preserves_invalidated_failure_without_reviving_verdict(
+    session_factory: sessionmaker,
+) -> None:
+    from app.cognition.verification_history import (
+        HISTORICAL_CHECK_PREFIX,
+        HISTORICAL_NEXT_ACTION,
+        verification_invalidated_event,
+    )
+
+    def stopped_runner(raw_input: str, *, session_id: str) -> PolyaState:
+        state = create_initial_state(raw_input, session_id=session_id)
+        state["events"] = [
+            verification_invalidated_event(
+                VerificationReport(
+                    passed=False,
+                    checks_run=["Looked for executed tests."],
+                    failed_checks=["No test results supplied."],
+                ),
+                action_id="recovery-plan",
+            )
+        ]
+        return state
+
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=stopped_runner)
+        session_id = service.create_session(
+            raw_input="Verify passing tests.", mode=ProductMode.INVESTIGATE, domain=None
+        ).id
+        service.run_session(session_id)
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=stopped_runner)
+        report = service.get_report(session_id)
+        assert report.failed_checks == [HISTORICAL_CHECK_PREFIX + "No test results supplied."]
+        assert report.checks_performed == [HISTORICAL_CHECK_PREFIX + "Looked for executed tests."]
+        assert report.verification_status == "not_verified"
+        assert report.confidence_level == "insufficient_evidence"
+        assert report.final_conclusion is None
+        assert report.reflection is None
+        assert report.recommended_next_action == HISTORICAL_NEXT_ACTION
+
+        # A current passing verification takes precedence over recovery history.
+        def recovered_runner(raw_input: str, *, session_id: str) -> PolyaState:
+            state = successful_runner(raw_input, session_id=session_id)
+            state["events"] = [
+                *stopped_runner(raw_input, session_id=session_id)["events"],
+                *state["events"],
+            ]
+            return state
+
+        recovered_service = PolyaSessionService(db_session, runner=recovered_runner)
+        recovered_id = recovered_service.create_session(
+            raw_input="Verify passing tests after recovery.",
+            mode=ProductMode.INVESTIGATE,
+            domain=None,
+        ).id
+        recovered_service.run_session(recovered_id)
+        report = recovered_service.get_report(recovered_id)
+        assert report.failed_checks == []
+        assert report.checks_performed == ["service test verification"]
+        assert report.verification_status == "passed"
