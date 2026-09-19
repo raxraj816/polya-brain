@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from app.cognition import (
+    CognitiveActionCandidate,
     CognitiveActionType,
     CognitiveKernel,
     CognitiveModelGateway,
@@ -391,3 +392,49 @@ def test_conclusion_checker_records_residual_questions_without_blocking_completi
     assert report_questions(event.metadata, result.state["final_answer"]) == [
         "Does the next revision retain this timeout?"
     ]
+
+
+def test_public_source_subject_words_do_not_request_local_execution():
+    from app.cognition.on_demand_capabilities import _source_for_unknown
+
+    sources = ["official mission orbital-measurement pages", "official agency experiment reports"]
+    for unknown in [
+        "What was the measurement?",
+        "Which experiment established the result?",
+        "What does the document say?",
+        "Which numeric result was reported?",
+    ]:
+        assert _source_for_unknown(unknown, sources) == "official web source"
+    assert _source_for_unknown("The user's preference", sources) == "human input"
+    assert _source_for_unknown("Inspect local /home/test/log.txt", sources) == "local artifact"
+    assert (
+        _source_for_unknown("Compute the median", ["official documentation", "dataset measurement"])
+        == "dataset measurement"
+    )
+
+
+def test_public_questions_share_acquisition_without_losing_constituent_requirements():
+    from app.cognition.on_demand_capabilities import task_gap_detector_capability
+
+    state = _ready_state()
+    state["structured_problem"].unknowns = ["What was observed?", "What remains uncertain?"]
+    state["structured_problem"].required_data_sources = ["official research results pages"]
+    state["gaps"] = []
+    capability = task_gap_detector_capability()
+    action = CognitiveActionCandidate(
+        id="detect",
+        action_type=CognitiveActionType.DETECT_GAPS,
+        target="research",
+        purpose="Find gaps",
+        expected_observation="Gaps",
+        expected_usefulness=0.9,
+        estimated_cost=0,
+        capability="task_gap_detector",
+        success_condition="Gaps represented",
+        failure_condition="Missing questions",
+    )
+    result = capability.execute(action, state)
+    gaps = result.proposed_update.gaps_to_add
+    assert len(gaps) == 1
+    assert all(q in gaps[0].description for q in state["structured_problem"].unknowns)
+    assert result.proposed_update.structured_problem.unknowns == [gaps[0].description]

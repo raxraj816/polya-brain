@@ -30,7 +30,7 @@ from app.cognition.verification_factory import deterministic_verification_availa
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.0"
+POLICY_VERSION = "cognitive-controller-v0.5.1"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -780,6 +780,34 @@ class CognitiveController:
                 )
                 continue
             available.append(candidate)
+
+        autonomous_targets = {
+            candidate.target
+            for candidate in available
+            if candidate.action_type
+            not in {
+                CognitiveActionType.ASK_HUMAN,
+                CognitiveActionType.CLARIFY,
+                CognitiveActionType.STOP,
+            }
+        }
+        deferred = [
+            candidate
+            for candidate in available
+            if candidate.action_type is CognitiveActionType.ASK_HUMAN
+            and candidate.target in autonomous_targets
+        ]
+        for candidate in deferred:
+            rejected.append(
+                RejectedCognitiveAction(
+                    candidate_id=candidate.id,
+                    rationale=(
+                        "Deferred fallback human question: a safe, supported autonomous "
+                        "action for the same gap fits the remaining budget."
+                    ),
+                )
+            )
+        available = [candidate for candidate in available if candidate not in deferred]
 
         if not available:
             selected = self._stop_candidate(registry, "no safe supported action")

@@ -2121,6 +2121,80 @@ substitute table measurement, simulation, or analysis for missing real execution
 records. Validate this with actual failed-state planner input and local/persisted
 recovery regressions; no new core gap type or autonomous permission is introduced.
 
+The user's general-purpose ambition requires a working knowledge-on-demand path,
+not only local technical artifacts. Prove the same controller can identify a gap,
+acquire public sources online, evaluate them, solve and verify the task, and later
+reuse verified learning across different problems. Do not require training a new
+foundation model or collecting a massive local corpus. Existing pretrained models
+remain replaceable reasoning capabilities; their upstream training and inference
+costs are not eliminated by this architecture. Cross-domain ability and transfer
+must be measured rather than claimed from architecture alone.
+
+The current installation has no configured Brave key. Add an explicitly selected
+OpenRouter search adapter using the already configured account, with one server
+search use, one tool step, bounded result/excerpt counts and a cancellable total
+deadline. Use only provider citation annotations containing original source
+excerpts as candidates; discard synthesized answer text. Preserve partial-coverage
+semantics and the existing evidence-evaluation gate. Record model-request usage,
+search use, token/cost telemetry and unknown usage on failures; a search request
+may contain an initial and final provider inference turn. Keep that distinction
+auditable. Missing/invalid search telemetry or source excerpts cannot masquerade
+as successful research. Keep Brave available and offline mode network-free.
+The controller still owns whether to search, the target gap, the research budget,
+evidence admission and stopping. Enable the adapter only through explicit search
+configuration; secret values never enter trace, reports, or source control.
+Model-backed external search must reserve both existing model-request and external
+call budgets. Permit that combination on the experimental external capability
+definition; keep deterministic/human/memory capabilities unable to reserve model
+calls and keep external-call reservations exclusive to external capabilities.
+Do not hide the model cost by classifying a hybrid request as zero-model search.
+
+Treat human questions for externally acquirable gaps as recovery actions, not cheap
+competitors to feasible autonomous acquisition. After capability, privacy, failure
+and budget gates, defer a fallback question when a non-human action for that same
+gap remains available. Keep explicit user-owned clarification immediate and retain
+human recovery when automated routes are unavailable, blocked or exhausted. Record
+this deferral in the decision trace; do not tune cost estimates to force a demo.
+When every declared source is explicitly public/official online material, treat
+words such as "measurement", "experiment" and "document" as research subjects,
+not instructions to run a local experiment or inspect a file. Explicit user-owned
+information and local references retain their own routes. Mixed source requests
+must not be globally reclassified as public research.
+
+Preserve explicit source requirements in bounded search queries. Batch unresolved
+public-source questions that share the same declared source set, just as local
+artifact questions share one inspection; evidence evaluation must cover the whole
+batch before resolving it. Preserve the constituent questions in the gap text.
+Do not let rejected access pages poison valid candidates: rejected material never
+becomes evidence, and ungrounded extracted claims must be rejected individually
+with recorded diagnostics and usage. Keep distinct relevant pages from one host
+while counting that host only once for corroboration. An explicitly requested
+official-source account can use one authoritative source when independent
+corroboration is not requested; broader public research retains the two-source
+gate. Semantic support, temporal validity, contradictions and final verification
+remain mandatory. Neither page counts nor a source's reputation prove its claims.
+
+Framing must apply the deliverable boundary without requiring the literal phrase
+"conditional plan": a sourced explanation plus a proposed diagnostic does not
+require private incident observations. Record unobserved case-specific facts as
+limitations and future checks, not blocking acquisition targets. Public-source
+evaluation asks whether retrieved facts support the requested bounded analysis,
+not whether every inference or proposed next step appears verbatim in a source.
+Only mutually incompatible claims under the same conditions form a contradiction;
+different epochs, rounding or overlapping uncertainty intervals alone do not.
+
+When a research batch leaves a gap unresolved, let its existing semantic evaluator
+return an optional bounded next query naming the specific missing public fact.
+Store it with the evaluation rationale in trace metadata and let the controller's
+next search consume it only for that same gap. Retain declared source restrictions,
+the source-admission gate and all research/privacy budgets. This experimental
+acquisition-output field has a producer (evaluator), consumer (query builder),
+regressions for bounds/target isolation and a live repeated-search failure to
+address; it does not create a new canonical planning engine or let sources choose
+actions. Do not repeatedly ask a broad original question after learning which
+specific part lacks evidence. This does not solve incorrect framing of private
+incident facts as necessary public research.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

@@ -13,7 +13,7 @@ from app.problem_understanding.contracts import (
 )
 from app.problem_understanding.examples import PROBLEM_UNDERSTANDING_EXAMPLES
 
-PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.5.1"
+PROBLEM_UNDERSTANDING_PROMPT_VERSION = "problem_understanding@1.5.2"
 PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS = 3000
 PROBLEM_UNDERSTANDING_REPAIR_PROMPT_VERSION = "problem_understanding_repair@1.1.0"
 
@@ -77,6 +77,14 @@ Rules:
     analysis. Facts to investigate in supplied files still belong in unknown. Ask
     when the objective itself is ambiguous, no useful conditional answer is possible,
     or the user requests actual execution or an unconditional compatibility claim.
+11. Apply the same scope rule to a sourced explanation with a proposed diagnostic,
+    even without the words "conditional plan". Unknown means a missing fact needed
+    to produce THIS deliverable, not every fact needed to prove the eventual cause.
+    Unobserved incident details remain limitations/future checks in constraints and
+    success_criteria; do not put them in blocking unknown or required_data_sources
+    when the requested answer must explicitly stop short of incident-specific proof.
+    Likewise, interpretations and proposed next checks are reasoning tasks after
+    acquisition, not missing source facts. Acquire the underlying observations.
 
 OUTPUT_JSON_SCHEMA:
 {schema}

@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, Field, field_validator
+from pydantic import AnyHttpUrl, Field, JsonValue, field_validator
 
 from app.models.contracts import ContractModel, NonEmptyStr, RiskLevel, Score
 
@@ -131,6 +131,7 @@ class EvidenceEvaluationOutput(ContractModel):
     assessments: list[EvidenceCandidateAssessment] = Field(min_length=1, max_length=20)
     gap_supported: bool
     overall_rationale: NonEmptyStr
+    next_query: NonEmptyStr | None = Field(default=None, max_length=300)
 
 
 class SearchResponse(ContractModel):
@@ -141,3 +142,4 @@ class SearchResponse(ContractModel):
     candidates: list[SearchResultCandidate]
     request_id: NonEmptyStr | None = None
     more_results_available: bool = False
+    metadata: dict[str, JsonValue] = Field(default_factory=dict)

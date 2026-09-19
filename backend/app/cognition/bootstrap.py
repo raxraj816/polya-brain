@@ -17,6 +17,12 @@ from app.acquisition import (
     local_artifact_capability,
     web_search_capability,
 )
+from app.acquisition.openrouter import (
+    SEARCH_OUTPUT_TOKEN_RESERVE,
+    SEARCH_TIMEOUT_SECONDS,
+    OpenRouterSearchProvider,
+)
+from app.acquisition.providers import SearchProvider
 from app.cognition.adapters import (
     constraint_discovery_capability,
     problem_representation_capability,
@@ -216,11 +222,20 @@ def build_cognitive_runtime(
     )
     configured_search_key = settings.search_api_key.get_secret_value().strip()
     requires_evidence_evaluator = False
+    provider: SearchProvider | None = None
     if settings.search_provider.casefold() == "brave" and configured_search_key:
         provider = BraveSearchProvider(
             configured_search_key,
             base_url=settings.search_base_url,
         )
+    elif (
+        settings.search_provider.casefold() == "openrouter"
+        and settings.openrouter_api_key.get_secret_value().strip()
+        and configured_model
+    ):
+        provider = OpenRouterSearchProvider(settings)
+    if provider is not None:
+        model_backed_search = isinstance(provider, OpenRouterSearchProvider)
         registry.register(
             web_search_capability(
                 provider,
@@ -230,6 +245,12 @@ def build_cognitive_runtime(
                     max_total_candidates=settings.research_max_total_candidates,
                 ),
                 prior_query_count=prior_research_query_count,
+                max_model_calls=1 if model_backed_search else 0,
+                max_output_tokens=SEARCH_OUTPUT_TOKEN_RESERVE if model_backed_search else 0,
+                timeout_seconds=SEARCH_TIMEOUT_SECONDS if model_backed_search else 20.0,
+                capability_version=provider.capability_version
+                if isinstance(provider, OpenRouterSearchProvider)
+                else None,
             )
         )
         requires_evidence_evaluator = True

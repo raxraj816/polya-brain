@@ -111,8 +111,13 @@ class CapabilityDefinition(ContractModel):
         """Prevent inert capability definitions from entering the registry."""
         if not self.supported_actions:
             raise ValueError("capability must support at least one cognitive action")
-        if self.kind is not CapabilityKind.MODEL and self.max_model_calls:
-            raise ValueError("only model capabilities may reserve model calls")
+        if (
+            self.kind not in {CapabilityKind.MODEL, CapabilityKind.EXTERNAL}
+            and self.max_model_calls
+        ):
+            raise ValueError(
+                "only model or model-backed external capabilities may reserve model calls"
+            )
         if self.kind is not CapabilityKind.EXTERNAL and self.max_external_calls:
             raise ValueError("only external capabilities may reserve external calls")
         return self

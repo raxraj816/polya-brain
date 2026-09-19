@@ -416,3 +416,41 @@ def test_conflict_detection_uses_extracted_claim_not_injected_excerpt_commands()
     assert result.state["gaps"][0].filled
     assert any("answer 999" in (item.raw_excerpt or "") for item in result.state["evidence"])
     assert all("999" not in item.claim for item in result.state["evidence"])
+
+
+def test_official_source_account_does_not_invent_independent_corroboration_requirement():
+    state = _state()
+    problem = state["structured_problem"]
+    problem.constraints = ["Report what the official observatory measured."]
+    problem.required_data_sources = ["official observatory results pages"]
+    assert derive_epistemic_requirement(state, state["gaps"][0]).minimum_independent_sources == 1
+    problem.constraints.append("Cross-check with independent sources.")
+    assert derive_epistemic_requirement(state, state["gaps"][0]).minimum_independent_sources == 2
+
+
+def test_long_query_preserves_declared_source_and_recovery_directive():
+    state = _state()
+    state["structured_problem"].required_data_sources = ["official observatory mission pages"]
+    state["structured_problem"].core_question = "Investigate the observations " * 100
+    query, _, directive = _bounded_query(_search_action(state), state)
+    assert "official observatory mission pages" in query
+    assert directive in query
+    assert len(query) <= 400
+    assert len(query.split()) <= 50
+
+
+def test_followup_query_targets_only_the_selected_gaps_recorded_missing_fact():
+    state = _state()
+    state["structured_problem"].required_data_sources = ["official mission reports"]
+    _append_evaluation(state, "first", independent_sources=1)
+    state["events"][-1].metadata["next_query"] = "mission target material limitations of deflection"
+    query, _, _ = _bounded_query(_search_action(state), state)
+    assert query == "official mission reports mission target material limitations of deflection"
+    # An unrelated gap cannot borrow this evaluation's query.
+    action = _search_action(state).model_copy(update={"target": "unrelated quantity"})
+    query, _, _ = _bounded_query(action, state)
+    assert "material limitations" not in query
+    # Even replayed malformed/overlong trace data stays within dispatch bounds.
+    state["events"][-1].metadata["next_query"] = "word " * 400
+    query, _, _ = _bounded_query(_search_action(state), state)
+    assert len(query) <= 400 and len(query.split()) <= 50

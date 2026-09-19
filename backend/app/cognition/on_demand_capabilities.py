@@ -51,6 +51,26 @@ def _has_terms(text: str, terms: tuple[str, ...]) -> bool:
 
 
 def _source_for_unknown(unknown: str, declared_sources: list[str]) -> str:
+    # Source declarations describe where to learn; subject words describe what
+    # to learn. Reading a published measurement is not a request to measure it.
+    public_only = bool(declared_sources) and all(
+        re.search(r"\b(?:official|public|web|online)\b|https?://", source.casefold())
+        for source in declared_sources
+    )
+    explicit_private = re.search(
+        r"\b(?:user|human|preference|approval|local|private|confidential)\b|"
+        r"(?:^|\s)(?:file://|/Users/|/home/|[A-Za-z]:\\)",
+        unknown,
+        re.IGNORECASE,
+    )
+    if public_only:
+        if re.search(
+            r"\b(?:local|file|artifact|repository)\b|/Users/|/home/", unknown, re.IGNORECASE
+        ):
+            return "local artifact"
+        if _has_terms(unknown.casefold(), ("user", "human", "preference", "approval")):
+            return "human input"
+        return "human input" if explicit_private else "official web source"
     combined = " ".join([unknown, *declared_sources]).casefold()
     combined = re.sub(r"(?:file://)?(?:[A-Za-z]:)?[/\\][^\s]+", " local artifact ", combined)
     combined = re.sub(
@@ -100,7 +120,7 @@ def task_gap_detector_capability() -> FunctionCapability:
     """Convert explicit unknowns into actionable gaps without a model call."""
     definition = CapabilityDefinition(
         name="task_gap_detector",
-        version="explicit_unknown_gap_detector@0.2.0",
+        version="explicit_unknown_gap_detector@0.2.1",
         supported_actions={CognitiveActionType.DETECT_GAPS},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -118,6 +138,7 @@ def task_gap_detector_capability() -> FunctionCapability:
         existing = {gap.description.casefold() for gap in state["gaps"]}
         gaps: list[KnowledgeGap] = []
         local_artifact_unknowns: list[str] = []
+        public_unknowns: list[str] = []
         unbatched_unknowns: list[str] = []
         for unknown in problem.unknowns:
             if unknown.casefold() in existing:
@@ -126,6 +147,9 @@ def task_gap_detector_capability() -> FunctionCapability:
             source = _source_for_unknown(unknown, problem.required_data_sources)
             if source == "local artifact":
                 local_artifact_unknowns.append(unknown)
+                continue
+            if source == "official web source" and problem.required_data_sources:
+                public_unknowns.append(unknown)
                 continue
             unbatched_unknowns.append(unknown)
             gaps.append(
@@ -160,6 +184,23 @@ def task_gap_detector_capability() -> FunctionCapability:
                         suggested_source="local artifact",
                     )
                 )
+        if public_unknowns:
+            public_gap = (
+                public_unknowns[0]
+                if len(public_unknowns) == 1
+                else "Resolve these questions from the declared public sources: "
+                + " | ".join(public_unknowns)
+            )
+            unbatched_unknowns.append(public_gap)
+            gaps.append(
+                KnowledgeGap(
+                    description=public_gap,
+                    gap_type="current_external_fact",
+                    priority=PriorityLevel.HIGH,
+                    why_needed="These questions share declared public sources; all require evidence coverage.",
+                    suggested_source="official web source",
+                )
+            )
         normalized_problem = (
             problem.model_copy(update={"unknowns": unbatched_unknowns})
             if unbatched_unknowns != problem.unknowns
@@ -176,6 +217,7 @@ def task_gap_detector_capability() -> FunctionCapability:
                 "procedure": "explicit_unknown_to_gap",
                 "llm_call_count": 0,
                 "batched_local_artifact_unknown_count": len(local_artifact_unknowns),
+                "batched_public_source_unknown_count": len(public_unknowns),
             },
         )
         return CognitiveObservation(

@@ -3,6 +3,25 @@
 Prompt behavior is versioned in code so benchmark and trace results can identify
 the exact instruction contract that produced them.
 
+## `problem_understanding@1.5.2` / representation 1.4.1 - Chapter 13-P
+
+- Apply the deliverable boundary to sourced explanations and proposed diagnostics
+  without requiring the literal phrase "conditional plan". Keep missing private
+  incident observations as limitations/future checks when proof is not requested.
+- Keep missing source facts distinct from interpretations and proposed checks that
+  the runtime must construct after acquisition. Live scientific and DNS failures
+  remain preserved as regression inputs, not held-out quality claims.
+- Version 1.5.2 preserved all ten compatibility-fixture decisions but still blocked
+  a DNS explanation on unrequested incident proof. Unreleased variants 1.5.3 and
+  1.5.4 added a scope example and field descriptions but did not fix the live DNS
+  failure; those prompt-only changes were rejected. Bounded scope recovery remains
+  open and must not be claimed from these prompt rules alone.
+- Source evaluator 0.3.3 rejects unusable claims individually, requires adequate
+  underlying facts rather than a prewritten answer, and distinguishes incompatible
+  measurements from rounding, different epochs and overlapping uncertainty.
+  An optional bounded follow-up query targets the remaining public fact without
+  another model call; its rationale and query remain in evaluation metadata.
+
 ## `model_planner@0.2.0` - Chapter 13-P
 
 - Permit a bounded request for genuinely missing evidence instead of requiring an

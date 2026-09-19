@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any, Protocol
 
 import httpx
-from pydantic import TypeAdapter, ValidationError
+from pydantic import JsonValue, TypeAdapter, ValidationError
 
 from app.acquisition.contracts import SearchRequest, SearchResponse, SearchResultCandidate
 
@@ -23,11 +23,13 @@ class SearchProviderError(RuntimeError):
         kind: str,
         retryable: bool,
         status_code: int | None = None,
+        metadata: dict[str, JsonValue] | None = None,
     ) -> None:
         super().__init__(message)
         self.kind = kind
         self.retryable = retryable
         self.status_code = status_code
+        self.metadata = metadata or {}
 
 
 class SearchProvider(Protocol):

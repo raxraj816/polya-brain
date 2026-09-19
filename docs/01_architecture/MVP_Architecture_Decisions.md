@@ -142,3 +142,15 @@ are enforced in request dependencies and repository queries. Operator-local data
 is not automatically shared. No database RLS claim is made. See
 [Chapter 73](../03_implementation/Chapter_73_Authentication_And_Isolation.md) for
 configuration, protocol tests, namespace migration, and remaining deployment gates.
+
+## Chapter 13-P: explicit online acquisition
+
+The shared CLI/API runtime can select Brave or OpenRouter server search through
+`SEARCH_PROVIDER`. OpenRouter uses the configured model/account and one Exa search
+step. Original citation excerpts are untrusted candidates; generated answer text
+is discarded. The external capability reserves both model-request and external
+budgets and records reported usage/unknown failure usage. This adds no foundation
+model training, local corpus requirement or new canonical state field. It still
+depends on external pretrained models and does not establish compute independence.
+See Chapter 13-P for the completed scientific development case, unresolved DNS
+scope failure and required efficiency/transfer comparisons.

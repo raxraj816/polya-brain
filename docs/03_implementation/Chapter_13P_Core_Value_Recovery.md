@@ -344,3 +344,87 @@ session adapter are covered by regression tests.
 Validation after planner recovery: all 569 backend tests passed with Postgres;
 Ruff, formatting and strict mypy passed. The local workbench backend was restarted
 with this code after confirming no investigation was running.
+
+## Knowledge acquired online, without supplied files
+
+The configured installation previously had no usable web-search provider. An
+explicit `SEARCH_PROVIDER=openrouter` route now uses the existing OpenRouter
+account and model to obtain Exa source annotations. Only original source excerpts
+enter the candidate gate; the provider's generated answer is discarded. Each
+request permits one search/tool step, bounded results and 2,000-character excerpts,
+a 1 MB response and a cancellable 60-second deadline. Both model-request and
+external-call reservations apply. One provider request may contain two inference
+turns; reported aggregate tokens, search uses and optional cost remain in the trace.
+Unknown remote usage after failure is recorded, not assumed free. Brave remains
+supported and `--offline` still disables online acquisition.
+
+Actual public CLI failures revealed and repaired several core-loop issues:
+
+- A cheap human question outranked a feasible public search. Human recovery now
+  waits until same-gap automated routes fail capability/privacy/budget gates.
+- Published measurements were routed to local measurement tools. Explicit public
+  source declarations now take precedence over research-subject words.
+- Long search queries lost the required publisher. Bounded queries now allocate
+  space to declared sources and the residual research need before task prose.
+- A rejected CAPTCHA page invalidated an otherwise useful evidence batch. Rejected
+  candidates no longer require a grounded positive claim; ungrounded attempted
+  claims are rejected individually with diagnostics and retained usage.
+- Useful pages from one host were discarded to enforce independence. Distinct
+  excerpts are retained while that host counts only once toward corroboration.
+- Related questions consumed separate acquisitions. Questions sharing public
+  sources now preserve their constituent requirements in one grouped gap.
+
+The DART investigation, with no supplied source documents, eventually completed
+through the public command. It retrieved sources, compared bounded and overbroad
+conclusions, separated measured orbital-period change from momentum-transfer
+inference, and retained uncertainty and a proposed next verification step. The
+accepted run is `runs/core-value/polya-online-dart-scope/`: 9 provider requests,
+3 searches, 43,570 tokens and 83.35 seconds. Confidence was medium. Manual review
+checked the main measured values against the stored excerpts and confirmed the
+answer did not claim universal asteroid deflection. Some admitted background
+sources were non-NASA publications, while the final answer cited NASA sources.
+The provider supplied excerpts, not complete independently fetched documents.
+This is a repaired development case, not a blind scientific evaluation or proof
+of efficiency over a direct model.
+
+The DNS explanation/proposed-diagnostic case remains a failure. It retrieves the
+relevant RFC facts but misclassifies unobserved private incident details as
+blocking knowledge, consumes its bounded research allowance and requests input.
+Framing 1.5.2 preserved all ten live fixture mode/clarification/override/warning
+checks, but did not fix this boundary reliably. Unreleased 1.5.3/1.5.4 experiments
+added a scope example and schema descriptions; neither fixed the live case, so
+those additions were rejected. Failed runs and isolated diagnostic responses are
+preserved under `runs/core-value/online-acquisition/` and separate public run
+folders. The next repair needs explicit bounded scope recovery, not more claims
+that prompt instructions guarantee correct framing.
+
+601 backend tests pass with Postgres integration, including new provider telemetry,
+body/deadline bounds, routing recovery, same-host counting, rejected candidates,
+query source retention and public-question grouping. Ruff, formatting and strict
+mypy pass. These checks establish the implementation boundary, not general
+intelligence or competitive advantage.
+
+The winning objective remains verified useful outcomes per total cost, including
+human attention. The current scientific run still relies on externally pretrained
+reasoning and search models and is not evidence of a low-compute advantage. Next
+proof gates are reliable scope recovery, fresh multi-domain comparisons, and
+verified procedure transfer that measurably reduces model work on new problems.
+AWS and account-flow expansion remain paused.
+
+A persisted workbench replay through the frontend proxy retrieved and stored six
+source excerpts but stopped with `awaiting_user_input` after 57.10 seconds. Its
+missing-source questions remained visible on report readback; this replay did not
+reproduce the CLI's successful conclusion. That failure exposed untargeted repeat
+searching, so evaluator 0.3.3 now records its rationale and an optional 300-character
+next query. Subsequent acquisition consumes that query only for the same gap and
+retains the declared publisher and all resource limits.
+
+With targeted follow-up enabled, a new DART CLI run completed in 81.93 seconds,
+9 provider requests, 3 searches and 42,890 tokens. The trace moved from the measured
+period to measurement methods, then specifically to limitations for other asteroid
+types; the final batch closed the gap. This demonstrates targeted acquisition,
+not fewer calls or a reliable general efficiency win. A fresh HTTP-method/retry
+explanation still stopped on an unrequested particular-server proof requirement,
+confirming that the DNS framing failure generalizes. Both failures remain in the
+evaluation record. The local workbench has online search enabled explicitly for
+continued core testing; no cloud deployment or authentication expansion occurred.

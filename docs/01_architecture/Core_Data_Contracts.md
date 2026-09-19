@@ -392,3 +392,38 @@ cannot obtain, not reinterpret a conditional proposal as a demand for execution.
 Empty or mixed branches fail output validation. This adds no canonical state
 field, engine, score, or permission. Tests cover the plan branch, bounded/mixed
 questions, kernel stop, retained diagnostics/resources, and session disposition.
+
+### Online acquisition metadata and recovery
+
+`SearchResponse.metadata` carries provider usage and excerpt-coverage metadata.
+OpenRouter server-search candidates come only from URL citation annotations;
+model-generated answer text is discarded. The capability records one provider
+request (potentially two inference turns), reported search uses, aggregate tokens
+and optional reported cost. Failure telemetry marks unknown remote usage explicitly.
+An external capability may reserve both model and external calls; deterministic,
+human and memory capabilities cannot reserve model calls. These are experimental
+capability/acquisition contracts, with no new canonical state field.
+
+Search queries retain declared source requirements. Questions sharing declared
+public sources form one gap whose text retains every constituent requirement;
+semantic evaluation must support the whole target before closure. Source-grounding
+failures reject individual candidates and appear in evaluation metadata, preserving
+valid candidates and completed model usage. Distinct pages from one host may enter
+evidence, but that host counts only once toward corroboration. Explicit official
+source accounts can require one authoritative source; requested independent checks
+still require multiple sources. Neither source counting nor lexical grounding is
+proof of factual correctness; final conclusion checking remains required.
+
+Human questions for externally acquirable gaps are deferred only after a same-gap
+automated action passes capability, privacy, prior-failure and budget gates. Explicit
+user-owned clarification is unaffected. Tests include unavailable providers,
+exhausted budgets, privacy restrictions, failed searches, rejected access pages,
+unsupported extracted claims, query limits and source independence counts.
+
+`EvidenceEvaluationOutput.next_query` is optional and limited to 300 characters.
+The evaluator produces it only for unresolved public evidence needs; the query
+builder reads the latest evaluation for the same target gap and preserves declared
+sources plus the existing 400-character/50-word dispatch limit. Evaluation rationale
+and suggested query remain inspectable trace metadata. This adds no model call or
+canonical state field. Tests cover omission, oversized output, same-gap isolation
+and replayed trace bounds. Source text cannot directly select a runtime action.

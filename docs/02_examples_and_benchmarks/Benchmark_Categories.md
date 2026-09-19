@@ -188,3 +188,20 @@ failed prompt candidates and distinguish input savings from whole-run savings.
 Execution-negative cases must not pass from metadata alone; if recovery clears a
 failed verification and then stops, both report paths must retain its explicitly
 historical diagnostics without promoting them to a current verdict.
+
+## Knowledge-on-demand public-runtime checks (Chapter 13-P)
+
+Start scientific and technical investigations with no supplied documents. Require
+actual public-source acquisition, independently inspect the retrieved excerpts,
+and distinguish observation from inference and a proposed experiment from an
+executed one. Preserve failed attempts before fixes; subsequent replays are
+regressions, not held-out wins. Record model-backed search as both model and external
+usage, and report unknown usage rather than inventing zero cost after failures.
+
+Negative controls include missing citation excerpts, invalid search telemetry,
+provider timeout, CAPTCHA-only pages, ungrounded extracted claims, unavailable
+sources, privacy constraints and exhausted budgets. Multiple pages from one host
+must not manufacture independent corroboration. Grouped questions cannot resolve
+from evidence for only their first question. Official-source reporting does not
+establish broad causal or cross-domain validity. A full product claim still needs
+fresh comparisons, learned procedure transfer and repeat use by real users.

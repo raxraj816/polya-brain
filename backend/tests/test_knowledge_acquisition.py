@@ -686,3 +686,127 @@ def test_numeric_evidence_requires_a_matching_anchored_subject(
     )
     assert _claims_contradict(first, second) is contradicts
     assert _claims_corroborate(first, second) is corroborates
+
+
+@pytest.mark.parametrize(
+    "defect", ["rejected_access_page", "ungrounded_support", "same_host", "invalid_ids"]
+)
+def test_evaluation_recovers_per_candidate_and_retains_honest_source_counts(defect):
+    provider = FakeSearchProvider()
+    response = provider.search(SearchRequest(query="current behavior"))
+    if defect == "same_host":
+        response.candidates[1] = response.candidates[1].model_copy(
+            update={
+                "url": response.candidates[0].url.__class__("https://standards.example.org/second")
+            }
+        )
+
+    class FixedProvider:
+        name = "fixed"
+
+        def search(self, request):
+            return response
+
+    state = _research_state()
+    registry = CapabilityRegistry()
+    registry.register(web_search_capability(FixedProvider()))
+    staged = CognitiveKernel(registry).run(state, max_cycles=1).state
+    assessments = []
+    for index, candidate in enumerate(response.candidates):
+        assessments.append(
+            {
+                "candidate_id": candidate.id,
+                "extracted_claim": (
+                    "Unrelated inaccessible browser challenge"
+                    if index == 1 and defect != "same_host"
+                    else candidate.excerpt
+                ),
+                "relationship": "reject"
+                if index == 1 and defect == "rejected_access_page"
+                else "supports",
+                "relevance_score": 0.95,
+                "reliability_score": 0.9,
+                "temporal_validity": "current",
+                "contradiction_risk": 0,
+                "contradicts_candidate_ids": [],
+                "rationale": "Assessment.",
+            }
+        )
+    client = FakeLLMClient(
+        [
+            LLMResponse(
+                provider="fake",
+                model="fake",
+                finish_reason="stop",
+                text=json.dumps(
+                    {
+                        "assessments": assessments,
+                        "gap_supported": True,
+                        "overall_rationale": "Supported.",
+                    }
+                ),
+                usage=LLMTokenUsage(input_tokens=50, output_tokens=30),
+            )
+        ]
+    )
+    if defect == "invalid_ids":
+        # Replace the staged provider response with a schema-valid but unknown ID.
+        assessments[1]["candidate_id"] = "unknown-id"
+        client = FakeLLMClient(
+            [
+                LLMResponse(
+                    provider="fake",
+                    model="fake",
+                    finish_reason="stop",
+                    text=json.dumps(
+                        {
+                            "assessments": assessments,
+                            "gap_supported": True,
+                            "overall_rationale": "Supported.",
+                        }
+                    ),
+                    usage=LLMTokenUsage(input_tokens=50, output_tokens=30),
+                )
+            ]
+        )
+    registry.register(evidence_evaluator_capability(CognitiveModelGateway(client, "fake")))
+    result = CognitiveKernel(registry).run(staged, max_cycles=1)
+    if defect == "invalid_ids":
+        assert result.observations[-1].failure_kind == "invalid_evidence_assessment"
+        assert result.observations[-1].payload["usage"]["input_tokens"] == 50
+        assert result.state["evidence"] == []
+        return
+    evaluation = next(
+        e for e in result.state["events"] if e.event_type == "evidence_evaluation_completed"
+    )
+    assert len(result.state["evidence"]) == (2 if defect == "same_host" else 1)
+    assert evaluation.metadata["independent_source_count"] == 1
+    assert not result.state["gaps"][0].filled
+    assert result.observations[-1].payload["usage"]["input_tokens"] == 50
+    assert evaluation.metadata["ungrounded_candidate_ids"] == (
+        ["source-two"] if defect == "ungrounded_support" else []
+    )
+
+
+def test_evaluator_followup_query_is_optional_and_bounded():
+    from app.acquisition.contracts import EvidenceEvaluationOutput
+
+    payload = {
+        "assessments": [
+            {
+                "candidate_id": "one",
+                "extracted_claim": "A supported observation.",
+                "relationship": "supports",
+                "relevance_score": 1,
+                "reliability_score": 0.9,
+                "temporal_validity": "timeless",
+                "contradiction_risk": 0,
+                "rationale": "Supported in excerpt.",
+            }
+        ],
+        "gap_supported": False,
+        "overall_rationale": "Applicability is still missing.",
+    }
+    assert EvidenceEvaluationOutput.model_validate(payload).next_query is None
+    with pytest.raises(ValueError):
+        EvidenceEvaluationOutput.model_validate({**payload, "next_query": "x" * 301})

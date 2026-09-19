@@ -267,3 +267,78 @@ def test_action_candidates_require_auditable_success_and_failure_conditions() ->
                 "capability": "web_search",
             }
         )
+
+
+@pytest.mark.parametrize("blocked", [None, "missing", "failed", "privacy", "budget"])
+def test_external_gap_tries_feasible_acquisition_before_cheap_human_fallback(
+    blocked: str | None,
+) -> None:
+    from app.cognition.contracts import CapabilityKind
+    from app.cognition.task_model import CognitiveResourceBudget, budget_event
+
+    state = _state_with_gap(
+        problem_type="research",
+        gap_type="current_external_fact",
+        description="What did the mission measure?",
+        source="official web source",
+    )
+    registry = CapabilityRegistry()
+    human = CapabilityDefinition(
+        name="human_input",
+        version="test",
+        kind=CapabilityKind.HUMAN,
+        supported_actions={CognitiveActionType.ASK_HUMAN, CognitiveActionType.CLARIFY},
+        estimated_cost=0.001,
+        approved_for_sensitive_data=True,
+    )
+    registry.register(FunctionCapability(human, _noop_executor(human)))
+    if blocked != "missing":
+        search = CapabilityDefinition(
+            name="web_search",
+            version="test",
+            kind=CapabilityKind.EXTERNAL,
+            supported_actions={CognitiveActionType.SEARCH},
+            estimated_cost=0.9,
+            max_external_calls=1,
+        )
+        registry.register(FunctionCapability(search, _noop_executor(search)))
+    if blocked == "failed":
+        state["events"].append(
+            StateEvent(
+                engine_name="web_search",
+                event_type="capability_observation",
+                reasoning_mode=ReasoningMode.EXPLORE,
+                summary="Provider failed.",
+                metadata={
+                    "action_type": "search",
+                    "target": state["gaps"][0].description,
+                    "capability": "web_search",
+                    "status": "failed",
+                },
+            )
+        )
+    elif blocked == "privacy":
+        assert state["structured_problem"] is not None
+        state["structured_problem"].constraints.append("Keep private information local.")
+    elif blocked == "budget":
+        state["events"].append(budget_event(CognitiveResourceBudget(max_external_calls=0)))
+    decision = CognitiveController().decide(state, registry)
+    assert decision.selected.action_type is (
+        CognitiveActionType.SEARCH if blocked is None else CognitiveActionType.ASK_HUMAN
+    )
+    if blocked is None:
+        assert any("Deferred fallback" in item.rationale for item in decision.rejected)
+
+
+def test_user_owned_information_remains_an_immediate_clarification() -> None:
+    state = _state_with_gap(
+        problem_type="planning",
+        gap_type="user_owned_information",
+        description="What is your spending limit?",
+        source="user",
+    )
+    registry = _registry_for(CognitiveActionType.CLARIFY, "human_input")
+    assert (
+        CognitiveController().decide(state, registry).selected.action_type
+        is CognitiveActionType.CLARIFY
+    )

@@ -15,7 +15,7 @@ from pydantic import Field, JsonValue
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import ContractModel, KnowledgeGap, NonEmptyStr
 
-EPISTEMIC_CONTROL_POLICY_VERSION = "epistemic-control-v0.1.0"
+EPISTEMIC_CONTROL_POLICY_VERSION = "epistemic-control-v0.1.1"
 
 
 class ResidualEpistemicNeed(StrEnum):
@@ -112,11 +112,23 @@ def derive_epistemic_requirement(
         source_text,
         ("official", "authoritative", "primary source", "specification", "standard"),
     )
+    official_account = bool(
+        requires_authority
+        and problem is not None
+        and problem.required_data_sources
+        and all(
+            _contains_any(source, ("official", "authoritative", "primary source"))
+            for source in problem.required_data_sources
+        )
+    )
+    minimum_sources = 1
+    if not local_or_procedural and (
+        explicitly_independent or (web_or_public and not official_account)
+    ):
+        minimum_sources = 2
     return EpistemicRequirement(
         target=gap.description,
-        minimum_independent_sources=(
-            1 if local_or_procedural else 2 if web_or_public or explicitly_independent else 1
-        ),
+        minimum_independent_sources=minimum_sources,
         requires_current_evidence=requires_current,
         requires_authoritative_source=requires_authority,
         success_criteria=list(problem.success_criteria) if problem is not None else [],
