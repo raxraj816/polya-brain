@@ -453,7 +453,7 @@ checks do not prove a model's semantic judgment; final verification still checks
 the original deliverable. No new canonical state field, database migration or
 confidence score is introduced.
 
-`public_page_reader@0.1.0` uses the existing SEARCH action to read one previously
+`public_page_reader@0.1.1` uses the existing SEARCH action to read one previously
 admitted public HTTPS source after an unsuccessful evaluation. At most two distinct
 URLs may be attempted per run, inside the existing external-call and candidate
 budgets. It stages `EvidenceCandidate.source_type=web_page`; the existing evaluator
@@ -469,3 +469,7 @@ A deterministic selector returns at most 9,000 characters from nonoverlapping
 passages, preserving document order. No whole-page corpus is persisted. Reused URLs
 with new excerpts may add evidence, but never additional independent-source credit.
 Offline composition omits this capability; private tasks cannot dispatch it.
+After a page evaluation leaves the gap unsupported, the controller returns to
+search before another page read can be selected. A newer search batch can enable
+another read if budget remains. This prevents measurement pages from consuming
+the remaining calls when the missing fact requires finding a different source.

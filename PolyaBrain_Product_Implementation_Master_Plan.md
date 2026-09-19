@@ -2240,7 +2240,10 @@ bounded relevant passages deterministically; retain source URL, content hash,
 selection offsets and truncation metadata. Source content never becomes instructions
 or admitted evidence without the existing evaluator. Each read spends one external
 call from the same total budget; permit at most two attempts per run and no repeat
-URL. A failed page read must not suppress a separately available web-search route. Privacy and offline gates apply. This avoids paying for repeated model-backed
+URL. A failed page read must not suppress a separately available web-search route.
+When a completed page read still leaves its gap unsupported, return to targeted
+search instead of automatically reading another page from the same discovery batch.
+A subsequent discovery can enable another distinct page read if budget remains. Privacy and offline gates apply. This avoids paying for repeated model-backed
 search when the identified document already contains the missing knowledge.
 Negative tests cover private/loopback/mixed DNS answers, redirects, unsupported
 content, oversized/slow responses, unadmitted URLs, repeated reads and accounting.

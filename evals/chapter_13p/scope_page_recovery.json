@@ -17,11 +17,14 @@
     "DNS completed once but did not reproduce in the workbench replay.",
     "HTTP completed after multiple recorded development failures; repeatability remains unproven.",
     "All raw artifacts remain in ignored local runs/core-value folders.",
-    "Source selection is bounded lexical retrieval, not guaranteed complete document coverage."
+    "Source selection is bounded lexical retrieval, not guaranteed complete document coverage.",
+    "The earlier successful DART task stopped after two page reads; this exposed starvation of targeted discovery.",
+    "The subsequent DART replay closed acquisition after one search, then failed final source/measurement checks and requested user input instead of reopening public research. It did not exercise the new read-to-search recovery rule."
   ],
   "tasks": {
     "dns": "Investigate why an application can still receive NXDOMAIN after an administrator adds a previously missing DNS name. Acquire the relevant official IETF RFC material online; no documents are supplied. Explain the negative-caching mechanism and how its lifetime is determined, distinguish that explanation from proof of the cause in this particular incident, and propose a bounded diagnostic check with the expected observations for negative caching versus a wrong authoritative configuration. Cite only sources actually retrieved and do not claim to have queried the affected resolver.",
-    "http": "Using official IETF HTTP specifications you retrieve online, explain the difference between a safe method and an idempotent method. Compare GET, PUT and POST, and describe what that distinction does and does not justify when a client retries after losing a response. Cite the retrieved passages, distinguish protocol semantics from proof about a particular server, and give one useful check for a proposed retry policy. No documents are supplied."
+    "http": "Using official IETF HTTP specifications you retrieve online, explain the difference between a safe method and an idempotent method. Compare GET, PUT and POST, and describe what that distinction does and does not justify when a client retries after losing a response. Cite the retrieved passages, distinguish protocol semantics from proof about a particular server, and give one useful check for a proposed retry policy. No documents are supplied.",
+    "dart": "Investigate NASA's DART planetary-defense experiment using official NASA sources you find online. What measured change to Dimorphos's orbit was reported, and what does that observation establish or leave uncertain about kinetic-impact deflection? Separate measured observations from broader inference. Cite the sources actually retrieved, compare a supported conclusion with an overbroad alternative, state remaining uncertainty and a useful next verification step. No source documents are supplied; acquire the missing public knowledge rather than asking me to provide it. Do not claim that this proves every asteroid threat can be deflected."
   },
   "runs": [
     {
@@ -163,6 +166,26 @@
       "external_calls": 2,
       "tokens": 33716,
       "elapsed_seconds": 71.71
+    },
+    {
+      "run_id": "polya-dart-page-regression",
+      "status": "needs_input",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 30693,
+      "elapsed_seconds": 48.5
+    },
+    {
+      "run_id": "polya-dart-discovery-recovery",
+      "status": "needs_input",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 0,
+      "external_calls": 1,
+      "tokens": 27914,
+      "elapsed_seconds": 52.23
     }
   ],
   "live_actual_cause_negative_control": {
@@ -207,7 +230,7 @@
     }
   ],
   "validation": {
-    "backend_tests": 645,
+    "backend_tests": 646,
     "failures": 0,
     "skipped": 0,
     "postgres_integration": true,

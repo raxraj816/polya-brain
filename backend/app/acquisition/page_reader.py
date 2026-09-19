@@ -38,7 +38,7 @@ from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import ReasoningMode
 
 CAPABILITY = "public_page_reader"
-VERSION = "public_page_reader@0.1.0"
+VERSION = "public_page_reader@0.1.1"
 MAX_BYTES = 2_000_000
 MAX_PASSAGE_CHARS = 9000
 TIMEOUT_SECONDS = 20.0
@@ -303,6 +303,16 @@ def page_read_target(state: PolyaState, target: str) -> str | None:
                         evaluations = _evaluations_for_target(state, parent)
                     break
     if not evaluations or evaluations[-1].metadata.get("gap_resolved") is not False:
+        return None
+    latest_acquisition = evaluations[-1].metadata.get("acquisition_id")
+    if any(
+        e.event_type == ACQUISITION_EVENT
+        and e.engine_name == CAPABILITY
+        and e.metadata.get("acquisition_id") == latest_acquisition
+        for e in state["events"]
+    ):
+        # Reading did not provide the residual fact. Discover a more relevant
+        # source before spending another external call on the same batch.
         return None
     tried = {str(e.metadata.get("source_uri")) for e in attempts}
     urls = list(

@@ -31,7 +31,7 @@ from app.cognition.verification_factory import deterministic_verification_availa
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.2"
+POLICY_VERSION = "cognitive-controller-v0.5.3"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {

@@ -507,3 +507,28 @@ readback retained six checks and seven open questions, including unverified serv
 conformity and unknown request outcomes. All 104 persisted events were read back.
 This establishes one complete persisted replay after the fixes; earlier failures
 remain in the ledger, and reliable performance on fresh problems is still unproven.
+
+
+The earlier DART science task was replayed after the initial scope/page changes.
+It stopped after one search and two page reads (six model requests, 30,693 tokens,
+48.50 seconds): the pages supported the measurements but did not close the requested
+applicability limits. This is a failed regression, not a scientific completion.
+The trace exposed an overly eager read preference that consumed all external calls
+before targeted discovery could find a different source. Reader 0.1.1/controller
+0.5.3 now require a new search batch before another read after an unsuccessful page
+evaluation. The existing total budget remains unchanged. A regression test covers
+both the return to search and eligibility after fresh discovery.
+
+
+A subsequent DART replay stopped differently: acquisition closed after one search,
+then final verification required the technical publication's measurement definitions,
+observation dates and uncertainty intervals to reconcile the reported 32/33-minute
+values. Planner recovery asked the user for public source text instead of reopening
+research. The run used six model requests, one search, 27,914 tokens and 52.23
+seconds. It did not exercise the new read-to-search rule; unit coverage establishes
+that rule's routing behavior, not a repaired DART result. Reopening public research
+from verification failures and avoiding spurious conflicts between rounded values
+remain concrete core-loop gaps. The ledger now includes sixteen CLI runs and three
+workbench replays. All 646 backend tests pass after the recovery-routing change;
+Ruff, formatting and mypy pass. The first scope/page commit also passed all remote
+CI jobs, including database and workbench browser flows.

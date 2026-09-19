@@ -366,3 +366,67 @@ def test_passage_budget_covers_six_named_sections_without_one_crowding_out_other
     excerpt, spans = selected_passages(text, "Compare " + " ".join(names))
     assert all(f"{i}. {name}" in excerpt for i, name in enumerate(names, 1))
     assert len(spans) == 6 and len(excerpt) <= 9000
+
+
+def test_unresolved_page_read_returns_to_search_before_reading_another_page():
+    from test_knowledge_acquisition import FakeSearchProvider
+
+    from app.acquisition.capabilities import web_search_capability
+    from app.graph.state import StateEvent
+    from app.models.contracts import ReasoningMode
+
+    state = state_with_stalled_research()
+    state["evidence"].append(
+        state["evidence"][0].model_copy(update={"source_uri": "https://official.example.org/other"})
+    )
+    cap = public_page_capability(
+        PublicPageReader(
+            resolver=public_dns,
+            transport=httpx.MockTransport(
+                lambda r: httpx.Response(
+                    200,
+                    headers={"content-type": "text/plain"},
+                    text="A relevant but incomplete source passage.",
+                )
+            ),
+        )
+    )
+    observation = cap.execute(page_action(), state)
+    state = apply_cognitive_observation(state, observation)
+    state["events"].append(
+        StateEvent(
+            engine_name="evidence_evaluator",
+            event_type="evidence_evaluation_completed",
+            reasoning_mode=ReasoningMode.EXPLORE,
+            summary="Still missing applicability.",
+            metadata={
+                "acquisition_id": observation.payload["acquisition_id"],
+                "gap_resolved": False,
+            },
+        )
+    )
+    registry = CapabilityRegistry()
+    registry.register(cap)
+    registry.register(web_search_capability(FakeSearchProvider()))
+    assert page_read_target(state, TARGET) is None
+    assert CognitiveController().decide(state, registry).selected.capability == "web_search"
+    for kind, metadata in [
+        (
+            "evidence_candidates_acquired",
+            {"acquisition_id": "fresh-discovery", "target_gap": TARGET},
+        ),
+        (
+            "evidence_evaluation_completed",
+            {"acquisition_id": "fresh-discovery", "gap_resolved": False},
+        ),
+    ]:
+        state["events"].append(
+            StateEvent(
+                engine_name="web_search",
+                event_type=kind,
+                reasoning_mode=ReasoningMode.EXPLORE,
+                summary="Fresh research.",
+                metadata=metadata,
+            )
+        )
+    assert page_read_target(state, TARGET) == "https://official.example.org/other"
