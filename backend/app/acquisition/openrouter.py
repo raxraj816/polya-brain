@@ -101,11 +101,11 @@ class OpenRouterSearchProvider:
     async def _send(self, request: SearchRequest) -> httpx.Response:
         # A total cancellable deadline also covers a trickling response body.
         async with asyncio.timeout(self._timeout_seconds):
-            async with httpx.AsyncClient(
-                timeout=self._timeout_seconds,
-                transport=self._transport,
-            ) as client:
-                async with client.stream(
+            async with (
+                httpx.AsyncClient(
+                    timeout=self._timeout_seconds, transport=self._transport
+                ) as client,
+                client.stream(
                     "POST",
                     self._settings.openrouter_base_url.rstrip("/") + "/chat/completions",
                     headers={
@@ -115,13 +115,14 @@ class OpenRouterSearchProvider:
                         "X-OpenRouter-Title": self._settings.openrouter_app_title,
                     },
                     json=self._payload(request),
-                ) as response:
-                    content = bytearray()
-                    async for chunk in response.aiter_bytes():
-                        content.extend(chunk)
-                        if len(content) > MAX_RESPONSE_BYTES:
-                            raise ValueError("Search response exceeded the body limit")
-                    return httpx.Response(response.status_code, content=bytes(content))
+                ) as response,
+            ):
+                content = bytearray()
+                async for chunk in response.aiter_bytes():
+                    content.extend(chunk)
+                    if len(content) > MAX_RESPONSE_BYTES:
+                        raise ValueError("Search response exceeded the body limit")
+                return httpx.Response(response.status_code, content=bytes(content))
 
     @staticmethod
     def _usage(payload: dict[str, Any]) -> dict[str, JsonValue]:
