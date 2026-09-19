@@ -466,7 +466,7 @@ def _deterministic_assessment(
     candidate: EvidenceCandidate,
     target: str,
 ) -> EvidenceCandidateAssessment:
-    is_web = candidate.source_type == "web_search_result"
+    is_web = candidate.source_type in {"web_search_result", "web_page"}
     reliability = _source_reliability(candidate.source_uri) if is_web else 0.85
     relevance = _candidate_relevance(candidate, target)
     temporal = _temporal_validity(candidate, target, reliability)
@@ -496,7 +496,7 @@ def evidence_evaluator_capability(
     """Promote candidates after deterministic gates and optional semantic assessment."""
     definition = CapabilityDefinition(
         name="evidence_evaluator",
-        version="source_quality_evaluator@0.3.3",
+        version="source_quality_evaluator@0.3.4",
         supported_actions={CognitiveActionType.EVALUATE_EVIDENCE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -532,7 +532,10 @@ def evidence_evaluator_capability(
         batch_is_web = bool(
             batch.metadata.get("source_type") == "web_search"
             or candidates
-            and all(candidate.source_type == "web_search_result" for candidate in candidates)
+            and all(
+                candidate.source_type in {"web_search_result", "web_page"}
+                for candidate in candidates
+            )
         )
 
         target_for_relevance = batch.metadata.get("target_gap")
@@ -637,7 +640,11 @@ def evidence_evaluator_capability(
             evaluation_rationale = result.output.overall_rationale
             next_query = result.output.next_query if not model_gap_supported else None
 
-        existing_uris = {item.source_uri for item in comparison_evidence if item.source_uri}
+        existing_snapshots = {
+            (item.source_uri, item.raw_excerpt or item.claim)
+            for item in comparison_evidence
+            if item.source_uri
+        }
         accepted: list[EvidenceItem] = []
         rejected_count = 0
         duplicate_count = 0
@@ -659,7 +666,7 @@ def evidence_evaluator_capability(
             relevance = assessment.relevance_score
             if (
                 not source_key
-                or uri in existing_uris
+                or (uri, candidate.excerpt) in existing_snapshots
                 or relevance < 0.2
                 or assessment.reliability_score < 0.5
                 or assessment.relationship is EvidenceRelationship.REJECT
@@ -674,9 +681,9 @@ def evidence_evaluator_capability(
                 rejected_count += 1
                 duplicate_count += 1
                 continue
-            existing_uris.add(uri)
+            existing_snapshots.add((uri, candidate.excerpt))
             accepted_candidates.append(candidate)
-            is_web = candidate.source_type == "web_search_result"
+            is_web = candidate.source_type in {"web_search_result", "web_page"}
             accepted.append(
                 EvidenceItem(
                     source_type=("evaluated_web_source" if is_web else "evaluated_local_artifact"),

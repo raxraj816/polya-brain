@@ -120,7 +120,7 @@ def task_gap_detector_capability() -> FunctionCapability:
     """Convert explicit unknowns into actionable gaps without a model call."""
     definition = CapabilityDefinition(
         name="task_gap_detector",
-        version="explicit_unknown_gap_detector@0.2.1",
+        version="explicit_unknown_gap_detector@0.2.2",
         supported_actions={CognitiveActionType.DETECT_GAPS},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -218,6 +218,9 @@ def task_gap_detector_capability() -> FunctionCapability:
                 "llm_call_count": 0,
                 "batched_local_artifact_unknown_count": len(local_artifact_unknowns),
                 "batched_public_source_unknown_count": len(public_unknowns),
+                "public_question_groups": {public_gap: [str(q) for q in public_unknowns]}
+                if public_unknowns
+                else {},
             },
         )
         return CognitiveObservation(

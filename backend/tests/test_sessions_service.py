@@ -693,3 +693,32 @@ def test_persisted_report_preserves_invalidated_failure_without_reviving_verdict
         assert report.failed_checks == []
         assert report.checks_performed == ["service test verification"]
         assert report.verification_status == "passed"
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_persisted_report_preserves_current_scope_limitations(session_factory: sessionmaker):
+    from app.cognition.report_metadata import SCOPE_LIMITATION_PREFIX
+    from app.models.contracts import StructuredProblem
+
+    def scoped_runner(raw_input: str, *, session_id: str) -> PolyaState:
+        state = successful_runner(raw_input, session_id=session_id)
+        state["structured_problem"] = StructuredProblem(
+            core_question="Explain and propose a check.",
+            problem_type="research",
+            knowns=[],
+            unknowns=[],
+            constraints=[SCOPE_LIMITATION_PREFIX + "Actual cause is still unknown."],
+            success_criteria=["Give an explanation, not an observed diagnosis."],
+        )
+        return state
+
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=scoped_runner)
+        sid = service.create_session(
+            raw_input="Explain the mechanism.", mode=ProductMode.INVESTIGATE, domain=None
+        ).id
+        service.run_session(sid)
+    with session_factory() as db_session:
+        report = PolyaSessionService(db_session, runner=scoped_runner).get_report(sid)
+        assert report.verification_status == "passed"
+        assert report.open_questions == ["Actual cause is still unknown."]

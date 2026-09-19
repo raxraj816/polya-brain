@@ -167,6 +167,7 @@ class CognitiveStateUpdate(ContractModel):
     constraints_to_add: list[NonEmptyStr] = Field(default_factory=list)
     gaps_to_add: list[KnowledgeGap] = Field(default_factory=list)
     resolved_gap_targets: list[NonEmptyStr] = Field(default_factory=list)
+    superseded_gap_targets: list[NonEmptyStr] = Field(default_factory=list)
     hypotheses_to_add: list[Hypothesis] = Field(default_factory=list)
     plan_tasks_to_add: list[PlanTask] = Field(default_factory=list)
     execution_outputs_to_add: list[ExecutionOutput] = Field(default_factory=list)

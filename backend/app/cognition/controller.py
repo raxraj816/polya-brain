@@ -20,6 +20,7 @@ from app.cognition.contracts import (
 from app.cognition.epistemic_control import derive_epistemic_status
 from app.cognition.evidence_closure import deterministic_evidence_attestation_available
 from app.cognition.performance import AdaptiveActionEstimate
+from app.cognition.scope_review import scope_review_available
 from app.cognition.task_model import (
     accumulated_usage,
     budget_rejection_reason,
@@ -30,7 +31,7 @@ from app.cognition.verification_factory import deterministic_verification_availa
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.1"
+POLICY_VERSION = "cognitive-controller-v0.5.2"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -233,6 +234,10 @@ def _failure_history(
             continue
         if event.metadata.get("status") not in {"failed", "blocked", "inconclusive"}:
             continue
+        # A document-read failure does not establish failure of web discovery,
+        # even though both use the general SEARCH action.
+        if event.metadata.get("capability") == "public_page_reader":
+            continue
         raw_type = event.metadata.get("action_type")
         if isinstance(raw_type, str):
             try:
@@ -427,6 +432,61 @@ class CognitiveController:
             reverse=True,
         )
         if unresolved:
+            reviewer = registry.get("scope_reviewer")
+            scope_budget = configured_budget(state)
+            for gap in unresolved[:3]:
+                if (
+                    reviewer is not None
+                    and scope_review_available(state, gap.description)
+                    and (
+                        not _requires_sensitive_data_boundary(state)
+                        or reviewer.definition.approved_for_sensitive_data
+                    )
+                    and (
+                        scope_budget is None
+                        or reservation_fits(
+                            reviewer.definition, scope_budget, accumulated_usage(state)
+                        )
+                    )
+                ):
+                    return [
+                        self._candidate(
+                            CognitiveActionType.REFRAME,
+                            target=gap.description,
+                            purpose="Review whether missing facts actually block the requested deliverable before another search.",
+                            expected="Evidence-bound facts and explicit nonblocking limitations without weakening success criteria.",
+                            usefulness=0.9,
+                            registry=registry,
+                            capability="scope_reviewer",
+                        )
+                    ]
+            # Acquisition adapters also import cognition contracts during startup.
+            from app.acquisition.page_reader import page_read_target
+
+            reader = registry.get("public_page_reader")
+            for gap in unresolved[:3]:
+                if (
+                    reader is not None
+                    and not _requires_sensitive_data_boundary(state)
+                    and page_read_target(state, gap.description) is not None
+                    and (
+                        scope_budget is None
+                        or reservation_fits(
+                            reader.definition, scope_budget, accumulated_usage(state)
+                        )
+                    )
+                ):
+                    return [
+                        self._candidate(
+                            CognitiveActionType.SEARCH,
+                            target=gap.description,
+                            purpose="Read the discovered document's missing passages before another search.",
+                            expected="Bounded untrusted passages for source evaluation.",
+                            usefulness=0.9,
+                            registry=registry,
+                            capability="public_page_reader",
+                        )
+                    ]
             candidates: list[CognitiveActionCandidate] = []
             for gap in unresolved[:3]:
                 epistemic_status = derive_epistemic_status(state, gap)

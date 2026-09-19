@@ -152,5 +152,11 @@ is discarded. The external capability reserves both model-request and external
 budgets and records reported usage/unknown failure usage. This adds no foundation
 model training, local corpus requirement or new canonical state field. It still
 depends on external pretrained models and does not establish compute independence.
-See Chapter 13-P for the completed scientific development case, unresolved DNS
-scope failure and required efficiency/transfer comparisons.
+The controller now has experimental bounded recovery for an overbroad public gap:
+one scope review preserves the user's success criteria and reports deferred unknowns;
+a deterministic public-page reader can retrieve missing passages without another
+search-model request. Sources remain candidates until evaluated. Reads use public
+DNS validation, pinned connections and TLS hostname verification, no redirects or
+proxies, and fixed response/time/passage bounds. The same total external budget,
+privacy boundary and offline switch apply. See Chapter 13-P for live failures and
+repaired development cases; fresh efficiency/transfer comparisons remain required.

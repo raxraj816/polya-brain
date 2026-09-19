@@ -205,3 +205,20 @@ must not manufacture independent corroboration. Grouped questions cannot resolve
 from evidence for only their first question. Official-source reporting does not
 establish broad causal or cross-domain validity. A full product claim still needs
 fresh comparisons, learned procedure transfer and repeat use by real users.
+
+
+Scope-recovery evaluations must distinguish an explanation plus proposed diagnostic
+from a request to prove an actual incident cause or perform a fix. Test incomplete,
+duplicate and invented question identifiers, missing source support, invalid user
+scope references, partial deferral, retained uncertainty in both report paths and
+invalidation of prior verification. A model's selection of a real user quote is
+provenance, not independent proof that the selected fact is nonblocking.
+
+Page-reading checks must start with a discovered source, select useful material
+beyond the initial snippet, stage it without admitting it, and record actual read
+usage alongside search/model usage. Exercise private and mixed DNS answers,
+connection pinning and TLS host retention, redirects, non-text content, decoded
+response limits, total deadlines, repeat URLs, candidate exhaustion, privacy and
+offline composition. Different excerpts from one page do not create independent
+corroboration. Development regressions retain failed attempts; changing a bound or
+routing rule after seeing a failure makes the next run a repair, not a held-out win.

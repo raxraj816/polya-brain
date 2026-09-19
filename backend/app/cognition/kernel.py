@@ -167,6 +167,7 @@ def apply_cognitive_observation(
         or update.constraints_to_add
         or update.gaps_to_add
         or update.resolved_gap_targets
+        or update.superseded_gap_targets
         or update.hypotheses_to_add
         or update.plan_tasks_to_add
         or update.execution_outputs_to_add
@@ -213,6 +214,7 @@ def apply_cognitive_observation(
         if gap.description in resolved_targets
         else gap
         for gap in state["gaps"]
+        if gap.description not in update.superseded_gap_targets
     ]
     next_state["gaps"] = _merge_gaps(current_gaps, update.gaps_to_add)
     next_state["hypotheses"] = [

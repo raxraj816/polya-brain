@@ -427,3 +427,45 @@ sources plus the existing 400-character/50-word dispatch limit. Evaluation ratio
 and suggested query remain inspectable trace metadata. This adds no model call or
 canonical state field. Tests cover omission, oversized output, same-gap isolation
 and replayed trace bounds. Source text cannot directly select a runtime action.
+
+
+### Bounded scope recovery and direct public page reads
+
+`gap_detection_completed.public_question_groups` retains the exact constituent
+questions behind an experimental grouped public gap. After unsuccessful public
+evaluation with admitted evidence, `scope_reviewer` can propose one bounded reframe
+per run. Its experimental output classifies every question index exactly once as
+still needed, supported, or nonblocking. Supporting facts require a matching
+verbatim excerpt; nonblocking decisions select an index into verbatim user-input
+spans, whose original text is retained as provenance. Invalid coverage rejects the
+review. Invalid provenance keeps the affected question still needed and records the
+rejected proposal without erasing valid classifications for other questions.
+
+The capability produces `CognitiveStateUpdate.superseded_gap_targets`; the kernel
+consumes it to remove a replaced gap without falsely marking it filled. This typed
+experimental command is necessary because resolved-gap updates have different
+semantics. `knowledge_scope_reviewed@0.1.0` archives the original gap, classifications,
+rejected proposals and exact scope quotes. Replacement gaps retain required facts;
+nonblocking uncertainties become current structured-problem constraints and are
+exposed in both report builders. Goals, success criteria and known facts are
+preserved. Material updates invalidate earlier verification. Exact provenance
+checks do not prove a model's semantic judgment; final verification still checks
+the original deliverable. No new canonical state field, database migration or
+confidence score is introduced.
+
+`public_page_reader@0.1.0` uses the existing SEARCH action to read one previously
+admitted public HTTPS source after an unsuccessful evaluation. At most two distinct
+URLs may be attempted per run, inside the existing external-call and candidate
+budgets. It stages `EvidenceCandidate.source_type=web_page`; the existing evaluator
+applies the same semantic, authority, grounding and independence gates as search
+results. The read itself never resolves a gap or adds evidence.
+
+`public_page_read_attempted` records attempted URLs and targets even on expected
+failure. Acquisition metadata records response/text hashes, decoded bytes, selected
+text offsets, truncation and coverage. Reads validate all DNS answers as public,
+pin the connection address, preserve TLS SNI/certificate hostname and HTTP Host,
+disable proxies/redirects, and enforce 20 seconds and 2 MB of decoded text/HTML.
+A deterministic selector returns at most 9,000 characters from nonoverlapping
+passages, preserving document order. No whole-page corpus is persisted. Reused URLs
+with new excerpts may add evidence, but never additional independent-source credit.
+Offline composition omits this capability; private tasks cannot dispatch it.

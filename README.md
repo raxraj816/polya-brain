@@ -84,11 +84,17 @@ verification, and reflection are durable, and
 `GET /api/v1/sessions/{session_id}/report` exposes the auditable result.
 
 Chapters 22 and 26 add the first controlled external knowledge-acquisition
-path. The gap detector sees only configured data sources. When Brave Search is
-configured, the controller can run a gap-tied query under durable session
-budgets, stage results as untrusted candidates, and invoke a separate evaluator
-before any result becomes canonical evidence. Two independent sources are
-required to fill a web-derived gap, and factual verification is still required.
+path. The gap detector sees only configured data sources. Explicit Brave or
+OpenRouter search runs gap-tied queries under durable budgets and stages results
+as untrusted candidates for a separate evaluator. Official-source accounts can
+use one authoritative source; claims requiring independent corroboration need
+multiple sources. Factual verification remains required. When excerpts omit the
+needed material, a bounded public-page reader can select passages without another
+model-backed search. It shares the external-call allowance and preserves provenance.
+One bounded scope review can distinguish required facts from unobserved details
+outside an explicitly requested explanation or proposed diagnostic; those unknowns
+remain visible in reports. These mechanisms remain experimental and do not
+establish reliable general-purpose problem solving or a compute advantage.
 The same staged-evidence boundary supports explicitly referenced local text
 files contained by configured roots; it never performs an implicit directory
 scan or executes file contents as instructions.

@@ -810,3 +810,28 @@ def test_evaluator_followup_query_is_optional_and_bounded():
     assert EvidenceEvaluationOutput.model_validate(payload).next_query is None
     with pytest.raises(ValueError):
         EvidenceEvaluationOutput.model_validate({**payload, "next_query": "x" * 301})
+
+
+@pytest.mark.parametrize("same_excerpt", [False, True])
+def test_progressive_source_passages_are_not_discarded_by_url_alone(same_excerpt):
+    state = _research_state()
+    provider = FakeSearchProvider()
+    response = provider.search(SearchRequest(query="documented behavior"))
+    state["evidence"] = [
+        EvidenceItem(
+            source_type="evaluated_web_source",
+            source_uri=str(response.candidates[0].url),
+            claim="Earlier introductory passage.",
+            raw_excerpt=response.candidates[0].excerpt
+            if same_excerpt
+            else "Earlier introductory passage.",
+            reliability_score=0.9,
+            relevance_score=0.8,
+        )
+    ]
+    registry = CapabilityRegistry()
+    registry.register(web_search_capability(provider))
+    registry.register(evidence_evaluator_capability())
+    result = CognitiveKernel(registry).run(state, max_cycles=2)
+    assert len(result.state["evidence"]) == (2 if same_excerpt else 3)
+    assert len({e.source_uri for e in result.state["evidence"]}) == 2

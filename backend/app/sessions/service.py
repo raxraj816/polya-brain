@@ -11,7 +11,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
-from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions
+from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions, scope_limitations
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
 from app.cognition.verification_history import (
     HISTORICAL_NEXT_ACTION,
@@ -26,6 +26,7 @@ from app.db.models import (
     PlanTask,
     ProblemSession,
     ReasoningEvent,
+    StructuredProblem,
     VerificationReport,
     utc_now,
 )
@@ -277,6 +278,11 @@ class PolyaSessionService:
             confidence_level = "medium"
         reflection = reflection_event.event_metadata if reflection_event is not None else None
         questions = [item.description for item in gaps if not item.filled]
+        structured_problem = self._db_session.scalar(
+            select(StructuredProblem).where(StructuredProblem.session_id == session_id)
+        )
+        if structured_problem is not None:
+            questions.extend(scope_limitations(structured_problem.constraints))
         if (
             problem_session.status == SESSION_STATUS_COMPLETED
             and verification

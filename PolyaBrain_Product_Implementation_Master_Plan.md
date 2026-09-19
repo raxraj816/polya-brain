@@ -2195,6 +2195,58 @@ actions. Do not repeatedly ask a broad original question after learning which
 specific part lacks evidence. This does not solve incorrect framing of private
 incident facts as necessary public research.
 
+Add one bounded scope-review recovery after a public evidence batch fails to close
+its gap despite admitted evidence. Use the existing reframe action, with an
+experimental model capability, before another search. The reviewer classifies
+every original constituent question as still needed, supported by an exact quote
+from admitted evidence, or nonblocking for the requested deliverable. Nonblocking
+judgments require an exact quote of the user's scope boundary and an explanation;
+the model selects a bounded index into verbatim user-input spans and the adapter
+records the original span, avoiding paraphrased or invented quotations.
+These judgments become explicit constraints/limitations, never facts or successful checks.
+Preserve the original goal, success criteria, known facts and existing constraints.
+Allow at most one review attempt per run, within existing model/time/privacy
+budgets. Missing, duplicate or invented question identifiers invalidate the review.
+An invalid supporting or scope quotation leaves that question still needed and
+records the rejected disposition; it cannot discard valid classifications for
+other questions or silently count as support. Use bounded question indexes rather
+than requiring the model to reproduce lengthy question text.
+
+Retain question-group membership as trace metadata. Add an experimental typed
+state-update command for superseding a gap during this reframe: this is necessary
+because existing resolved-gap updates falsely imply knowledge was obtained.
+The kernel archives the old gap in the scope-review event and removes it without
+marking it filled; the capability emits replacement gaps for supported and still
+needed questions. Supported replacements have provenance; nonblocking questions
+remain reportable limitations. Final conclusion verification still checks the
+unchanged user deliverable. Regression gates include explanation/diagnostic cases,
+actual-execution negative controls, tampered quotes and incomplete classifications.
+Measure successful outcomes and total resource use against the preserved failures;
+do not equate fewer searches with lower total inference cost.
+Progressive retrieval may return a different relevant excerpt from a previously
+seen URL. Deduplicate identical URI/excerpt snapshots, not every reuse of a URL;
+otherwise the newly targeted passage can never enter evidence. Repeated passages
+must not add independent sources. Keep the same semantic, provenance and budget
+gates for each new excerpt and test both genuine duplicates and new passages.
+
+After search discovers an admitted public source but its snippets do not close the
+knowledge gap, permit a bounded direct page read before another search. This is an
+experimental external capability using the existing search action and candidate
+staging/evaluation path, not a new answer generator. Read only previously admitted
+public HTTPS URLs, with public-address DNS validation and connection pinning,
+certificate/hostname verification, no credentials, redirects or environment proxy,
+a total deadline, a 2 MB decoded-body byte limit and text/HTML content types. Extract
+bounded relevant passages deterministically; retain source URL, content hash,
+selection offsets and truncation metadata. Source content never becomes instructions
+or admitted evidence without the existing evaluator. Each read spends one external
+call from the same total budget; permit at most two attempts per run and no repeat
+URL. A failed page read must not suppress a separately available web-search route. Privacy and offline gates apply. This avoids paying for repeated model-backed
+search when the identified document already contains the missing knowledge.
+Negative tests cover private/loopback/mixed DNS answers, redirects, unsupported
+content, oversized/slow responses, unadmitted URLs, repeated reads and accounting.
+Live regressions must report successful outcomes, remaining failures and total
+model/search/page-read costs; no general efficiency claim follows from a repair.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

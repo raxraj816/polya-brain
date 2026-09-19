@@ -428,3 +428,82 @@ explanation still stopped on an unrequested particular-server proof requirement,
 confirming that the DNS framing failure generalizes. Both failures remain in the
 evaluation record. The local workbench has online search enabled explicitly for
 continued core testing; no cloud deployment or authentication expansion occurred.
+
+
+## Bounded scope recovery and direct source reading
+
+The runtime now has one experimental scope-review attempt after public research
+stalls despite admitted evidence. A model classifies every original question index
+as supported, still required or nonblocking. The adapter supplies verbatim user-text
+spans for scope references, validates supporting quotations, and keeps invalid
+proposals unresolved. It archives the replaced gap without falsely marking it
+filled; required facts remain gaps and deferred unknowns remain visible limitations
+in both CLI and persisted reports. The user's original goal, known facts and success
+criteria are preserved, and material changes invalidate previous verification.
+A live actual-cause/actual-test negative control kept missing observations blocking
+(1,271 tokens, one request); this is a development control, not a safety guarantee.
+
+Repeated searches also exposed a real acquisition limit: short snippets omitted
+necessary document sections even when the right URL had been found. The runtime
+can now read a previously admitted public HTTPS page without a model call. Reads
+share the existing external budget, permit at most two distinct attempted URLs,
+and stage untrusted passages for the normal evaluator. Public DNS validation,
+connection pinning, TLS hostname checks, no redirects/proxies, a cancellable DNS
+subprocess, 20-second network deadline and 2 MB decoded-response limit bound access.
+The reader stores selected text and provenance hashes, not a full document corpus.
+Up to 9,000 characters are chosen using term rarity, heading matches and coverage
+of different requested topics. Numbered sections start at their headings; long
+sections remain explicitly truncated. Unnumbered text uses bounded windows.
+This lexical strategy is experimental and does not guarantee complete coverage.
+
+The fixes were driven by preserved failures, not by relaxing factual verification:
+invalid copied question text led to indexes; invented/paraphrased scope quotes led
+to verbatim user-span choices; URL-only deduplication discarded useful new excerpts;
+generic query terms crowded out definitions; fixed windows cut off relevant section
+openings; and a long section could consume the whole passage budget. Failed page
+reads no longer disable an otherwise feasible web-search route. Offline composition
+omits reading/searching, and the public offline arithmetic smoke still completes
+with zero model or external calls.
+
+Two known development cases now complete through the public CLI with no supplied
+documents:
+
+| Case | Model requests | Searches | Page reads | Tokens | Seconds |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| DNS explanation and proposed diagnostic | 7 | 1 | 1 | 34,434 | 58.80 |
+| HTTP safety/idempotence and retry comparison | 7 | 1 | 1 | 33,716 | 71.71 |
+
+Manual review checked the core DNS lifetime and HTTP method-property claims against
+stored passages and confirmed both reports preserve the absence of incident/server
+proof. The HTTP answer proposes conditional policies without claiming a universally
+better policy. Its confidence label is rule-based; verification is model-assisted,
+not an independent certification. The DNS answer also overinterpreted “do not claim
+to have queried” as a prohibition on the affected-resolver diagnostic, an unnecessary
+restriction that remains a framing limitation rather than fabricated execution.
+
+The successful runs are `polya-dns-passage-ranking` and
+`polya-http-diverse-passages`. They are repaired cases, not held-out wins. Earlier
+DNS and HTTP workbench replays both stopped with persisted questions, and the DNS
+CLI success did not reproduce in that replay. The ledger
+`evals/chapter_13p/scope_page_recovery.json` retains all fourteen public CLI attempts,
+including failures, and the workbench outcomes. Raw artifacts remain under ignored
+`runs/core-value/` directories. No lower total token cost or direct-model advantage
+has been demonstrated: successful runs still use substantial model reasoning and
+externally pretrained models. Broader reliability, efficient transfer and fresh
+comparisons remain open; account/cloud expansion remains paused.
+
+Validation: 645 backend tests passed with Postgres integration, zero failures or
+skips; Ruff, backend formatting and strict mypy passed. All ten Chapter 11 fixtures
+and six historical pre-platform artifact checks passed. Tests cover scope
+provenance, incomplete/duplicate classifications, report persistence, verification
+invalidation, DNS/address and HTTP boundaries, cancellation, staging, search fallback,
+source counting, passage coverage and offline composition.
+
+
+A final HTTP replay through the frontend proxy, API and database completed in
+75.33 seconds using explicit Compare mode, eight model requests (including a
+structured-output repair), one search, one page read and 37,232 tokens. Report
+readback retained six checks and seven open questions, including unverified server
+conformity and unknown request outcomes. All 104 persisted events were read back.
+This establishes one complete persisted replay after the fixes; earlier failures
+remain in the ledger, and reliable performance on fresh problems is still unproven.

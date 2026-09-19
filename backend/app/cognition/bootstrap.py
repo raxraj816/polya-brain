@@ -22,6 +22,7 @@ from app.acquisition.openrouter import (
     SEARCH_TIMEOUT_SECONDS,
     OpenRouterSearchProvider,
 )
+from app.acquisition.page_reader import PublicPageReader, public_page_capability
 from app.acquisition.providers import SearchProvider
 from app.cognition.adapters import (
     constraint_discovery_capability,
@@ -37,6 +38,7 @@ from app.cognition.on_demand_capabilities import on_demand_cognitive_capabilitie
 from app.cognition.performance import CapabilityPerformanceLedger
 from app.cognition.procedure_compiler import ProcedureCompiler
 from app.cognition.runtime import CognitiveRuntime
+from app.cognition.scope_review import scope_review_capability
 from app.cognition.semantic_broker import (
     RoutedCognitiveModelGateway,
     RoutedProblemUnderstandingProvider,
@@ -253,6 +255,11 @@ def build_cognitive_runtime(
                 else None,
             )
         )
+        registry.register(
+            public_page_capability(
+                PublicPageReader(), max_total_candidates=settings.research_max_total_candidates
+            )
+        )
         requires_evidence_evaluator = True
         sources.register(
             DataSourceDefinition(
@@ -372,6 +379,9 @@ def build_cognitive_runtime(
             continue
         registry.register(capability)
     if configured_key and configured_model:
+        registry.register(
+            scope_review_capability(gateway, approved_for_sensitive_data=sensitive_data_approved)
+        )
         registry.register(
             planner_capability(
                 gateway,

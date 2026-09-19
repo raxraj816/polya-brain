@@ -1,0 +1,221 @@
+{
+  "version": "scope_page_recovery_development@0.1.0",
+  "date": "2026-09-20",
+  "model": "openai/gpt-5.6-luna",
+  "conditions": {
+    "model_request_limit": 12,
+    "external_call_limit": 3,
+    "run_deadline_seconds": 300,
+    "search": "OpenRouter Exa server search",
+    "source_documents_supplied": false,
+    "new_training": false
+  },
+  "limitations": [
+    "Sequential development repairs, not independent or held-out evaluations.",
+    "Model-backed search may contain two inference turns per recorded request.",
+    "No direct-model cost advantage established.",
+    "DNS completed once but did not reproduce in the workbench replay.",
+    "HTTP completed after multiple recorded development failures; repeatability remains unproven.",
+    "All raw artifacts remain in ignored local runs/core-value folders.",
+    "Source selection is bounded lexical retrieval, not guaranteed complete document coverage."
+  ],
+  "tasks": {
+    "dns": "Investigate why an application can still receive NXDOMAIN after an administrator adds a previously missing DNS name. Acquire the relevant official IETF RFC material online; no documents are supplied. Explain the negative-caching mechanism and how its lifetime is determined, distinguish that explanation from proof of the cause in this particular incident, and propose a bounded diagnostic check with the expected observations for negative caching versus a wrong authoritative configuration. Cite only sources actually retrieved and do not claim to have queried the affected resolver.",
+    "http": "Using official IETF HTTP specifications you retrieve online, explain the difference between a safe method and an idempotent method. Compare GET, PUT and POST, and describe what that distinction does and does not justify when a client retries after losing a response. Cite the retrieved passages, distinguish protocol semantics from proof about a particular server, and give one useful check for a proposed retry policy. No documents are supplied."
+  },
+  "runs": [
+    {
+      "run_id": "polya-dns-scope-recovery",
+      "status": "needs_input",
+      "model_requests": 9,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 26844,
+      "elapsed_seconds": 60.67
+    },
+    {
+      "run_id": "polya-http-scope-recovery",
+      "status": "needs_input",
+      "model_requests": 8,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 26936,
+      "elapsed_seconds": 47.55
+    },
+    {
+      "run_id": "polya-dns-scope-indexed",
+      "status": "needs_input",
+      "model_requests": 8,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 24598,
+      "elapsed_seconds": 47.76
+    },
+    {
+      "run_id": "polya-http-scope-indexed",
+      "status": "needs_input",
+      "model_requests": 8,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 26364,
+      "elapsed_seconds": 48.19
+    },
+    {
+      "run_id": "polya-dns-page-reader",
+      "status": "needs_input",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 25286,
+      "elapsed_seconds": 45.79
+    },
+    {
+      "run_id": "polya-http-page-reader",
+      "status": "needs_input",
+      "model_requests": 5,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 19499,
+      "elapsed_seconds": 39.14
+    },
+    {
+      "run_id": "polya-dns-page-bounded",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 24697,
+      "elapsed_seconds": 42.31
+    },
+    {
+      "run_id": "polya-http-page-bounded",
+      "status": "insufficient_evidence",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 25706,
+      "elapsed_seconds": 45.61
+    },
+    {
+      "run_id": "polya-dns-passage-ranking",
+      "status": "completed",
+      "model_requests": 7,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 34434,
+      "elapsed_seconds": 58.8
+    },
+    {
+      "run_id": "polya-http-passage-ranking",
+      "status": "needs_input",
+      "model_requests": 5,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 18742,
+      "elapsed_seconds": 50.68
+    },
+    {
+      "run_id": "polya-http-section-reader",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 24509,
+      "elapsed_seconds": 42.8
+    },
+    {
+      "run_id": "polya-http-weighted-sections",
+      "status": "needs_input",
+      "model_requests": 5,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 18715,
+      "elapsed_seconds": 35.42
+    },
+    {
+      "run_id": "polya-http-task-passages",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 26992,
+      "elapsed_seconds": 52.89
+    },
+    {
+      "run_id": "polya-http-diverse-passages",
+      "status": "completed",
+      "model_requests": 7,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 33716,
+      "elapsed_seconds": 71.71
+    }
+  ],
+  "live_actual_cause_negative_control": {
+    "artifact": "scope-negative-indexed-result.json",
+    "passed": true,
+    "model_requests": 1,
+    "tokens": 1271
+  },
+  "workbench_replays": [
+    {
+      "task": "dns",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 49.34,
+      "verification_status": "awaiting_user_input",
+      "open_question_count": 5
+    },
+    {
+      "task": "http",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 36.66,
+      "verification_status": "awaiting_user_input",
+      "open_question_count": 4
+    },
+    {
+      "task": "http",
+      "revision": "final section coverage",
+      "explicit_mode": "compare",
+      "run_http_status": 200,
+      "elapsed_seconds": 75.33,
+      "verification_status": "passed",
+      "open_question_count": 7,
+      "usage": {
+        "model_calls": 8,
+        "external_calls": 2,
+        "input_tokens": 28785,
+        "output_tokens": 8447
+      },
+      "searches": 1,
+      "page_reads": 1
+    }
+  ],
+  "validation": {
+    "backend_tests": 645,
+    "failures": 0,
+    "skipped": 0,
+    "postgres_integration": true,
+    "ruff": true,
+    "mypy": true,
+    "chapter11_fixtures": 10,
+    "preplatform_artifacts": 6,
+    "offline_model_calls": 0,
+    "offline_external_calls": 0
+  }
+}

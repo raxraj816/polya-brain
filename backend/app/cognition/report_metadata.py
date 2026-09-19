@@ -6,7 +6,7 @@ This does not change canonical gaps, completion criteria, confidence, or memory.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from typing import Annotated, Any
 
 from pydantic import Field, StringConstraints, ValidationError
@@ -17,7 +17,17 @@ from app.tracing.sanitization import sanitize_text
 
 REPORT_METADATA_EVENT = "conclusion_report_metadata_recorded"
 REPORT_METADATA_VERSION = "conclusion_report_metadata@0.1.0"
+SCOPE_LIMITATION_PREFIX = "Unresolved, nonblocking for this deliverable: "
 Question = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
+
+
+def scope_limitations(constraints: Iterable[object]) -> list[str]:
+    """Display current scoped-out questions without promoting them to facts."""
+    return [
+        item.removeprefix(SCOPE_LIMITATION_PREFIX)
+        for item in constraints
+        if isinstance(item, str) and item.startswith(SCOPE_LIMITATION_PREFIX)
+    ]
 
 
 class ConclusionReportMetadata(ContractModel):
