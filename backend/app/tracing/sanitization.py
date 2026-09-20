@@ -83,7 +83,10 @@ def _is_secret_key(key: str) -> bool:
 
 def sanitize_text_with_count(value: str) -> SanitizedText:
     """Redact obvious secret-bearing substrings from free text."""
-    sanitized = value
+    # PostgreSQL text/JSONB cannot represent U+0000. Keep a visible escape in
+    # persisted presentation without interpreting it as a scientific symbol or
+    # deleting the surrounding claim. This is representation, not secret redaction.
+    sanitized = value.replace("\x00", r"\u0000")
     redaction_count = 0
     for pattern in SECRET_VALUE_PATTERNS:
         sanitized, replacements = pattern.subn(REDACTED, sanitized)

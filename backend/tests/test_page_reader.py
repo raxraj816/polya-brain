@@ -9,6 +9,7 @@ from test_scope_review import TARGET, action, state_with_stalled_research
 from app.acquisition.page_reader import (
     ATTEMPT_EVENT,
     MAX_BYTES,
+    MAX_PASSAGE_CHARS,
     PublicPageReader,
     page_read_target,
     public_page_capability,
@@ -430,3 +431,79 @@ def test_unresolved_page_read_returns_to_search_before_reading_another_page():
             )
         )
     assert page_read_target(state, TARGET) == "https://official.example.org/other"
+
+
+@pytest.mark.parametrize("nominated", [None, "https://unadmitted.example/path", "file:///secret"])
+def test_continuation_hint_cannot_read_an_ineligible_source(nominated):
+    state = state_with_stalled_research()
+    state["events"][-1].metadata["continuation"] = {
+        "source_uri": nominated,
+        "reason": "Missing applicability.",
+    }
+    assert page_read_target(state, TARGET) is None
+
+
+def test_continuation_can_select_a_specific_admitted_document():
+    state = state_with_stalled_research()
+    uri = "https://official.example.org/applicability"
+    state["evidence"].append(state["evidence"][0].model_copy(update={"source_uri": uri}))
+    state["events"][-1].metadata["continuation"] = {
+        "source_uri": uri,
+        "reason": "Read applicability details.",
+    }
+    assert page_read_target(state, TARGET) == uri
+    state["events"].append(
+        state["events"][-1].model_copy(
+            update={
+                "event_type": ATTEMPT_EVENT,
+                "metadata": {"source_uri": uri, "target_gap": TARGET},
+            }
+        )
+    )
+    assert page_read_target(state, TARGET) is None
+
+
+def test_nominated_page_passages_focus_on_the_residual_question():
+    state = state_with_stalled_research()
+    uri = state["evidence"][0].source_uri
+    query = "Protocol applicability limits across different environments Section 4.2"
+    state["events"][-1].metadata.update(
+        {
+            "continuation": {"source_uri": uri, "reason": "Read missing applicability."},
+            "next_query": query,
+        }
+    )
+    calls = []
+
+    class CapturingReader:
+        def read(self, url, selected_query):
+            calls.append((url, selected_query))
+            return "The public protocol specifies its applicability limits.", {}
+
+    observation = public_page_capability(CapturingReader()).execute(page_action(), state)
+    assert calls == [(uri, state["raw_input"] + " Section 4.2")]
+    assert observation.payload["model_calls"] == 0
+    assert not observation.evidence
+
+
+def test_explicit_sections_outrank_rare_publisher_front_matter():
+    text = "RarePublisher Document 7349\n" + "Publisher description and protocol details. " * 60
+    for i in range(1, 10):
+        text += f"\n4.{i}. Topic {i}\n" + f"Important topic {i} observations. " * 65
+    query = "RarePublisher Document 7349 Sections 4.1, 4.2, 4.3, 4.4, 4.5 and 4.6 observations"
+    excerpt, spans = selected_passages(text, query)
+    assert all(f"4.{i}. Topic {i}" in excerpt for i in range(1, 7))
+    assert "RarePublisher Document" not in excerpt
+    assert len(spans) == 6 and len(excerpt) <= 9000
+    assert all(text[a:b] in excerpt for a, b in spans)
+
+
+def test_front_matter_does_not_receive_numbered_heading_coverage_bonus():
+    names = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]
+    text = "Publisher catalogue " + " ".join(names) + "\n" + "Editorial notes. " * 120
+    for i, name in enumerate(names, 1):
+        text += f"\n{i}. {name}\n" + "Shared background discussion. " * 100
+    excerpt, spans = selected_passages(text, "Compare " + " ".join(names))
+    assert all(f"{i}. {name}" in excerpt for i, name in enumerate(names, 1))
+    assert "Publisher catalogue" not in excerpt
+    assert len(spans) == 6 and len(excerpt) <= MAX_PASSAGE_CHARS

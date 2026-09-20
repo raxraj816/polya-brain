@@ -21,7 +21,7 @@ from pydantic import JsonValue
 from app.acquisition.capabilities import (
     ACQUISITION_EVENT,
     _candidate_count,
-    _evaluations_for_target,
+    _research_guidance_for_target,
 )
 from app.acquisition.contracts import EvidenceCandidate
 from app.cognition.capabilities import FunctionCapability
@@ -38,7 +38,7 @@ from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import ReasoningMode
 
 CAPABILITY = "public_page_reader"
-VERSION = "public_page_reader@0.1.1"
+VERSION = "public_page_reader@0.2.2"
 MAX_BYTES = 2_000_000
 MAX_PASSAGE_CHARS = 9000
 TIMEOUT_SECONDS = 20.0
@@ -129,7 +129,19 @@ def selected_passages(text: str, query: str) -> tuple[str, list[list[int]]]:
         for term, count in document_frequency.items()
     }
     heading_terms = [
-        terms & set(_words(text[a:b].split("\n", 1)[0])) if headings else set() for a, b in windows
+        terms & set(_words(text[a:b].split("\n", 1)[0])) if a in headings else set()
+        for a, b in windows
+    ]
+    requested_sections: set[str] = set()
+    for reference in re.finditer(
+        r"(?:\bsections?\s+|§\s*)(\d+(?:\.\d+)*(?:\s*(?:,|and|&)\s*\d+(?:\.\d+)*)*)",
+        query,
+        re.IGNORECASE,
+    ):
+        requested_sections.update(re.findall(r"\d+(?:\.\d+)*", reference[1]))
+    section_ids = [
+        match[1] if (match := re.match(r"(\d+(?:\.\d+)*)\. ", text[a:b])) else None
+        for a, b in windows
     ]
     scores = [
         sum(weights[term] * counts[term] / (counts[term] + 1.2) for term in terms if counts[term])
@@ -138,12 +150,14 @@ def selected_passages(text: str, query: str) -> tuple[str, list[list[int]]]:
     remaining = list(range(len(windows)))
     selected: list[tuple[int, int]] = []
     covered_headings: set[str] = set()
+    covered_sections: set[str] = set()
     used_characters = 0
     while remaining and len(selected) < 6:
         index = max(
             remaining,
             key=lambda i: (
-                scores[i] + 8 * sum(weights[t] for t in heading_terms[i] - covered_headings)
+                section_ids[i] in requested_sections - covered_sections,
+                scores[i] + 8 * sum(weights[t] for t in heading_terms[i] - covered_headings),
             ),
         )
         remaining.remove(index)
@@ -154,6 +168,8 @@ def selected_passages(text: str, query: str) -> tuple[str, list[list[int]]]:
         if all(span[1] <= a or span[0] >= b for a, b in selected):
             selected.append(span)
             covered_headings.update(heading_terms[index])
+            if section_ids[index] is not None:
+                covered_sections.add(str(section_ids[index]))
             used_characters += cost
     selected.sort()
     return "\n[...passage boundary...]\n".join(text[a:b] for a, b in selected), [
@@ -290,18 +306,7 @@ def page_read_target(state: PolyaState, target: str) -> str | None:
     if len(attempts) >= 2:
         return None
     # Require a failed evaluation, including the parent group of a scope reframe.
-    evaluations = _evaluations_for_target(state, target)
-    if not evaluations:
-        for event in reversed(state["events"]):
-            if event.event_type == "knowledge_scope_reviewed":
-                dispositions = event.metadata.get("dispositions", [])
-                if isinstance(dispositions, list) and any(
-                    isinstance(d, dict) and d.get("question") == target for d in dispositions
-                ):
-                    parent = event.metadata.get("target_gap")
-                    if isinstance(parent, str):
-                        evaluations = _evaluations_for_target(state, parent)
-                    break
+    evaluations = _research_guidance_for_target(state, target)
     if not evaluations or evaluations[-1].metadata.get("gap_resolved") is not False:
         return None
     latest_acquisition = evaluations[-1].metadata.get("acquisition_id")
@@ -339,6 +344,12 @@ def page_read_target(state: PolyaState, target: str) -> str | None:
         )
 
     urls.sort(key=rank)
+    continuation = evaluations[-1].metadata.get("continuation")
+    if isinstance(continuation, dict):
+        # A hint can narrow eligible admitted URLs, never expand them. Explicit
+        # discovery (or an unavailable/invalid read) returns to ordinary search.
+        nominated = continuation.get("source_uri")
+        return nominated if isinstance(nominated, str) and nominated in urls else None
     return urls[0] if urls else None
 
 
@@ -375,10 +386,29 @@ def public_page_capability(
             summary="Attempted one bounded public page read.",
             metadata={"source_uri": url, "target_gap": action.target},
         )
-        # The page was already selected for the residual gap. Passage selection
-        # must preserve coverage of the user's whole requested deliverable;
-        # generated meta-questions can otherwise outrank the actual subject.
+        # Legacy reads preserve whole-deliverable coverage; an explicit source
+        # nomination below can instead focus on the residual evidence need.
         query = state["raw_input"]
+        guidance = _research_guidance_for_target(state, action.target)
+        if guidance:
+            hint = guidance[-1].metadata.get("continuation")
+            residual_query = guidance[-1].metadata.get("next_query")
+            if (
+                isinstance(hint, dict)
+                and hint.get("source_uri") == url
+                and isinstance(residual_query, str)
+                and residual_query.strip()
+            ):
+                # Explicitly nominated reads target the remaining fact. Legacy
+                # reads retain whole-deliverable passage coverage.
+                # Keep source identifiers/URLs from displacing requested topics
+                # in lexical ranking; explicit section references still lead.
+                references = re.findall(
+                    r"(?:\bsections?\s+|§\s*)\d+(?:\.\d+)*(?:\s*(?:,|and|&)\s*\d+(?:\.\d+)*)*",
+                    residual_query[:300],
+                    re.IGNORECASE,
+                )
+                query = " ".join([state["raw_input"], *references])
         try:
             excerpt, metadata = reader.read(url, query)
         except (ValueError, OSError, TimeoutError, httpx.HTTPError) as exc:

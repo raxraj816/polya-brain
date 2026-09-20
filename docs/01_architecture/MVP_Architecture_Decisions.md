@@ -188,3 +188,24 @@ The persisted adapter and raw runtime share the CLI's default of 24 controller
 cycles. The previous API default of 12 truncated a live discovery sequence before
 verification. This changes only loop steps: model/external calls, tokens and time
 retain their existing hard budgets. Explicit lower cycle limits remain effective.
+
+## Chapter 13-P: Research the residual question
+
+Persist supported-question progress after scope review even without a deferral.
+Keep remaining questions batched to avoid one search per question and retain the
+original goal and criteria. Carry only navigation guidance across the recorded
+parent/residual lineage; do not transfer a source-coverage verdict.
+
+The existing evidence evaluation may recommend discovery or reading a particular
+already-admitted source. Deterministic admission and page-read eligibility checks
+own dispatch. This avoids spending a read on a source about already answered
+questions merely because its publisher is authoritative. Targeted follow-up queries
+lead with the remaining question. Explicit reads retain whole-user lexical coverage and prioritize named residual
+sections within the same passage limits. These mechanisms add no model calls and no budget increase. A model's
+estimate of likely document coverage can still be wrong; final verification and
+failure reporting remain mandatory.
+
+The fused checker remains responsible for verifying substantive findings and
+composing the terminal answer in one call. It must not demand a terminal answer
+before it runs. This clarifies existing stage ownership without adding a synthesis
+call or weakening requirements for facts, analysis, citations or observed execution.

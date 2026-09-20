@@ -585,7 +585,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.7.1"),
+        else gateway.capability_version("fused_conclusion_checker@0.7.2"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -616,6 +616,12 @@ def conclusion_checker_capability(
                     "criterion. Name at least one explicit check per criterion. If any check lacks "
                     "support, return a failing report with no answer and no reflection. Only after "
                     "all checks pass, return a concise evidence-bounded answer and reflection. "
+                    "This stage owns final-answer composition: do not require a pre-existing "
+                    "final answer in state or polished final prose in analytic outputs. Verify "
+                    "their substantive findings and source references, then integrate the "
+                    "supported findings into final_answer with the requested explanation and "
+                    "citations. Missing facts, missing requested analysis, or missing actual "
+                    "execution still fail; missing prewritten prose alone is not a failed check. "
                     "Reflection may generalize a procedure only within stated preconditions. "
                     "Verify the deliverable requested in raw_input. For a proposed plan, check "
                     "its factual coverage, constraint consistency, uncertainties, and future "

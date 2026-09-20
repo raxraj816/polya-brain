@@ -496,3 +496,33 @@ magnitude rejects the answer and reflection. The trace retains the rejected answ
 and mismatch; generated evidence claims cannot corroborate their own unit errors.
 Unparsed expressions, non-time dimensions and unmatched central values remain
 outside this check. A no-conflict result is not a general measurement attestation.
+
+`knowledge_scope_review@0.2.0` applies source-validated supported dispositions even
+when nothing is deferred. It archives the original group, retains supported
+questions as filled gaps with evidence references, and batches still-needed
+questions into one unfilled residual gap. `residual_target` and
+`public_question_groups` trace its lineage. Scope and coverage changes are recorded
+separately; the unchanged success criteria still require final verification.
+
+`source_quality_evaluator@0.4.1` optionally emits `ResearchContinuation`, containing
+an admitted `source_uri` to read or null to discover a different source, plus a
+bounded reason. The adapter rejects nominations outside existing/newly admitted
+public evidence and records the rejection without discarding valid evidence.
+`public_page_reader@0.2.2` intersects the nomination with its eligible, untried
+public URLs; null or ineligible choices return to discovery. An explicit read combines original-user lexical coverage with explicitly named
+residual sections; publisher identifiers are excluded from the added hints. Missing hints preserve legacy behavior. Regrouped gaps may
+inherit parent query/read guidance, never parent coverage or verification verdicts.
+All existing privacy, DNS, source admission and resource gates remain in force.
+
+Generated assessment claims render U+0000 as the visible literal `\u0000` before
+admission; source excerpts remain unchanged. The existing trace text sanitizer
+uses the same representation so PostgreSQL JSONB can persist summaries and nested
+assessment text. This is not secret redaction or inference of a minus/plus-minus
+symbol. Raw null characters are not round-trip source provenance. Regression
+coverage includes actual database trace and accepted-evidence readback.
+
+The fused conclusion checker (`0.7.2`) owns final-answer composition after checking
+substantive findings and references. Prewritten final prose is not a prerequisite;
+missing requested analysis, facts or actual execution still reject completion.
+Numbered-heading coverage bonuses exclude unnumbered front matter. Passage
+coverage remains bounded and cannot establish complete semantic coverage.

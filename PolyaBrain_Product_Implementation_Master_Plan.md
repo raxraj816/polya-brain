@@ -2292,6 +2292,43 @@ It does not validate confidence levels, inferred errors, non-time dimensions,
 unparsed prose, or whether a source itself is correct. Test equivalent conversions,
 mixed units, negative changes and the preserved false-pass example.
 
+Chapter 13-P acquisition refinement: when a scope review validates supported
+constituent questions, preserve that progress even if no question is deferred.
+Archive the original group, retain source-bound supported questions, and batch
+the still-needed questions into one smaller public gap. Keep original goals and
+success criteria unchanged; no unsupported question may become filled. Record
+parent/replacement lineage so targeted-query guidance survives regrouping.
+
+Let the existing evidence evaluation optionally propose a research continuation:
+discover a different source, or read a specified already-admitted public source.
+This is a bounded hint, not authority to dispatch a tool. The adapter validates
+the proposed URL against admitted evidence; an invalid choice falls back to
+discovery with an audit reason. The controller and page reader retain all privacy,
+budget, DNS, provenance and verification gates. A targeted search query should
+lead with the remaining question rather than generic publisher boilerplate.
+No extra model call, new canonical state field or larger budget is introduced.
+Evaluate partial progress without deferral, bad quotations, lineage, unavailable
+or rejected source choices, and unchanged live DART and HTTP tasks. Retain every
+failure and report total resource costs; known-case repairs are not held-out wins.
+The first HTTP regression exposed a targeted read selecting publisher/front
+matter instead of a specifically requested numbered section. Honor explicit
+section references in retrieval queries before lexical ranking, within the same
+six-passage/9,000-character limits. Section selection is source navigation, not
+verification, and must work on synthetic non-HTTP documents as well.
+Retain whole-user-question lexical coverage when reading a nominated document;
+add its explicit residual section references without letting publisher identifiers
+or URLs displace requested topics. A persisted DART replay also exposed a generated
+U+0000 claim crashing PostgreSQL JSONB persistence. Render null characters as a
+visible escape at the existing text-sanitization boundary; preserve surrounding
+content and do not infer a mathematical symbol. Test actual database persistence.
+Only actual numbered headings receive a section-coverage ranking bonus; page
+front matter must compete on body relevance. The HTTP replay also exposed a
+circular finalization requirement: the fused conclusion checker demanded a final
+answer before the stage that produces it. Make that stage's existing ownership
+explicit: verify the substantive analysis and citations, then compose the answer
+in the same checked output. Missing facts, analysis, or requested execution must
+still fail; absent prewritten prose alone must not cause a research handoff.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

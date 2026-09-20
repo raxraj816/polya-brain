@@ -242,3 +242,37 @@ not only model-extracted claims. The time-uncertainty guard must reject this cas
 accept exact equivalent conversions, and document unmatched/unparsed quantities
 as outside its narrow coverage. A runtime `completed` status alone does not make
 a development result correct.
+
+### Residual research and source selection
+
+Exercise supported + still-needed groups with no deferral: retire the original
+group, retain source provenance for supported facts and keep all remaining
+questions in one unfilled group. Invalid quotations remain blocking. Preserve
+criteria and constraints; an all-needed review must not claim progress. Verify
+that only query/read guidance crosses parent lineage, with newer child guidance
+taking precedence. Discovery hints must avoid page reads, admitted nominations
+must select only eligible untried pages, and invented/rejected nominations must
+fall back to search. Test passage targeting and model/external-call accounting.
+Re-run unchanged DART and HTTP tasks with all attempts and costs retained. These
+are development regressions, not fresh comparisons or general cost evidence.
+
+Retain both HTTP failures where targeted-query publisher identifiers displaced
+GET/PUT passages. Explicit numbered sections must outrank publisher/front matter
+without increasing the six-passage/9,000-character limit. Preserve the original
+user's requested-topic coverage; test a synthetic non-HTTP section inventory.
+Retain the persisted DART failure from a generated U+0000 claim. Trace JSONB and
+accepted-claim persistence must retain a visible escape and unchanged source text,
+without inventing a sign or treating malformed text as new measurement evidence.
+
+Test that unnumbered front matter does not consume a numbered-heading bonus.
+Retain the HTTP finalization failure that demanded a pre-existing final answer.
+Replay its admitted evidence and analysis without supplying an answer: the final
+checker must compose a supported explanation while a matched actual-execution
+negative probe still fails. These frozen live-model probes supplement deterministic
+regressions; they do not prove arbitrary prompt compliance or held-out success.
+
+Latest development outcome: DART completed in the CLI but still stalled in the
+persisted workbench. HTTP completed after the composition repair; manual review
+found a section-9.3.1 citation whose supporting selected passage was section 6.4.1.
+Preserve this citation-fidelity defect instead of equating runtime status with
+independent correctness. Full-run costs and failed attempts remain in the ledger.

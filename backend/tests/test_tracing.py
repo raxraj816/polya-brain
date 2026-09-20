@@ -359,3 +359,16 @@ def test_trace_metrics_count_success_failure_route_decisions_and_redactions() ->
     assert snapshot.route_decision_events == 1
     assert snapshot.redactions == 1
     assert snapshot.append_duration_ms_total == 15.0
+
+
+def test_null_character_is_visible_without_inventing_a_measurement_symbol():
+    from app.tracing.sanitization import sanitize_text_with_count
+
+    value = "Observed \x0033.24 minutes ± 1.4 seconds."
+    text = sanitize_text_with_count(value)
+    assert text.value == r"Observed \u000033.24 minutes ± 1.4 seconds."
+    assert text.redaction_count == 0
+    assert sanitize_json_mapping({"assessments": [{"extracted_claim": value}]}) == {
+        "assessments": [{"extracted_claim": text.value}]
+    }
+    assert sanitize_text_with_count(text.value).value == text.value

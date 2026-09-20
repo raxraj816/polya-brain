@@ -124,6 +124,19 @@ class EvidenceCandidateAssessment(ContractModel):
     contradicts_candidate_ids: list[NonEmptyStr] = Field(default_factory=list)
     rationale: NonEmptyStr
 
+    @field_validator("extracted_claim")
+    @classmethod
+    def keep_null_visible_in_generated_claim(cls, value: str) -> str:
+        """Keep malformed model text inspectable and representable in storage."""
+        return value.replace("\x00", r"\u0000")
+
+
+class ResearchContinuation(ContractModel):
+    """Optional hint for filling a public gap using already evaluated sources."""
+
+    source_uri: NonEmptyStr | None = Field(default=None, max_length=2000)
+    reason: NonEmptyStr = Field(max_length=500)
+
 
 class EvidenceEvaluationOutput(ContractModel):
     """Structured evidence assessment returned by the bounded evaluator."""
@@ -132,6 +145,7 @@ class EvidenceEvaluationOutput(ContractModel):
     gap_supported: bool
     overall_rationale: NonEmptyStr
     next_query: NonEmptyStr | None = Field(default=None, max_length=300)
+    continuation: ResearchContinuation | None = None
 
 
 class SearchResponse(ContractModel):

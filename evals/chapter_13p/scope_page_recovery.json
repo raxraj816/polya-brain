@@ -22,7 +22,11 @@
     "The subsequent DART replay closed acquisition after one search, then failed final source/measurement checks and requested user input instead of reopening public research. It did not exercise the new read-to-search recovery rule.",
     "A subsequent DART runtime completed status was rejected during review for a seconds-to-minutes uncertainty error. A narrow deterministic guard now rejects that preserved false pass; completed is not independently proven correctness.",
     "Legacy-state replays adapt a failed check to the new research-output schema by hand; they test recovery execution, not live model generation of that request. Recorded resources are cumulative; elapsed time is for the replay invocation.",
-    "The final DART workbench run still requested public information after exhausting its external budget. It did not reach final verification, so it does not demonstrate the new recovery path or robust completion."
+    "The final DART workbench run still requested public information after exhausting its external budget. It did not reach final verification, so it does not demonstrate the new recovery path or robust completion.",
+    "Residual-source development includes two HTTP regressions and one PostgreSQL null-character failure, retained with their subsequent repairs. Optional navigation hints are fallible and do not establish evidence or tool permission.",
+    "Residual source revision: fresh DART CLI completed but persisted DART replay still exhausted acquisition.",
+    "Final HTTP CLI runtime pass has an imprecise GET section citation despite substantively supporting evidence elsewhere in the retrieved page.",
+    "Frozen composition positive/actual-execution negative probes exercise revised prompt behavior on known evidence, not broad reliability."
   ],
   "tasks": {
     "dns": "Investigate why an application can still receive NXDOMAIN after an administrator adds a previously missing DNS name. Acquire the relevant official IETF RFC material online; no documents are supplied. Explain the negative-caching mechanism and how its lifetime is determined, distinguish that explanation from proof of the cause in this particular incident, and propose a bounded diagnostic check with the expected observations for negative caching versus a wrong authoritative configuration. Cite only sources actually retrieved and do not claim to have queried the affected resolver.",
@@ -241,6 +245,61 @@
       "intervention": "Reconstructed recorded event prefix before obsolete planner handoff, preserving prefix resource usage. Adapted its legacy failed check to one typed public question manually.",
       "review_result": "Completed research, admission, fresh analysis and independent verification; retained 1.4-second uncertainty and explicitly unresolved source reconciliation.",
       "note": "Development replay, not held-out proof or live generation of the typed request. Original objective, evidence and budgets preserved. Cumulative usage includes the historical prefix."
+    },
+    {
+      "run_id": "polya-dart-residual-sources",
+      "status": "completed",
+      "model_requests": 8,
+      "searches": 2,
+      "page_reads": 0,
+      "external_calls": 2,
+      "tokens": 38299,
+      "elapsed_seconds": 115.27,
+      "review_result": "Completed with two searches and no page read. The nominated PDF was ineligible for direct reading, so discovery acquired applicability evidence. Final answer retained seconds units and bounded generalization."
+    },
+    {
+      "run_id": "polya-http-residual-sources",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 25649,
+      "elapsed_seconds": 56.89,
+      "review_result": "Failed: explicit read query selected front matter and omitted the GET passage; exhausted three external calls."
+    },
+    {
+      "run_id": "polya-http-explicit-sections",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 24779,
+      "elapsed_seconds": 52.1,
+      "review_result": "Failed: requested broad section references plus publisher terms still displaced GET/PUT passages; preserved before restoring whole-user lexical coverage."
+    },
+    {
+      "run_id": "polya-http-section-coverage",
+      "status": "needs_input",
+      "model_requests": 9,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 44810,
+      "elapsed_seconds": 80.58,
+      "review_result": "Acquisition closed, but checker demanded an already written final answer. Planner recovery requested input despite sufficient substantive analysis."
+    },
+    {
+      "run_id": "polya-http-composition-final",
+      "status": "completed",
+      "model_requests": 7,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 32682,
+      "elapsed_seconds": 76.56,
+      "review_result": "Runtime completed with a substantive safe/idempotent comparison. Manual review found GET citation points at section 9.3.1, while selected evidence supplies that point through section 6.4.1; exact passage-citation fidelity remains imperfect. Do not treat runtime pass as independent proof."
     }
   ],
   "live_actual_cause_negative_control": {
@@ -318,10 +377,53 @@
       "searches": 2,
       "page_reads": 1,
       "review_result": "The 24-cycle run exhausted three external calls with a broad public gap unresolved and requested input. Final checker and new verification-driven recovery were not reached."
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-residual-sources",
+      "explicit_mode": "investigate",
+      "run_http_status": 500,
+      "verification_status": "run_failed",
+      "review_result": "Generated assessment claim contained U+0000; PostgreSQL JSONB rejected trace persistence. Server log confirmed the unsupported Unicode escape. Session stopped without final artifacts; subsequent repair adds visible escaping for generated claims and trace text."
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-source-final",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 69.19,
+      "verification_status": "awaiting_user_input",
+      "usage": {
+        "model_calls": 7,
+        "external_calls": 3,
+        "input_tokens": 26910,
+        "output_tokens": 5706
+      },
+      "searches": 2,
+      "page_reads": 1,
+      "review_result": "No persistence crash. Residual applicability questions remained unresolved after three external calls; final deliberation/check not reached. This is not an end-to-end completion."
+    },
+    {
+      "task": "http",
+      "revision": "workbench-http-composition-final",
+      "explicit_mode": "compare",
+      "run_http_status": 200,
+      "elapsed_seconds": 93.99,
+      "verification_status": "passed",
+      "open_question_count": 5,
+      "usage": {
+        "model_calls": 7,
+        "external_calls": 2,
+        "input_tokens": 26346,
+        "output_tokens": 8395
+      },
+      "searches": 1,
+      "page_reads": 1,
+      "review_result": "Persisted completion with cited explanation, alternatives and server-specific limitations. Browser history/report showed 7 model calls, 34741 tokens, 2 external calls, evidence and checks. Known development case, not independent correctness or cost proof."
     }
   ],
   "validation": {
-    "backend_tests": 646,
+    "backend_tests": 684,
     "failures": 0,
     "skipped": 0,
     "postgres_integration": true,
@@ -340,6 +442,45 @@
       "frontend_unit_tests": 2,
       "browser_tests": 6,
       "formatting": "passed"
+    },
+    "residual_source_revision": {
+      "backend_tests": 684,
+      "skipped": 0,
+      "ruff": "passed",
+      "mypy_sources": 129,
+      "postgres_null_trace": "passed",
+      "postgres_null_claim": "passed",
+      "browser_report_readback": "passed: HTTP completed report, evidence, checks and resource counts visible"
     }
-  }
+  },
+  "composition_probes": [
+    {
+      "probe": "composition",
+      "frozen_source_run": "polya-http-section-coverage",
+      "passed": true,
+      "model_calls": 1,
+      "usage": {
+        "input_tokens": 7842,
+        "output_tokens": 1796,
+        "cached_input_tokens": 0,
+        "reasoning_tokens": 263,
+        "estimated_cost_usd": 0.00411555
+      },
+      "intervention": "Pre-check event prefix and evidence/analysis reused without final answer; negative request demands actual server execution. Development-only, not full fresh run."
+    },
+    {
+      "probe": "execution-negative",
+      "frozen_source_run": "polya-http-section-coverage",
+      "passed": false,
+      "model_calls": 1,
+      "usage": {
+        "input_tokens": 7743,
+        "output_tokens": 623,
+        "cached_input_tokens": 1466,
+        "reasoning_tokens": 102,
+        "estimated_cost_usd": 0.00234602
+      },
+      "intervention": "Pre-check event prefix and evidence/analysis reused without final answer; negative request demands actual server execution. Development-only, not full fresh run."
+    }
+  ]
 }

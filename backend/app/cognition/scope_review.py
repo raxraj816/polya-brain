@@ -24,7 +24,7 @@ from app.models.contracts import ContractModel, KnowledgeGap, NonEmptyStr, Reaso
 
 CAPABILITY = "scope_reviewer"
 EVENT = "knowledge_scope_reviewed"
-VERSION = "knowledge_scope_review@0.1.0"
+VERSION = "knowledge_scope_review@0.2.0"
 
 
 class Disposition(StrEnum):
@@ -203,11 +203,24 @@ def scope_review_capability(
                 )
             validated.append(item)
         deferred = [q for q in validated if q.disposition is Disposition.NONBLOCKING]
+        supported = [q for q in validated if q.disposition is Disposition.SUPPORTED]
+        remaining = [q for q in validated if q.disposition is Disposition.NEEDED]
+        residual_questions = [questions[q.question_index] for q in remaining]
+        residual_target = (
+            (
+                residual_questions[0]
+                if len(residual_questions) == 1
+                else "Resolve remaining public questions: " + " | ".join(residual_questions)
+            )
+            if residual_questions
+            else None
+        )
+        revised = bool(deferred or supported)
         event = StateEvent(
             engine_name=CAPABILITY,
             event_type=EVENT,
             reasoning_mode=ReasoningMode.REFRAME,
-            summary=f"Reviewed scope; {len(deferred)} question(s) remain unknown but nonblocking.",
+            summary=f"Reviewed coverage: {len(supported)} supported, {len(remaining)} still needed, {len(deferred)} nonblocking question(s).",
             metadata={
                 "version": VERSION,
                 "target_gap": action.target,
@@ -223,12 +236,16 @@ def scope_review_capability(
                     for q in validated
                 ],
                 "scope_changed": bool(deferred),
+                "coverage_changed": bool(supported),
+                "residual_target": residual_target if revised else None,
+                "public_question_groups": {residual_target: list(residual_questions)}
+                if revised and residual_target
+                else {},
                 "rejected_dispositions": rejected,
             },
         )
         update = CognitiveStateUpdate(trace_events_to_add=[event])
-        if deferred:
-            remaining = [q for q in validated if q.disposition is Disposition.NEEDED]
+        if revised:
             replacements = [
                 KnowledgeGap(
                     description=questions[q.question_index],
@@ -242,8 +259,18 @@ def scope_review_capability(
                     else [],
                 )
                 for q in validated
-                if q.disposition is not Disposition.NONBLOCKING
+                if q.disposition is Disposition.SUPPORTED
             ]
+            if residual_target:
+                replacements.append(
+                    KnowledgeGap(
+                        description=residual_target,
+                        gap_type=gap.gap_type,
+                        priority=gap.priority,
+                        why_needed=gap.why_needed,
+                        suggested_source=gap.suggested_source,
+                    )
+                )
             limitations = [
                 f"{SCOPE_LIMITATION_PREFIX}{questions[q.question_index]} {q.reason}"
                 for q in deferred
@@ -252,7 +279,7 @@ def scope_review_capability(
                 structured_problem=problem.model_copy(
                     update={
                         "unknowns": [u for u in problem.unknowns if u != action.target]
-                        + [questions[q.question_index] for q in remaining],
+                        + ([residual_target] if residual_target else []),
                         "constraints": [*problem.constraints, *limitations],
                     }
                 ),

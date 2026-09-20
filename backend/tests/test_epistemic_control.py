@@ -445,7 +445,7 @@ def test_followup_query_targets_only_the_selected_gaps_recorded_missing_fact():
     _append_evaluation(state, "first", independent_sources=1)
     state["events"][-1].metadata["next_query"] = "mission target material limitations of deflection"
     query, _, _ = _bounded_query(_search_action(state), state)
-    assert query == "official mission reports mission target material limitations of deflection"
+    assert query == "mission target material limitations of deflection official mission reports"
     # An unrelated gap cannot borrow this evaluation's query.
     action = _search_action(state).model_copy(update={"target": "unrelated quantity"})
     query, _, _ = _bounded_query(action, state)
@@ -454,3 +454,4 @@ def test_followup_query_targets_only_the_selected_gaps_recorded_missing_fact():
     state["events"][-1].metadata["next_query"] = "word " * 400
     query, _, _ = _bounded_query(_search_action(state), state)
     assert len(query) <= 400 and len(query.split()) <= 50
+    assert query.endswith("official mission reports")

@@ -193,12 +193,18 @@ def test_bad_scope_proposals_fail_closed_with_known_usage(defect):
             e for e in result.state["events"] if e.event_type == "knowledge_scope_reviewed"
         )
         assert len(event.metadata["rejected_dispositions"]) == 1
-        assert not result.state["gaps"][0].filled
         if defect in {"bad_source", "invented_quote"}:
+            assert not result.state["gaps"][0].filled
             assert result.state["gaps"][0].description == QUESTIONS[0]
             assert result.state["structured_problem"].unknowns == [QUESTIONS[0]]
         else:
-            assert result.state["gaps"] == state["gaps"]
+            assert result.state["gaps"][0].filled
+            assert not result.state["gaps"][1].filled
+            assert result.state["gaps"][1].description == QUESTIONS[1]
+            assert (
+                result.state["structured_problem"].constraints
+                == state["structured_problem"].constraints
+            )
     assert not scope_review_available(result.state, TARGET)
 
 
@@ -212,8 +218,17 @@ def test_needed_facts_remain_blocking_and_no_second_review_is_attempted():
     cap, _ = capability(output)
     state = state_with_stalled_research()
     revised = apply_cognitive_observation(state, cap.execute(action(), state))
-    assert revised["structured_problem"] == state["structured_problem"]
-    assert revised["gaps"] == state["gaps"]
+    assert (
+        revised["structured_problem"].success_criteria
+        == state["structured_problem"].success_criteria
+    )
+    assert revised["structured_problem"].constraints == state["structured_problem"].constraints
+    assert revised["structured_problem"].unknowns == [QUESTIONS[1]]
+    assert revised["gaps"][0].filled
+    assert revised["gaps"][1].description == QUESTIONS[1]
+    assert not revised["gaps"][1].filled
+    assert revised["events"][-1].metadata["scope_changed"] is False
+    assert revised["events"][-1].metadata["coverage_changed"] is True
     assert not scope_review_available(revised, TARGET)
 
 
@@ -281,3 +296,54 @@ def test_cli_report_preserves_deferred_questions_without_a_verdict():
     assert any(QUESTIONS[1] in question for question in report.open_questions)
     assert report.confidence_level == "insufficient_evidence"
     assert report.checks_performed == []
+
+
+def test_multiple_remaining_questions_stay_batched_and_keep_navigation_guidance():
+    from app.acquisition.capabilities import _bounded_query, _evaluations_for_target
+    from app.acquisition.page_reader import page_read_target
+
+    state = state_with_stalled_research()
+    questions = [QUESTIONS[0], "Published applicability limits?", "Published follow-up methods?"]
+    state["events"][1].metadata["public_question_groups"] = {TARGET: questions}
+    state["events"][-1].metadata.update(
+        {
+            "next_query": "Protocol applicability limits follow-up methods",
+            "continuation": {
+                "source_uri": None,
+                "reason": "The current document covers only lifetime.",
+            },
+        }
+    )
+    output = proposal()
+    output["questions"] = [
+        output["questions"][0],
+        *[
+            {"question_index": i, "disposition": "still_needed", "reason": "Public facts missing."}
+            for i in (1, 2)
+        ],
+    ]
+    cap, _ = capability(output)
+    revised = apply_cognitive_observation(state, cap.execute(action(), state))
+    unresolved = [gap for gap in revised["gaps"] if not gap.filled]
+    assert len(unresolved) == 1
+    residual = unresolved[0].description
+    assert questions[0] not in residual
+    assert all(q in residual for q in questions[1:])
+    assert _evaluations_for_target(revised, residual) == []  # No inherited coverage verdict.
+    query, _, _ = _bounded_query(action().model_copy(update={"target": residual}), revised)
+    assert query.startswith("Protocol applicability limits follow-up methods")
+    assert page_read_target(revised, residual) is None  # Discovery hint survives regrouping.
+
+
+def test_all_needed_review_does_not_rewrite_or_close_gaps():
+    state = state_with_stalled_research()
+    output = {
+        "questions": [
+            {"question_index": i, "disposition": "still_needed", "reason": "No adequate source."}
+            for i in range(2)
+        ]
+    }
+    cap, _ = capability(output)
+    revised = apply_cognitive_observation(state, cap.execute(action(), state))
+    assert revised["gaps"] == state["gaps"]
+    assert revised["structured_problem"] == state["structured_problem"]

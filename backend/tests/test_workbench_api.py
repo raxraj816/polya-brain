@@ -168,3 +168,79 @@ def test_api_composer_preserves_persisted_mode_and_domain(client: TestClient, mo
     assert approach["metadata"]["selected_mode"] == mode
     artifacts = client.get(f"/api/v1/sessions/{session['id']}/artifacts").json()
     assert artifacts["structured_problem"]["domain"] == "quantity_check"
+
+
+def test_null_in_generated_claim_survives_real_trace_persistence(client: TestClient):
+    from uuid import UUID
+
+    from app.graph.state import StateEvent
+    from app.models.contracts import ReasoningMode
+    from app.tracing.persistence import SQLAlchemyTraceRepository
+
+    sid = client.post("/api/v1/sessions", json={"raw_input": "Inspect measurement text."}).json()[
+        "id"
+    ]
+    with client.app.state.session_factory() as db:
+        repository = SQLAlchemyTraceRepository(db)
+        repository.persist_events(
+            session_id=UUID(sid),
+            events=[
+                StateEvent(
+                    engine_name="evidence_evaluator",
+                    event_type="evidence_evaluation_completed",
+                    reasoning_mode=ReasoningMode.COMPARE,
+                    summary="Observed \x00 in generated text.",
+                    metadata={"assessments": [{"extracted_claim": "Value \x0033.24 min ± 1.4 s."}]},
+                )
+            ],
+        )
+        db.commit()
+    response = client.get(f"/api/v1/sessions/{sid}/events")
+    assert response.status_code == 200
+    event = response.json()["events"][-1]
+    assert event["summary"] == r"Observed \u0000 in generated text."
+    assert (
+        event["metadata"]["assessments"][0]["extracted_claim"] == r"Value \u000033.24 min ± 1.4 s."
+    )
+
+
+def test_generated_null_claim_can_be_admitted_and_persisted_without_changing_source(
+    client: TestClient,
+):
+    from uuid import UUID
+
+    from app.acquisition.contracts import EvidenceCandidateAssessment
+    from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
+    from app.graph.state import create_initial_state
+    from app.models.contracts import EvidenceItem
+
+    sid = client.post("/api/v1/sessions", json={"raw_input": "Inspect source measurement."}).json()[
+        "id"
+    ]
+    assessment = EvidenceCandidateAssessment(
+        candidate_id="test",
+        extracted_claim="Value \x0033.24 min.",
+        relationship="supports",
+        relevance_score=1,
+        reliability_score=0.9,
+        temporal_validity="timeless",
+        contradiction_risk=0,
+        rationale="Source compared.",
+    )
+    state = create_initial_state("Inspect source measurement.", session_id=sid)
+    source = "Source reports a 33.24 minute change."
+    state["evidence"] = [
+        EvidenceItem(
+            source_type="evaluated_web_source",
+            source_uri="https://example.org/source",
+            claim=assessment.extracted_claim,
+            raw_excerpt=source,
+        )
+    ]
+    with client.app.state.session_factory() as db:
+        repository = SQLAlchemyCognitiveStateRepository(db)
+        repository.persist_state(session_id=UUID(sid), state=state)
+        db.commit()
+        evidence = repository.load_evidence(UUID(sid))[0]
+    assert evidence.claim == r"Value \u000033.24 min."
+    assert evidence.raw_excerpt == source

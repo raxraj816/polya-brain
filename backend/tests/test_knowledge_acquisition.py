@@ -835,3 +835,54 @@ def test_progressive_source_passages_are_not_discarded_by_url_alone(same_excerpt
     result = CognitiveKernel(registry).run(state, max_cycles=2)
     assert len(result.state["evidence"]) == (2 if same_excerpt else 3)
     assert len({e.source_uri for e in result.state["evidence"]}) == 2
+
+
+@pytest.mark.parametrize("choice", ["admitted", "rejected", "invented", "discovery"])
+def test_evaluator_continuation_only_nominates_admitted_public_sources(choice):
+    from app.acquisition.page_reader import page_read_target
+
+    provider = FakeSearchProvider()
+    registry = CapabilityRegistry()
+    registry.register(web_search_capability(provider))
+    state = CognitiveKernel(registry).run(_research_state(), max_cycles=1).state
+    batch = next(e for e in state["events"] if e.event_type == "evidence_candidates_acquired")
+    candidates = batch.metadata["candidates"]
+    nominated = candidates[1 if choice == "rejected" else 0]["source_uri"]
+    if choice == "invented":
+        nominated = "https://not-retrieved.example.org/paper"
+    elif choice == "discovery":
+        nominated = None
+    payload = {
+        "assessments": [
+            {
+                "candidate_id": c["id"],
+                "extracted_claim": c["excerpt"],
+                "relationship": "reject" if choice == "rejected" and i == 1 else "supports",
+                "relevance_score": 0.9,
+                "reliability_score": 0.9,
+                "temporal_validity": "current",
+                "contradiction_risk": 0,
+                "rationale": "Source assessment.",
+            }
+            for i, c in enumerate(candidates)
+        ],
+        "gap_supported": False,
+        "overall_rationale": "Applicability remains unknown.",
+        "next_query": "Specific public applicability details",
+        "continuation": {"source_uri": nominated, "reason": "Find missing applicability."},
+    }
+    client = FakeLLMClient([LLMResponse(provider="fake", model="fake", text=json.dumps(payload))])
+    registry.register(evidence_evaluator_capability(CognitiveModelGateway(client, "fake")))
+    result = CognitiveKernel(registry).run(state, max_cycles=1)
+    event = next(
+        e for e in result.state["events"] if e.event_type == "evidence_evaluation_completed"
+    )
+    hint = event.metadata["continuation"]
+    assert hint["source_uri"] == (nominated if choice == "admitted" else None)
+    if choice in {"rejected", "invented"}:
+        assert hint["rejected_source_uri"] == nominated
+    assert not result.state["gaps"][0].filled
+    assert page_read_target(result.state, result.state["gaps"][0].description) == (
+        nominated if choice == "admitted" else None
+    )
+    assert len(client.requests) == 1
