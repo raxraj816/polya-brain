@@ -16,6 +16,7 @@ from pydantic import SecretStr, ValidationError
 
 from app.cognition.bootstrap import build_cognitive_runtime
 from app.cognition.contracts import CognitiveRunStatus
+from app.cognition.runtime import DEFAULT_MAX_CYCLES
 from app.config import Settings
 from app.graph.state import create_initial_state
 from app.investigator.artifacts import export_run, write_json
@@ -86,7 +87,10 @@ def _run_options(investigate: argparse.ArgumentParser) -> None:
         "--max-seconds", type=float, help="Hard run deadline in seconds (0–3600)."
     )
     investigate.add_argument(
-        "--max-cycles", type=int, default=24, help="Maximum controller cycles (1–100, default 24)."
+        "--max-cycles",
+        type=int,
+        default=DEFAULT_MAX_CYCLES,
+        help=f"Maximum controller cycles (1–100, default {DEFAULT_MAX_CYCLES}).",
     )
     investigate.add_argument("--output-root", type=Path, default=Path("runs/investigator"))
     investigate.add_argument(

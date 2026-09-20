@@ -160,3 +160,31 @@ DNS validation, pinned connections and TLS hostname verification, no redirects o
 proxies, and fixed response/time/passage bounds. The same total external budget,
 privacy boundary and offline switch apply. See Chapter 13-P for live failures and
 repaired development cases; fresh efficiency/transfer comparisons remain required.
+
+## Chapter 13-P: Verification-driven public research
+
+A failed conclusion checker can request one bounded public-research round through
+experimental typed output, bound to its failed-check indices. The controller's
+existing gap/acquisition/evaluation loop handles the request; the execution
+planner does not gain research tools. Once gaps close, fresh bounded analysis
+precedes a new independent check. Keep previous tasks, outputs and verdicts as
+history; distinguish the revision with new task IDs. Public sources cannot satisfy
+private-state or observed-execution requirements. Existing offline, privacy and
+resource limits apply without resets. Failure or budget exhaustion remains a
+failure, including when public sources are unavailable.
+
+PolyaBrain remains the product identity. Investigator is the initial verified
+workflow; it does not constrain the runtime's long-term problem domains. The UI
+must not imply present human equivalence or physical embodiment.
+
+A live DART replay exposed an incorrectly passed time-uncertainty unit change.
+Apply a deterministic necessary consistency check to model-proposed final answers
+using raw admitted excerpts; reject a conflicting explicit time uncertainty and
+retain the rejected candidate. This adds no model call and is intentionally narrow,
+with unresolved semantic and measurement-definition checks still owned by the
+independent checker.
+
+The persisted adapter and raw runtime share the CLI's default of 24 controller
+cycles. The previous API default of 12 truncated a live discovery sequence before
+verification. This changes only loop steps: model/external calls, tokens and time
+retain their existing hard budgets. Explicit lower cycle limits remain effective.

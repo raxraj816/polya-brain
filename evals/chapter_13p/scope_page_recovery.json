@@ -19,7 +19,10 @@
     "All raw artifacts remain in ignored local runs/core-value folders.",
     "Source selection is bounded lexical retrieval, not guaranteed complete document coverage.",
     "The earlier successful DART task stopped after two page reads; this exposed starvation of targeted discovery.",
-    "The subsequent DART replay closed acquisition after one search, then failed final source/measurement checks and requested user input instead of reopening public research. It did not exercise the new read-to-search recovery rule."
+    "The subsequent DART replay closed acquisition after one search, then failed final source/measurement checks and requested user input instead of reopening public research. It did not exercise the new read-to-search recovery rule.",
+    "A subsequent DART runtime completed status was rejected during review for a seconds-to-minutes uncertainty error. A narrow deterministic guard now rejects that preserved false pass; completed is not independently proven correctness.",
+    "Legacy-state replays adapt a failed check to the new research-output schema by hand; they test recovery execution, not live model generation of that request. Recorded resources are cumulative; elapsed time is for the replay invocation.",
+    "The final DART workbench run still requested public information after exhausting its external budget. It did not reach final verification, so it does not demonstrate the new recovery path or robust completion."
   ],
   "tasks": {
     "dns": "Investigate why an application can still receive NXDOMAIN after an administrator adds a previously missing DNS name. Acquire the relevant official IETF RFC material online; no documents are supplied. Explain the negative-caching mechanism and how its lifetime is determined, distinguish that explanation from proof of the cause in this particular incident, and propose a bounded diagnostic check with the expected observations for negative caching versus a wrong authoritative configuration. Cite only sources actually retrieved and do not claim to have queried the affected resolver.",
@@ -186,6 +189,58 @@
       "external_calls": 1,
       "tokens": 27914,
       "elapsed_seconds": 52.23
+    },
+    {
+      "run_id": "polya-dart-verification-research",
+      "status": "completed",
+      "model_requests": 9,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 51238,
+      "elapsed_seconds": 80.63,
+      "review_result": "false_pass: answer changes source uncertainty of 1.4 seconds to 1.4 minutes",
+      "intervention": null,
+      "note": "New typed verification recovery was not exercised; pre-verification page-to-search recovery was exercised."
+    },
+    {
+      "run_id": "polya-dart-verification-frozen-replay",
+      "status": "insufficient_evidence",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 0,
+      "external_calls": 1,
+      "tokens": 27914,
+      "elapsed_seconds": 0.0,
+      "review_result": "development replay; did not complete",
+      "intervention": "Legacy failed output adapted to one typed public question; historical usage retained.",
+      "note": "First replay misrouted published measurement to unavailable measurement tools."
+    },
+    {
+      "run_id": "polya-dart-verification-frozen-routed",
+      "status": "insufficient_evidence",
+      "model_requests": 9,
+      "searches": 2,
+      "page_reads": 0,
+      "external_calls": 2,
+      "tokens": 47671,
+      "elapsed_seconds": 34.25,
+      "review_result": "development replay; did not complete",
+      "intervention": "Legacy failed output adapted to one typed public question; historical usage retained.",
+      "note": "Search, admission and reanalysis completed; final checker reservation needs four requests with only three remaining."
+    },
+    {
+      "run_id": "polya-dart-verification-preplanner",
+      "status": "completed",
+      "model_requests": 9,
+      "searches": 2,
+      "page_reads": 0,
+      "external_calls": 2,
+      "tokens": 52579,
+      "elapsed_seconds": 40.84,
+      "intervention": "Reconstructed recorded event prefix before obsolete planner handoff, preserving prefix resource usage. Adapted its legacy failed check to one typed public question manually.",
+      "review_result": "Completed research, admission, fresh analysis and independent verification; retained 1.4-second uncertainty and explicitly unresolved source reconciliation.",
+      "note": "Development replay, not held-out proof or live generation of the typed request. Original objective, evidence and budgets preserved. Cumulative usage includes the historical prefix."
     }
   ],
   "live_actual_cause_negative_control": {
@@ -227,6 +282,42 @@
       },
       "searches": 1,
       "page_reads": 1
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-verification",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 69.23,
+      "verification_status": "not_verified",
+      "open_question_count": 0,
+      "usage": {
+        "model_calls": 8,
+        "external_calls": 3,
+        "input_tokens": 33539,
+        "output_tokens": 7565
+      },
+      "searches": 2,
+      "page_reads": 1,
+      "review_result": "The API default of 12 cycles stopped after deliberation, before a final check. Fixed by aligning the shared default to 24; original resource budgets unchanged."
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-final",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 56.64,
+      "verification_status": "awaiting_user_input",
+      "open_question_count": 2,
+      "usage": {
+        "model_calls": 7,
+        "external_calls": 3,
+        "input_tokens": 26666,
+        "output_tokens": 5788
+      },
+      "searches": 2,
+      "page_reads": 1,
+      "review_result": "The 24-cycle run exhausted three external calls with a broad public gap unresolved and requested input. Final checker and new verification-driven recovery were not reached."
     }
   ],
   "validation": {
@@ -239,6 +330,16 @@
     "chapter11_fixtures": 10,
     "preplatform_artifacts": 6,
     "offline_model_calls": 0,
-    "offline_external_calls": 0
+    "offline_external_calls": 0,
+    "verification_research_revision": {
+      "backend_tests": 668,
+      "backend_skipped": 0,
+      "ruff": "passed",
+      "mypy_sources": 129,
+      "frontend_typecheck": "passed",
+      "frontend_unit_tests": 2,
+      "browser_tests": 6,
+      "formatting": "passed"
+    }
   }
 }

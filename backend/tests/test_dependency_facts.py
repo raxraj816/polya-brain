@@ -315,3 +315,39 @@ def test_two_conflicting_audit_collections_are_not_silently_selected():
     state = _state()
     state["evidence"][0] = _evidence("scan.json", '{"dependencies": [], "affected_packages": []}')
     assert dependency_source_facts(state).errors
+
+
+def test_source_fact_guard_preserves_failed_check_bound_public_research():
+    output = {
+        "report": {
+            "passed": False,
+            "checks_run": ["Check the public compatibility documentation."],
+            "failed_checks": ["The published compatibility table is missing."],
+        },
+        "public_research_needs": [
+            {
+                "failed_check_index": 0,
+                "question": "What does the public orchid compatibility table document?",
+            }
+        ],
+    }
+    client = FakeLLMClient([LLMResponse(provider="fake", model="test", text=json.dumps(output))])
+    capability = conclusion_checker_capability(CognitiveModelGateway(client, "test"))
+    action = CognitiveActionCandidate(
+        id="verify-public",
+        action_type=CognitiveActionType.VERIFY,
+        target="conclusion",
+        purpose="Check source constraints",
+        expected_observation="Source-grounded result",
+        expected_usefulness=1,
+        estimated_cost=0.1,
+        capability="conclusion_checker",
+        success_condition="Required facts present",
+        failure_condition="Missing facts",
+    )
+    update = capability.execute(action, _state()).proposed_update
+    assert not update.verification.passed
+    assert update.verification.failed_checks[0] == output["report"]["failed_checks"][0]
+    assert len(update.gaps_to_add) == 1
+    assert update.gaps_to_add[0].why_needed == update.verification.failed_checks[0]
+    assert not update.gaps_to_add[0].filled

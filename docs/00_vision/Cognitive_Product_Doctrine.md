@@ -204,3 +204,12 @@ Do not let PolyaBrain become:
 PolyaBrain should help users become better problem solvers.
 
 It should not merely answer. It should help understand, investigate, verify, and learn.
+
+### Product identity and workflow scope
+
+PolyaBrain is the product identity. Investigator describes the first verifiable
+workflow, not the boundary of its ambition. The enduring loop must support
+recognizing missing knowledge or skills, acquiring what is needed, acting through
+available capabilities, checking outcomes and retaining verified procedures.
+“Your physical brain” is a founder aspiration for a personal, capable system;
+it is not a current claim of embodiment or human-equivalent general ability.

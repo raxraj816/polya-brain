@@ -467,8 +467,8 @@ export default function Workbench() {
       <div className="workspace">
         <header className="topbar">
           <span>
-            Workspace <span className="slash">/</span>{" "}
-            <strong>Investigator</strong>
+            <strong>PolyaBrain</strong> <span className="slash">/</span>{" "}
+            Investigator workflow
           </span>
           <span className="local-label">
             <ShieldCheck size={14} /> Evidence before confidence
@@ -973,8 +973,7 @@ export default function Workbench() {
           )}
         </main>
         <footer className="page-footer">
-          PolyaBrain Investigator{" "}
-          <span>Understand. Investigate. Verify. Learn.</span>
+          PolyaBrain <span>Understand. Learn. Solve. Verify.</span>
         </footer>
       </div>
     </div>

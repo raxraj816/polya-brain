@@ -96,6 +96,13 @@ class DeliberationCapabilityOutput(ContractModel):
         return self
 
 
+class PublicResearchNeed(ContractModel):
+    """Experimental request for a public reference, not private or execution proof."""
+
+    failed_check_index: int = Field(ge=0, le=31)
+    question: NonEmptyStr = Field(max_length=500)
+
+
 class ConclusionCheckOutput(ContractModel):
     """Independent verification plus reflection in one bounded response."""
 
@@ -103,6 +110,7 @@ class ConclusionCheckOutput(ContractModel):
     final_answer: NonEmptyStr | None = None
     reflection: Reflection | None = None
     report_metadata: ConclusionReportMetadata | None = None
+    public_research_needs: list[PublicResearchNeed] = Field(default_factory=list, max_length=2)
 
     @model_validator(mode="after")
     def terminal_artifacts_must_match_verification(self) -> ConclusionCheckOutput:
@@ -112,4 +120,9 @@ class ConclusionCheckOutput(ContractModel):
             self.final_answer is not None or self.reflection is not None
         ):
             raise ValueError("failed conclusion check cannot finalize or reflect")
+        if self.public_research_needs and self.report.passed:
+            raise ValueError("passing verification cannot request blocking research")
+        for need in self.public_research_needs:
+            if need.failed_check_index >= len(self.report.failed_checks):
+                raise ValueError("public research must reference an actual failed check")
         return self

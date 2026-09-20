@@ -473,3 +473,26 @@ After a page evaluation leaves the gap unsupported, the controller returns to
 search before another page read can be selected. A newer search batch can enable
 another read if budget remains. This prevents measurement pages from consuming
 the remaining calls when the missing fact requires finding a different source.
+
+`verification_research@0.1.0` keeps recovery in experimental output and trace
+contracts. `ConclusionCheckOutput.public_research_needs` contains at most two
+questions (500 characters each), each referencing an existing failed-check index;
+a passing verdict cannot contain them. `verification_research_requested` records
+the failed report and the corresponding unfilled public-reference gaps. The adapter
+admits one research round per run. Acquisition uses existing gates and budgets;
+no request itself creates evidence. Material recovery invalidates current
+verification while preserving its history. `verification_research_analyzed`
+identifies fresh analytic task IDs and prior task IDs; the adapter ensures distinct
+IDs and keeps both sets of outputs. The independent checker must use revised
+analysis and admitted evidence. No canonical field or database migration is added.
+Whether a question truly concerns public knowledge remains a model judgment,
+subject to privacy/tool gates; this is not proof of safe semantic classification.
+
+`time_uncertainty_consistency@0.1.0` is a deterministic necessary check on a
+proposed passing answer. It parses explicit central-value/uncertainty pairs in
+seconds, minutes or hours and converts each quantity independently to seconds.
+When an admitted raw excerpt has the same central magnitude, a conflicting error
+magnitude rejects the answer and reflection. The trace retains the rejected answer
+and mismatch; generated evidence claims cannot corroborate their own unit errors.
+Unparsed expressions, non-time dimensions and unmatched central values remain
+outside this check. A no-conflict result is not a general measurement attestation.

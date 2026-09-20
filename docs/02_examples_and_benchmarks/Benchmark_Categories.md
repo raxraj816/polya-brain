@@ -222,3 +222,23 @@ response limits, total deadlines, repeat URLs, candidate exhaustion, privacy and
 offline composition. Different excerpts from one page do not create independent
 corroboration. Development regressions retain failed attempts; changing a bound or
 routing rule after seeing a failure makes the next run a repair, not a held-out win.
+
+### Verification-driven public research recovery
+
+Start with a failed final check after initial research has been marked complete.
+Require an actual failed-check-bound research request, separate source admission,
+fresh analysis with distinct task IDs, and a new independent verification before
+success. Retain prior failures; do not silently accept the old analysis. Test
+invalid check indices, passing verdicts with research requests, repeated rounds,
+private/execution requirements, unavailable tools, sensitive-data boundaries and
+exhausted call budgets. Re-run the unchanged NASA DART task with all previous
+failures retained and report model/search/page usage and actual termination.
+Model-suggested public-source classification is not itself a correctness gate;
+this recovery does not replace observed execution or establish cost advantage.
+
+Retain the DART false pass that rewrote `−33.24 min ± 1.4 s` as
+`−33.24 ± 1.4 minutes`. Evaluate the final answer against raw admitted excerpts,
+not only model-extracted claims. The time-uncertainty guard must reject this case,
+accept exact equivalent conversions, and document unmatched/unparsed quantities
+as outside its narrow coverage. A runtime `completed` status alone does not make
+a development result correct.

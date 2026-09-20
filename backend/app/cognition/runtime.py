@@ -21,6 +21,8 @@ from app.cognition.task_model import CognitiveResourceBudget
 from app.graph.state import PolyaState, append_state_events, create_initial_state
 from app.models.contracts import EvidenceItem
 
+DEFAULT_MAX_CYCLES = 24
+
 
 class CognitiveRuntime:
     """Start one bounded cognitive run from raw user input."""
@@ -45,7 +47,7 @@ class CognitiveRuntime:
         raw_input: str,
         *,
         session_id: str | None = None,
-        max_cycles: int = 12,
+        max_cycles: int = DEFAULT_MAX_CYCLES,
         seed_evidence: list[EvidenceItem] | None = None,
         budget: CognitiveResourceBudget | None = None,
         checkpoint: Callable[[PolyaState, bool], None] | None = None,
@@ -63,7 +65,7 @@ class CognitiveRuntime:
         self,
         state: PolyaState,
         *,
-        max_cycles: int = 12,
+        max_cycles: int = DEFAULT_MAX_CYCLES,
         budget: CognitiveResourceBudget | None = None,
         checkpoint: Callable[[PolyaState, bool], None] | None = None,
     ) -> CognitiveRunResult:

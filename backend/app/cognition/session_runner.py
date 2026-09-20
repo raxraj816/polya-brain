@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from app.cognition.contracts import CognitiveRunStatus
-from app.cognition.runtime import CognitiveRuntime
+from app.cognition.runtime import DEFAULT_MAX_CYCLES, CognitiveRuntime
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import EvidenceItem
 
@@ -21,7 +21,7 @@ class CognitiveSessionRunner:
         self,
         runtime: CognitiveRuntime,
         *,
-        max_cycles: int = 12,
+        max_cycles: int = DEFAULT_MAX_CYCLES,
         evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
         progress_writer: Callable[[str, list[StateEvent]], None] | None = None,
         initial_state: PolyaState | None = None,

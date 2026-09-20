@@ -22,6 +22,8 @@ from app.cognition.evidence_closure import (
     TrustedEvidenceAttester,
     attested_evidence_procedure_capability,
 )
+from app.cognition.measurement_units import VERSION as MEASUREMENT_VERSION
+from app.cognition.measurement_units import uncertainty_failures
 from app.cognition.model_capabilities import (
     _arithmetic_conclusion_output,
     _arithmetic_deliberation_output,
@@ -30,6 +32,14 @@ from app.cognition.model_contracts import ConclusionCheckOutput, DeliberationCap
 from app.cognition.model_gateway import CognitiveModelGateway
 from app.cognition.report_metadata import report_metadata_event
 from app.cognition.verification_factory import verifier_factory_capability
+from app.cognition.verification_research import (
+    ANALYSIS_EVENT,
+    needs_recovery_analysis,
+    research_update,
+)
+from app.cognition.verification_research import (
+    VERSION as RESEARCH_VERSION,
+)
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import (
     EvidenceItem,
@@ -413,7 +423,7 @@ def deliberator_capability(
         name="arithmetic_deliberator" if deterministic_only else "deliberator",
         version="arithmetic_deliberator@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_deliberator@0.6.0"),
+        else gateway.capability_version("fused_deliberator@0.7.0"),
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -463,7 +473,10 @@ def deliberator_capability(
                     "that no tools were run is not a completed analytic task. Cover every requested "
                     "item. When the deliverable is a proposal, keep feasibility conditional on "
                     "the future checks instead of claiming it has been demonstrated. "
-                    + INSTRUCTIONS
+                    "If verification_research_requested is present, reassess the earlier failed "
+                    "checks using newly admitted evidence. Earlier analytic outputs are history, "
+                    "not proof of the revised conclusion. Explicitly identify which earlier "
+                    "claims remain supported, change, or remain unresolved. " + INSTRUCTIONS
                 ),
                 output_type=DeliberationCapabilityOutput,
                 state=state,
@@ -490,6 +503,50 @@ def deliberator_capability(
             }
         if any(task.tool_name != definition.name for task in output.tasks):
             raise ValueError("fused deliberation may use only its state-only analytic boundary")
+        recovery_events: list[StateEvent] = []
+        if needs_recovery_analysis(state):
+            # Preserve prior work and disambiguate every new task/output pair even
+            # when a model reuses its original task IDs.
+            existing_ids = {task.id for task in state["plan"]}
+            existing_ids.update(item.task_id for item in state["execution_outputs"])
+            id_map: dict[str, str] = {}
+            for index, task in enumerate(output.tasks, start=1):
+                new_id = f"verification-research-{index}"
+                while new_id in existing_ids:
+                    new_id += "-new"
+                existing_ids.add(new_id)
+                id_map[task.id] = new_id
+            output = output.model_copy(
+                update={
+                    "tasks": [
+                        task.model_copy(
+                            update={
+                                "id": id_map[task.id],
+                                "depends_on": [id_map.get(dep, dep) for dep in task.depends_on],
+                            }
+                        )
+                        for task in output.tasks
+                    ],
+                    "execution_outputs": [
+                        item.model_copy(update={"task_id": id_map[item.task_id]})
+                        for item in output.execution_outputs
+                    ],
+                }
+            )
+            recovery_events.append(
+                StateEvent(
+                    engine_name=definition.name,
+                    event_type=ANALYSIS_EVENT,
+                    reasoning_mode=ReasoningMode.COMPARE,
+                    summary="Reassessed recovered evidence; independent verification is still required.",
+                    metadata={
+                        "version": RESEARCH_VERSION,
+                        "action_id": action.id,
+                        "current_task_ids": list(id_map.values()),
+                        "prior_task_ids": [task.id for task in state["plan"]],
+                    },
+                )
+            )
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,
@@ -504,6 +561,7 @@ def deliberator_capability(
                 hypotheses_to_add=output.hypotheses,
                 plan_tasks_to_add=output.tasks,
                 execution_outputs_to_add=output.execution_outputs,
+                trace_events_to_add=recovery_events,
             ),
         )
 
@@ -527,7 +585,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.6.0"),
+        else gateway.capability_version("fused_conclusion_checker@0.7.1"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -570,7 +628,22 @@ def conclusion_checker_capability(
                     "this deliverable, including unknown environment choices and unverified future "
                     "feasibility. Keep these consistent with the answer. They do not block a "
                     "requested conditional proposal, but they must remain visible to its reader. "
-                    "Use an empty list when none remain. " + INSTRUCTIONS
+                    "Use an empty list when none remain. When a failed check requires missing "
+                    "PUBLIC reference knowledge, return up to two public_research_needs with "
+                    "a zero-based failed_check_index and a specific public-source question. "
+                    "This requests research, not a successful check. Do not ask the user for "
+                    "public publications the runtime can research. Never classify private logs, "
+                    "local state, authorization, or proof of actual execution as public knowledge. "
+                    "Public references cannot prove those requirements. Leave the list empty "
+                    "for those failures or when verification_research_requested already exists. "
+                    "After verification_research_analyzed, use its current_task_ids as the "
+                    "revised analysis; the earlier tasks and verdict remain historical. "
+                    "Check every reported measurement's value, sign, central-value unit and "
+                    "uncertainty unit against raw source excerpts. An uncertainty can have a "
+                    "different unit from its central value; never inherit the central unit "
+                    "without checking. Do not describe numbers as rounding-compatible until "
+                    "their units, observation dates and measurement definitions are aligned. "
+                    + INSTRUCTIONS
                 ),
                 output_type=ConclusionCheckOutput,
                 state=state,
@@ -623,7 +696,8 @@ def conclusion_checker_capability(
                         contradictions=report.contradictions,
                         confidence_delta=-0.2,
                         recommended_route="revise_analysis",
-                    )
+                    ),
+                    public_research_needs=output.public_research_needs,
                 )
             else:
                 output = output.model_copy(
@@ -633,6 +707,38 @@ def conclusion_checker_capability(
                         )
                     }
                 )
+        if output.report.passed and output.final_answer:
+            unit_failures = uncertainty_failures(state, output.final_answer)
+            source_events.append(
+                StateEvent(
+                    engine_name=definition.name,
+                    event_type="time_uncertainty_consistency_checked",
+                    reasoning_mode=ReasoningMode.VERIFY,
+                    summary="Explicit time uncertainty conflicts with its source."
+                    if unit_failures
+                    else "No parsed time-uncertainty conflict; broader measurement verification remains required.",
+                    metadata={
+                        "version": MEASUREMENT_VERSION,
+                        "passed": not unit_failures,
+                        "failures": list(unit_failures),
+                        "rejected_answer": output.final_answer if unit_failures else None,
+                    },
+                )
+            )
+            if unit_failures:
+                output = ConclusionCheckOutput(
+                    report=VerificationReport(
+                        passed=False,
+                        checks_run=[
+                            *output.report.checks_run,
+                            "Compared explicit time uncertainty units with admitted source excerpts.",
+                        ],
+                        failed_checks=unit_failures,
+                        contradictions=output.report.contradictions,
+                        confidence_delta=-0.2,
+                        recommended_route="Revise the analysis using the measurement units in the admitted raw source excerpts.",
+                    )
+                )
         if output.report.passed and output.final_answer and output.report_metadata is not None:
             source_events.append(
                 report_metadata_event(
@@ -641,6 +747,7 @@ def conclusion_checker_capability(
                     engine_name=definition.name,
                 )
             )
+        research_gaps, research_events = research_update(state, output, action_id=action.id)
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,
@@ -654,9 +761,11 @@ def conclusion_checker_capability(
             payload=payload,
             proposed_update=CognitiveStateUpdate(
                 verification=output.report,
+                gaps_to_add=research_gaps,
                 final_answer=output.final_answer,
                 reflection=output.reflection,
                 trace_events_to_add=source_events
+                + research_events
                 + (
                     [
                         StateEvent(

@@ -30,6 +30,14 @@ claim that may be made without cross-domain evidence.
 
 ### 1.1 Product, Runtime, Deployment, OS, And Model Boundaries
 
+**PolyaBrain is the product identity.** Investigator names the first verified
+workflow, not the limit of what the system is intended to learn or accomplish.
+The broader objective is to understand unfamiliar objectives, discover what is
+missing, acquire knowledge or skills, act through available capabilities, verify,
+and retain useful procedures. The aspiration “Your physical brain” expresses the
+founder's desired personal relationship with the product; it is not a current
+claim of embodiment, human equivalence, or unrestricted autonomous capability.
+
 These terms describe different layers and must not be treated as competing
 product choices:
 
@@ -2249,6 +2257,40 @@ Negative tests cover private/loopback/mixed DNS answers, redirects, unsupported
 content, oversized/slow responses, unadmitted URLs, repeated reads and accounting.
 Live regressions must report successful outcomes, remaining failures and total
 model/search/page-read costs; no general efficiency claim follows from a repair.
+
+Verification-driven research recovery (experimental): a failed conclusion check
+may propose at most two public-reference questions, each bound by index to an
+actual failed check. These are acquisition requests, never facts or successful
+checks. The adapter creates unfilled gaps and retains the failed report in a
+versioned trace event; allow one such round per run. Requests for private state,
+authorization or actual execution do not belong in public-reference questions.
+Existing source admission, privacy, offline, time, call and token limits remain
+authoritative. Recovered evidence invalidates the earlier verdict. Before checking
+again, run fresh state-only analysis with distinct task IDs while retaining the
+earlier analysis as history. The final checker must evaluate the unchanged user
+objective against current evidence, including unresolved execution requirements.
+Regression gates cover failed-check binding, repeated recovery, unavailable tools,
+privacy and exhausted budgets, source admission, fresh analysis, retained failure
+history and a new independent verification. Record the unchanged DART case's
+actual outcome and costs, including failure; do not turn this into a special-case
+answer or claim general cost advantage.
+Use the same default allowance of 24 controller cycles in the CLI and persisted
+runtime: the former API default of 12 can stop a search/evaluate/recovery sequence
+immediately before its final check. This is a loop-step allowance, not permission
+to raise model calls, tokens, external calls or elapsed-time budgets. Preserve
+explicit lower cycle limits and test the default plus a constrained run.
+
+The DART development replay exposed an incorrect passing answer that changed
+`33.24 min ± 1.4 s` into `33.24 ± 1.4 minutes`. Add a narrow deterministic
+time-uncertainty consistency check before accepting model verification: parse
+explicit numeric central values and uncertainties with seconds/minutes/hours,
+normalize both to seconds, and compare with admitted raw source excerpts sharing
+the same central value. A conflicting uncertainty fails verification and retains
+the failed candidate in a trace artifact; it never silently rewrites the answer.
+This is necessary consistency coverage only, not a full measurement verifier.
+It does not validate confidence levels, inferred errors, non-time dimensions,
+unparsed prose, or whether a source itself is correct. Test equivalent conversions,
+mixed units, negative changes and the preserved false-pass example.
 
 #### Chapter 13-L: Investigator Runtime Delivery
 

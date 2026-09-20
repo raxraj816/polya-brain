@@ -28,10 +28,11 @@ from app.cognition.task_model import (
     reservation_fits,
 )
 from app.cognition.verification_factory import deterministic_verification_available
+from app.cognition.verification_research import needs_recovery_analysis
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.3"
+POLICY_VERSION = "cognitive-controller-v0.5.4"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -593,6 +594,19 @@ class CognitiveController:
                     expected="A smaller unknown with an identifiable source or test.",
                     usefulness=0.78,
                     registry=registry,
+                )
+            ]
+
+        if needs_recovery_analysis(state):
+            return [
+                self._candidate(
+                    CognitiveActionType.HYPOTHESIZE,
+                    target=problem.core_question,
+                    purpose="Reassess earlier analysis against recovered evidence and failed checks.",
+                    expected="Fresh evidence-bound analysis followed by independent verification.",
+                    usefulness=0.93,
+                    registry=registry,
+                    capability="deliberator",
                 )
             ]
 
