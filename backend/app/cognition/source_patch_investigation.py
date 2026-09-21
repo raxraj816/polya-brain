@@ -188,131 +188,148 @@ def source_patch_investigator_capability(
             "model_calls": result.model_calls,
             "route_attempts": [item.model_dump(mode="json") for item in result.route_attempts],
         }
-        source_uri = _resolve_admitted_uri(proposal.implicated_source_uri, evidence_by_uri)
-        check_uri = _resolve_admitted_uri(proposal.regression_check_uri, evidence_by_uri)
-        if source_uri is None or check_uri is None:
-            raise AuditedCapabilityError(
-                "Source-patch proposal referenced an artifact outside the admitted set.",
-                failure_kind="source_patch_artifact_unadmitted",
-                payload=failure_payload,
-            )
-        source_evidence = evidence_by_uri.get(source_uri)
-        check_evidence = evidence_by_uri.get(check_uri)
-        if source_evidence is None or check_evidence is None or source_uri == check_uri:
-            raise AuditedCapabilityError(
-                "Source-patch proposal did not bind distinct admitted source and check files.",
-                failure_kind="source_patch_artifact_binding_failed",
-                payload=failure_payload,
-            )
-        old_text_occurrences = _executable_excerpt(source_evidence).count(proposal.old_text)
-        if old_text_occurrences != 1:
-            failure_payload["old_text_occurrences_in_excerpt"] = old_text_occurrences
-            raise AuditedCapabilityError(
-                "Source-patch old text was absent or ambiguous in admitted source evidence.",
-                failure_kind="source_patch_edit_not_unique",
-                payload=failure_payload,
-            )
-        report = (
-            f"Proposed diagnosis: {proposal.diagnosis}\n"
-            f"Implicated source: {source_uri}\n"
-            f"Correction: replace {proposal.old_text!r} with {proposal.new_text!r}. "
-            f"{proposal.correction_rationale}\n"
-            f"Regression check: {proposal.regression_check_summary} ({check_uri}).\n"
-            "Scope: the supplied check tests this candidate edit. It does not prove the "
-            "diagnosis, cover all regressions, or independently attest hostile code."
-        )
-        if proposal.remaining_uncertainty:
-            report += "\nRemaining uncertainty: " + "; ".join(proposal.remaining_uncertainty)
-        task_id = "verify-source-patch"
-        verification_paths = (
-            "diagnosis_grounded",
-            "source_admitted",
-            "correction_verified",
-            "check_admitted_and_passed",
-        )
-        if len(problem.success_criteria) != len(verification_paths):
-            raise AuditedCapabilityError(
-                "Source-patch verifier requires the declared four-criterion shape.",
-                failure_kind="source_patch_verification_shape_invalid",
-                payload=failure_payload,
-            )
-        verification: list[dict[str, JsonValue]] = [
-            {
-                "criterion_index": index,
-                "operation": "equals",
-                "actual_path": path,
-                "expected": True,
-            }
-            for index, path in enumerate(verification_paths)
-        ]
-        return CognitiveObservation(
-            action_id=action.id,
-            capability=definition.name,
-            capability_version=definition.version,
-            status=ObservationStatus.SUCCEEDED,
-            summary="Proposed one evidence-bound source edit for isolated verification.",
-            payload={
-                "provider": result.provider,
-                "model": result.model,
-                "usage": result.usage.model_dump(mode="json"),
-                "model_calls": result.model_calls,
-                "route_attempts": [item.model_dump(mode="json") for item in result.route_attempts],
-            },
-            proposed_update=CognitiveStateUpdate(
-                hypotheses_to_add=[
-                    Hypothesis(
-                        statement=report,
-                        mechanism=proposal.diagnosis,
-                        origin=HypothesisOrigin.DIRECT_REASONING,
-                        expected_signals=[proposal.regression_check_summary],
-                        evidence_for=[source_uri, check_uri],
-                        verification_checks=[proposal.regression_check_summary],
-                        falsification_criteria=[
-                            "The exact edit is ambiguous or absent from the admitted source.",
-                            "The independently supplied regression check fails in isolation.",
-                        ],
-                        confidence=0.75,
-                        selection_rationale=(
-                            "Selected for present-case execution; confidence cannot increase "
-                            "until the governed check passes."
-                        ),
-                    )
-                ],
-                plan_tasks_to_add=[
-                    PlanTask(
-                        id=task_id,
-                        action="Apply the exact edit in isolation and run the admitted check.",
-                        tool_name="source_patch_sandbox",
-                        params={
-                            "source_uri": source_uri,
-                            "check_uri": check_uri,
-                            "old_text": proposal.old_text,
-                            "new_text": proposal.new_text,
-                            "diagnosis": proposal.diagnosis,
-                            "verification": verification,
-                        },
-                        expected_output=(
-                            "A structured patch_verified result from the networkless sandbox."
-                        ),
-                        risk_level=RiskLevel.MEDIUM,
-                    )
-                ],
-                trace_events_to_add=[
-                    StateEvent(
-                        engine_name=definition.name,
-                        event_type="source_patch_proposed",
-                        reasoning_mode=ReasoningMode.EXPLORE,
-                        summary="Bound one proposed edit to admitted source and check artifacts.",
-                        metadata={
-                            "source_uri": source_uri,
-                            "check_uri": check_uri,
-                            "old_text_occurrences_in_excerpt": old_text_occurrences,
-                            "model_calls": result.model_calls,
-                            "context_projection": SOURCE_PATCH_CONTEXT_PROJECTION_VERSION,
-                        },
-                    )
-                ],
-            ),
+        return proposal_observation(
+            proposal, action, state, definition=definition, failure_payload=failure_payload
         )
 
     return FunctionCapability(definition, execute)
+
+
+def proposal_observation(
+    proposal: SourcePatchProposal,
+    action: CognitiveActionCandidate,
+    state: PolyaState,
+    *,
+    definition: CapabilityDefinition,
+    failure_payload: dict[str, JsonValue],
+    origin: HypothesisOrigin = HypothesisOrigin.DIRECT_REASONING,
+) -> CognitiveObservation:
+    """Bind model or recalled candidate to current evidence; never reuse a verdict."""
+    problem = state["structured_problem"]
+    if problem is None:
+        raise ValueError("source patch requires a represented problem")
+    evidence_by_uri = {
+        _base_uri(item.source_uri): item
+        for item in state["evidence"]
+        if item.source_uri is not None and item.source_uri.startswith("file://")
+    }
+    source_uri = _resolve_admitted_uri(proposal.implicated_source_uri, evidence_by_uri)
+    check_uri = _resolve_admitted_uri(proposal.regression_check_uri, evidence_by_uri)
+    if source_uri is None or check_uri is None:
+        raise AuditedCapabilityError(
+            "Source-patch proposal referenced an artifact outside the admitted set.",
+            failure_kind="source_patch_artifact_unadmitted",
+            payload=failure_payload,
+        )
+    source_evidence = evidence_by_uri.get(source_uri)
+    check_evidence = evidence_by_uri.get(check_uri)
+    if source_evidence is None or check_evidence is None or source_uri == check_uri:
+        raise AuditedCapabilityError(
+            "Source-patch proposal did not bind distinct admitted source and check files.",
+            failure_kind="source_patch_artifact_binding_failed",
+            payload=failure_payload,
+        )
+    old_text_occurrences = _executable_excerpt(source_evidence).count(proposal.old_text)
+    if old_text_occurrences != 1:
+        failure_payload["old_text_occurrences_in_excerpt"] = old_text_occurrences
+        raise AuditedCapabilityError(
+            "Source-patch old text was absent or ambiguous in admitted source evidence.",
+            failure_kind="source_patch_edit_not_unique",
+            payload=failure_payload,
+        )
+    report = (
+        f"Proposed diagnosis: {proposal.diagnosis}\n"
+        f"Implicated source: {source_uri}\n"
+        f"Correction: replace {proposal.old_text!r} with {proposal.new_text!r}. "
+        f"{proposal.correction_rationale}\n"
+        f"Regression check: {proposal.regression_check_summary} ({check_uri}).\n"
+        "Scope: the supplied check tests this candidate edit. It does not prove the "
+        "diagnosis, cover all regressions, or independently attest hostile code."
+    )
+    if proposal.remaining_uncertainty:
+        report += "\nRemaining uncertainty: " + "; ".join(proposal.remaining_uncertainty)
+    task_id = "verify-source-patch"
+    verification_paths = (
+        "diagnosis_grounded",
+        "source_admitted",
+        "correction_verified",
+        "check_admitted_and_passed",
+    )
+    if len(problem.success_criteria) != len(verification_paths):
+        raise AuditedCapabilityError(
+            "Source-patch verifier requires the declared four-criterion shape.",
+            failure_kind="source_patch_verification_shape_invalid",
+            payload=failure_payload,
+        )
+    verification: list[dict[str, JsonValue]] = [
+        {
+            "criterion_index": index,
+            "operation": "equals",
+            "actual_path": path,
+            "expected": True,
+        }
+        for index, path in enumerate(verification_paths)
+    ]
+    return CognitiveObservation(
+        action_id=action.id,
+        capability=definition.name,
+        capability_version=definition.version,
+        status=ObservationStatus.SUCCEEDED,
+        summary="Proposed one evidence-bound source edit for isolated verification.",
+        payload=failure_payload,
+        proposed_update=CognitiveStateUpdate(
+            hypotheses_to_add=[
+                Hypothesis(
+                    statement=report,
+                    mechanism=proposal.diagnosis,
+                    origin=origin,
+                    expected_signals=[proposal.regression_check_summary],
+                    evidence_for=[source_uri, check_uri],
+                    verification_checks=[proposal.regression_check_summary],
+                    falsification_criteria=[
+                        "The exact edit is ambiguous or absent from the admitted source.",
+                        "The independently supplied regression check fails in isolation.",
+                    ],
+                    confidence=0.75,
+                    selection_rationale=(
+                        "Selected for present-case execution; confidence cannot increase "
+                        "until the governed check passes."
+                    ),
+                )
+            ],
+            plan_tasks_to_add=[
+                PlanTask(
+                    id=task_id,
+                    action="Apply the exact edit in isolation and run the admitted check.",
+                    tool_name="source_patch_sandbox",
+                    params={
+                        "source_uri": source_uri,
+                        "check_uri": check_uri,
+                        "old_text": proposal.old_text,
+                        "new_text": proposal.new_text,
+                        "diagnosis": proposal.diagnosis,
+                        "verification": verification,
+                    },
+                    expected_output=(
+                        "A structured patch_verified result from the networkless sandbox."
+                    ),
+                    risk_level=RiskLevel.MEDIUM,
+                )
+            ],
+            trace_events_to_add=[
+                StateEvent(
+                    engine_name=definition.name,
+                    event_type="source_patch_proposed",
+                    reasoning_mode=ReasoningMode.EXPLORE,
+                    summary="Bound one proposed edit to admitted source and check artifacts.",
+                    metadata={
+                        "source_uri": source_uri,
+                        "check_uri": check_uri,
+                        "old_text_occurrences_in_excerpt": old_text_occurrences,
+                        "model_calls": failure_payload.get("model_calls", 0),
+                        "context_projection": SOURCE_PATCH_CONTEXT_PROJECTION_VERSION,
+                    },
+                )
+            ],
+        ),
+    )

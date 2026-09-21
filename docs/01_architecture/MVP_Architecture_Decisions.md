@@ -209,3 +209,19 @@ The fused checker remains responsible for verifying substantive findings and
 composing the terminal answer in one call. It must not demand a terminal answer
 before it runs. This clarifies existing stage ownership without adding a synthesis
 call or weakening requirements for facts, analysis, citations or observed execution.
+
+### Chapter 13-P: candidate edit transfer
+
+Reuse a prior verified edit as a hypothesis inside the existing explicit
+source/check workflow. Do not retrieve an earlier final answer or skip current
+execution. Existing procedural metadata and owner-scoped queries hold compact
+versioned lessons; no new database table, embedding index, core contract field
+or learned ranking score is required. One unambiguous exact fragment can avoid
+another proposal-model call, while both baseline and patched source still run
+against the current independent check. Failed transfer remains a failed check.
+
+This first mechanism deliberately stops at exact-fragment reuse. It supplies an
+end-to-end learning measurement before attempting richer structural compilation.
+Stored history and reports still consume storage; the compact lesson size is not
+the product's total storage footprint. Model-call savings on supplied-check tasks
+do not establish general intelligence or superiority over other products.

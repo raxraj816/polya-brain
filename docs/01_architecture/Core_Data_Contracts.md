@@ -526,3 +526,35 @@ substantive findings and references. Prewritten final prose is not a prerequisit
 missing requested analysis, facts or actual execution still reject completion.
 Numbered-heading coverage bonuses exclude unnumbered front matter. Passage
 coverage remains bounded and cannot establish complete semantic coverage.
+
+### Candidate repair memory experiment
+
+`RepairLesson` is experimental procedural metadata, not a canonical knowledge
+claim. Its producer requires a verified/reflected explicit source-check run, a
+failing-original/passing-candidate observation, exact source/check hashes and the
+hash of the actual patched source. It retains one bounded old/new text pair,
+source-session provenance, sandbox version and an integrity digest. The digest
+detects accidental mutation; it is not an authenticity signature.
+
+The owner-scoped memory repository stores the lesson in existing procedural
+steps with zero verified-procedure successes: one successful edit does not
+promote a deployable procedure. Identical versioned edit pairs are deduplicated,
+retaining the first provenance. Recall loads at most twenty recent candidates;
+exactly one distinct edit may match exactly once in the current admitted source.
+Stale, mutated, missing or ambiguous proposals fall back to the ordinary model
+route. `source_patch_memory_proposed` identifies the lesson and current artifacts.
+It never supplies evidence or resolves a verification criterion.
+
+The proposed edit uses the existing plan/sandbox/verifier path. Source/check
+snapshots, consent, budgets and owner isolation remain current-case requirements.
+`source_patch_sandbox@0.3.2` rejects modified verifier expectations and records its
+fixed four bindings for failed checks too. A failed candidate therefore reaches
+the deterministic verifier rather than depending on a model to reject it.
+No variable renaming, arbitrary procedure induction or broad semantic equivalence
+is established. API source/check sessions use persisted memory; the ordinary CLI
+has no automatic repair-memory store in this increment.
+
+Numeric edits can satisfy the same two-term lexical diagnosis check with exact Python
+numeric literals, including at sentence endings. Digits within identifiers and
+prefixes of other decimal literals do not count. This is relevance checking, not
+causal verification; execution against the admitted check remains mandatory.

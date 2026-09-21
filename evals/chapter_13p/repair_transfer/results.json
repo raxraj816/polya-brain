@@ -1,0 +1,438 @@
+{
+  "version": "candidate_repair_transfer_development@0.1.0",
+  "date": "2026-09-21",
+  "model": "openai/gpt-5.6-luna",
+  "conditions": {
+    "search_enabled": false,
+    "new_training": false,
+    "max_model_calls": 6,
+    "fixture_frozen_before_first_live_run": true,
+    "comparator": "Production source/check composition, same supplied evidence and sandbox, no repair lessons"
+  },
+  "limitations": [
+    "Author-created synthetic protocols; not independently held out or real-user preference evidence.",
+    "Only exact edit-fragment reuse is tested; variable renaming and general algorithm learning are outside scope.",
+    "Supplied checks are available to every condition; unseen behavior is not verified.",
+    "Cold is the existing one-model-call source-patch workflow with the same sandbox and evidence, not a benchmark of every competing product.",
+    "Sequential development runs, not an independent benchmark. A later lexical regression fix was checked against the saved proposal, not a new full live run.",
+    "Normalized cost is a scheduling weight, not currency or measured compute. Failed provider usage may be incomplete; zero recorded tokens on a timeout do not imply zero cost.",
+    "Lesson bytes measure only serialized candidate metadata, excluding database, traces, sandbox and underlying model storage.",
+    "Rejected transfers stop safely but may consume model calls in planner recovery; successful alternative repair is not demonstrated.",
+    "Aggregate research and development cost includes an aborted export attempt with unknown usage. No overall cost advantage or universal intelligence is established.",
+    "Raw local artifacts remain under ignored runs/repair-transfer; summaries retain failures without publishing local paths."
+  ],
+  "aborted_attempts": [
+    {
+      "run_id": "2026-09-21-first",
+      "reason": "Export failed because the artifact directory did not exist, after the first runtime invocation. Source/check inputs remain; the in-memory result was lost.",
+      "provider_requests_known": 1,
+      "tokens": null,
+      "elapsed_ms": null,
+      "cost": null
+    }
+  ],
+  "experiments": [
+    {
+      "fixture_sha256": "08c0ec56aa226551a544fd159ad5f495b3cba65627aa5dc1240ba9ed2bbb79d2",
+      "limitations": [
+        "Author-created synthetic protocols; not independently held out or real-user preference evidence.",
+        "Only exact edit-fragment reuse is tested; variable renaming and general algorithm learning are outside scope.",
+        "Supplied checks are available to every condition; unseen behavior is not verified.",
+        "Cold is the existing one-model-call source-patch workflow with the same sandbox and evidence, not a benchmark of every competing product."
+      ],
+      "runs": [
+        {
+          "family": "orbital_packet",
+          "condition": "learn",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1045,
+            "output_tokens": 365,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 20019.54670791747
+          },
+          "elapsed_ms": 20024.29208398098,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": false
+        },
+        {
+          "family": "orbital_packet",
+          "condition": "transfer_cold",
+          "status": "insufficient_evidence",
+          "usage": {
+            "model_calls": 3,
+            "external_calls": 0,
+            "input_tokens": 1120,
+            "output_tokens": 406,
+            "normalized_cost": 0.6300000000000001,
+            "duration_ms": 36205.174333998
+          },
+          "elapsed_ms": 36210.495417006314,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": false
+        },
+        {
+          "family": "orbital_packet",
+          "condition": "transfer_warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 0,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.2,
+            "duration_ms": 410.8501239679754
+          },
+          "elapsed_ms": 414.36641704058275,
+          "memory_proposed": true,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": true
+        },
+        {
+          "family": "orbital_packet",
+          "condition": "incompatible_warm",
+          "status": "needs_input",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 2971,
+            "output_tokens": 199,
+            "normalized_cost": 0.35,
+            "duration_ms": 3424.1142090177163
+          },
+          "elapsed_ms": 3430.010250012856,
+          "memory_proposed": true,
+          "patch_verified": false,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": true
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "learn",
+          "status": "needs_input",
+          "usage": {
+            "model_calls": 2,
+            "external_calls": 0,
+            "input_tokens": 4073,
+            "output_tokens": 849,
+            "normalized_cost": 0.6300000000000001,
+            "duration_ms": 10573.344375006855
+          },
+          "elapsed_ms": 10577.379833033774,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 0,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": false
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "transfer_cold",
+          "status": "insufficient_evidence",
+          "usage": {
+            "model_calls": 2,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.31000000000000005,
+            "duration_ms": 25214.235499093775
+          },
+          "elapsed_ms": 25216.135082999244,
+          "memory_proposed": false,
+          "patch_verified": false,
+          "original_failed": false,
+          "lesson_bytes": 0,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": false
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "transfer_warm",
+          "status": "insufficient_evidence",
+          "usage": {
+            "model_calls": 2,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.31000000000000005,
+            "duration_ms": 26376.217666082084
+          },
+          "elapsed_ms": 26378.04916704772,
+          "memory_proposed": false,
+          "patch_verified": false,
+          "original_failed": false,
+          "lesson_bytes": 0,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": false,
+          "qualification": "Harness ran without a learned lesson; this is not a warm-memory measurement."
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "incompatible_warm",
+          "status": "needs_input",
+          "usage": {
+            "model_calls": 3,
+            "external_calls": 0,
+            "input_tokens": 4228,
+            "output_tokens": 757,
+            "normalized_cost": 0.6300000000000001,
+            "duration_ms": 32305.744415964
+          },
+          "elapsed_ms": 32310.721583024133,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 0,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": false,
+          "qualification": "Harness ran without a learned lesson; this is not a warm-memory measurement."
+        }
+      ],
+      "run_id": "2026-09-21-export-repaired",
+      "sandbox_revision": "0.3.1"
+    },
+    {
+      "fixture_sha256": "08c0ec56aa226551a544fd159ad5f495b3cba65627aa5dc1240ba9ed2bbb79d2",
+      "limitations": [
+        "Author-created synthetic protocols; not independently held out or real-user preference evidence.",
+        "Only exact edit-fragment reuse is tested; variable renaming and general algorithm learning are outside scope.",
+        "Supplied checks are available to every condition; unseen behavior is not verified.",
+        "Cold is the existing one-model-call source-patch workflow with the same sandbox and evidence, not a benchmark of every competing product."
+      ],
+      "runs": [
+        {
+          "family": "orbital_packet",
+          "condition": "learn",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1055,
+            "output_tokens": 429,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6340.994168014731
+          },
+          "elapsed_ms": 6345.8264579530805,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": false
+        },
+        {
+          "family": "orbital_packet",
+          "condition": "transfer_cold",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1130,
+            "output_tokens": 389,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6400.323457084596
+          },
+          "elapsed_ms": 6405.216915998608,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": false
+        },
+        {
+          "family": "orbital_packet",
+          "condition": "transfer_warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 0,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.2,
+            "duration_ms": 367.3430000199005
+          },
+          "elapsed_ms": 371.3677499908954,
+          "memory_proposed": true,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": true
+        },
+        {
+          "family": "orbital_packet",
+          "condition": "incompatible_warm",
+          "status": "needs_input",
+          "usage": {
+            "model_calls": 2,
+            "external_calls": 0,
+            "input_tokens": 6828,
+            "output_tokens": 1266,
+            "normalized_cost": 0.59,
+            "duration_ms": 14785.131543059833
+          },
+          "elapsed_ms": 14791.012000001501,
+          "memory_proposed": true,
+          "patch_verified": false,
+          "original_failed": true,
+          "lesson_bytes": 464,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": true
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "learn",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1065,
+            "output_tokens": 378,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 5140.511916950345
+          },
+          "elapsed_ms": 5144.987792009488,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 474,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": false
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "transfer_cold",
+          "status": "needs_input",
+          "usage": {
+            "model_calls": 2,
+            "external_calls": 0,
+            "input_tokens": 4228,
+            "output_tokens": 912,
+            "normalized_cost": 0.6300000000000001,
+            "duration_ms": 11870.9345839452
+          },
+          "elapsed_ms": 11875.893874967005,
+          "memory_proposed": false,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 474,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": false
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "transfer_warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 0,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.2,
+            "duration_ms": 389.65175102930516
+          },
+          "elapsed_ms": 393.90095794806257,
+          "memory_proposed": true,
+          "patch_verified": true,
+          "original_failed": true,
+          "lesson_bytes": 474,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "memory_available": true
+        },
+        {
+          "family": "meridian_checksum",
+          "condition": "incompatible_warm",
+          "status": "needs_input",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 2994,
+            "output_tokens": 226,
+            "normalized_cost": 0.35,
+            "duration_ms": 3787.9234579741023
+          },
+          "elapsed_ms": 3791.981374961324,
+          "memory_proposed": true,
+          "patch_verified": false,
+          "original_failed": true,
+          "lesson_bytes": 474,
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": true,
+          "memory_available": true
+        }
+      ],
+      "run_id": "2026-09-21-literal-grounding",
+      "sandbox_revision": "0.3.2-before-terminal-period-fix"
+    }
+  ],
+  "persisted_workbench": [
+    {
+      "condition": "learn",
+      "session_id": "52b31a8b-1570-4eec-8cf9-553ef8e7f6e6",
+      "status": "passed",
+      "elapsed_seconds": 5.2966777920373715,
+      "usage": {
+        "model_calls": 1,
+        "external_calls": 0,
+        "input_tokens": 1063,
+        "output_tokens": 377
+      },
+      "memory_proposed": false
+    },
+    {
+      "condition": "transfer",
+      "session_id": "33eb52d3-3822-4444-9cac-ba4783e41d62",
+      "status": "passed",
+      "elapsed_seconds": 0.5922367500024848,
+      "usage": {
+        "model_calls": 0,
+        "external_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "memory_proposed": true
+    }
+  ],
+  "saved_proposal_regression": {
+    "family": "meridian_checksum",
+    "original_condition": "transfer_cold",
+    "original_status": "needs_input",
+    "old_text": "% 256",
+    "new_text": "% 239",
+    "diagnosis": "segment_checksum applies modulo 256, but the supplied MERIDIAN-C rule and regression check require modulo 239.",
+    "current_lexical_check_passed": true,
+    "scope": "Replayed only the deterministic lexical predicate. Original live verdict and resource measurements remain unchanged."
+  }
+}

@@ -612,6 +612,20 @@ class CognitiveController:
 
         if not state["hypotheses"]:
             hypothesis_candidates: list[CognitiveActionCandidate] = []
+            if problem.problem_type == "source_patch_investigation" and registry.supports(
+                "source_patch_recall", CognitiveActionType.HYPOTHESIZE
+            ):
+                hypothesis_candidates.append(
+                    self._candidate(
+                        CognitiveActionType.HYPOTHESIZE,
+                        target=problem.core_question,
+                        purpose="Recall one candidate edit for current-case sandbox verification.",
+                        expected="An unambiguous past edit or an explicit memory miss.",
+                        usefulness=0.95,
+                        registry=registry,
+                        capability="source_patch_recall",
+                    )
+                )
             if deterministic_evidence_attestation_available(state) and registry.supports(
                 "attested_evidence_procedure",
                 CognitiveActionType.HYPOTHESIZE,

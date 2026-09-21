@@ -11,6 +11,7 @@ from typing import Any, Literal, Self
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from app.cognition.bootstrap import build_cognitive_runtime
+from app.cognition.repair_memory import RepairLesson
 from app.cognition.session_runner import CognitiveSessionRunner
 from app.config import Settings
 from app.graph.state import StateEvent
@@ -89,10 +90,12 @@ class SourceCheckSessionRunner:
         metadata: dict[str, Any],
         *,
         progress_writer: Callable[[str, list[StateEvent]], None],
+        repair_lesson_loader: Callable[[], list[RepairLesson]] | None = None,
     ) -> None:
         self.settings = settings
         self.metadata = metadata
         self.progress_writer = progress_writer
+        self.repair_lesson_loader = repair_lesson_loader
 
     def __call__(self, raw_input: str, *, session_id: str) -> SessionExecutionResult:
         if not self.settings.code_execution_enabled:
@@ -108,7 +111,11 @@ class SourceCheckSessionRunner:
             state = source_patch_state(raw_input, source, check, settings)
             state["session_id"] = session_id
             runner = CognitiveSessionRunner(
-                build_cognitive_runtime(settings, enable_source_patch=True),
+                build_cognitive_runtime(
+                    settings,
+                    enable_source_patch=True,
+                    repair_lesson_loader=self.repair_lesson_loader,
+                ),
                 progress_writer=self.progress_writer,
                 initial_state=state,
             )

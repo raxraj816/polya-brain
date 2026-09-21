@@ -131,6 +131,7 @@ def get_session_service(
                 request.app.state.settings,
                 source_input.artifact_metadata,
                 progress_writer=publish_progress,
+                repair_lesson_loader=memory_repository.load_repair_lessons,
             )
             if source_input is not None
             else runner

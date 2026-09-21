@@ -1,0 +1,32 @@
+{
+  "version": "repair_transfer_development@0.1.0",
+  "frozen_before_first_live_run": true,
+  "limitations": [
+    "Author-created synthetic protocols; not independently held out or real-user preference evidence.",
+    "Only exact edit-fragment reuse is tested; variable renaming and general algorithm learning are outside scope.",
+    "Supplied checks are available to every condition; unseen behavior is not verified.",
+    "Cold is the existing one-model-call source-patch workflow with the same sandbox and evidence, not a benchmark of every competing product."
+  ],
+  "families": [
+    {
+      "id": "orbital_packet",
+      "problem": "The supplied ORBIT-R17 protocol specifies seven overhead units plus three units per shard. Repair the accounting implementation and verify the supplied check. This is an invented protocol; use its provided rule.",
+      "source": "def packet_units(shards):\n    # ORBIT-R17: seven overhead units and three units per shard.\n    return 7 + shards\n",
+      "check": "def verify(implementation):\n    for shards in range(0, 31):\n        assert implementation.packet_units(shards) == 7 + 3 * shards\n",
+      "transfer_source": "def batch_units(shards):\n    # ORBIT-R17 batch packing uses the same seven-plus-three rule.\n    if shards < 0:\n        raise ValueError('negative shard count')\n    return 7 + shards\n",
+      "transfer_check": "def verify(implementation):\n    for shards in [0, 1, 9, 37, 255, 10001]:\n        assert implementation.batch_units(shards) == 7 + 3 * shards\n    try:\n        implementation.batch_units(-1)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('negative shard count accepted')\n",
+      "negative_problem": "The new ORBIT-R18 protocol uses seven overhead units plus FIVE units per shard. Repair the code against the new supplied check; an R17 repair does not establish correctness here.",
+      "negative_check": "def verify(implementation):\n    for shards in [0, 1, 9, 37, 255]:\n        assert implementation.batch_units(shards) == 7 + 5 * shards\n"
+    },
+    {
+      "id": "meridian_checksum",
+      "problem": "The supplied MERIDIAN-C protocol defines a checksum as the sum of input values modulo 239. Repair this implementation and verify its check. This protocol is invented; use only the supplied rule.",
+      "source": "def checksum(values):\n    # MERIDIAN-C: sum input values modulo 239.\n    return sum(values) % 256\n",
+      "check": "def verify(implementation):\n    for values in [[], [239], [255], [100, 200], list(range(100))]:\n        assert implementation.checksum(values) == sum(values) % 239\n",
+      "transfer_source": "def segment_checksum(values):\n    # MERIDIAN-C segment packets retain the modulo-239 rule.\n    values = tuple(values)\n    if any(value < 0 for value in values):\n        raise ValueError('negative input')\n    return sum(values) % 256\n",
+      "transfer_check": "def verify(implementation):\n    for values in [[], [238, 1], [257, 17], list(range(57)), [1000001]]:\n        assert implementation.segment_checksum(iter(values)) == sum(values) % 239\n    try:\n        implementation.segment_checksum([-1])\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('negative input accepted')\n",
+      "negative_problem": "The new MERIDIAN-D protocol uses modulo 241. Repair against the new supplied check. Prior modulo-239 success does not establish correctness here.",
+      "negative_check": "def verify(implementation):\n    for values in [[239], [241], [257, 17], list(range(57))]:\n        assert implementation.segment_checksum(values) == sum(values) % 241\n"
+    }
+  ]
+}

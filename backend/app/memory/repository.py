@@ -23,6 +23,7 @@ from app.cognition.procedure_compiler import (
     ProcedureLifecycle,
     procedure_integrity_valid,
 )
+from app.cognition.repair_memory import GAP_TYPE, RepairLesson, learn_repair
 from app.db.models import (
     EpisodicMemory,
     KnowledgeChunk,
@@ -375,9 +376,69 @@ class SQLAlchemyMemoryRepository:
             self._db_session.add(episode)
 
         self._store_compiled_procedure_artifacts(session_id, state)
+        self._store_repair_lesson(session_id, state)
         self._learn_procedures(session_id, state)
         self._db_session.flush()
         return True
+
+    def _store_repair_lesson(self, session_id: UUID, state: PolyaState) -> None:
+        lesson = learn_repair(state)
+        if lesson is None or lesson.source_session_id != str(session_id):
+            return
+        edit_key = hashlib.sha256(
+            repr(
+                (lesson.version, lesson.sandbox_version, lesson.old_text, lesson.new_text)
+            ).encode()
+        ).hexdigest()
+        capability = f"candidate_edit:{edit_key}"
+        existing = self._db_session.scalar(
+            select(ProceduralStrategy).where(
+                ProceduralStrategy.owner_id == self._owner_id,
+                ProceduralStrategy.gap_type == GAP_TYPE,
+                ProceduralStrategy.capability == capability,
+            )
+        )
+        if existing is not None:
+            return
+        self._db_session.add(
+            ProceduralStrategy(
+                owner_id=self._owner_id,
+                name=f"Candidate repair from {session_id}",
+                problem_type="source_patch_investigation",
+                gap_type=GAP_TYPE,
+                action_type=CognitiveActionType.HYPOTHESIZE.value,
+                capability=capability,
+                preconditions=[
+                    "Candidate only; must pass the current supplied check on changed code."
+                ],
+                steps=[{"repair_lesson": lesson.model_dump(mode="json")}],
+                verified_successes=0,
+                verified_failures=0,
+                success_rate=0.0,
+                source_session_ids=[str(session_id)],
+            )
+        )
+
+    def load_repair_lessons(self) -> list[RepairLesson]:
+        """Read at most twenty owner-scoped proposals; never grant execution authority."""
+        rows = self._db_session.scalars(
+            select(ProceduralStrategy)
+            .where(
+                ProceduralStrategy.owner_id == self._owner_id,
+                ProceduralStrategy.gap_type == GAP_TYPE,
+            )
+            .order_by(ProceduralStrategy.updated_at.desc(), ProceduralStrategy.id)
+            .limit(20)
+        )
+        lessons: list[RepairLesson] = []
+        for row in rows:
+            try:
+                lesson = RepairLesson.model_validate(row.steps[0]["repair_lesson"])
+            except ValueError, TypeError, KeyError, IndexError:
+                continue
+            if lesson.valid() and lesson.source_session_id in row.source_session_ids:
+                lessons.append(lesson)
+        return lessons
 
     def _store_compiled_procedure_artifacts(
         self,

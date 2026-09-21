@@ -43,7 +43,7 @@ def source_patch_state(problem: str, source: Path, check: Path, settings: Settin
             "Passing the supplied check does not establish causal correctness or hostile-code attestation.",
         ],
         success_criteria=[
-            "The proposed diagnosis references identifiers in the edit; causal correctness remains unproven.",
+            "The proposed diagnosis references identifiers or numeric literals in the edit; causal correctness remains unproven.",
             "The source matches its complete admitted snapshot.",
             "The original fails and the candidate edit passes the same supplied regression check.",
             "The admitted check completes successfully on the candidate edit.",

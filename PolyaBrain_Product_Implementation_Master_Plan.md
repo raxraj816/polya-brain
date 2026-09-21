@@ -2329,6 +2329,51 @@ explicit: verify the substantive analysis and citations, then compose the answer
 in the same checked output. Missing facts, analysis, or requested execution must
 still fail; absent prewritten prose alone must not cause a research handoff.
 
+Chapter 13-P transfer experiment: connect verified source/check outcomes to the
+next source/check investigation through owner-scoped candidate-edit memory. Learn
+only a bounded exact replacement after the original fails, the candidate passes
+the unchanged supplied check, and final verification/reflection complete. Store
+edit, source/check hashes, capability versions and source-session provenance in
+existing procedural metadata. This is a proposed repair, not promotion of a
+general executable procedure or evidence that the next problem has the same cause.
+
+Recall at most one unambiguous edit whose old text occurs once in the newly
+admitted source. Ambiguous, mutated or version-stale memory must fall back to the
+normal model route. Every recalled proposal goes through current snapshot checks,
+failing-original/passing-candidate sandbox execution and independent deterministic
+verification. A wrong transfer must fail; never copy prior answers, checks or
+permissions. Preserve existing consent, owner isolation and resource budgets.
+
+Evaluate first encounter, changed-code transfer without memory, transfer with
+memory, and an intentionally incompatible check. Freeze tasks before running;
+count learning cost plus reuse cost, actual model tokens, execution and storage.
+Use invented supplied rules to test applying current task information, without
+claiming this rules out pretrained arithmetic or programming knowledge.
+Exact-fragment transfer is narrow: it does not learn arbitrary algorithms, rename
+variables, or establish fresh independent product superiority. Report failures
+and amortization honestly before expanding the mechanism.
+Bind the source/check verifier declarations to the sandbox's fixed four observed
+invariants before execution, and record them for both passing and failing checks.
+Failure must reach deterministic rejection rather than losing its verifier and
+falling back to a semantic verdict. Reject altered expectations or output paths.
+The frozen transfer pilot exposed false rejection of numeric-only repairs by the
+existing identifier-only explanation check. Include exact code numeric literals
+in this lexical relevance check, without treating lexical matches as causal
+proof. Keep missing/unrelated explanations failing and current execution mandatory.
+
+Transfer delivery result: both frozen synthetic families completed related edits
+with zero model requests after one successful learning request. Fresh incompatible
+checks rejected both recalled edits. A persisted API/workbench pair independently
+exercised owner-scoped storage, a new source/check snapshot, and zero-request reuse.
+The cold comparator completed one family and falsely rejected the other on a
+sentence-final numeric literal; preserve that failure despite the later predicate
+repair. All attempts, including an aborted export and provider timeouts, are in
+`evals/chapter_13p/repair_transfer/results.json`; interpretation and reproduction
+are in its README. Validation: 704 backend tests with real PostgreSQL/Docker, no
+skips, plus formatting, lint and strict types. This closes the narrow candidate
+reuse implementation gate only. General semantic transfer, economical recovery,
+independent competitive outcomes and real repeat-use preference remain open.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

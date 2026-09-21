@@ -37,6 +37,7 @@ from app.cognition.model_gateway import CognitiveModelGateway
 from app.cognition.on_demand_capabilities import on_demand_cognitive_capabilities
 from app.cognition.performance import CapabilityPerformanceLedger
 from app.cognition.procedure_compiler import ProcedureCompiler
+from app.cognition.repair_memory import RepairLesson, repair_recall_capability
 from app.cognition.runtime import CognitiveRuntime
 from app.cognition.scope_review import scope_review_capability
 from app.cognition.semantic_broker import (
@@ -75,6 +76,7 @@ def build_cognitive_runtime(
     prior_research_query_count: Callable[[str], int] | None = None,
     semantic_memory: SemanticMemorySearch | None = None,
     procedural_memory: ProceduralPreferenceProvider | None = None,
+    repair_lesson_loader: Callable[[], list[RepairLesson]] | None = None,
     performance_ledger: CapabilityPerformanceLedger | None = None,
     semantic_route_health_ledger: SemanticRouteHealthLedger | None = None,
 ) -> CognitiveRuntime:
@@ -295,6 +297,8 @@ def build_cognitive_runtime(
                 configured_artifact_roots,
             )
         )
+        if repair_lesson_loader is not None:
+            registry.register(repair_recall_capability(repair_lesson_loader))
         if configured_key and configured_model:
             registry.register(
                 source_patch_investigator_capability(

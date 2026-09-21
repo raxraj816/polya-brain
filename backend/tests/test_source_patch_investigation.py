@@ -462,3 +462,40 @@ def test_passing_isolated_patch_enables_zero_call_deterministic_finalization(
     assert final.state["verification"].passed is True
     assert "replace 'output_path' with 'output'" in (final.state["final_answer"] or "")
     assert len(client.requests) == 1
+
+
+def test_sandbox_rejects_self_authorized_verification_expectations(tmp_path):
+    source, check = _fixture_files(tmp_path)
+    client = FakeLLMClient([_proposal_response(source, check)])
+    registry = CapabilityRegistry()
+    registry.register(
+        source_patch_investigator_capability(CognitiveModelGateway(client, "same-fake-model"))
+    )
+    proposed = CognitiveKernel(registry).run(_ready_state(source, check), max_cycles=1).state
+    proposed["plan"][0].params["verification"][2]["expected"] = False
+    registry.register(source_patch_sandbox_capability(DockerPythonSandbox(), [tmp_path]))
+    result = CognitiveKernel(registry).run(proposed, max_cycles=1)
+    assert result.observations[0].failure_kind == "source_patch_boundary_failure"
+    assert not result.state["execution_outputs"]
+
+
+@pytest.mark.parametrize(
+    "diagnosis,expected",
+    [
+        ("The checksum uses 256 instead of the specified 239 modulus.", True),
+        ("The checksum uses 256 but the rule requires 239.", True),
+        ("The network is slow.", False),
+        ("Retry ticket256 on revision239.", False),
+        ("Change 256.5 to 239.5.", False),
+    ],
+)
+def test_numeric_edit_explanations_match_exact_literals(diagnosis, expected):
+    params = SourcePatchTask(
+        source_uri="file:///source.py",
+        check_uri="file:///check.py",
+        old_text="return sum(values) % 256",
+        new_text="return sum(values) % 239",
+        diagnosis=diagnosis,
+        verification=[],
+    )
+    assert _diagnosis_grounded(params) is expected

@@ -20,5 +20,5 @@ def source_patch_checks() -> list[str]:
         "Matched the source and check to their complete admitted snapshots.",
         "Observed the original source fail the supplied regression check.",
         "Observed the candidate edit pass the same supplied regression check.",
-        "Matched proposed diagnosis identifiers to the edited identifiers (lexical check only).",
+        "Matched proposed diagnosis identifiers or numeric literals to the edit (lexical check only).",
     ]

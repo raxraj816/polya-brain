@@ -6,13 +6,14 @@ import json
 import os
 import re
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from app.api.routes.source_check import availability
+from app.auth import require_principal
 from app.config import Settings, get_settings
 from app.db.models import Artifact, PlanTask
 from app.llm import FakeLLMClient, LLMResponse, LLMTokenUsage
@@ -111,6 +112,8 @@ def client():
     if not availability(settings).available:
         pytest.skip("requires configured pinned Docker sandbox")
     with TestClient(create_app(settings)) as client:
+        owner = f"source-check-test-{uuid4()}"
+        client.app.dependency_overrides[require_principal] = lambda: owner
         yield client
 
 
@@ -197,3 +200,39 @@ def test_disabled_source_check_rejects_creation():
     with TestClient(create_app(Settings(_env_file=None, CODE_EXECUTION_ENABLED=False))) as client:
         assert client.get("/api/v1/source-check").json()["available"] is False
         assert client.post("/api/v1/source-check", json=payload()).status_code == 409
+
+
+def test_persisted_repair_is_reused_only_within_owner_and_retested(client, monkeypatch):
+    from app.cognition.repair_memory import EVENT
+    from app.memory import SQLAlchemyMemoryRepository
+
+    fake = DynamicProposal()
+    monkeypatch.setattr("app.cognition.bootstrap.OpenRouterLLMClient.from_settings", lambda _: fake)
+    first = client.post("/api/v1/source-check", json=payload()).json()["id"]
+    assert client.post(f"/api/v1/sessions/{first}/run").status_code == 200
+    assert client.get(f"/api/v1/sessions/{first}/report").json()["verification_status"] == "passed"
+    assert len(fake.requests) == 1
+    owner = client.app.dependency_overrides[require_principal]()
+    with client.app.state.session_factory() as db:
+        db.info["owner_id"] = owner
+        lessons = SQLAlchemyMemoryRepository(db).load_repair_lessons()
+        assert len(lessons) == 1 and lessons[0].source_session_id == first
+        db.info["owner_id"] = "different-test-owner"
+        assert SQLAlchemyMemoryRepository(db).load_repair_lessons() == []
+    second = client.post(
+        "/api/v1/source-check",
+        json=payload(
+            source_code=SOURCE.replace("total", "invoice"),
+            check_code="def verify(implementation):\n    assert implementation.invoice(11, 4) == 44\n",
+        ),
+    ).json()["id"]
+    assert client.post(f"/api/v1/sessions/{second}/run").status_code == 200
+    assert client.get(f"/api/v1/sessions/{second}/report").json()["verification_status"] == "passed"
+    assert len(fake.requests) == 1
+    events = client.get(f"/api/v1/sessions/{second}/events").json()["events"]
+    assert any(
+        e["event_type"] == EVENT and e["metadata"]["source_session_id"] == first for e in events
+    )
+    candidate = client.get(f"/api/v1/sessions/{second}/candidate").json()["candidate"]
+    assert candidate["verification_status"] == "passed"
+    assert "count * unit_price" in candidate["patch"]

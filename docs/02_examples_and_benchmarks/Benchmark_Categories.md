@@ -276,3 +276,21 @@ persisted workbench. HTTP completed after the composition repair; manual review
 found a section-9.3.1 citation whose supporting selected passage was section 6.4.1.
 Preserve this citation-fidelity defect instead of equating runtime status with
 independent correctness. Full-run costs and failed attempts remain in the ledger.
+
+### Candidate repair transfer (Chapter 13-P)
+
+Freeze the two supplied fictional protocol families in
+`evals/chapter_13p/repair_transfer/cases.json` before live execution. Run first
+encounter, related changed-code cold, related changed-code warm and incompatible
+warm conditions. Cold uses the same production one-call proposal path and
+sandbox/check access. Warm receives only the serialized lesson learned from the
+first completed run. It must propose no new model call when exact reuse applies,
+but must rerun the present baseline and candidate checks. Record initial learning
+cost, transfer cost, tokens, time, lesson bytes, unchanged host source and every
+failure. A wrong transfer must have an explicit deterministic failed verdict.
+
+These are author-created development cases, not independent held-out evidence.
+Changed function names, inputs and surrounding guards leave the intended exact
+edit fragment intact; parameter renaming and general program transformation are
+outside the experiment. Real PostgreSQL API tests additionally verify owner
+isolation, persistence and reuse across separate source/check sessions.

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import re
 import subprocess
+import tokenize
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -24,7 +26,7 @@ from app.execution.sandbox import DockerPythonSandbox
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import ContractModel, EvidenceItem, NonEmptyStr, ReasoningMode, RiskLevel
 
-SOURCE_PATCH_SANDBOX_VERSION = "source_patch_sandbox@0.3.0"
+SOURCE_PATCH_SANDBOX_VERSION = "source_patch_sandbox@0.3.2"
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _QUALIFIED_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+")
 
@@ -125,6 +127,22 @@ def _diagnosis_grounded(params: SourcePatchTask) -> bool:
     new_terms = semantic_terms(params.new_text)
     diagnosis_terms = semantic_terms(params.diagnosis)
     edit_context_terms = old_terms | new_terms
+    # Numeric edits may add no identifier. Use exact Python literal tokens, not
+    # incidental digits inside a name, and retain the same two-term lexical gate.
+    literals: set[str] = set()
+    for fragment in (params.old_text, params.new_text):
+        try:
+            for token in tokenize.generate_tokens(io.StringIO(fragment).readline):
+                if token.type == tokenize.NUMBER:
+                    literals.add(token.string)
+        except tokenize.TokenError, IndentationError:
+            continue  # A bounded edit fragment need not be a complete statement.
+    edit_context_terms.update(literals)
+    diagnosis_terms.update(
+        literal
+        for literal in literals
+        if re.search(r"(?<![\w.])" + re.escape(literal) + r"(?!\w|\.\d)", params.diagnosis)
+    )
     return len(edit_context_terms & diagnosis_terms) >= 2
 
 
@@ -159,6 +177,25 @@ def source_patch_sandbox_capability(
             )
         try:
             params = SourcePatchTask.model_validate(task.params)
+            expected_verification = [
+                {
+                    "criterion_index": index,
+                    "operation": "equals",
+                    "actual_path": path,
+                    "expected": True,
+                }
+                for index, path in enumerate(
+                    [
+                        "diagnosis_grounded",
+                        "source_admitted",
+                        "correction_verified",
+                        "check_admitted_and_passed",
+                    ]
+                )
+            ]
+            if params.verification != expected_verification:
+                raise ValueError("Source patch requires its fixed observed verification invariants")
+            validated_declarations = verification_declarations_validated_event(state)
             source_path = _contained_file(params.source_uri, roots)
             check_path = _contained_file(params.check_uri, roots)
             if source_path == check_path or source_path.parent != check_path.parent:
@@ -268,8 +305,7 @@ def source_patch_sandbox_capability(
                 },
             )
         ]
-        if patch_verified:
-            events.append(verification_declarations_validated_event(state))
+        events.append(validated_declarations)
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,
