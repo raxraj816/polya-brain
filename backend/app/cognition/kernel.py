@@ -15,6 +15,7 @@ from app.cognition.contracts import (
     ObservationStatus,
 )
 from app.cognition.controller import CognitiveController
+from app.cognition.repair_recovery import validated_retired_task
 from app.cognition.task_model import (
     USAGE_EVENT,
     CognitiveResourceBudget,
@@ -148,6 +149,18 @@ def apply_cognitive_observation(
     observation: CognitiveObservation,
 ) -> PolyaState:
     """Apply only validated, typed updates from a successful observation."""
+    try:
+        retired_task = validated_retired_task(state, observation)
+    except ValueError:
+        return _append_event(
+            state,
+            StateEvent(
+                engine_name="cognitive_kernel",
+                event_type="repair_supersession_rejected",
+                reasoning_mode=ReasoningMode.VERIFY,
+                summary="Rejected a repair supersession that did not match the current failed task.",
+            ),
+        )
     next_state = dict(state)
     next_state["evidence"] = [*state["evidence"], *observation.evidence]
     next_events = state["events"]
@@ -221,7 +234,10 @@ def apply_cognitive_observation(
         *state["hypotheses"],
         *update.hypotheses_to_add,
     ]
-    next_state["plan"] = [*state["plan"], *update.plan_tasks_to_add]
+    next_state["plan"] = [
+        *[task for task in state["plan"] if task.id != retired_task],
+        *update.plan_tasks_to_add,
+    ]
     next_state["execution_outputs"] = [
         *state["execution_outputs"],
         *update.execution_outputs_to_add,

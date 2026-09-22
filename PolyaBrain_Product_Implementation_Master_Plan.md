@@ -2374,6 +2374,29 @@ skips, plus formatting, lint and strict types. This closes the narrow candidate
 reuse implementation gate only. General semantic transfer, economical recovery,
 independent competitive outcomes and real repeat-use preference remain open.
 
+Chapter 13-P recovery increment: after a recalled edit is deterministically
+rejected, route once to the existing source-patch proposer with the current rule,
+admitted source/check and rejected edit/check feedback. It must propose a different
+candidate against the original snapshot. The trusted adapter may supersede the
+single failed active task, archiving its complete plan in trace metadata and
+retaining its execution output and historical failed verification. Use a new task
+ID so no previous result or verification binding can satisfy the replacement.
+Do not change source/check admission, success criteria, permissions or budgets.
+Reject duplicate edits and repeated recovery; unavailable models, exhaustion or
+another failed check must remain honest stops. Only the accepted current repair
+may appear in the candidate diff or become a lesson. Prove recovery on both
+preserved incompatible protocol cases, plus unchanged-check, stale-binding,
+no-model, repeated-edit and exhausted-budget negatives. No new core state field
+is needed: start supersession as validated adapter metadata in the existing trace.
+
+Recovery delivery: both preserved incompatible protocol cases now record a failed
+recalled candidate followed by a successful replacement, using one model request
+each (1,842 and 1,836 tokens). A persisted workbench run also passes with one
+request and 1,861 tokens, with the correct replacement diff. Prior failures are
+retained in the ledger. All 716 backend tests pass with PostgreSQL and Docker,
+including invalid supersession, budget, duplicate-edit and second-failure cases.
+These known-case results close the bounded recovery implementation gate only.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

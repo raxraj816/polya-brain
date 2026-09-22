@@ -25,11 +25,20 @@ def settings(root):
     )
 
 
-def run(root, monkeypatch, source=SOURCE, check=CHECK, lessons=(), model=True):
+def run(
+    root,
+    monkeypatch,
+    source=SOURCE,
+    check=CHECK,
+    lessons=(),
+    model=True,
+    replacement="count * unit_price",
+    max_model_calls=None,
+):
     root.mkdir(parents=True)
     (root / "source.py").write_text(source)
     (root / "check.py").write_text(check)
-    fake = DynamicProposal()
+    fake = DynamicProposal(replacement)
     monkeypatch.setattr("app.cognition.bootstrap.OpenRouterLLMClient.from_settings", lambda _: fake)
     config = settings(root)
     if not model:
@@ -41,6 +50,8 @@ def run(root, monkeypatch, source=SOURCE, check=CHECK, lessons=(), model=True):
             ARTIFACT_ALLOWED_ROOTS=str(root),
             CODE_EXECUTION_ENABLED=True,
         )
+    if max_model_calls is not None:
+        config = config.model_copy(update={"cognitive_max_model_calls": max_model_calls})
     state = source_patch_state(
         "Repair the supplied function according to its independent check.",
         root / "source.py",

@@ -187,7 +187,7 @@ def test_controller_selects_one_call_source_patch_proposal(tmp_path: Path) -> No
         "projection_version",
         "success_criteria",
     }
-    assert projected["projection_version"] == "source_patch_context@0.2.0"
+    assert projected["projection_version"] == "source_patch_context@0.3.0"
     assert len(projected["admitted_evidence"]) == 2
     assert "Investigate the explicit Python failure" not in json.dumps(projected)
 

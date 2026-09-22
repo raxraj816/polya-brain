@@ -294,3 +294,15 @@ Changed function names, inputs and surrounding guards leave the intended exact
 edit fragment intact; parameter renaming and general program transformation are
 outside the experiment. Real PostgreSQL API tests additionally verify owner
 isolation, persistence and reuse across separate source/check sessions.
+
+Recovery follow-up: replay the same incompatible ORBIT-R18 and MERIDIAN-D cases
+with their previously serialized lessons. Require a failed recalled edit followed
+by a distinct successful candidate using the unchanged source/check snapshots.
+Count both sandbox attempts and the one proposal-model request; keep the original
+failed verdict and plan in the trace. Validate current-candidate reporting, diff
+export and learning through the real persisted API. Negative tests cover no model,
+exhausted budgets, vacuous checks, repeated or equivalent edits, a second failing
+candidate, stale task IDs, changed bindings, forged history and injected verdicts.
+The successful known-case replays are recorded separately in
+`evals/chapter_13p/repair_transfer/recovery-results.json`; they do not relabel old
+failures or establish held-out reliability.

@@ -236,3 +236,40 @@ def test_persisted_repair_is_reused_only_within_owner_and_retested(client, monke
     candidate = client.get(f"/api/v1/sessions/{second}/candidate").json()["candidate"]
     assert candidate["verification_status"] == "passed"
     assert "count * unit_price" in candidate["patch"]
+
+
+def test_rejected_persisted_repair_recovers_and_exports_only_current_candidate(client, monkeypatch):
+    from app.cognition.repair_recovery import EVENT
+    from app.memory import SQLAlchemyMemoryRepository
+
+    fake = DynamicProposal()
+    monkeypatch.setattr("app.cognition.bootstrap.OpenRouterLLMClient.from_settings", lambda _: fake)
+    first = client.post("/api/v1/source-check", json=payload()).json()["id"]
+    assert client.post(f"/api/v1/sessions/{first}/run").status_code == 200
+    assert client.get(f"/api/v1/sessions/{first}/report").json()["verification_status"] == "passed"
+    fake.replacement = "count - unit_price"
+    second = client.post(
+        "/api/v1/source-check",
+        json=payload(
+            raw_input="The revised billing rule is count minus unit_price; repair against the current check.",
+            check_code="def verify(implementation):\n    assert implementation.total(11, 4) == 7\n",
+        ),
+    ).json()["id"]
+    assert client.post(f"/api/v1/sessions/{second}/run").status_code == 200
+    report = client.get(f"/api/v1/sessions/{second}/report").json()
+    assert report["verification_status"] == "passed"
+    assert len(fake.requests) == 2
+    candidate = client.get(f"/api/v1/sessions/{second}/candidate").json()["candidate"]
+    assert candidate["verification_status"] == "passed"
+    assert "+    return count - unit_price" in candidate["patch"]
+    assert "count * unit_price" not in candidate["patch"]
+    events = client.get(f"/api/v1/sessions/{second}/events", params={"limit": 200}).json()["events"]
+    assert any(e["event_type"] == EVENT for e in events)
+    assert any(e["event_type"] == "verification_invalidated" for e in events)
+    with client.app.state.session_factory() as db:
+        db.info["owner_id"] = client.app.dependency_overrides[require_principal]()
+        lessons = SQLAlchemyMemoryRepository(db).load_repair_lessons()
+        assert any(
+            lesson.source_session_id == second and lesson.new_text == "count - unit_price"
+            for lesson in lessons
+        )

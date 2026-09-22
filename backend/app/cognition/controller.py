@@ -20,6 +20,8 @@ from app.cognition.contracts import (
 from app.cognition.epistemic_control import derive_epistemic_status
 from app.cognition.evidence_closure import deterministic_evidence_attestation_available
 from app.cognition.performance import AdaptiveActionEstimate
+from app.cognition.repair_recovery import EVENT as REPAIR_RECOVERY_EVENT
+from app.cognition.repair_recovery import recalled_failure_task
 from app.cognition.scope_review import scope_review_available
 from app.cognition.task_model import (
     accumulated_usage,
@@ -32,7 +34,7 @@ from app.cognition.verification_research import needs_recovery_analysis
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.4"
+POLICY_VERSION = "cognitive-controller-v0.5.5"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -773,6 +775,25 @@ class CognitiveController:
             return verification_candidates
 
         if not state["verification"].passed:
+            if recalled_failure_task(state) is not None:
+                return [
+                    self._candidate(
+                        CognitiveActionType.REPLAN,
+                        target=problem.core_question,
+                        purpose="Propose a different edit after the recalled candidate failed the current check.",
+                        expected="One new candidate for fresh baseline and candidate execution.",
+                        usefulness=0.9,
+                        registry=registry,
+                        capability="source_patch_investigator",
+                    )
+                ]
+            if any(
+                e.event_type in {REPAIR_RECOVERY_EVENT, "source_patch_memory_proposed"}
+                for e in state["events"]
+            ):
+                return [
+                    self._stop_candidate(registry, "bounded repair recovery failed verification")
+                ]
             return [
                 self._candidate(
                     CognitiveActionType.REPLAN,

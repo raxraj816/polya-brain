@@ -25,6 +25,7 @@ from app.cognition.contracts import (
     CognitiveStateUpdate,
     ObservationStatus,
 )
+from app.cognition.source_patch_report import source_patch_conclusion
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import (
     ContractModel,
@@ -39,7 +40,7 @@ from app.models.contracts import (
 VERIFIER_SUITE_EVENT = "verifier_suite_synthesized"
 VERIFIER_RESULT_EVENT = "verifier_suite_executed"
 VERIFIER_DECLARATION_EVENT = "verification_declarations_validated"
-VERIFIER_FACTORY_VERSION = "verifier-factory@0.1.0"
+VERIFIER_FACTORY_VERSION = "verifier-factory@0.1.1"
 
 
 class VerifierKind(StrEnum):
@@ -675,6 +676,15 @@ def verifier_factory_capability() -> FunctionCapability:
             metadata=result.model_dump(mode="json"),
         )
         hypothesis = state["hypotheses"][0].statement if len(state["hypotheses"]) == 1 else None
+        problem = state["structured_problem"]
+        if (
+            result.passed
+            and problem is not None
+            and problem.problem_type == "source_patch_investigation"
+            and len(state["plan"]) == 1
+            and state["plan"][0].tool_name == "source_patch_sandbox"
+        ):
+            hypothesis = source_patch_conclusion(state["plan"][0].params)
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,

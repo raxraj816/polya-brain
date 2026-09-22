@@ -225,3 +225,19 @@ end-to-end learning measurement before attempting richer structural compilation.
 Stored history and reports still consume storage; the compact lesson size is not
 the product's total storage footprint. Model-call savings on supplied-check tasks
 do not establish general intelligence or superiority over other products.
+
+### Chapter 13-P: recover from a rejected memory edit
+
+A measured failed transfer now routes to the existing source-patch proposer once,
+rather than to the generic planner that asked for execution evidence despite an
+available sandbox. The replacement targets the original admitted source. Retire
+only the failed active plan task after validating trace metadata at the kernel
+boundary; retain its full plan, observed output and historical failed verification.
+A unique replacement task ID prevents old execution/verifier bindings from passing
+the new repair. No permission, criterion or resource budget is reset.
+
+The current candidate owns final reporting and learning after its independent
+checks pass. A duplicate or second failed proposal, vacuous original check, missing
+model or exhausted allowance cannot become success. Two known protocol failures
+now recover in one model request each; this closes a narrow recovery defect, not
+the broader unseen-task or competitive-value gates.

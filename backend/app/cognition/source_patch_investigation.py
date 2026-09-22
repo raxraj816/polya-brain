@@ -19,6 +19,7 @@ from app.cognition.contracts import (
     ObservationStatus,
 )
 from app.cognition.model_gateway import CognitiveModelGateway
+from app.cognition.repair_recovery import recalled_failure_task, supersession_event
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import (
     ContractModel,
@@ -31,8 +32,8 @@ from app.models.contracts import (
     RiskLevel,
 )
 
-SOURCE_PATCH_INVESTIGATOR_VERSION = "source_patch_investigator@0.2.0"
-SOURCE_PATCH_CONTEXT_PROJECTION_VERSION = "source_patch_context@0.2.0"
+SOURCE_PATCH_INVESTIGATOR_VERSION = "source_patch_investigator@0.3.0"
+SOURCE_PATCH_CONTEXT_PROJECTION_VERSION = "source_patch_context@0.3.0"
 
 
 class SourcePatchProposal(ContractModel):
@@ -113,7 +114,7 @@ def _source_patch_state_projection(
         }
         for uri, item in evidence_by_uri.items()
     ]
-    return {
+    projection: dict[str, JsonValue] = {
         "projection_version": SOURCE_PATCH_CONTEXT_PROJECTION_VERSION,
         "problem": problem.core_question,
         "observed_failure": _failure_observation(state["raw_input"]),
@@ -121,6 +122,11 @@ def _source_patch_state_projection(
         "success_criteria": list(problem.success_criteria),
         "admitted_evidence": admitted_evidence,
     }
+    rejected = recalled_failure_task(state)
+    if rejected is not None and state["verification"] is not None:
+        projection["rejected_edit"] = rejected.model_dump(mode="json")
+        projection["failed_checks"] = list(state["verification"].failed_checks)
+    return projection
 
 
 def source_patch_investigator_capability(
@@ -134,7 +140,7 @@ def source_patch_investigator_capability(
     definition = CapabilityDefinition(
         name="source_patch_investigator",
         version=gateway.capability_version(SOURCE_PATCH_INVESTIGATOR_VERSION),
-        supported_actions={CognitiveActionType.HYPOTHESIZE},
+        supported_actions={CognitiveActionType.HYPOTHESIZE, CognitiveActionType.REPLAN},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
         estimated_cost=0.28,
@@ -148,6 +154,11 @@ def source_patch_investigator_capability(
         action: CognitiveActionCandidate,
         state: PolyaState,
     ) -> CognitiveObservation:
+        if (
+            action.action_type is CognitiveActionType.REPLAN
+            and recalled_failure_task(state) is None
+        ):
+            raise ValueError("Source-patch recovery requires a measured rejected memory edit")
         problem = state["structured_problem"]
         if problem is None or problem.problem_type not in {
             "field_derived_technical_investigation",
@@ -171,7 +182,10 @@ def source_patch_investigator_capability(
                 "source excerpt; new_text must be its smallest semantic correction. Do not "
                 "include line-number prefixes in old_text or new_text. The check must be an "
                 "independent admitted Python artifact. State uncertainty honestly. Do not claim "
-                "the edit or check was executed; a governed sandbox owns that step."
+                "the edit or check was executed; a governed sandbox owns that step. "
+                "If rejected_edit is present, its candidate failed the current supplied check. "
+                "Use that feedback to propose a different edit against the ORIGINAL source; "
+                "do not repeat the rejected edit or ask for execution evidence the sandbox can obtain."
             ),
             output_type=SourcePatchProposal,
             state=state,
@@ -188,9 +202,18 @@ def source_patch_investigator_capability(
             "model_calls": result.model_calls,
             "route_attempts": [item.model_dump(mode="json") for item in result.route_attempts],
         }
-        return proposal_observation(
+        observation = proposal_observation(
             proposal, action, state, definition=definition, failure_payload=failure_payload
         )
+        if action.action_type is CognitiveActionType.REPLAN:
+            try:
+                event = supersession_event(state, observation.proposed_update.plan_tasks_to_add[0])
+            except ValueError as exc:
+                raise AuditedCapabilityError(
+                    str(exc), failure_kind="source_patch_recovery_invalid", payload=failure_payload
+                ) from exc
+            observation.proposed_update.trace_events_to_add.append(event)
+        return observation
 
     return FunctionCapability(definition, execute)
 
@@ -248,7 +271,11 @@ def proposal_observation(
     )
     if proposal.remaining_uncertainty:
         report += "\nRemaining uncertainty: " + "; ".join(proposal.remaining_uncertainty)
-    task_id = "verify-source-patch"
+    task_id = (
+        "verify-source-patch-recovery"
+        if action.action_type is CognitiveActionType.REPLAN
+        else "verify-source-patch"
+    )
     verification_paths = (
         "diagnosis_grounded",
         "source_admitted",

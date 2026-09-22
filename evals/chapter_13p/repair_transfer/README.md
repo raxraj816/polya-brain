@@ -78,3 +78,30 @@ Next evidence needed: unseen task families, semantic changes that cannot reuse
 the same text, economical recovery after rejected transfer, and repeat-use value
 against a strong direct-model workflow. Online acquisition reliability and exact
 citation fidelity remain separate open gates recorded in Chapter 13-P.
+
+## Bounded recovery follow-up
+
+The next revision repairs the failed-transfer handoff exposed above. A rejected
+recalled edit now supplies feedback to one new model proposal. The original source
+and current check stay unchanged; the replacement receives a new task ID and
+fresh baseline/candidate execution. The prior failed task and verdict remain
+historical trace data. Repeated edits, a second failure or exhausted resources
+stop without claiming success.
+
+Both preserved incompatible cases now complete: ORBIT-R18 used one request,
+1,842 recorded tokens and 5.611 seconds; MERIDIAN-D used one request, 1,836 tokens
+and 6.007 seconds. Each recorded patch verdicts `[false, true]` and learned only
+the new successful replacement. A separate persisted ORBIT workbench run also
+recorded `[false, true]`, one request, 1,861 tokens and 9.880 seconds, with the
+correct new diff visible in the browser. See `recovery-results.json`.
+
+```sh
+PYTHONPATH=backend .venv/bin/python -m evals.chapter_13p.repair_transfer.recovery --lessons-root runs/repair-transfer/2026-09-21-literal-grounding --output runs/repair-transfer/new-recovery-run
+```
+
+The lesson directory contains prior successful serialized lessons produced by
+`run.py` and must match the current lesson/sandbox versions. This replay measures
+recovery on known failures; it excludes prior learning cost from its per-run
+measurements and makes no cost-superiority claim. Conflicting learned edits can
+make future exact recall ambiguous, triggering the ordinary model path. The
+unseen-task, structural-transfer and repeat-use gates remain open.

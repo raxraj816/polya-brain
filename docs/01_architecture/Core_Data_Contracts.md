@@ -558,3 +558,23 @@ Numeric edits can satisfy the same two-term lexical diagnosis check with exact P
 numeric literals, including at sentence endings. Digits within identifiers and
 prefixes of other decimal literals do not count. This is relevance checking, not
 causal verification; execution against the admitted check remains mandatory.
+
+### Bounded repair recovery metadata
+
+`source_patch_recovery@0.1.0` uses `source_patch_recovery_proposed` trace metadata
+for one supersession after a recalled edit fails deterministic verification. The
+source-patch adapter produces the complete retired and replacement tasks; the
+kernel independently validates the producer, failed state, exact unchanged
+source/check/verifier bindings, new task ID and genuinely different candidate
+source. Other state changes or injected verdicts invalidate the supersession.
+It removes only the retired active task, retains execution/hypothesis history,
+and archives failed verification through the existing invalidation mechanism.
+
+The existing proposer (`source_patch_investigator@0.3.0`, context `0.3.0`) receives
+the rejected edit and failed checks only during recovery. It cannot edit the
+check or publish a verdict. Fresh sandbox execution must revalidate all four
+criteria. The verifier (`verifier-factory@0.1.1`) composes the source/check answer
+from the verified current task, so multiple historical hypotheses do not suppress
+the final answer or cause the wrong edit to become a lesson. No new core field or
+database migration is introduced. Supersession is experimental adapter metadata,
+not general authority to remove plan tasks.
