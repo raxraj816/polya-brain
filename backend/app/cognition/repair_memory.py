@@ -21,11 +21,14 @@ from app.cognition.source_patch_investigation import (
     SourcePatchProposal,
     proposal_observation,
 )
+from app.cognition.structural_repair import VERSION as STRUCTURAL_VERSION
+from app.cognition.structural_repair import structural_candidates
 from app.execution.source_patch import SOURCE_PATCH_SANDBOX_VERSION, SourcePatchTask
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import ContractModel, HypothesisOrigin, NonEmptyStr, ReasoningMode
 
 VERSION = "candidate_repair_memory@0.1.0"
+RECALL_VERSION = "candidate_repair_memory@0.2.0"
 CAPABILITY = "source_patch_recall"
 GAP_TYPE = "candidate_source_edit"
 EVENT = "source_patch_memory_proposed"
@@ -141,7 +144,7 @@ def repair_recall_capability(
 ) -> FunctionCapability:
     definition = CapabilityDefinition(
         name=CAPABILITY,
-        version=VERSION,
+        version=RECALL_VERSION,
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         kind=CapabilityKind.MEMORY,
         estimated_cost=0.01,
@@ -154,7 +157,7 @@ def repair_recall_capability(
             return CognitiveObservation(
                 action_id=action.id,
                 capability=CAPABILITY,
-                capability_version=VERSION,
+                capability_version=RECALL_VERSION,
                 status=ObservationStatus.INCONCLUSIVE,
                 summary=reason,
                 failure_kind="no_unambiguous_repair_lesson",
@@ -181,27 +184,47 @@ def repair_recall_capability(
         )
         if not source or not source_uri or not check_uri or source_uri == check_uri:
             return miss("Complete, distinct current source/check snapshots are required.")
+        lessons = [
+            lesson
+            for lesson in list(loader())[:20]
+            if lesson.valid() and lesson.source_session_id != state["session_id"]
+        ]
         matches = {
             (lesson.old_text, lesson.new_text): lesson
-            for lesson in list(loader())[:20]
-            if lesson.valid()
-            and lesson.source_session_id != state["session_id"]
-            and source.count(lesson.old_text) == 1
+            for lesson in lessons
+            if source.count(lesson.old_text) == 1
         }
-        if len(matches) != 1:
-            return miss("No unique compatible candidate edit; use normal investigation.")
-        lesson = next(iter(matches.values()))
+        names: dict[str, str] = {}
+        transfer_kind = "exact"
+        if not matches:
+            adapted = {}
+            for lesson in lessons:
+                candidates = structural_candidates(source, lesson.old_text, lesson.new_text)
+                if candidates is None:
+                    return miss(
+                        "Structural repair matches multiple sites; use normal investigation."
+                    )
+                for candidate in candidates:
+                    adapted[(candidate.old_text, candidate.new_text)] = (lesson, candidate.names)
+            if len(adapted) != 1:
+                return miss("No unique structural repair candidate; use normal investigation.")
+            (old_text, new_text), (lesson, names) = next(iter(adapted.items()))
+            transfer_kind = "alpha_expression"
+        else:
+            if len(matches) != 1:
+                return miss("No unique compatible candidate edit; use normal investigation.")
+            (old_text, new_text), lesson = next(iter(matches.items()))
         observation = proposal_observation(
             SourcePatchProposal(
-                diagnosis=f"Memory suggests testing replacement of {lesson.old_text!r} with {lesson.new_text!r}; the present cause is unproven.",
+                diagnosis=f"Memory suggests testing replacement of {old_text!r} with {new_text!r}; the present cause is unproven.",
                 implicated_source_uri=source_uri,
-                old_text=lesson.old_text,
-                new_text=lesson.new_text,
-                correction_rationale="This edit passed a different source/check task; transfer is a hypothesis only.",
+                old_text=old_text,
+                new_text=new_text,
+                correction_rationale="A prior verified edit suggests this candidate; current transfer remains unverified.",
                 regression_check_uri=check_uri,
                 regression_check_summary="Run the current supplied check on both original and candidate snapshots.",
                 remaining_uncertainty=[
-                    "Exact text matching does not establish equivalent semantics or general correctness."
+                    "Exact or structural matching does not establish equivalent semantics, types or general correctness."
                 ],
             ),
             action,
@@ -217,7 +240,10 @@ def repair_recall_capability(
                 reasoning_mode=ReasoningMode.EXPLORE,
                 summary="Recalled a candidate edit; current execution and verification remain mandatory.",
                 metadata={
-                    "version": VERSION,
+                    "version": RECALL_VERSION,
+                    "transfer_kind": transfer_kind,
+                    "name_mapping": {key: value for key, value in names.items()},
+                    "pattern_version": STRUCTURAL_VERSION if names else None,
                     "source_session_id": lesson.source_session_id,
                     "lesson_hash": lesson.integrity_hash,
                     "current_source_uri": source_uri,

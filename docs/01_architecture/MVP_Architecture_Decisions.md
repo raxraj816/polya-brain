@@ -241,3 +241,15 @@ checks pass. A duplicate or second failed proposal, vacuous original check, miss
 model or exhausted allowance cannot become success. Two known protocol failures
 now recover in one model request each; this closes a narrow recovery defect, not
 the broader unseen-task or competitive-value gates.
+
+### Chapter 13-P: expression-level transfer
+
+Frozen renamed-variable cases showed that exact memory still spent one model
+request per transfer. Add a bounded syntax adapter over existing verified edit
+fragments, after exact matching misses. It can move an expression repair from a
+return statement into an assignment and consistently rename its variables.
+It adds no model call, persisted contract or dependency. Unsupported or ambiguous
+patterns use the ordinary route. Verification and bounded failed-transfer recovery
+remain unchanged. Three development families now reuse with zero requests; their
+incompatible rules reject the reused edit and recover with one request each.
+This is a limited structural generalization, not arbitrary procedural learning.

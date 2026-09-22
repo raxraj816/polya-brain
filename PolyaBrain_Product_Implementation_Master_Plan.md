@@ -2397,6 +2397,39 @@ retained in the ledger. All 716 backend tests pass with PostgreSQL and Docker,
 including invalid supersession, budget, duplicate-edit and second-failure cases.
 These known-case results close the bounded recovery implementation gate only.
 
+Chapter 13-P structural transfer experiment: freeze three new source/check
+families before implementation and measure cold versus existing-memory transfer.
+The baseline repeats model work when names and statement context change. When no
+exact lesson matches, derive an expression rewrite from an existing verified
+old/new fragment without new training or a new persisted contract. Match Python
+syntax with consistent one-to-one identifier substitution; retain literal values
+and operator shape. Support only bounded expressions built from names, constants,
+arithmetic, comparisons and boolean operators. Exclude calls, attributes, indexing,
+bindings and unsupported syntax. The replacement may use only names already in
+the old pattern; wrap the replacement to preserve surrounding precedence.
+
+Require one unambiguous occurrence across candidate lessons and current source.
+Multiple possible sites or competing replacements fall back to the ordinary
+model route. Record pattern version and name mapping as experimental trace detail.
+This is syntactic transfer, not type inference, semantic equivalence or arbitrary
+procedure induction. Existing sandbox checks, budget admission, failure recovery
+and learning gates apply unchanged. Compare frozen before/after runs, count initial
+learning cost, retain failures and test incompatible rules, ambiguous matches,
+unsupported syntax, scope/capture hazards and unchanged host source.
+
+Structural delivery: all three frozen families required one model request per
+transfer with the prior exact-memory path; all three now complete adapted
+transfer with zero requests and fresh sandbox checks. Every incompatible-rule
+variant rejects the adapted edit and recovers with one new model proposal. A
+persisted boolean-task pair also records zero-request renamed-expression reuse.
+Initial learning plus one related transfer per family totals 4,299 recorded
+tokens with adaptation versus 8,722 with cold transfer, excluding other development
+runs. The full ledger and scope are in
+`evals/chapter_13p/repair_transfer/structural-results.json`. All 742 backend tests
+pass with PostgreSQL and Docker. This establishes bounded syntactic adaptation
+on small author-created cases; independent usefulness, rich semantic transfer
+and broad competitive advantage remain open.
+
 #### Chapter 13-L: Investigator Runtime Delivery
 
 Status: local runtime delivery gate complete. Deliver the proven runtime through the local product

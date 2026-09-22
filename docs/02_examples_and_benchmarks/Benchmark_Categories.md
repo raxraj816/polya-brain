@@ -306,3 +306,14 @@ candidate, stale task IDs, changed bindings, forged history and injected verdict
 The successful known-case replays are recorded separately in
 `evals/chapter_13p/repair_transfer/recovery-results.json`; they do not relabel old
 failures or establish held-out reliability.
+
+Structural follow-up: `repair_transfer/structural-cases.json` freezes billing,
+inclusive-threshold and two-required-flag tasks before implementation. Compare
+first learning, cold transfer, prior exact-memory transfer, and expression-adapted
+transfer after changing names and statement context. Preserve the same independent
+checks and run incompatible-rule variants. Count initial learning separately from
+reuse and retain all runs in `structural-results.json`. Reject unsupported calls,
+attributes, indexing, introduced names/bindings, inconsistent name substitutions,
+literal type/value changes, duplicate text, ambiguous sites and resource overflow.
+Check precedence and Unicode spans plus persisted API reuse. These are new
+author-created development families, not independently held-out comparisons.

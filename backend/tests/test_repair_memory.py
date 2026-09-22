@@ -153,3 +153,43 @@ def test_failed_or_unbound_work_cannot_be_learned(learned, failure):
             ):
                 event.metadata["capability_version"] = "obsolete"
     assert learn_repair(state) is None
+
+
+def test_renamed_expression_transfers_without_configured_model(tmp_path, monkeypatch, learned):
+    _, lesson = learned
+    source = "def invoice(units, rate):\n    if units < 0:\n        raise ValueError('negative units')\n    value = units + rate\n    return value\n"
+    check = "def verify(implementation):\n    assert implementation.invoice(11, 4) == 44\n    assert implementation.invoice(0, 9) == 0\n"
+    result, fake = run(tmp_path / "renamed", monkeypatch, source, check, [lesson], model=False)
+    assert result.status is CognitiveRunStatus.COMPLETED
+    assert not fake.requests and accumulated_usage(result.state).model_calls == 0
+    event = next(e for e in result.state["events"] if e.event_type == EVENT)
+    assert event.metadata["transfer_kind"] == "alpha_expression"
+    assert event.metadata["name_mapping"] == {"count": "units", "unit_price": "rate"}
+    assert result.state["execution_outputs"][0].output["baseline_failed"] is True
+    assert learn_repair(result.state).old_text == "units + rate"
+
+
+def test_wrong_structural_transfer_fails_current_check(tmp_path, monkeypatch, learned):
+    _, lesson = learned
+    result, _ = run(
+        tmp_path / "wrong-renamed",
+        monkeypatch,
+        "def invoice(units, rate):\n    return units + rate\n",
+        "def verify(implementation):\n    assert implementation.invoice(11, 4) == 7\n",
+        [lesson],
+        model=False,
+    )
+    assert any(e.event_type == EVENT for e in result.state["events"])
+    assert result.status is not CognitiveRunStatus.COMPLETED
+    assert not result.state["verification"].passed
+    assert learn_repair(result.state) is None
+
+
+def test_multiple_structural_sites_do_not_choose_arbitrarily(tmp_path, monkeypatch, learned):
+    _, lesson = learned
+    source = "def invoice(a, b, c, d):\n    return (a + b, c + d)\n"
+    result, _ = run(
+        tmp_path / "ambiguous-renamed", monkeypatch, source, CHECK, [lesson], model=False
+    )
+    assert not any(e.event_type == EVENT for e in result.state["events"])
+    assert result.status is not CognitiveRunStatus.COMPLETED

@@ -578,3 +578,27 @@ from the verified current task, so multiple historical hypotheses do not suppres
 the final answer or cause the wrong edit to become a lesson. No new core field or
 database migration is introduced. Supersession is experimental adapter metadata,
 not general authority to remove plan tasks.
+
+### Structural candidate adaptation
+
+Recall capability `candidate_repair_memory@0.2.0` keeps the serialized lesson at
+version `0.1.0`. Existing valid lessons remain usable; no storage migration or new
+core field is introduced. When no exact edit matches, the optional
+`expression_repair_transfer@0.1.0` adapter parses an old/new expression (or single
+return statement) into bounded Python syntax. It matches names bijectively while
+holding operators and typed literal values fixed, then substitutes only matched
+names into the new expression. Parentheses preserve surrounding precedence.
+
+Patterns allow names, constants, arithmetic, unary/boolean operations and
+comparisons; calls, attributes, subscriptions and binding constructs inside the
+pattern are unsupported. Limits are 800 characters per fragment, 128 pattern
+nodes, 100,000 source characters, 4,096 source nodes and twenty loaded lessons.
+Ambiguous syntax sites, duplicate source text and competing candidates cause a
+memory miss. Exact-match ambiguity cannot fall through to looser matching.
+
+The existing proposal event carries `transfer_kind`, `pattern_version` and
+`name_mapping`. These are experimental audit metadata, not correctness signals.
+The adapter neither executes code nor reads the check to manufacture a pass.
+Current sandbox execution and independent verification still own acceptance.
+Python operator overloading and semantic role differences are not inferred by
+syntax; a match remains a hypothesis limited by the supplied check's coverage.

@@ -105,3 +105,46 @@ recovery on known failures; it excludes prior learning cost from its per-run
 measurements and makes no cost-superiority claim. Conflicting learned edits can
 make future exact recall ambiguous, triggering the ordinary model path. The
 unseen-task, structural-transfer and repeat-use gates remain open.
+
+## Structural transfer follow-up
+
+Three new author-created families were frozen before this adapter was implemented.
+The initial baseline completed every task, but exact memory saved no model calls
+when the variables were renamed and a return expression became an assignment.
+The new bounded syntax adapter uses the same previously learned fragments and
+current checks. It maps names consistently, preserves expression precedence and
+still executes a failing baseline and passing candidate. It does not infer types,
+semantic equivalence or arbitrary algorithms.
+
+| Family | Initial learning tokens | Cold transfer tokens | Adapted transfer tokens | Adapted elapsed |
+| --- | ---: | ---: | ---: | ---: |
+| Billing total | 1,413 | 1,531 | 0 | 0.878 s |
+| Inclusive threshold | 1,477 | 1,445 | 0 | 0.551 s |
+| Two required flags | 1,409 | 1,447 | 0 | 0.551 s |
+
+Each initial learning and cold transfer used one model request; each adapted
+transfer used zero. Learning plus one transfer per family used 4,299 recorded
+tokens with adaptation versus 8,722 with cold transfer. This paired subtotal
+excludes the other development runs and is not a whole-product cost claim.
+All three incompatible variants recorded `[false, true]`: the reused edit failed,
+then one model proposal repaired the changed rule. They used 1,842, 1,897 and
+1,904 tokens respectively. The complete ledger is `structural-results.json`.
+
+A separate persisted workbench pair learned the boolean edit with one request and
+1,436 tokens, then applied it to renamed variables and an assignment with zero
+requests/tokens in 0.664 seconds. The live browser and API expose its current diff
+and verification. All 742 backend tests pass with real PostgreSQL and Docker.
+
+```sh
+# Learn fresh lessons and compare current cold/warm behavior.
+PYTHONPATH=backend .venv/bin/python -m evals.chapter_13p.repair_transfer.structural --output runs/repair-transfer/new-structural-run
+# Replay saved learning on renamed tasks and incompatible rules.
+PYTHONPATH=backend .venv/bin/python -m evals.chapter_13p.repair_transfer.structural --lessons-root runs/repair-transfer/2026-09-22-structural-baseline --output runs/repair-transfer/new-structural-replay
+```
+
+The historical exact-memory baseline was recorded before implementation; current
+code will use the new adapter. Source and capability versions remain in raw run
+artifacts. No independent held-out, real-user preference or general intelligence
+claim follows from these three small families. Calls, attributes, indexing,
+binding constructs, ambiguous patterns and non-expression fragments remain
+outside adaptation; normal model fallback remains necessary.

@@ -273,3 +273,29 @@ def test_rejected_persisted_repair_recovers_and_exports_only_current_candidate(c
             lesson.source_session_id == second and lesson.new_text == "count - unit_price"
             for lesson in lessons
         )
+
+
+def test_persisted_repair_transfers_across_renamed_expression(client, monkeypatch):
+    fake = DynamicProposal()
+    monkeypatch.setattr("app.cognition.bootstrap.OpenRouterLLMClient.from_settings", lambda _: fake)
+    first = client.post("/api/v1/source-check", json=payload()).json()["id"]
+    assert client.post(f"/api/v1/sessions/{first}/run").status_code == 200
+    assert client.get(f"/api/v1/sessions/{first}/report").json()["verification_status"] == "passed"
+    second = client.post(
+        "/api/v1/source-check",
+        json=payload(
+            source_code="def invoice(units, rate):\n    amount = units + rate\n    return amount\n",
+            check_code="def verify(implementation):\n    assert implementation.invoice(11, 4) == 44\n    assert implementation.invoice(0, 9) == 0\n",
+        ),
+    ).json()["id"]
+    assert client.post(f"/api/v1/sessions/{second}/run").status_code == 200
+    assert client.get(f"/api/v1/sessions/{second}/report").json()["verification_status"] == "passed"
+    assert len(fake.requests) == 1
+    candidate = client.get(f"/api/v1/sessions/{second}/candidate").json()["candidate"]
+    assert "+    amount = (units * rate)" in candidate["patch"]
+    events = client.get(f"/api/v1/sessions/{second}/events", params={"limit": 200}).json()["events"]
+    assert any(
+        e["event_type"] == "source_patch_memory_proposed"
+        and e["metadata"].get("transfer_kind") == "alpha_expression"
+        for e in events
+    )
