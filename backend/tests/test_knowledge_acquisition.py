@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import cast
 
 import httpx
+import pytest
 
 from app.acquisition import (
     AvailableDataSourceRegistry,
@@ -468,6 +469,40 @@ def test_local_artifact_requires_explicit_contained_text_file(tmp_path: Path) ->
     assert rejected == []
 
 
+def test_local_inspection_covers_late_lines_and_reserves_smaller_files(tmp_path: Path) -> None:
+    audit = tmp_path / "audit.json"
+    audit.write_text(
+        "\n".join(f'{{"record": {i}, "detail": "' + "x" * 400 + '"}' for i in range(110))
+    )
+    manifest = tmp_path / "requirements.txt"
+    manifest.write_text("\n" * 70 + "important-package>=9.0\n")
+    candidates = LocalArtifactInspector([tmp_path]).inspect(
+        f"Read '{audit}' and '{manifest}'.", "Identify all affected dependencies"
+    )
+    assert len(candidates) == 2
+    assert all("complete file" in candidate.excerpt for candidate in candidates)
+    assert '"record": 109' in candidates[0].excerpt
+    assert "71: important-package>=9.0" in candidates[1].excerpt
+    assert candidates[1].source_uri.endswith("#L1-L71")
+
+
+def test_local_inspection_labels_truncated_line_and_preserves_other_file(tmp_path: Path) -> None:
+    large = tmp_path / "large.log"
+    large.write_text("x" * 90_000 + "\nnot displayed\n")
+    small = tmp_path / "small.txt"
+    small.write_text("Complete small reference.\n")
+    candidates = LocalArtifactInspector([tmp_path]).inspect(
+        f"Read '{large}' and '{small}'.", "Read supplied artifacts"
+    )
+    assert "partial file" in candidates[0].excerpt
+    assert "last displayed line is truncated" in candidates[0].excerpt
+    assert "not displayed" not in candidates[0].excerpt
+    assert candidates[0].source_uri.endswith("#L1-L1")
+    assert "complete file" in candidates[1].excerpt
+    assert "Complete small reference." in candidates[1].excerpt
+    assert sum(len(c.excerpt) for c in candidates) < 65_000
+
+
 def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path: Path) -> None:
     source = tmp_path / "service.py"
     source.write_text(
@@ -476,9 +511,14 @@ def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path
     )
     state = _research_state()
     state["raw_input"] = f'Inspect "{source}" to find the request timeout.'
+    gap_description = "Request timeout in the referenced service.py code file"
+    assert state["structured_problem"] is not None
+    state["structured_problem"] = state["structured_problem"].model_copy(
+        update={"unknowns": [gap_description]}
+    )
     state["gaps"] = [
         KnowledgeGap(
-            description="Request timeout in the referenced service.py code file",
+            description=gap_description,
             gap_type="missing_code_context",
             priority=PriorityLevel.HIGH,
             why_needed="The configured timeout is needed for diagnosis.",
@@ -486,8 +526,15 @@ def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path
         )
     ]
     registry = CapabilityRegistry()
+    client = FakeLLMClient([])
+    gateway = CognitiveModelGateway(client, "unused-local-evaluator")
     registry.register(local_artifact_capability(LocalArtifactInspector([tmp_path])))
-    registry.register(evidence_evaluator_capability())
+    registry.register(
+        evidence_evaluator_capability(
+            gateway,
+            model_approved_for_sensitive_data=True,
+        )
+    )
 
     result = CognitiveKernel(registry).run(state, max_cycles=3)
 
@@ -497,11 +544,345 @@ def test_local_artifact_is_staged_then_evaluated_without_executing_text(tmp_path
         CognitiveActionType.STOP,
     ]
     assert result.state["gaps"][0].filled
+    assert result.state["structured_problem"] is not None
+    assert result.state["structured_problem"].unknowns == []
     assert len(result.state["evidence"]) == 1
     assert "REQUEST_TIMEOUT_SECONDS = 45" in result.state["evidence"][0].claim
+    assert client.requests == []
     acquired = next(
         event
         for event in result.state["events"]
         if event.event_type == "evidence_candidates_acquired"
     )
     assert "not executed as instructions" in str(acquired.metadata["instruction_boundary"])
+    evaluated = next(
+        event
+        for event in result.state["events"]
+        if event.event_type == "evidence_evaluation_completed"
+    )
+    assert evaluated.metadata["semantic_model_used"] is False
+
+
+def test_local_source_line_metadata_does_not_create_a_numeric_contradiction(
+    tmp_path: Path,
+) -> None:
+    issue = tmp_path / "issue.md"
+    issue.write_text("# Path output fails on first write\n", encoding="utf-8")
+    source = tmp_path / "worker.py"
+    source.write_text(
+        "\n\n\n\n\n\ndef get_write_function(output: str):\n    return output\n",
+        encoding="utf-8",
+    )
+    state = _research_state()
+    gap_description = "Path output failure and get_write_function output parameter"
+    state["raw_input"] = f'Inspect "{issue}" and "{source}".'
+    assert state["structured_problem"] is not None
+    state["structured_problem"] = state["structured_problem"].model_copy(
+        update={"unknowns": [gap_description]}
+    )
+    state["gaps"] = [
+        KnowledgeGap(
+            description=gap_description,
+            gap_type="missing_artifact_knowledge",
+            priority=PriorityLevel.HIGH,
+            why_needed="The source-visible relationship is required.",
+            suggested_source="local artifact",
+        )
+    ]
+    registry = CapabilityRegistry()
+    registry.register(local_artifact_capability(LocalArtifactInspector([tmp_path])))
+    registry.register(evidence_evaluator_capability())
+
+    result = CognitiveKernel(registry).run(state, max_cycles=3)
+
+    assert result.state["gaps"][0].filled is True
+    evaluation = next(
+        event
+        for event in result.state["events"]
+        if event.event_type == "evidence_evaluation_completed"
+    )
+    assert evaluation.metadata["contradiction_pairs"] == []
+    assessments = evaluation.metadata["assessments"]
+    assert isinstance(assessments, list)
+    assert all(
+        not str(assessment["extracted_claim"]).split(maxsplit=1)[0].rstrip(":").isdigit()
+        for assessment in assessments
+        if isinstance(assessment, dict)
+    )
+
+
+def test_unchanged_local_snapshot_stops_reacquisition_loop(tmp_path: Path) -> None:
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    first.write_text("The timeout limit is 30 seconds.\n", encoding="utf-8")
+    second.write_text("The timeout limit is 45 seconds.\n", encoding="utf-8")
+    state = _research_state()
+    gap_description = "The timeout limit in the supplied local artifacts"
+    state["raw_input"] = f'Inspect "{first}" and "{second}".'
+    assert state["structured_problem"] is not None
+    state["structured_problem"] = state["structured_problem"].model_copy(
+        update={"unknowns": [gap_description]}
+    )
+    state["gaps"] = [
+        KnowledgeGap(
+            description=gap_description,
+            gap_type="missing_artifact_knowledge",
+            priority=PriorityLevel.HIGH,
+            why_needed="The conflict must be resolved before conclusion.",
+            suggested_source="local artifact",
+        )
+    ]
+    registry = CapabilityRegistry()
+    registry.register(local_artifact_capability(LocalArtifactInspector([tmp_path])))
+    registry.register(evidence_evaluator_capability())
+
+    result = CognitiveKernel(registry).run(state, max_cycles=6)
+
+    assert result.status.value == "insufficient_evidence"
+    duplicate = next(
+        observation
+        for observation in result.observations
+        if observation.failure_kind == "duplicate_artifact_snapshot"
+    )
+    assert duplicate.status.value == "inconclusive"
+    assert result.cycles < 6
+
+
+@pytest.mark.parametrize(
+    ("left", "right", "contradicts", "corroborates"),
+    [
+        ('"version": "2.8.1",', '"quarrycore==1.9.2"', False, False),
+        ('"version": "2.8",', '"version": "1.9"', False, False),
+        ("orchid timeout is 30 seconds", "iris timeout is 60 seconds", False, False),
+        ("orchid timeout is 30 seconds", "iris timeout is 30 seconds", False, False),
+        ("request timeout is 30 seconds", "request timeout is 60 seconds", True, False),
+        ("request timeout is 30 seconds", "request timeout is 30 seconds", False, True),
+        ("protocol 1 timeout is 30 seconds", "protocol 2 timeout is 60 seconds", False, False),
+        ("protocol 1 timeout is 30 seconds", "protocol 2 timeout is 30 seconds", False, False),
+        ("request timeout is not 30 seconds", "request timeout is 30 seconds", True, False),
+    ],
+)
+def test_numeric_evidence_requires_a_matching_anchored_subject(
+    left, right, contradicts, corroborates
+):
+    from app.acquisition.capabilities import _claims_contradict, _claims_corroborate
+    from app.acquisition.contracts import EvidenceCandidate
+
+    first = EvidenceCandidate(
+        id="first",
+        source_type="local_text_artifact",
+        source_uri="file:///a.txt",
+        title="First",
+        excerpt=left,
+        source_rank=1,
+    )
+    second = EvidenceCandidate(
+        id="second",
+        source_type="local_text_artifact",
+        source_uri="file:///b.txt",
+        title="Second",
+        excerpt=right,
+        source_rank=2,
+    )
+    assert _claims_contradict(first, second) is contradicts
+    assert _claims_corroborate(first, second) is corroborates
+
+
+@pytest.mark.parametrize(
+    "defect", ["rejected_access_page", "ungrounded_support", "same_host", "invalid_ids"]
+)
+def test_evaluation_recovers_per_candidate_and_retains_honest_source_counts(defect):
+    provider = FakeSearchProvider()
+    response = provider.search(SearchRequest(query="current behavior"))
+    if defect == "same_host":
+        response.candidates[1] = response.candidates[1].model_copy(
+            update={
+                "url": response.candidates[0].url.__class__("https://standards.example.org/second")
+            }
+        )
+
+    class FixedProvider:
+        name = "fixed"
+
+        def search(self, request):
+            return response
+
+    state = _research_state()
+    registry = CapabilityRegistry()
+    registry.register(web_search_capability(FixedProvider()))
+    staged = CognitiveKernel(registry).run(state, max_cycles=1).state
+    assessments = []
+    for index, candidate in enumerate(response.candidates):
+        assessments.append(
+            {
+                "candidate_id": candidate.id,
+                "extracted_claim": (
+                    "Unrelated inaccessible browser challenge"
+                    if index == 1 and defect != "same_host"
+                    else candidate.excerpt
+                ),
+                "relationship": "reject"
+                if index == 1 and defect == "rejected_access_page"
+                else "supports",
+                "relevance_score": 0.95,
+                "reliability_score": 0.9,
+                "temporal_validity": "current",
+                "contradiction_risk": 0,
+                "contradicts_candidate_ids": [],
+                "rationale": "Assessment.",
+            }
+        )
+    client = FakeLLMClient(
+        [
+            LLMResponse(
+                provider="fake",
+                model="fake",
+                finish_reason="stop",
+                text=json.dumps(
+                    {
+                        "assessments": assessments,
+                        "gap_supported": True,
+                        "overall_rationale": "Supported.",
+                    }
+                ),
+                usage=LLMTokenUsage(input_tokens=50, output_tokens=30),
+            )
+        ]
+    )
+    if defect == "invalid_ids":
+        # Replace the staged provider response with a schema-valid but unknown ID.
+        assessments[1]["candidate_id"] = "unknown-id"
+        client = FakeLLMClient(
+            [
+                LLMResponse(
+                    provider="fake",
+                    model="fake",
+                    finish_reason="stop",
+                    text=json.dumps(
+                        {
+                            "assessments": assessments,
+                            "gap_supported": True,
+                            "overall_rationale": "Supported.",
+                        }
+                    ),
+                    usage=LLMTokenUsage(input_tokens=50, output_tokens=30),
+                )
+            ]
+        )
+    registry.register(evidence_evaluator_capability(CognitiveModelGateway(client, "fake")))
+    result = CognitiveKernel(registry).run(staged, max_cycles=1)
+    if defect == "invalid_ids":
+        assert result.observations[-1].failure_kind == "invalid_evidence_assessment"
+        assert result.observations[-1].payload["usage"]["input_tokens"] == 50
+        assert result.state["evidence"] == []
+        return
+    evaluation = next(
+        e for e in result.state["events"] if e.event_type == "evidence_evaluation_completed"
+    )
+    assert len(result.state["evidence"]) == (2 if defect == "same_host" else 1)
+    assert evaluation.metadata["independent_source_count"] == 1
+    assert not result.state["gaps"][0].filled
+    assert result.observations[-1].payload["usage"]["input_tokens"] == 50
+    assert evaluation.metadata["ungrounded_candidate_ids"] == (
+        ["source-two"] if defect == "ungrounded_support" else []
+    )
+
+
+def test_evaluator_followup_query_is_optional_and_bounded():
+    from app.acquisition.contracts import EvidenceEvaluationOutput
+
+    payload = {
+        "assessments": [
+            {
+                "candidate_id": "one",
+                "extracted_claim": "A supported observation.",
+                "relationship": "supports",
+                "relevance_score": 1,
+                "reliability_score": 0.9,
+                "temporal_validity": "timeless",
+                "contradiction_risk": 0,
+                "rationale": "Supported in excerpt.",
+            }
+        ],
+        "gap_supported": False,
+        "overall_rationale": "Applicability is still missing.",
+    }
+    assert EvidenceEvaluationOutput.model_validate(payload).next_query is None
+    with pytest.raises(ValueError):
+        EvidenceEvaluationOutput.model_validate({**payload, "next_query": "x" * 301})
+
+
+@pytest.mark.parametrize("same_excerpt", [False, True])
+def test_progressive_source_passages_are_not_discarded_by_url_alone(same_excerpt):
+    state = _research_state()
+    provider = FakeSearchProvider()
+    response = provider.search(SearchRequest(query="documented behavior"))
+    state["evidence"] = [
+        EvidenceItem(
+            source_type="evaluated_web_source",
+            source_uri=str(response.candidates[0].url),
+            claim="Earlier introductory passage.",
+            raw_excerpt=response.candidates[0].excerpt
+            if same_excerpt
+            else "Earlier introductory passage.",
+            reliability_score=0.9,
+            relevance_score=0.8,
+        )
+    ]
+    registry = CapabilityRegistry()
+    registry.register(web_search_capability(provider))
+    registry.register(evidence_evaluator_capability())
+    result = CognitiveKernel(registry).run(state, max_cycles=2)
+    assert len(result.state["evidence"]) == (2 if same_excerpt else 3)
+    assert len({e.source_uri for e in result.state["evidence"]}) == 2
+
+
+@pytest.mark.parametrize("choice", ["admitted", "rejected", "invented", "discovery"])
+def test_evaluator_continuation_only_nominates_admitted_public_sources(choice):
+    from app.acquisition.page_reader import page_read_target
+
+    provider = FakeSearchProvider()
+    registry = CapabilityRegistry()
+    registry.register(web_search_capability(provider))
+    state = CognitiveKernel(registry).run(_research_state(), max_cycles=1).state
+    batch = next(e for e in state["events"] if e.event_type == "evidence_candidates_acquired")
+    candidates = batch.metadata["candidates"]
+    nominated = candidates[1 if choice == "rejected" else 0]["source_uri"]
+    if choice == "invented":
+        nominated = "https://not-retrieved.example.org/paper"
+    elif choice == "discovery":
+        nominated = None
+    payload = {
+        "assessments": [
+            {
+                "candidate_id": c["id"],
+                "extracted_claim": c["excerpt"],
+                "relationship": "reject" if choice == "rejected" and i == 1 else "supports",
+                "relevance_score": 0.9,
+                "reliability_score": 0.9,
+                "temporal_validity": "current",
+                "contradiction_risk": 0,
+                "rationale": "Source assessment.",
+            }
+            for i, c in enumerate(candidates)
+        ],
+        "gap_supported": False,
+        "overall_rationale": "Applicability remains unknown.",
+        "next_query": "Specific public applicability details",
+        "continuation": {"source_uri": nominated, "reason": "Find missing applicability."},
+    }
+    client = FakeLLMClient([LLMResponse(provider="fake", model="fake", text=json.dumps(payload))])
+    registry.register(evidence_evaluator_capability(CognitiveModelGateway(client, "fake")))
+    result = CognitiveKernel(registry).run(state, max_cycles=1)
+    event = next(
+        e for e in result.state["events"] if e.event_type == "evidence_evaluation_completed"
+    )
+    hint = event.metadata["continuation"]
+    assert hint["source_uri"] == (nominated if choice == "admitted" else None)
+    if choice in {"rejected", "invented"}:
+        assert hint["rejected_source_uri"] == nominated
+    assert not result.state["gaps"][0].filled
+    assert page_read_target(result.state, result.state["gaps"][0].description) == (
+        nominated if choice == "admitted" else None
+    )
+    assert len(client.requests) == 1

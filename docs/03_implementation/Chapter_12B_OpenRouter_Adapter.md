@@ -21,7 +21,7 @@ engine contracts.
 - Kept the API key in `SecretStr` and excluded prompts and raw provider bodies
   from failures and retry logs.
 - Added bearer authentication plus OpenRouter application attribution headers.
-- Added JSON object response mode, `max_completion_tokens`, request timeout,
+- Added JSON object response mode, portable `max_tokens`, request timeout,
   and provider routing controls.
 - Defaulted data collection to `deny` and JSON parameter support to required.
 - Normalized HTTP failures, embedded provider failures, choice failures,
@@ -47,6 +47,14 @@ The adapter therefore correctly fails closed under the production settings.
 Only the non-confidential Chapter 13 benchmark was run with process-local
 `data_collection=allow` and `require_parameters=false`. Those overrides are an
 evaluation compatibility measure, not the production policy.
+
+A later strict-routing diagnostic found another compatibility boundary:
+OpenRouter's top-level API accepts `max_completion_tokens`, but its current
+per-endpoint `supported_parameters` metadata advertises the portable completion
+limit as `max_tokens`. With `require_parameters=true`, sending the newer alias
+returned HTTP 404 because every otherwise compatible endpoint was filtered
+out; the same request with `max_tokens` succeeded. The adapter therefore emits
+the metadata-compatible field so strict JSON routing remains usable.
 
 ## Failure Guardrails
 

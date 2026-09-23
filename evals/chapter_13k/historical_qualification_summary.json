@@ -1,0 +1,69 @@
+{
+  "automated_gate": {
+    "fresh_private_field_cases_status": "pending",
+    "human_review_status": "pending",
+    "metrics": {
+      "direct": {
+        "check_accuracy": 1.0,
+        "correction_accuracy": 1.0,
+        "executable_verification_rate": 0.0,
+        "forbidden_conclusion_hits": 0,
+        "input_tokens": 43571,
+        "mean_latency_ms": 4358.404604110143,
+        "mechanism_accuracy": 1.0,
+        "model_calls": 19,
+        "output_tokens": 20686,
+        "pass_rate": 1.0,
+        "passed": 18,
+        "total_tokens": 64257,
+        "unsupported_forced_conclusions": 0
+      },
+      "executable_verification_advantage": true,
+      "pass_rate_advantage": 0.0,
+      "polya": {
+        "check_accuracy": 1.0,
+        "correction_accuracy": 1.0,
+        "executable_verification_rate": 1.0,
+        "forbidden_conclusion_hits": 0,
+        "input_tokens": 30666,
+        "mean_latency_ms": 5042.930502341025,
+        "mechanism_accuracy": 1.0,
+        "model_calls": 18,
+        "output_tokens": 17621,
+        "pass_rate": 1.0,
+        "passed": 18,
+        "total_tokens": 48287,
+        "unsupported_forced_conclusions": 0
+      },
+      "token_ratio": 0.7514667662667103
+    },
+    "passed": true,
+    "product_value_claim_ready": false,
+    "requirements": {
+      "all_pairs_completed": true,
+      "all_pairs_used_one_equal_actual_model": true,
+      "all_polya_cases_passed": true,
+      "all_polya_patches_executably_verified": true,
+      "all_preflights_eligible": true,
+      "minimum_three_repetitions": true,
+      "quality_cost_frontier_win": true,
+      "zero_polya_forbidden_conclusion_hits": true,
+      "zero_polya_unsupported_forced_conclusions": true
+    }
+  },
+  "case_count": 6,
+  "claim_boundary": "Field-derived reduced public historical reproductions; potential model-training contamination; no full-project, fresh-field, human-review, cross-domain, or general-intelligence claim.",
+  "completed_at": "2026-08-22T15:59:38.922567+00:00",
+  "configured_model_route": "google/gemini-3.7-flash",
+  "model": "google/gemini-3.7-flash",
+  "pair_count": 18,
+  "repetitions": 3,
+  "run_id": "155648-16a8dce2",
+  "started_at": "2026-08-22T15:56:48.036809+00:00",
+  "status": "completed",
+  "historical_evaluation_generation": 4,
+  "raw_artifact_local_path": "evals/chapter_13k/live_runs/2026-08-22/155648-16a8dce2/summary.json",
+  "raw_artifact_sha256": "c0f00466e9c994d0180e2bf0a9c3fd70181165949e0e23d04f404c54a8a3d8cb",
+  "raw_trace_in_repository": false,
+  "current_code_requalification_required": true
+}

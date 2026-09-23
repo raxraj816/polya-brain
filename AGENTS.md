@@ -4,9 +4,30 @@ Operating instructions for AI coding agents working on PolyaBrain.
 
 ## Mission
 
-PolyaBrain is a brain-inspired problem-solving intelligence product.
+PolyaBrain is a brain-inspired problem-solving intelligence system and a
+cognitive workbench that helps a person understand, investigate, solve, verify,
+and learn from difficult problems. It must make reasoning visible, evidence
+inspectable, uncertainty explicit, resource use auditable, and learning
+reusable.
+
+PolyaBrain is a product-first, initially cloud-hosted, model-agnostic Cognitive
+Runtime that turns difficult objectives into verified outcomes by acquiring
+knowledge on demand, using deterministic procedures whenever possible, invoking
+bounded model reasoning when necessary, and learning reusable procedures from
+verified work.
 
 It should help users understand, investigate, solve, verify, and learn from difficult problems. It is not a generic chatbot, a foundation model project, or a biological brain simulation.
+
+The initial user-facing product is PolyaBrain Investigator, a verified technical
+problem-solving workbench. The enduring intelligence core is the PolyaBrain
+Cognitive Runtime. “PolyaBrain Intelligence OS” is an eventual platform category
+that must be earned through dependent applications, developers, and cross-domain
+proof. LLMs, search, memory, tools, and knowledge sources are replaceable
+capabilities; none owns the problem-solving loop.
+
+General-purpose intelligence is the long-term architectural ambition, not an
+unearned product claim. Optimize for verified useful outcomes per unit of money,
+time, tokens, compute, risk, and human attention.
 
 ## Agent Role
 
@@ -71,7 +92,8 @@ Problem input
   -> report
 ```
 
-The first product wedge is a technical investigation workbench for founders, engineers, researchers, and technical product builders.
+The first product wedge is PolyaBrain Investigator, a technical investigation
+workbench for founders, engineers, researchers, and technical product builders.
 
 The wedge is only valid if its overhead is lower than the value it creates. A real user should prefer running a hard technical problem through PolyaBrain a second time instead of defaulting back to manual investigation, Cursor, generic chat, and scattered research.
 

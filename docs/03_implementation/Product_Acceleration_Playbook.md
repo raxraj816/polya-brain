@@ -4,6 +4,19 @@ Purpose: compress the path from idea to useful product while protecting the long
 
 This document exists because PolyaBrain is competing in a market where foundation model companies can outspend, outcompute, and out-hire most startups. PolyaBrain should not try to win by building a bigger model. It should win by building a sharper problem-solving product.
 
+Binding identity:
+
+```text
+Product now: PolyaBrain Investigator
+Enduring core: PolyaBrain Cognitive Runtime
+Initial delivery: managed cloud product and API with portable boundaries
+Eventual platform: PolyaBrain Intelligence OS, only after it is earned
+Models and tools: replaceable capabilities
+```
+
+General-purpose intelligence is the architectural ambition, not the initial
+market category or an unverified superiority claim.
+
 ## Competitive Thesis
 
 PolyaBrain should compete on:
@@ -24,20 +37,22 @@ PolyaBrain should not compete on:
 4. Broad enterprise platform claims before a narrow workflow is loved.
 5. Research complexity that delays product usefulness.
 
-The technical-investigation workbench is the first proof surface, not the
-definition of the product. The enduring product is the domain-independent
-cognitive kernel that selects and evaluates problem-solving actions. Proof work
-must therefore show that the same controller transfers beyond technical
-investigation instead of hardcoding incident-specific behavior into the core.
+The technical-investigation workbench is both the first proof surface and the
+initial user-facing product, but it is not the long-term boundary of the
+intelligence. The enduring core is the domain-independent Cognitive Runtime that
+selects and evaluates problem-solving actions. Proof work must therefore show
+that the same controller transfers beyond technical investigation instead of
+hardcoding incident-specific behavior into the core.
 
 The architecture itself is not the moat. Durable advantage must come from a
 better action-selection policy, verified problem-solving trajectories, reusable
 procedural strategies, domain evaluation corpora, and evidence that the kernel
 improves outcomes across new problems.
 
-## Missing Product Constraint
+## Product Wedge Constraint
 
-The current architecture correctly defines a general problem-solving platform, but speed requires a sharper initial wedge.
+The Cognitive Runtime is intentionally domain-independent, but product progress
+requires a sharp initial wedge.
 
 The MVP must answer three questions:
 
@@ -48,6 +63,12 @@ The MVP must answer three questions:
 Until those are answered, implementation should default to a narrow beachhead while keeping the core loop domain-agnostic.
 
 The product must also pass the overhead test: the time and effort required to use PolyaBrain must be lower than the value of the clarity, evidence, checks, and report it returns. The strongest signal is whether a real technical user chooses to bring a second hard problem to PolyaBrain.
+
+The governing optimization target is verified useful outcomes per unit of
+money, time, tokens, compute, risk, and human attention. Track verified success,
+unsupported conclusions, cost and latency per verified outcome, deterministic
+completion, acquisition work, procedure reuse, transfer savings, intervention,
+and repeat use. Fewer model calls matter only when outcome quality is preserved.
 
 ## Pre-Platform Proof Gate
 
@@ -68,7 +89,7 @@ Success:
 Current executable proof:
 
 ```bash
-./polyabrain investigate "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?" --clean
+./polyabrain proof "Our API p95 latency jumped after deploy. Should we add Redis or inspect the query path first?" --clean
 python3 proofs/pre_platform/verify_pre_platform_proof.py --run-dir proofs/pre_platform/runs/our_api_p95_latency_jumped_after_deploy
 ```
 
@@ -82,16 +103,16 @@ python3 proofs/pre_platform/verify_pre_platform_proof.py
 Curated technical cases can be generated and checked with:
 
 ```bash
-./polyabrain investigate --case proofs/pre_platform/cases/deploy_healthcheck_regression.json --clean
-./polyabrain investigate --case proofs/pre_platform/cases/memory_growth_worker.json --clean
-./polyabrain investigate --case proofs/pre_platform/cases/search_ranking_drop.json --clean
-./polyabrain investigate --case proofs/pre_platform/cases/billing_webhook_duplicates.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/deploy_healthcheck_regression.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/memory_growth_worker.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/search_ranking_drop.json --clean
+./polyabrain proof --case proofs/pre_platform/cases/billing_webhook_duplicates.json --clean
 python3 proofs/pre_platform/verify_pre_platform_proof.py --all
 ```
 
 ## Recommended First Wedge
 
-Build the core platform through one high-value workflow first:
+Build PolyaBrain Investigator through one high-value workflow first:
 
 ```text
 Technical investigation workbench

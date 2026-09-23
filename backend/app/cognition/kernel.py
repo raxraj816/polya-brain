@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from time import perf_counter
 
-from app.cognition.capabilities import CapabilityRegistry
+from app.cognition.capabilities import CapabilityRegistry, safe_observation_trace_telemetry
 from app.cognition.contracts import (
     CognitiveActionDecision,
     CognitiveActionType,
@@ -13,6 +15,20 @@ from app.cognition.contracts import (
     ObservationStatus,
 )
 from app.cognition.controller import CognitiveController
+from app.cognition.repair_recovery import validated_retired_task
+from app.cognition.task_model import (
+    USAGE_EVENT,
+    CognitiveResourceBudget,
+    accumulated_usage,
+    budget_event,
+    configured_budget,
+    derive_task_model,
+    reservation_fits,
+    resource_usage_for,
+    task_model_event,
+    usage_event,
+)
+from app.cognition.verification_history import verification_invalidated_event
 from app.graph.state import PolyaState, StateEvent, append_state_events
 from app.models.contracts import KnowledgeGap, ReasoningMode, StructuredProblem
 
@@ -34,6 +50,20 @@ def _append_event(state: PolyaState, event: StateEvent) -> PolyaState:
     return next_state  # type: ignore[return-value]
 
 
+def _deadline_event(*, elapsed_ms: float, budget_ms: float) -> StateEvent:
+    return StateEvent(
+        engine_name="cognitive_kernel",
+        event_type="cognitive_run_deadline_exhausted",
+        reasoning_mode=ReasoningMode.VERIFY,
+        summary="Stopped safely because the hard cognitive run deadline was exhausted.",
+        metadata={
+            "elapsed_ms": round(max(0.0, elapsed_ms), 3),
+            "budget_ms": budget_ms,
+            "terminal_status": CognitiveRunStatus.INSUFFICIENT_EVIDENCE.value,
+        },
+    )
+
+
 def _decision_event(decision: CognitiveActionDecision) -> StateEvent:
     selected = decision.selected
     return StateEvent(
@@ -51,6 +81,7 @@ def _decision_event(decision: CognitiveActionDecision) -> StateEvent:
 def _observation_event(
     action: CognitiveActionDecision,
     observation: CognitiveObservation,
+    duration_ms: float,
 ) -> StateEvent:
     return StateEvent(
         engine_name=observation.capability,
@@ -70,6 +101,8 @@ def _observation_event(
             "status": observation.status.value,
             "failure_kind": observation.failure_kind,
             "evidence_count": len(observation.evidence),
+            "duration_ms": round(max(0.0, duration_ms), 3),
+            **safe_observation_trace_telemetry(observation.payload),
         },
     )
 
@@ -111,11 +144,23 @@ def _update_problem(
     )
 
 
-def _apply_observation(
+def apply_cognitive_observation(
     state: PolyaState,
     observation: CognitiveObservation,
 ) -> PolyaState:
     """Apply only validated, typed updates from a successful observation."""
+    try:
+        retired_task = validated_retired_task(state, observation)
+    except ValueError:
+        return _append_event(
+            state,
+            StateEvent(
+                engine_name="cognitive_kernel",
+                event_type="repair_supersession_rejected",
+                reasoning_mode=ReasoningMode.VERIFY,
+                summary="Rejected a repair supersession that did not match the current failed task.",
+            ),
+        )
     next_state = dict(state)
     next_state["evidence"] = [*state["evidence"], *observation.evidence]
     next_events = state["events"]
@@ -135,6 +180,7 @@ def _apply_observation(
         or update.constraints_to_add
         or update.gaps_to_add
         or update.resolved_gap_targets
+        or update.superseded_gap_targets
         or update.hypotheses_to_add
         or update.plan_tasks_to_add
         or update.execution_outputs_to_add
@@ -142,16 +188,25 @@ def _apply_observation(
     if state["verification"] is not None and update.verification is None and materially_revised:
         # A changed evidence or execution state invalidates the earlier check.
         # The revised state must be verified again before it can be accepted.
+        next_events = append_state_events(
+            next_events,
+            verification_invalidated_event(state["verification"], action_id=observation.action_id),
+        )
+        next_state["events"] = next_events
         next_state["verification"] = None
         next_state["final_answer"] = None
         next_state["reflection"] = None
 
     problem = update.structured_problem or state["structured_problem"]
     if problem is not None:
+        resolved_unknowns = _merge_unique(
+            update.unknowns_to_resolve,
+            [target for target in update.resolved_gap_targets if target in problem.unknowns],
+        )
         problem = _update_problem(
             problem,
             knowns_to_add=update.knowns_to_add,
-            unknowns_to_resolve=update.unknowns_to_resolve,
+            unknowns_to_resolve=resolved_unknowns,
             constraints_to_add=update.constraints_to_add,
         )
     next_state["structured_problem"] = problem
@@ -172,13 +227,17 @@ def _apply_observation(
         if gap.description in resolved_targets
         else gap
         for gap in state["gaps"]
+        if gap.description not in update.superseded_gap_targets
     ]
     next_state["gaps"] = _merge_gaps(current_gaps, update.gaps_to_add)
     next_state["hypotheses"] = [
         *state["hypotheses"],
         *update.hypotheses_to_add,
     ]
-    next_state["plan"] = [*state["plan"], *update.plan_tasks_to_add]
+    next_state["plan"] = [
+        *[task for task in state["plan"] if task.id != retired_task],
+        *update.plan_tasks_to_add,
+    ]
     next_state["execution_outputs"] = [
         *state["execution_outputs"],
         *update.execution_outputs_to_add,
@@ -245,6 +304,8 @@ class CognitiveKernel:
         initial_state: PolyaState,
         *,
         max_cycles: int | None = None,
+        budget: CognitiveResourceBudget | None = None,
+        checkpoint: Callable[[PolyaState, bool], None] | None = None,
     ) -> CognitiveRunResult:
         """Execute a bounded state-dependent loop without delegating control to an LLM."""
         cycle_budget = max_cycles or initial_state["max_iterations"]
@@ -252,10 +313,57 @@ class CognitiveKernel:
             raise ValueError("max_cycles must be at least 1")
 
         state = initial_state
+        existing_budget = configured_budget(state)
+        if budget is not None and existing_budget is None:
+            state = _append_event(state, budget_event(budget))
+        elif budget is not None and existing_budget != budget:
+            raise ValueError("initial state already declares a different cognitive budget")
+        active_budget = configured_budget(state)
+        prior_duration_ms = accumulated_usage(state).duration_ms
+        run_started = perf_counter()
         decisions: list[CognitiveActionDecision] = []
         observations: list[CognitiveObservation] = []
 
+        def save(in_flight: bool = False) -> None:
+            nonlocal state
+            if checkpoint is not None:
+                # Retain active controller/storage time across process boundaries;
+                # time spent waiting for the user is outside the execution budget.
+                active_ms = prior_duration_ms + (perf_counter() - run_started) * 1000
+                overhead_ms = max(0.0, active_ms - accumulated_usage(state).duration_ms)
+                if overhead_ms:
+                    state = _append_event(
+                        state,
+                        StateEvent(
+                            engine_name="cognitive_kernel",
+                            event_type=USAGE_EVENT,
+                            reasoning_mode=ReasoningMode.EXECUTE,
+                            summary="Recorded active controller and checkpoint overhead.",
+                            metadata={"capability": "runtime_overhead", "duration_ms": overhead_ms},
+                        ),
+                    )
+                checkpoint(state, in_flight)
+
+        save()
+
         for cycle in range(1, cycle_budget + 1):
+            elapsed_ms = prior_duration_ms + ((perf_counter() - run_started) * 1000)
+            if active_budget is not None and elapsed_ms >= active_budget.max_duration_ms:
+                state = _append_event(
+                    state,
+                    _deadline_event(
+                        elapsed_ms=elapsed_ms,
+                        budget_ms=active_budget.max_duration_ms,
+                    ),
+                )
+                return CognitiveRunResult(
+                    status=CognitiveRunStatus.INSUFFICIENT_EVIDENCE,
+                    state=state,
+                    decisions=tuple(decisions),
+                    observations=tuple(observations),
+                    cycles=cycle - 1,
+                )
+            state = _append_event(state, task_model_event(derive_task_model(state)))
             decision = self.controller.decide(state, self.registry)
             decisions.append(decision)
             state = _append_event(state, _decision_event(decision))
@@ -277,10 +385,65 @@ class CognitiveKernel:
                     cycles=cycle,
                 )
 
+            # Persist dispatch intent before a tool/provider can perform work.
+            # An interrupted call has unknown usage and is never safe to replay.
+            save(in_flight=True)
+            if checkpoint is not None and active_budget is not None:
+                # A slow durable write must not invalidate the reservation and
+                # then dispatch anyway. No capability has run at this point.
+                elapsed_ms = prior_duration_ms + (perf_counter() - run_started) * 1000
+                current_usage = accumulated_usage(state).model_copy(
+                    update={"duration_ms": elapsed_ms}
+                )
+                selected_capability = self.registry.get(decision.selected.capability)
+                if elapsed_ms >= active_budget.max_duration_ms or (
+                    selected_capability is not None
+                    and not reservation_fits(
+                        selected_capability.definition, active_budget, current_usage
+                    )
+                ):
+                    state = _append_event(
+                        state,
+                        StateEvent(
+                            engine_name="cognitive_kernel",
+                            event_type="cognitive_dispatch_budget_exhausted",
+                            reasoning_mode=ReasoningMode.VERIFY,
+                            summary="Stopped before dispatch because checkpoint overhead exhausted the action reservation.",
+                            metadata={"elapsed_ms": elapsed_ms},
+                        ),
+                    )
+                    save()
+                    return CognitiveRunResult(
+                        status=CognitiveRunStatus.INSUFFICIENT_EVIDENCE,
+                        state=state,
+                        decisions=tuple(decisions),
+                        observations=tuple(observations),
+                        cycles=cycle - 1,
+                    )
+            started = perf_counter()
             observation = self.registry.execute(decision.selected, state)
+            duration_ms = (perf_counter() - started) * 1000
             observations.append(observation)
-            state = _append_event(state, _observation_event(decision, observation))
-            state = _apply_observation(state, observation)
+            state = _append_event(
+                state,
+                _observation_event(decision, observation, duration_ms),
+            )
+            capability = self.registry.get(decision.selected.capability)
+            if capability is not None:
+                state = _append_event(
+                    state,
+                    usage_event(
+                        decision.selected,
+                        capability.definition,
+                        resource_usage_for(
+                            capability.definition,
+                            observation.payload,
+                            duration_ms=duration_ms,
+                        ),
+                    ),
+                )
+            state = apply_cognitive_observation(state, observation)
+            save()
 
             if observation.status is ObservationStatus.BLOCKED and (
                 observation.failure_kind in {"approval_required", "human_input_required"}

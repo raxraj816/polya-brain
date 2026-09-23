@@ -378,7 +378,10 @@ def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
         assert completed.session.verification_status == "passed"
         assert report.final_conclusion == "17 * 6 = 102."
         assert report.confidence_level == "high"
-        assert len(report.evidence_used) == 2
+        # Fused arithmetic retains the calculator evidence once; its independent
+        # recalculation is an execution artifact, not a duplicated source.
+        assert len(report.evidence_used) == 1
+        assert report.evidence_used[0].source_type == "deterministic_calculator"
         assert report.evidence_against == []
         assert report.checks_performed
         assert report.open_questions == []
@@ -406,7 +409,7 @@ def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
         )
 
         assert gap is not None and gap.filled
-        assert len(evidence) == 2
+        assert len(evidence) == 1
         assert {item.claim for item in evidence} == {"17 * 6 = 102."}
         assert hypothesis is not None and hypothesis.statement == "17 * 6 = 102."
         assert plan_task is not None
@@ -414,6 +417,15 @@ def test_persisted_cognitive_runner_stores_verified_arithmetic_artifacts(
         assert verification is not None and verification.passed
         assert reflection_event is not None
         assert reflection_event.event_metadata["strategy_notes"] == ["calculate_then_recalculate"]
+        execution_event = db_session.scalar(
+            select(ReasoningEvent).where(
+                ReasoningEvent.session_id == session_id,
+                ReasoningEvent.event_type == "execution_output_recorded",
+            )
+        )
+        assert execution_event is not None
+        assert execution_event.event_metadata["task_id"] == "independent-recalculation"
+        assert execution_event.event_metadata["output"] == {"expression": "17 * 6", "result": "102"}
 
 
 @pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
@@ -584,3 +596,129 @@ def test_session_service_expires_running_session_without_start_timestamp(
         assert persisted.verification_status == VERIFICATION_STATUS_RUN_EXPIRED
         assert persisted.completed_at is not None
         assert runner_calls == 0
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_completed_persisted_report_keeps_answer_bound_residual_questions(
+    session_factory: sessionmaker,
+) -> None:
+    from app.cognition.report_metadata import ConclusionReportMetadata, report_metadata_event
+
+    def conditional_runner(raw_input: str, *, session_id: str) -> PolyaState:
+        state = successful_runner(raw_input, session_id=session_id)
+        state["events"].append(
+            report_metadata_event(
+                answer=state["final_answer"],
+                metadata=ConclusionReportMetadata(open_questions=["Which target version applies?"]),
+                engine_name="conclusion_checker",
+            )
+        )
+        return state
+
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=conditional_runner)
+        session_id = service.create_session(
+            raw_input="Give a conditional proposal.", mode=ProductMode.INVESTIGATE, domain=None
+        ).id
+        service.run_session(session_id)
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=conditional_runner)
+        report = service.get_report(session_id)
+        assert report.verification_status == "passed"
+        assert report.open_questions == ["Which target version applies?"]
+        problem = db_session.get(ProblemSession, session_id)
+        problem.final_answer = "A revised conclusion unrelated to the recorded conditions."
+        db_session.commit()
+        assert service.get_report(session_id).open_questions == []
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_persisted_report_preserves_invalidated_failure_without_reviving_verdict(
+    session_factory: sessionmaker,
+) -> None:
+    from app.cognition.verification_history import (
+        HISTORICAL_CHECK_PREFIX,
+        HISTORICAL_NEXT_ACTION,
+        verification_invalidated_event,
+    )
+
+    def stopped_runner(raw_input: str, *, session_id: str) -> PolyaState:
+        state = create_initial_state(raw_input, session_id=session_id)
+        state["events"] = [
+            verification_invalidated_event(
+                VerificationReport(
+                    passed=False,
+                    checks_run=["Looked for executed tests."],
+                    failed_checks=["No test results supplied."],
+                ),
+                action_id="recovery-plan",
+            )
+        ]
+        return state
+
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=stopped_runner)
+        session_id = service.create_session(
+            raw_input="Verify passing tests.", mode=ProductMode.INVESTIGATE, domain=None
+        ).id
+        service.run_session(session_id)
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=stopped_runner)
+        report = service.get_report(session_id)
+        assert report.failed_checks == [HISTORICAL_CHECK_PREFIX + "No test results supplied."]
+        assert report.checks_performed == [HISTORICAL_CHECK_PREFIX + "Looked for executed tests."]
+        assert report.verification_status == "not_verified"
+        assert report.confidence_level == "insufficient_evidence"
+        assert report.final_conclusion is None
+        assert report.reflection is None
+        assert report.recommended_next_action == HISTORICAL_NEXT_ACTION
+
+        # A current passing verification takes precedence over recovery history.
+        def recovered_runner(raw_input: str, *, session_id: str) -> PolyaState:
+            state = successful_runner(raw_input, session_id=session_id)
+            state["events"] = [
+                *stopped_runner(raw_input, session_id=session_id)["events"],
+                *state["events"],
+            ]
+            return state
+
+        recovered_service = PolyaSessionService(db_session, runner=recovered_runner)
+        recovered_id = recovered_service.create_session(
+            raw_input="Verify passing tests after recovery.",
+            mode=ProductMode.INVESTIGATE,
+            domain=None,
+        ).id
+        recovered_service.run_session(recovered_id)
+        report = recovered_service.get_report(recovered_id)
+        assert report.failed_checks == []
+        assert report.checks_performed == ["service test verification"]
+        assert report.verification_status == "passed"
+
+
+@pytest.mark.skipif(not RUN_DB_TESTS, reason=DB_TEST_SKIP_REASON)
+def test_persisted_report_preserves_current_scope_limitations(session_factory: sessionmaker):
+    from app.cognition.report_metadata import SCOPE_LIMITATION_PREFIX
+    from app.models.contracts import StructuredProblem
+
+    def scoped_runner(raw_input: str, *, session_id: str) -> PolyaState:
+        state = successful_runner(raw_input, session_id=session_id)
+        state["structured_problem"] = StructuredProblem(
+            core_question="Explain and propose a check.",
+            problem_type="research",
+            knowns=[],
+            unknowns=[],
+            constraints=[SCOPE_LIMITATION_PREFIX + "Actual cause is still unknown."],
+            success_criteria=["Give an explanation, not an observed diagnosis."],
+        )
+        return state
+
+    with session_factory() as db_session:
+        service = PolyaSessionService(db_session, runner=scoped_runner)
+        sid = service.create_session(
+            raw_input="Explain the mechanism.", mode=ProductMode.INVESTIGATE, domain=None
+        ).id
+        service.run_session(sid)
+    with session_factory() as db_session:
+        report = PolyaSessionService(db_session, runner=scoped_runner).get_report(sid)
+        assert report.verification_status == "passed"
+        assert report.open_questions == ["Actual cause is still unknown."]

@@ -21,6 +21,7 @@ from app.execution.simulation import (
     run_scenario_simulation,
     scenario_simulation_capability,
 )
+from app.execution.source_patch import source_patch_sandbox_capability
 from app.execution.table_measurement import TableMeasurementTool, table_measurement_capability
 
 __all__ = [
@@ -38,6 +39,7 @@ __all__ = [
     "controlled_experiment_capability",
     "evaluate_controlled_experiment",
     "python_sandbox_capability",
+    "source_patch_sandbox_capability",
     "run_scenario_simulation",
     "scenario_simulation_capability",
     "table_measurement_capability",

@@ -1,0 +1,104 @@
+{
+  "version": "bounded_repair_recovery_development@0.1.0",
+  "run_date": "2026-09-21",
+  "model": "openai/gpt-5.6-luna",
+  "conditions": {
+    "new_training": false,
+    "search_enabled": false,
+    "cli_model_request_limit": 6,
+    "recovery_proposals_per_run": 1,
+    "source_and_check_unchanged": true,
+    "lessons_from_prior_completed_runs": true
+  },
+  "limitations": [
+    "Known author-created protocol cases from the prior frozen transfer experiment, not independently held-out evidence.",
+    "Recovery uses a pretrained model and deterministic execution; this does not establish general intelligence or model independence.",
+    "Each retry uses a new task ID and fresh baseline/candidate executions; prior failed verification and rejected plan remain trace history.",
+    "Reported tokens and latency are current replay costs, excluding previously reported learning and development costs. No direct-model cost advantage is claimed.",
+    "One bounded replacement attempt only. Another failed check, duplicate edit, exhausted budget or unavailable model stops without success.",
+    "Correctness is limited to supplied checks. Hostile-code attestation, diagnosis causality and unseen behavior remain unproven.",
+    "Persisting two incompatible edits may make later exact recall ambiguous; normal model fallback remains necessary.",
+    "Raw run artifacts remain in ignored runs/repair-transfer folders; original unsuccessful experiments remain in results.json."
+  ],
+  "cli": {
+    "fixture_sha256": "08c0ec56aa226551a544fd159ad5f495b3cba65627aa5dc1240ba9ed2bbb79d2",
+    "scope": "Known-case recovery development replay; not a held-out comparison.",
+    "runs": [
+      {
+        "family": "orbital_packet",
+        "status": "completed",
+        "elapsed_seconds": 5.611365040997043,
+        "usage": {
+          "model_calls": 1,
+          "external_calls": 0,
+          "input_tokens": 1468,
+          "output_tokens": 374,
+          "normalized_cost": 0.65,
+          "duration_ms": 5604.65016704984
+        },
+        "recovery_proposed": true,
+        "historical_failed_verdict_retained": true,
+        "patch_verdicts": [
+          false,
+          true
+        ],
+        "new_lesson": {
+          "old_text": "return 7 + shards",
+          "new_text": "return 7 + 5 * shards"
+        },
+        "host_source_unchanged": true,
+        "usage_may_be_incomplete": false
+      },
+      {
+        "family": "meridian_checksum",
+        "status": "completed",
+        "elapsed_seconds": 6.006561957998201,
+        "usage": {
+          "model_calls": 1,
+          "external_calls": 0,
+          "input_tokens": 1477,
+          "output_tokens": 359,
+          "normalized_cost": 0.65,
+          "duration_ms": 5999.934456893243
+        },
+        "recovery_proposed": true,
+        "historical_failed_verdict_retained": true,
+        "patch_verdicts": [
+          false,
+          true
+        ],
+        "new_lesson": {
+          "old_text": "return sum(values) % 256",
+          "new_text": "return sum(values) % 241"
+        },
+        "host_source_unchanged": true,
+        "usage_may_be_incomplete": false
+      }
+    ]
+  },
+  "persisted_workbench": {
+    "session_id": "b1be18ab-fd6a-4b0a-85b6-33d2b0c095ed",
+    "status": "passed",
+    "elapsed_seconds": 9.879604290996213,
+    "usage": {
+      "model_calls": 1,
+      "external_calls": 0,
+      "input_tokens": 1486,
+      "output_tokens": 375
+    },
+    "memory_proposed": true,
+    "recovery_proposed": true,
+    "patch_verdicts": [
+      false,
+      true
+    ]
+  },
+  "validation": {
+    "backend_tests": 716,
+    "failures": 0,
+    "skipped": 0,
+    "real_postgres_and_docker": true,
+    "mypy_application_sources": 131,
+    "browser": "Verified completed report, one model request, 1861 tokens, failed then successful execution evidence, and the five-units replacement diff."
+  }
+}

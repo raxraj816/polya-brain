@@ -16,7 +16,7 @@ def _docker_available() -> bool:
         return False
     return (
         subprocess.run(
-            ["docker", "image", "inspect", "python:3.14-alpine"],
+            ["docker", "image", "inspect", DockerPythonSandbox().image],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
@@ -31,7 +31,8 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def _sandbox(*, timeout: float = 1.0, output: int = 4096) -> DockerPythonSandbox:
+# Include Docker startup on shared CI hosts; the timeout test explicitly uses 0.5s.
+def _sandbox(*, timeout: float = 5.0, output: int = 4096) -> DockerPythonSandbox:
     return DockerPythonSandbox(
         limits=DockerSandboxLimits(timeout_seconds=timeout, max_output_bytes=output)
     )

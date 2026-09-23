@@ -15,6 +15,7 @@ from app.cognition.arithmetic_pack import (
 from app.cognition.capabilities import FunctionCapability
 from app.cognition.contracts import (
     CapabilityDefinition,
+    CapabilityKind,
     CognitiveActionCandidate,
     CognitiveActionType,
     CognitiveObservation,
@@ -23,6 +24,8 @@ from app.cognition.contracts import (
 )
 from app.cognition.model_contracts import (
     AnalysisExecutionOutput,
+    ConclusionCheckOutput,
+    DeliberationCapabilityOutput,
     GapDetectionOutput,
     HypothesisGenerationOutput,
     PlanGenerationOutput,
@@ -34,6 +37,40 @@ from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import ContractModel, ReasoningMode, RiskLevel
 
 
+def _arithmetic_deliberation_output(state: PolyaState) -> DeliberationCapabilityOutput:
+    from app.cognition.local_capabilities import calculate_binary_expression
+
+    hypothesis = arithmetic_hypothesis_output(state)
+    plan = arithmetic_plan_output(state)
+    tasks = [task.model_copy(update={"tool_name": "deliberator"}) for task in plan.tasks]
+    outputs: list[ExecutionOutput] = []
+    for task in tasks:
+        expression = str(task.params.get("expression", state["raw_input"]))
+        normalized, result = calculate_binary_expression(expression)
+        outputs.append(
+            ExecutionOutput(
+                task_id=task.id,
+                summary=f"Independently recalculated {normalized} = {result}.",
+                output={"expression": normalized, "result": result},
+            )
+        )
+    return DeliberationCapabilityOutput(
+        hypotheses=hypothesis.hypotheses,
+        tasks=tasks,
+        execution_outputs=outputs,
+    )
+
+
+def _arithmetic_conclusion_output(state: PolyaState) -> ConclusionCheckOutput:
+    verified = arithmetic_verification_output(state)
+    reflected = arithmetic_reflection_output(state)
+    return ConclusionCheckOutput(
+        report=verified.report,
+        final_answer=verified.final_answer,
+        reflection=reflected.reflection if verified.report.passed else None,
+    )
+
+
 def _payload[PayloadT: ContractModel](
     result: ModelCapabilityResult[PayloadT],
 ) -> JsonValue:
@@ -41,6 +78,17 @@ def _payload[PayloadT: ContractModel](
         "provider": result.provider,
         "model": result.model,
         "usage": result.usage.model_dump(mode="json"),
+        "model_calls": result.model_calls,
+        "route_attempts": [
+            {
+                "route": item.route,
+                "succeeded": item.succeeded,
+                "duration_ms": item.duration_ms,
+                "provider_attempts": item.provider_attempts,
+                "failure_kind": item.failure_kind,
+            }
+            for item in result.route_attempts
+        ],
     }
 
 
@@ -53,11 +101,15 @@ def gap_detector_capability(
     """Identify blocking missing knowledge without selecting an acquisition action."""
     definition = CapabilityDefinition(
         name="gap_detector",
-        version="model_gap_detector@0.1.0",
+        version=gateway.capability_version("model_gap_detector@0.1.0"),
         supported_actions={CognitiveActionType.DETECT_GAPS},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
+        timeout_seconds=90.0,
         estimated_cost=0.15,
+        kind=CapabilityKind.MODEL,
+        max_model_calls=gateway.max_provider_attempts_per_capability,
+        max_output_tokens=1800,
     )
 
     def execute(
@@ -82,6 +134,7 @@ def gap_detector_capability(
                 ),
                 output_type=GapDetectionOutput,
                 state=state,
+                total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
         problem = state["structured_problem"]
@@ -118,11 +171,15 @@ def hypothesis_capability(
     """Generate falsifiable alternatives after blocking gaps are resolved."""
     definition = CapabilityDefinition(
         name="reasoner",
-        version="model_hypothesis_reasoner@0.1.0",
+        version=gateway.capability_version("model_hypothesis_reasoner@0.1.0"),
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
+        timeout_seconds=90.0,
         estimated_cost=0.2,
+        kind=CapabilityKind.MODEL,
+        max_model_calls=gateway.max_provider_attempts_per_capability,
+        max_output_tokens=2400,
     )
 
     def execute(
@@ -145,6 +202,7 @@ def hypothesis_capability(
                 output_type=HypothesisGenerationOutput,
                 state=state,
                 max_output_tokens=2400,
+                total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
         return CognitiveObservation(
@@ -170,11 +228,15 @@ def planner_capability(
     """Translate hypotheses into bounded executable checks."""
     definition = CapabilityDefinition(
         name="planner",
-        version="model_planner@0.1.0",
+        version=gateway.capability_version("model_planner@0.2.0"),
         supported_actions={CognitiveActionType.PLAN, CognitiveActionType.REPLAN},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
+        timeout_seconds=90.0,
         estimated_cost=0.15,
+        kind=CapabilityKind.MODEL,
+        max_model_calls=gateway.max_provider_attempts_per_capability,
+        max_output_tokens=2200,
     )
 
     def execute(
@@ -190,7 +252,14 @@ def planner_capability(
                 instructions=(
                     "Create the smallest plan that can test the surviving candidates and every "
                     f"success criterion using at most {max_plan_tasks} task(s). "
-                    "success criterion. tool_name MUST be one of AVAILABLE_EXECUTION_TOOLS. "
+                    "If required observations are absent and the available tools cannot obtain "
+                    "them, return no tasks and up to three focused clarifying_questions asking "
+                    "for that evidence. Otherwise return tasks and no clarifying_questions. "
+                    "Use failed verification to identify what is still missing. Never replace "
+                    "missing real installation, execution, or test records with analysis, "
+                    "simulation, or a measurement of dependency metadata. Do not ask again for "
+                    "supplied sources, or for future observations not needed to deliver an "
+                    "explicitly conditional proposal. tool_name MUST be one of AVAILABLE_EXECUTION_TOOLS. "
                     "Use calculator for binary arithmetic only when calculator appears in that "
                     "list, and put the expression in params. When arithmetic evidence was already "
                     "acquired but calculator is not an execution tool, use executor to check the "
@@ -210,8 +279,22 @@ def planner_capability(
                 output_type=PlanGenerationOutput,
                 state=state,
                 max_output_tokens=2200,
+                total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
+        if output.clarifying_questions:
+            return CognitiveObservation(
+                action_id=action.id,
+                capability=definition.name,
+                capability_version=definition.version,
+                status=ObservationStatus.BLOCKED,
+                failure_kind="human_input_required",
+                summary="Planning requires missing evidence that available execution tools cannot obtain.",
+                payload=_payload(result) if result is not None else {"procedure": "deterministic"},
+                proposed_update=CognitiveStateUpdate(
+                    questions_to_ask=output.clarifying_questions,
+                ),
+            )
         unsupported = [
             task.tool_name
             for task in output.tasks
@@ -242,11 +325,15 @@ def analysis_executor_capability(
     """Execute one low-risk analytic plan task against recorded state only."""
     definition = CapabilityDefinition(
         name="executor",
-        version="model_analysis_executor@0.1.0",
+        version=gateway.capability_version("model_analysis_executor@0.1.0"),
         supported_actions={CognitiveActionType.EXECUTE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
+        timeout_seconds=90.0,
         estimated_cost=0.15,
+        kind=CapabilityKind.MODEL,
+        max_model_calls=gateway.max_provider_attempts_per_capability,
+        max_output_tokens=1800,
     )
 
     def execute(
@@ -262,6 +349,7 @@ def analysis_executor_capability(
             ),
             output_type=AnalysisExecutionOutput,
             state=state,
+            total_timeout_seconds=definition.timeout_seconds,
         )
         return CognitiveObservation(
             action_id=action.id,
@@ -292,11 +380,15 @@ def verifier_capability(
     """Try to falsify the proposed result against evidence and success criteria."""
     definition = CapabilityDefinition(
         name="verifier",
-        version="model_verifier@0.1.0",
+        version=gateway.capability_version("model_verifier@0.1.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
+        timeout_seconds=90.0,
         estimated_cost=0.2,
+        kind=CapabilityKind.MODEL,
+        max_model_calls=gateway.max_provider_attempts_per_capability,
+        max_output_tokens=2200,
     )
 
     def execute(
@@ -320,6 +412,7 @@ def verifier_capability(
                 output_type=VerificationCapabilityOutput,
                 state=state,
                 max_output_tokens=2200,
+                total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
         return CognitiveObservation(
@@ -350,11 +443,15 @@ def reflector_capability(
     """Extract reusable lessons only from an accepted verified run."""
     definition = CapabilityDefinition(
         name="reflector",
-        version="model_reflector@0.1.0",
+        version=gateway.capability_version("model_reflector@0.1.0"),
         supported_actions={CognitiveActionType.REFLECT},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
+        timeout_seconds=90.0,
         estimated_cost=0.1,
+        kind=CapabilityKind.MODEL,
+        max_model_calls=gateway.max_provider_attempts_per_capability,
+        max_output_tokens=1800,
     )
 
     def execute(
@@ -376,6 +473,7 @@ def reflector_capability(
                 ),
                 output_type=ReflectionCapabilityOutput,
                 state=state,
+                total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
         return CognitiveObservation(

@@ -1,0 +1,431 @@
+{
+  "version": "structural_repair_transfer_development@0.1.0",
+  "date": "2026-09-22",
+  "model": "openai/gpt-5.6-luna",
+  "new_training": false,
+  "conditions": {
+    "source_and_checks_supplied": true,
+    "search_enabled": false,
+    "same_model_and_sandbox_for_comparator": true,
+    "max_model_calls_per_cli_run": 6,
+    "fixtures_frozen_before_first_run_and_implementation": true
+  },
+  "limitations": [
+    "Author-created simple task families frozen before implementation, not independent held-out or real-user evidence.",
+    "Syntactic expression transfer across renamed variables and changed statement contexts; not general semantic equivalence, algorithm invention or type inference.",
+    "Cold, previous exact-memory, and adapted-memory conditions share the supplied source/check and production sandbox/verifier.",
+    "All learning, transfer and incompatible-rule runs are retained. Per-reuse zero model calls exclude initial learning and development calls.",
+    "Unsupported syntax, partial edits and ambiguous matches fall back to the ordinary model path.",
+    "Negative variants reject the transferred edit then recover using one model proposal; they do not establish that all wrong transfers are detected by arbitrary supplied checks.",
+    "No overall currency, hardware, storage, or competitive product advantage is established. Recorded normalized cost is a scheduling weight.",
+    "Lesson bytes exclude database, trace, sandbox and underlying model storage. No new persisted lesson field was added.",
+    "Raw artifacts remain in ignored runs/repair-transfer folders."
+  ],
+  "experiments": [
+    {
+      "fixture_sha256": "152af2c0f53e4135941e9031b44047d14194405b1ce2fa0e6839a69cb62aad7c",
+      "runs": [
+        {
+          "family": "line_total",
+          "condition": "learn",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1062,
+            "output_tokens": 351,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 7127.044208056759
+          },
+          "elapsed_seconds": 7.1320780829992145,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 472
+        },
+        {
+          "family": "line_total",
+          "condition": "cold",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1147,
+            "output_tokens": 384,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6359.721207933035
+          },
+          "elapsed_seconds": 6.3635004999814555,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 472
+        },
+        {
+          "family": "line_total",
+          "condition": "warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1147,
+            "output_tokens": 359,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6773.304418020416
+          },
+          "elapsed_seconds": 6.777986500004772,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 472
+        },
+        {
+          "family": "inclusive_threshold",
+          "condition": "learn",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1078,
+            "output_tokens": 399,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6861.375457025133
+          },
+          "elapsed_seconds": 6.866287666023709,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 475
+        },
+        {
+          "family": "inclusive_threshold",
+          "condition": "cold",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1119,
+            "output_tokens": 326,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 5871.594002004713
+          },
+          "elapsed_seconds": 5.8762277500354685,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 475
+        },
+        {
+          "family": "inclusive_threshold",
+          "condition": "warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1119,
+            "output_tokens": 373,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6689.194084843621
+          },
+          "elapsed_seconds": 6.694568957958836,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 475
+        },
+        {
+          "family": "two_required_flags",
+          "condition": "learn",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1078,
+            "output_tokens": 331,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6552.733458054718
+          },
+          "elapsed_seconds": 6.55777129199123,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 473
+        },
+        {
+          "family": "two_required_flags",
+          "condition": "cold",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1090,
+            "output_tokens": 357,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 5846.217916929163
+          },
+          "elapsed_seconds": 5.850857542012818,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 473
+        },
+        {
+          "family": "two_required_flags",
+          "condition": "warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1090,
+            "output_tokens": 330,
+            "normalized_cost": 0.4800000000000001,
+            "duration_ms": 6233.878874045331
+          },
+          "elapsed_seconds": 6.238599333039019,
+          "lesson_available": true,
+          "memory_proposed": false,
+          "transfer_kind": null,
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 473
+        }
+      ],
+      "run_id": "2026-09-22-structural-baseline",
+      "revision": "exact-recall@0.1.0"
+    },
+    {
+      "fixture_sha256": "152af2c0f53e4135941e9031b44047d14194405b1ce2fa0e6839a69cb62aad7c",
+      "runs": [
+        {
+          "family": "line_total",
+          "condition": "warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 0,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.2,
+            "duration_ms": 874.0549610811286
+          },
+          "elapsed_seconds": 0.8783368340227753,
+          "lesson_available": true,
+          "memory_proposed": true,
+          "transfer_kind": "alpha_expression",
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 472
+        },
+        {
+          "family": "line_total",
+          "condition": "negative",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1438,
+            "output_tokens": 404,
+            "normalized_cost": 0.65,
+            "duration_ms": 8605.828374973498
+          },
+          "elapsed_seconds": 8.611176749982405,
+          "lesson_available": true,
+          "memory_proposed": true,
+          "transfer_kind": "alpha_expression",
+          "patch_verdicts": [
+            false,
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 472
+        },
+        {
+          "family": "inclusive_threshold",
+          "condition": "warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 0,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.2,
+            "duration_ms": 548.0934999650344
+          },
+          "elapsed_seconds": 0.5510927079594694,
+          "lesson_available": true,
+          "memory_proposed": true,
+          "transfer_kind": "alpha_expression",
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 475
+        },
+        {
+          "family": "inclusive_threshold",
+          "condition": "negative",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1447,
+            "output_tokens": 450,
+            "normalized_cost": 0.65,
+            "duration_ms": 8736.296456016134
+          },
+          "elapsed_seconds": 8.741839791007806,
+          "lesson_available": true,
+          "memory_proposed": true,
+          "transfer_kind": "alpha_expression",
+          "patch_verdicts": [
+            false,
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 475
+        },
+        {
+          "family": "two_required_flags",
+          "condition": "warm",
+          "status": "completed",
+          "usage": {
+            "model_calls": 0,
+            "external_calls": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "normalized_cost": 0.2,
+            "duration_ms": 547.0611249911599
+          },
+          "elapsed_seconds": 0.5508316250052303,
+          "lesson_available": true,
+          "memory_proposed": true,
+          "transfer_kind": "alpha_expression",
+          "patch_verdicts": [
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 473
+        },
+        {
+          "family": "two_required_flags",
+          "condition": "negative",
+          "status": "completed",
+          "usage": {
+            "model_calls": 1,
+            "external_calls": 0,
+            "input_tokens": 1447,
+            "output_tokens": 457,
+            "normalized_cost": 0.65,
+            "duration_ms": 8358.384167018812
+          },
+          "elapsed_seconds": 8.365840999991633,
+          "lesson_available": true,
+          "memory_proposed": true,
+          "transfer_kind": "alpha_expression",
+          "patch_verdicts": [
+            false,
+            true
+          ],
+          "host_source_unchanged": true,
+          "usage_may_be_incomplete": false,
+          "serialized_lesson_bytes": 473
+        }
+      ],
+      "run_id": "2026-09-22-structural-adapter",
+      "revision": "expression-recall@0.2.0"
+    }
+  ],
+  "persisted_workbench": [
+    {
+      "condition": "learn",
+      "session_id": "1ef8d01b-6879-4350-96eb-744c75dd1c08",
+      "status": "passed",
+      "elapsed_seconds": 7.662390582961962,
+      "usage": {
+        "model_calls": 1,
+        "external_calls": 0,
+        "input_tokens": 1082,
+        "output_tokens": 354
+      },
+      "memory_proposed": false
+    },
+    {
+      "condition": "transfer",
+      "session_id": "352a4e5b-d4a6-4673-9df9-07b978c34d8c",
+      "status": "passed",
+      "elapsed_seconds": 0.6639390420168638,
+      "usage": {
+        "model_calls": 0,
+        "external_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0
+      },
+      "memory_proposed": true
+    }
+  ],
+  "aggregate_paired_comparison": {
+    "learning_model_calls": 3,
+    "learning_tokens": 4299,
+    "cold_transfer_model_calls": 3,
+    "cold_transfer_tokens": 4423,
+    "structural_transfer_model_calls": 0,
+    "structural_transfer_tokens": 0,
+    "scope": "One learning and one related transfer per family; excludes all other development runs, negative cases and workbench costs."
+  },
+  "validation": {
+    "backend_tests": 742,
+    "failures": 0,
+    "skipped": 0,
+    "mypy_application_sources": 132
+  }
+}

@@ -6,9 +6,87 @@ Date prepared: 2026-05-25
 
 ## 1. Product Decision
 
-PolyaBrain is the main product. It is a general problem-solving intelligence platform inspired by George Pólya's method: understand the problem, devise a plan, carry out the plan, and look back.
+This section is the binding product-identity decision for every PolyaBrain
+builder, document, architecture choice, benchmark, and roadmap chapter.
 
-### 1.1 Non-Negotiable Product Hierarchy
+> **PolyaBrain is a product-first, initially cloud-hosted, model-agnostic
+> Cognitive Runtime that turns difficult objectives into verified outcomes by
+> acquiring knowledge on demand, using deterministic procedures whenever
+> possible, invoking bounded model reasoning when necessary, and learning
+> reusable procedures from verified work.**
+
+PolyaBrain is a brain-inspired problem-solving intelligence system. To the
+person using it, PolyaBrain is a cognitive workbench that helps them understand,
+investigate, solve, verify, and learn from difficult problems. It must make
+reasoning visible, evidence inspectable, uncertainty explicit, resource use
+auditable, and learning reusable. These statements define the intended human
+experience; “Cognitive Runtime” defines the technical architecture that must
+produce it.
+
+PolyaBrain is inspired by George Pólya's method: understand the problem, devise
+a plan, carry out the plan, and look back. General-purpose intelligence is the
+long-term architectural ambition. It is not the initial market category or a
+claim that may be made without cross-domain evidence.
+
+### 1.1 Product, Runtime, Deployment, OS, And Model Boundaries
+
+**PolyaBrain is the product identity.** Investigator names the first verified
+workflow, not the limit of what the system is intended to learn or accomplish.
+The broader objective is to understand unfamiliar objectives, discover what is
+missing, acquire knowledge or skills, act through available capabilities, verify,
+and retain useful procedures. The aspiration “Your physical brain” expresses the
+founder's desired personal relationship with the product; it is not a current
+claim of embodiment, human equivalence, or unrestricted autonomous capability.
+
+These terms describe different layers and must not be treated as competing
+product choices:
+
+| Layer | Binding decision |
+|---|---|
+| Initial user-facing product | **PolyaBrain Investigator**, a verified technical problem-solving workbench for founders, engineers, researchers, technical product builders, and small technical teams. |
+| Enduring intelligence core | **PolyaBrain Cognitive Runtime**, the domain-independent control system that owns task state, knowledge gaps, action selection, budgets, evidence admission, verification, recovery, and learning. |
+| Initial delivery | A managed cloud product and API for fast iteration, provider routing, connected knowledge, and shared capability operations. The runtime must remain portable rather than cloud-dependent. |
+| Later deployment surfaces | Indian or other sovereign cloud, enterprise private cloud, and local or edge execution when privacy, latency, resilience, economics, or procurement justify them. |
+| Eventual platform category | **PolyaBrain Intelligence OS**, but only after external applications and developers depend on its runtime, capability contracts, procedure system, and governance. “OS” is an internal architecture before it is an earned market position. |
+| Language models | Replaceable semantic processors for interpretation, candidate generation, synthesis, and difficult judgment. A model is never PolyaBrain and never owns the control loop. |
+| Knowledge and action sources | Memory, web, files, code, databases, APIs, papers, calculators, simulators, experiments, sensors, and people are registered capabilities selected only when the current task warrants them. |
+
+The initial product promise is:
+
+```text
+Bring PolyaBrain a difficult objective.
+It determines what must be known and done,
+acquires or asks for only what blocks progress,
+executes the best available procedure,
+verifies the result,
+and leaves behind an auditable report and reusable learning.
+```
+
+The product is not a generic chat interface around this architecture. Chat may
+be one interaction surface, but the unit of value is a verified problem outcome.
+
+### 1.2 Product Evolution
+
+Development is chapter-gated, not date-gated:
+
+1. **PolyaBrain Investigator:** win a narrow, high-value technical
+   investigation workflow with lower overhead than manual work and generic
+   chat.
+2. **PolyaBrain Cognitive Runtime API:** expose the proven task model,
+   capability registry, evidence, verification, budgets, trace, and procedure
+   interfaces to other products.
+3. **Organizational intelligence:** build permissioned organizational evidence,
+   episode, and verified-procedure networks without leaking or flattening
+   tenant knowledge.
+4. **Capability ecosystem:** allow governed external capabilities, evaluators,
+   and procedure packs to extend the same runtime.
+5. **PolyaBrain Intelligence OS:** claim the platform category only when the
+   runtime has real dependent applications, developers, and cross-domain proof.
+
+Each stage must earn the next. Infrastructure breadth, integrations, and
+platform language may not outrun demonstrated user value.
+
+### 1.3 Non-Negotiable Intelligence Hierarchy
 
 PolyaBrain is the problem-solving intelligence. An LLM is not PolyaBrain and
 must never become the implicit owner of the problem-solving loop. Language
@@ -55,7 +133,70 @@ Generality is a measured property, not an architecture claim. It is proven only
 when the same state-dependent control cycle selects useful actions, recovers,
 verifies, and learns across materially different problem categories.
 
-The implementation must therefore build the **PolyaBrain Core Platform** first:
+### 1.4 Invention Mandate
+
+PolyaBrain may invent and build any new algorithm, representation, runtime
+mechanism, verifier, procedure language, memory mechanism, capability interface,
+small specialized model, or infrastructure component required to win its
+measured problem categories. The mandate is broad; promotion into the product
+core is evidence-gated.
+
+Every proposed invention must:
+
+1. Resolve a demonstrated failure or binding limitation in a real product loop.
+2. Have a defined producer, consumer, observable behavior, and failure mode.
+3. Be evaluated against the simplest strong alternative and a direct-model
+   baseline where applicable.
+4. Improve verified outcome quality, cost, latency, transfer, safety, or user
+   overhead materially enough to justify its complexity.
+5. Begin in prompts, metadata, traces, research notes, optional capabilities,
+   or evals until evidence justifies promotion into sacred core contracts.
+
+This mandate does not authorize speculative neuroscience modules, an
+unmeasured agent swarm, or foundation-model training for prestige. A proprietary
+small model is justified only when accumulated verified traces show that it can
+perform a stable operation better or cheaper than routing to existing models or
+deterministic code.
+
+### 1.5 Winning Standard
+
+The primary optimization target is:
+
+> **Verified useful outcomes per unit of total cost: rupees, time, tokens,
+> compute, risk, and human attention.**
+
+Minimizing model calls is subordinate to this target. Zero calls with a wrong
+answer loses; an expensive call that uniquely enables a valuable verified
+outcome may win.
+
+PolyaBrain wins a problem category only when repeated held-out evaluation shows:
+
+1. Verified outcome quality is at least as high as the strongest practical
+   direct-model, full-context, ordinary-retrieval, and manual-workflow baselines
+   relevant to that category.
+2. Unsupported conclusions and verification failures are lower than or no
+   worse than those baselines.
+3. Total model calls, tokens, latency, money, acquisition work, or human effort
+   produce a meaningfully better quality-cost frontier.
+4. Verified procedural reuse reduces work on related second tasks without
+   lowering outcome quality or transferring a procedure incorrectly.
+5. Real target users voluntarily bring another difficult problem because the
+   product's overhead is lower than the value it creates.
+
+Required product metrics include verified task success, unsupported-conclusion
+rate, cost and latency per verified outcome, calls and tokens per verified
+outcome, deterministic completion rate, acquisition work, procedure reuse and
+transfer savings, human intervention, and repeat use.
+
+A narrow benchmark win must be labeled narrowly. “General-purpose” or
+“Intelligence OS” superiority requires the same kernel to win across materially
+different categories such as investigation, multi-rule reasoning, debugging,
+planning, data analysis, and scientific problem solving.
+
+### 1.6 First Product And Core Runtime Scope
+
+The implementation must build the smallest useful **PolyaBrain Investigator**
+through the **PolyaBrain Cognitive Runtime**:
 
 1. A stateful Polya loop.
 2. A typed problem representation layer.
@@ -66,7 +207,8 @@ The implementation must therefore build the **PolyaBrain Core Platform** first:
 7. Tool execution.
 8. Verification and replanning.
 9. Reflection and memory update.
-10. A user experience that exposes the reasoning workflow clearly.
+10. A user experience that exposes evidence, uncertainty, checks, resource use,
+    and the final outcome clearly.
 
 PolyaBrain must be tested across many problem types from the beginning. The MVP should not depend on one domain to prove the idea. It should use a **General Problem Benchmark Suite** covering math, logic, research, software debugging, data analysis, planning, scientific/technical questions, and intentionally underspecified problems.
 
@@ -81,7 +223,12 @@ Core job: given a messy problem in any supported domain, PolyaBrain should:
 7. Produce an auditable investigation report.
 8. Store the case, evidence, outcome, and lessons learned for future reuse.
 
-The first implementation proves the core by solving a diverse suite of problems. Domain-specific logic belongs in optional use-case packs: tools, schemas, playbooks, seed data, evaluation cases, and UI labels. The core must remain domain-agnostic.
+The technical-investigation wedge earns the right to expand. Cross-domain
+benchmarks simultaneously test that the core remains domain-independent.
+Domain-specific logic belongs in optional use-case packs: tools, schemas,
+playbooks, seed data, evaluation cases, and UI labels. Use-case packs may extend
+the runtime but may not replace its controller, evidence gates, budgets, or
+verification rules.
 
 ## 2. Sources Reviewed
 
@@ -866,7 +1013,8 @@ Tasks:
 
 1. Add provider-neutral LLM client.
 2. Support model name, temperature, max tokens, JSON mode if available.
-3. Add timeout and retry rules.
+3. Add per-attempt timeout, total retry deadline, and bounded retry rules. A
+   structured-output repair must share the originating capability deadline.
 4. Track token usage and estimated cost.
 5. Add fake LLM client for tests.
 
@@ -892,13 +1040,32 @@ Done when:
 
 #### Chapter 13-C: General Cognitive Control Proof
 
-Status: in progress on `feature/chapter-12b-13-openrouter-representation`. The
-same-model/same-tool six-category full-outcome harness is implemented and
-offline contract-tested. Its 2026-08-09 live attempt stopped before scoring
-because the configured free OpenRouter model returned HTTP 429; this provider
-failure is neither a PolyaBrain win nor loss. The completion gate requires three
-repetitions, balanced condition order, automated provenance/verification/
-recovery scoring, and separately keyed blinded human review; see
+Status: in progress in the current working tree. The same-model/same-tool
+six-category full-outcome harness is implemented and offline contract-tested.
+It now uses the Chapter 13-D fused two-stage semantic path under the same
+per-call output ceiling as the direct condition. Model capability versions are
+scoped to the configured model route, and retries plus structured-output repair
+share a hard total capability deadline. On 2026-08-22, `openrouter/auto`
+completed the math pair with both conditions passing, then returned empty
+content on pagination. A pinned `deepseek/deepseek-v4-flash-0731` pre-fusion
+diagnostic completed pagination with both conditions passing but exposed six
+Polya model calls, 15,488 tokens, and 224,219 ms versus two direct calls, 2,369
+tokens, and 11,419 ms. After fusion and deadline correction, the pinned route
+again returned empty content before a pair completed. After correcting strict
+OpenRouter parameter compatibility, `google/gemini-3.7-flash` completed a
+post-fusion six-category qualification run: Polya and direct both passed 6/6,
+but Polya used 32,725 tokens and 8,933 ms mean latency versus 14,945 tokens and
+5,101 ms for direct. Polya used two model calls versus direct's three in the
+recovery case, confirming controller-level call savings there, but the overall
+run is not a win. Chapter 13-I then removed that redundant semantic work and
+completed all 18 balanced pairs: Polya passed 18/18 with zero model tokens and
+direct passed 17/18 using 47,656 tokens. The predeclared general gate remains
+false because the 5.56-point pass-rate advantage is below 10 points. This is a
+narrow known-procedure compute win, not end-to-end superiority. Chapter 13-J
+subsequently passed its 24-pair synthetic adversarial epistemic-control gate at
+equal measured quality with 65.2% fewer model calls and 31.8% fewer tokens.
+Separately keyed blinded review and non-synthetic field cases still remain
+required for a broader product-value claim; see
 `docs/03_implementation/Chapter_13C_Outcome_Benchmark_Operations.md`.
 
 Purpose: prove that PolyaBrain selects what to do next from explicit problem
@@ -946,6 +1113,1437 @@ Done when:
   rate, latency, and cost against a tool-enabled direct-model baseline.
 - Failed or inconclusive runs stop truthfully rather than producing a forced
   answer.
+
+#### Chapter 13-D: On-Demand Task Learning and Compute-Efficiency Proof
+
+Status: implementation proof and narrow exact-lookup outcome gate complete;
+the general problem-solving outcome gate remains open. The 2026-08-22 offline
+unfamiliar-task proof passes six cases across three paired structural families,
+and the production-composed explicit-artifact live probe completes with zero
+model calls. The premium-model post-evidence fused probe completes with two
+calls. The repeated live four-condition unfamiliar-corpus gate also passes:
+Polya 18/18 verified outcomes with zero tokens, full-context 17/18, and ordinary
+retrieval 16/18. This supports only a narrow exact-lookup efficiency claim, not
+general superiority. This
+chapter moves the essential parts of Chapters 164, 167, and 168 into the first
+cognitive-product proof. Low model-call count is
+not a late performance optimization for PolyaBrain; it is part of the product
+hypothesis that explicit state, targeted acquisition, deterministic procedures,
+and verified reuse can substitute for repeated parametric inference.
+
+Purpose: prove that PolyaBrain can construct a temporary task model, acquire
+only knowledge that blocks the current task, spend expensive inference only
+when it has positive expected verification value, and reuse verified procedures
+on structurally related tasks.
+
+Tasks:
+
+1. Define experimental task-model, impasse, resource-budget, resource-usage,
+   and expected-verified-progress models outside the sacred core contracts.
+2. Derive a trace-visible temporary task model from canonical `PolyaState`;
+   keep facts, unknowns, constraints, current impasse, evidence, plan, and
+   verification status inspectable without creating a second source of truth.
+3. Add a hard per-run ledger for model calls, external acquisitions, tokens,
+   and normalized cost units. A capability that cannot fit the remaining
+   budget must be rejected or routed to a cheaper recovery action before it is
+   executed.
+4. Use deterministic gap construction whenever explicit unknowns and declared
+   sources already make the procedure known. Do not call a model merely to
+   restate an inspectable missing field.
+5. Rank cognitive actions by expected verified progress per marginal cost,
+   subject to risk, provenance, privacy, and failure-history gates.
+6. Fuse compatible semantic stages. One bounded deliberation may propose
+   hypotheses, the smallest verification plan, and an inspectable analytic
+   output; one independent conclusion check may verify and reflect. Logical
+   engines remain separate responsibilities, not mandatory model calls.
+7. Acquire knowledge only for the current blocking gap. Search is one possible
+   acquisition capability alongside memory, supplied artifacts, APIs,
+   measurement, calculation, simulation, experiment, code, and human input.
+8. Admit new facts to canonical evidence only with source metadata and an
+   evidence-quality decision. Failed acquisition must change the action or
+   terminate truthfully.
+9. Consolidate only verified completed behavior into procedural memory. Reuse
+   must remain a proposal whose transfer is checked against current evidence.
+10. Add unfamiliar micro-world cases whose rules, manuals, or APIs are supplied
+    at run time and are intentionally absent from model pretraining.
+11. Compare four conditions with fair capabilities and budgets where
+    applicable: direct model, full-context brute force, ordinary retrieval, and
+    PolyaBrain adaptive cognition.
+12. Add paired transfer cases. The second structurally related case must record
+    whether verified procedure reuse reduces model calls, tokens, or acquisition
+    work without lowering outcome or verification quality.
+
+Done when:
+
+- A production-composed run exposes its task-model snapshots and complete
+  resource ledger in the audit trace.
+- Explicit unknowns route to deterministic gap construction with zero model
+  calls for gap detection.
+- Compatible hypothesis, planning, execution-analysis, verification, and
+  reflection work requires at most two semantic model calls after evidence is
+  available, unless a trace-visible recovery justifies more.
+- The runtime technically prevents the configured model-call and acquisition
+  budgets from being exceeded and stops with an honest terminal reason.
+- At least six unfamiliar micro-world cases across at least three structural
+  task families complete through the same loop.
+- The benchmark reports outcome, provenance, verification, model calls, tokens,
+  latency, acquisitions, normalized cost, and second-task transfer savings for
+  all four conditions.
+- PolyaBrain is not declared a winner until repeated held-out results show a
+  useful quality-cost frontier improvement; structural fixture success alone is
+  labeled implementation proof, not scientific validation.
+
+#### Chapter 13-E: Verifier Factory and Procedure Compiler
+
+Status: verifier implementation and narrow repeated live verifier gate complete;
+governed procedure execution and trace-derived replay evidence are implemented;
+real procedure-transfer and end-to-end general outcome gates remain open. On
+2026-08-22, the six-case, two-family, three-repetition
+premium-model comparison produced 18/18 correct Polya verdicts, zero false
+passes, full criterion coverage, zero model calls, and zero tokens. Direct-model
+and full-context checking also scored 18/18 while using 23,944 and 26,978
+tokens; fixed ordinary retrieval scored 8/18 while using 30,901 tokens. Median
+latency was about 2.2 ms for Polya, 4.9 seconds for direct-model checking, 13.4
+seconds for full context, and 14.4 seconds for retrieval. This is evidence for a
+narrow known-verifier efficiency win, not end-to-end or general superiority.
+The experimental contracts remain outside canonical `PolyaState` while real
+procedure transfer and broader task evidence are gathered.
+
+Purpose: turn “verify the answer” and “learn from the run” from descriptive
+model behaviors into executable system mechanisms. PolyaBrain should compile
+declared success criteria, constraints, evidence requirements, and candidate
+claims into inspectable verifier specifications; after a verified outcome, it
+should compile the successful trace into a guarded, versioned procedure that
+can be replay-tested before present-case use.
+
+Tasks:
+
+1. Define an experimental `VerifierSpecification` with objective, verifier
+   kind, inputs, executable operation or capability reference, expected
+   invariant, evidence requirements, independence level, applicability,
+   timeout, cost, risk, and explicit failed/inconclusive semantics.
+2. Define the verifier lifecycle `proposed -> validated -> executed ->
+   passed|failed|inconclusive`. Reject a verifier that has no observable
+   result, depends only on the claim it is checking, exceeds its declared
+   boundary, or cannot distinguish failure from missing evidence.
+3. Implement deterministic verifier synthesis for criteria whose procedure is
+   known: exact evidence/provenance matching, numeric comparisons and
+   tolerances, set and multi-rule constraint satisfaction, structured execution
+   output checks, and contradiction requirements. Route genuinely semantic
+   criteria to a registered bounded checker rather than pretending they are
+   executable.
+   Structured declarations must be fingerprint-bound to a trusted task-
+   specification event; a model-authored plan cannot authorize its own
+   thresholds or expected result.
+4. Execute validated deterministic verifiers independently of candidate
+   generation. Emit each specification, input binding, result, failure reason,
+   and resource use into the append-only audit trace. Passing reports must
+   cover every declared success criterion.
+5. Define an experimental compiled-procedure format containing purpose,
+   structural task family, applicability and preconditions, ordered capability
+   steps, expected observations and postconditions, verifier specifications,
+   provenance, resource profile, known failure modes, regression cases,
+   version, and invalidation conditions.
+6. Define the procedure lifecycle `observed -> proposed -> replay_tested ->
+   verified -> deployed -> monitored -> retired`. A single success may create
+   only an observed/proposed procedure; deployment requires replay tests or an
+   explicitly narrow, mechanically proven procedure.
+   Mechanical-proof promotion is restricted to an allowlisted verifier family
+   with an inspectable invariant; it is not a generic caller override.
+7. Compile procedures only from completed, reflected, verified runs. Remove
+   volatile action ids and task-specific literals from the structural template,
+   retain source-session provenance, and never compile unsafe autonomous
+   permissions or unverified observations.
+8. Add an applicability checker that returns applicable, inapplicable, or
+   inconclusive with reasons. The runtime must not execute a recalled procedure
+   when current constraints, capability versions, provenance requirements, or
+   regression assumptions differ.
+9. Replay a candidate procedure against stored regression cases before verified
+   status. Every present-case reuse must run its verifier suite again; memory is
+   a proposal, never present truth.
+   Replay evidence must be generated by governed execution of the proposed
+   procedure, not accepted as a caller's unsupported success assertion.
+10. Integrate verifier and procedure artifacts through experimental trace
+    metadata and existing procedural-memory metadata before considering a core
+    contract or database migration.
+11. Add held-out multi-rule reasoning and small debugging/structured-output
+    cases, including poisoned memory, incorrect applicability, partial success,
+    contradictory evidence, stale capability versions, and deliberately weak
+    self-verification.
+12. Compare PolyaBrain with direct-model, full-context, and ordinary-retrieval
+    conditions on verified outcome, false-pass rate, criterion coverage,
+    procedure transfer accuracy, calls, tokens, latency, and total normalized
+    cost.
+
+Done when:
+
+- At least two materially different task families synthesize and execute typed
+  verifier suites whose individual results are visible in the trace.
+- A verifier cannot pass merely because a candidate or model says that it
+  passed; deterministic checks use independently bound evidence or execution
+  output, and semantic checks remain explicitly bounded and auditable.
+- A completed source task produces a typed procedure; replay on a structurally
+  related task saves work without reducing verification quality.
+- An inapplicable, stale, poisoned, or unverified procedure is rejected before
+  execution, with the reason visible in the trace.
+- Present-case verification catches at least one deliberately incorrect reused
+  result and routes to recovery or insufficient evidence.
+- Repeated held-out results demonstrate a better verified quality-cost frontier
+  before the mechanism is promoted into canonical contracts or described as a
+  general intelligence win.
+
+#### Chapter 13-F: Adaptive Cognitive Scheduler and Capability Health
+
+Status: complete in the current working tree. Chapter 13-D introduced declared costs and hard run
+budgets; Chapter 13-E demonstrated that real model routes can be correct yet
+slow, unavailable, or wasteful. This chapter makes observed capability health a
+bounded input to action selection without allowing cost or latency to override
+safety, provenance, applicability, or verification requirements.
+
+Purpose: learn which registered capability is likely to create verified
+progress for the present task family, action type, and resource budget. Polya
+must distinguish declared capability metadata from empirical operational
+reliability, verified-outcome contribution, latency, calls, tokens, and cost.
+
+Tasks:
+
+1. Measure capability duration at the registry boundary and retain it in the
+   audit trace next to action id, capability version, status, and resource use.
+2. Define experimental performance-sample, capability-profile, and adaptive-
+   estimate contracts outside canonical `PolyaState`.
+3. Learn only from bounded trace-derived samples. Separate operational success
+   from contribution to a completed verified outcome; a tool returning output
+   is not automatically evidence that the action was useful.
+4. Key profiles by task family, action type, capability, and version. A version
+   change starts a new profile rather than inheriting stale reliability.
+5. Use conservative priors and sample-confidence weighting so one success or
+   failure cannot dominate routing. Bound every learned adjustment.
+6. Adjust expected verified progress and effective marginal cost using observed
+   reliability, verified yield, latency, model/external calls, tokens, and
+   normalized cost. Preserve the controller's hard budget, permission,
+   sensitive-data, applicability, and failure-history gates before ranking.
+7. Emit the selected and rejected adaptive estimates into the action-decision
+   rationale or trace metadata so a user can inspect why a cheaper, faster, or
+   more reliable capability was preferred.
+8. Keep an in-process bounded ledger for the first experimental product path;
+   define a durable tenant-aware boundary before production promotion.
+9. Add degraded-provider tests showing that repeated timeouts/failures route a
+   later related task to a healthy deterministic, memory, artifact, or human
+   alternative when one can resolve the same obstacle.
+10. Add recovery tests showing that sparse performance data never authorizes an
+    unsafe capability, exceeds a budget, skips required evidence, or turns a
+    failed verification into a conclusion.
+11. Benchmark static routing against adaptive routing on rotated healthy,
+    degraded, recovered, and version-changed capability conditions.
+12. Report verified outcomes, wrong-route rate, recovery, calls, tokens,
+    latency, regret relative to the best eligible action, and overhead added by
+    the scheduler.
+
+Done when:
+
+- Every capability observation records bounded duration and resource telemetry.
+- Repeated degraded-provider evidence changes a later eligible action choice,
+  while a single failure does not cause permanent avoidance.
+- A capability-version change does not inherit the previous version's profile.
+- Adaptive routing improves or matches verified outcomes while reducing
+  wrong-route calls, tokens, or latency against the static controller on
+  repeated held-out degraded-provider cases.
+- All safety, privacy, budget, evidence, and present-case verification gates
+  remain effective under adversarial performance data.
+- The scheduler adds less overhead than the work it avoids and exposes an
+  auditable explanation for every adjustment.
+
+Evidence: the repeated offline routing gate covers 12 held-out task families
+and four capability regimes over five repetitions. Adaptive routing produced
+60/60 verified route outcomes versus 45/60 for static routing, with 45 versus
+60 external calls and 43,200 ms versus 160,500 ms of modeled capability
+latency. The auditable artifact is
+`evals/chapter_13f/results/2026-08-22/121908/summary.json`. This is a
+scheduler-specific win and does not support a general-intelligence superiority
+claim.
+
+#### Chapter 13-G: Deadline-Aware Cognition
+
+Status: complete in the current working tree. Live Chapter 13-C diagnostics showed that a small declared
+call count can still create unacceptable latency when every provider attempt,
+retry, and structured-output repair receives a fresh timeout. Chapter 12 now
+supports a shared model-call deadline; this chapter extends bounded time into
+the cognitive resource ledger and controller.
+
+Purpose: ensure Polya can decide that there is not enough time left to admit a
+capability, prefer another eligible route, or stop with insufficient evidence.
+Wall-clock budget is a hard product constraint, not a soft ranking signal.
+
+Tasks:
+
+1. Add a maximum run-duration field to the experimental cognitive budget and
+   measured duration to resource usage.
+2. Charge actual capability duration through the same append-only resource
+   events as calls, tokens, and normalized cost.
+3. Include remaining wall-clock duration in reservation checks using each
+   capability's declared timeout.
+4. Reject a capability before execution when its worst-case timeout cannot fit
+   the remaining run budget, and expose the shortage in the decision rationale.
+5. Apply the same reservation and charging behavior to governed compiled
+   procedures.
+6. Ensure model retries and repair share the declared capability deadline; do
+   not reset the deadline per attempt.
+7. Add adversarial tests for zero remaining time, actual-duration charging,
+   alternative-route selection, and safe stopping without a forced conclusion.
+8. Report timeout/provider failures separately from reasoning or benchmark
+   losses.
+
+Done when:
+
+- Every executed capability charges a non-negative measured duration.
+- A capability whose declared timeout cannot fit is never called.
+- A lower-timeout eligible route can be selected when a slower route is
+  rejected.
+- Exhausted time produces an auditable insufficient-evidence stop, not a final
+  answer.
+- Existing safety, privacy, call, token, and cost gates remain effective.
+
+Evidence: focused tests prove alternative-route selection under a 20-second
+remaining budget, zero-call insufficient-evidence termination at an exhausted
+deadline, measured-duration charging, and pre-execution rejection of a compiled
+procedure that cannot fit. The full repository verification passes 317 tests
+with 23 integration tests skipped; Ruff, formatting, and strict mypy over 99
+source files pass.
+
+#### Chapter 13-H: Semantic Capability Broker
+
+Status: complete in the current working tree for controller-registered
+model-backed cognitive capabilities. Chapter 13-C showed different failure
+behavior between `openrouter/auto` and a pinned model. Polya now owns bounded,
+deterministic selection and fallback across explicitly configured semantic
+routes instead of delegating availability to a single endpoint.
+
+Purpose: treat model endpoints as replaceable semantic processors. The broker
+selects and falls back among explicitly configured routes using schema-specific
+health, declared order, circuit state, and one shared deadline. Models never
+select the task action or authorize their own output.
+
+Tasks:
+
+1. Define experimental semantic-route, attempt, health-profile, and broker
+   contracts outside canonical `PolyaState`.
+2. Count every provider attempt, including transport retries and structured-
+   output repair, as a real model call.
+3. Key route health by cognitive capability and configured model slug/version.
+4. Prefer healthy routes deterministically; open a bounded circuit after
+   repeated failures without permanently blacklisting the route.
+5. Preserve part of the total capability deadline for configured fallback
+   routes rather than allowing the first route to consume the entire budget.
+6. Fall back only on typed provider, timeout, unavailable, malformed-output, or
+   schema-validation failure. A valid but unfavorable semantic result remains
+   subject to controller and verifier recovery rather than silent rerouting.
+7. Expose route order, success/failure kind, duration, and provider-attempt
+   count in capability payloads and trace-visible resource accounting.
+8. Support one primary and explicit fallback model slugs from settings, with
+   deduplication and no implicit discovery or provider-controlled expansion.
+9. Share a bounded in-process route-health ledger across production session
+   runners; defer durable tenant-aware promotion until evaluation evidence.
+10. Add tests for primary success, typed failover, deadline partitioning,
+    circuit opening/recovery, version isolation, call accounting, and
+    non-retryable semantic outcomes.
+
+Done when:
+
+- A typed failure on the primary route can complete through a configured
+  fallback inside one hard capability deadline.
+- Failed provider attempts are included in the model-call ledger.
+- Repeated degradation changes route order, while probes permit recovery.
+- Model-route changes start fresh health profiles.
+- With no successful route, the capability fails safely and produces no final
+  answer.
+- The controller, safety, evidence, and present-case verification boundaries
+  remain unchanged above the broker.
+
+Evidence: eight focused broker tests prove primary success, typed failover,
+deadline partitioning, actual retry/repair call accounting, circuit
+opening/recovery, route-version isolation, non-fallback authentication failure,
+and a no-answer all-route failure whose attempt history is visible in the
+durable trace. The same policy now covers initial problem representation:
+three-call primary failover succeeds, four-call exhaustion produces no
+structured problem, and parser repair cannot restart the total deadline.
+Bootstrap rejects more than one explicit fallback. The full repository suite
+passes 338 tests with 23 integration tests skipped; repository Ruff,
+affected-tree formatting over 156 Python files, and strict mypy over 102
+application source files pass.
+
+Bounded claim: this chapter proves typed route resilience and truthful resource
+accounting across representation and controller-registered semantic
+capabilities, not reasoning-quality, verified-outcome, or general-intelligence
+superiority. Route health is intentionally process-local and not yet tenant
+aware or durable.
+
+#### Chapter 13-I: Evidence Closure and Semantic Necessity Gate
+
+Status: complete in the current working tree for the first exact-attestation
+mechanism. The stable Chapter 13-C qualification run passed all six
+cases in both conditions but showed that Polya still spends two semantic calls
+after a trusted tool observation already contains the complete answer. This is
+the wrong compute behavior: known, independently checkable procedures must
+close deterministically before the controller considers a model.
+
+Purpose: make semantic computation conditional on residual uncertainty. A
+trusted deterministic capability may attest that one exact, source-visible
+claim covers every declared success criterion. Polya can then construct the
+candidate, replayable check, verification report, final answer, and reflection
+without asking an LLM to restate the same evidence.
+
+Tasks:
+
+1. Define an experimental trace-only deterministic evidence attestation with
+   producer capability/version, exact claim hash, source URI, covered criteria,
+   and checks performed. Do not add a canonical state field.
+2. Accept attestations only from an explicit capability/version allowlist
+   assembled by product composition; ordinary web, model, memory, and arbitrary
+   artifact content are not trusted attesters.
+3. Require one exact admitted evidence item, source provenance, claim/excerpt
+   identity, maximum declared reliability and relevance, and exact coverage of
+   every current success criterion.
+4. Add a deterministic procedure that constructs a hypothesis, plan, and
+   execution record from the attested claim, then independently recomputes the
+   hash, provenance, producer version, and criterion coverage before finalizing.
+5. Make the controller prefer this procedure at hypothesis and verification
+   impasses only when a candidate attestation exists. A failed validation must
+   produce no final answer and route back to semantic or evidence work.
+6. Expose zero model-call use and the closure decision in the durable trace.
+7. Give the direct benchmark condition the same attestation fields so the
+   comparison does not hide information; measure whether Polya avoids calls and
+   tokens while preserving correctness.
+8. Add negative tests for forged producer version, changed claim, partial
+   criterion coverage, multiple evidence claims, missing provenance, and
+   non-deterministic source types.
+
+Done when:
+
+- A trusted complete tool result reaches a verified final answer with zero
+  post-evidence model calls.
+- Any integrity, provenance, trust, or coverage mismatch prevents finalization.
+- Tasks without a valid attestation continue through the ordinary deliberator
+  and conclusion-checker route.
+- The mechanism improves quality-adjusted compute on held-out cases without a
+  benchmark-only task ID, answer term, or hard-coded domain solution.
+
+Bounded claim: this gate can eliminate redundant semantic work after a known
+typed procedure. It does not make semantic entailment deterministic, validate
+arbitrary retrieved text, or prove general problem-solving superiority.
+
+Evidence: the controller now prefers an allowlisted deterministic evidence
+closure procedure while retaining semantic fallbacks. Focused tests reject a
+forged producer version, changed claim, partial criterion coverage, multiple
+claims, missing provenance, untrusted source type, and tampered replay. Across
+the repeated 18-pair same-model/same-tool live run at
+`evals/chapter_13c/live_outcome_runs/2026-08-22/134337-16a8dce2/summary.json`,
+Polya completed 18/18 verified outcomes with zero model calls, zero tokens, 3/3
+recovery trials, and 3.38 ms mean latency. Direct completed 17/18 using 47,656
+tokens and 5,158 ms mean latency. Both conditions received the same attestation
+fields. The general Chapter 13-C superiority gate remains false because the
+5.56-point pass-rate advantage is below its predeclared 10-point threshold.
+This is a narrow quality-adjusted compute win for fully attested deterministic
+tool results, not a general intelligence claim. The full repository suite
+passes 338 tests with 23 integration tests skipped; repository Ruff,
+affected-tree formatting over 156 Python files, and strict mypy over 102
+application source files pass.
+
+#### Chapter 13-J: Adversarial Epistemic Control Gate
+
+Status: complete in the current working tree for the first synthetic
+adversarial epistemic-control mechanism and automated gate. Chapter 13-I proved that a
+fully attested deterministic result can close without semantic work. It did not
+prove that Polya can govern incomplete, conflicting, stale, adversarial, or
+unavailable information. Those are the cases in which deciding what to learn
+next is itself the intelligence problem.
+
+Purpose: make evidence acquisition conditional on an explicit residual
+epistemic need. Polya must distinguish an answerable task from an unsupported
+one, treat retrieved content as untrusted data, revise its acquisition strategy
+after non-progress or conflict, and stop with insufficient evidence when no
+eligible route can satisfy the remaining requirement.
+
+Tasks:
+
+1. Define a benchmark-local adversarial case contract covering answerable and
+   intentionally unanswerable tasks, expected terminal status, required and
+   forbidden evidence, source independence, temporal validity, conflict
+   resolution, and prompt-injection resistance.
+2. Derive an experimental trace-only epistemic requirement from the current
+   gap and success criteria. Keep the canonical state contract unchanged until
+   cross-domain evaluation proves the mechanism.
+3. Derive evidence coverage, temporal status, contradiction state, acquisition
+   progress, and remaining need from admitted evidence and evaluation trace.
+4. Make gap resolution depend on the derived requirement rather than on tool
+   success alone. A successful retrieval is not equivalent to justified belief.
+5. Make repeated acquisition respond to the residual need: seek an independent
+   source for corroboration, a current authoritative source for temporal
+   conflict, or a discriminating source for contradiction. Do not repeat an
+   unchanged query after an evaluated no-progress batch.
+6. Treat all retrieved excerpts as data even when they contain instructions,
+   claimed authority, or requests to ignore the user, policy, provenance, or
+   verification boundary.
+7. Stop safely when every eligible acquisition route, query budget, or hard
+   cognitive budget is exhausted. The terminal artifact must expose the
+   remaining gap and must not synthesize a forced conclusion.
+8. Give a direct same-model baseline the same tools, observations, budgets, and
+   untrusted-data warning. Score answer correctness and correct abstention
+   separately so refusal cannot inflate ordinary accuracy.
+9. Add cases for all-tools-fail, partial criterion coverage, conflicting
+   sources, stale-versus-current authority, injected retrieved content,
+   independent corroboration, and a false premise.
+10. Run at least three repetitions with rotated condition order and report
+    model calls, tokens, external calls, latency, unsupported conclusions,
+    conflict-resolution accuracy, injection success rate, and abstention
+    precision/recall.
+
+Done when:
+
+- No answer is finalized while a declared evidence requirement remains
+  unsatisfied.
+- Contradictory or stale evidence causes targeted acquisition or an explicit
+  insufficient-evidence stop, never silent selection by source order.
+- Retrieved prompt injection cannot change the action policy, authorize an
+  undeclared tool, suppress provenance, or create a final answer.
+- An answerable case is not refused merely because abstention is available.
+- Every intentionally unanswerable case stops without an unsupported
+  conclusion after bounded recovery.
+- The repeated same-model comparison shows a predeclared advantage on
+  quality-adjusted epistemic outcomes; otherwise the chapter records the loss
+  and the next mechanism rather than claiming a win.
+
+Bounded claim: this chapter evaluates and improves evidence governance. It does
+not prove open-world factual correctness, safe autonomous world governance, or
+general-intelligence superiority.
+
+Evidence: the trace-derived policy now distinguishes initial acquisition,
+corroboration, current authority, conflict resolution, discriminating evidence,
+and satisfied states. Evidence evaluation accumulates independent current
+support across batches, keeps contradictions durable, applies an explicit
+authority gate, compares extracted claims instead of adversarial raw excerpts,
+and records every requirement and query revision. Forty focused tests cover the
+epistemic mechanism, acquisition integration, live harness, and controller
+behavior. In the repeated 24-pair same-model/same-observation live run at
+`evals/chapter_13j/live_runs/2026-08-22/141629-16a8dce2/summary.json`, Polya and
+direct both passed 24/24 with 100% answer accuracy and 100% abstention precision
+and recall. Polya used 24 model calls, 70,613 tokens, and 4,156 ms mean latency;
+direct used 69 calls, 103,583 tokens, and 7,737 ms. External calls were equal at
+45. Both had zero unsupported forced conclusions and zero forbidden-output
+hits. The predeclared automated gate passed. A separately keyed 24-pair blinded
+review packet is generated beside the run artifact; human review remains
+pending, so `product_value_claim_ready` remains false. Repository-wide
+regression verification passes 356 tests with 23 integration tests skipped;
+repository Ruff, formatting over 161 Python files, strict mypy over 103
+application source files, focused mypy over both Chapter 13-J evaluation
+programs, and `git diff --check` pass.
+
+#### Chapter 13-K: Non-Synthetic Investigator Product-Value Gate
+
+Status: in progress in the current working tree. Chapters 13-D through 13-J
+prove isolated mechanisms and synthetic quality-cost gates. They do not prove
+that the production-composed Cognitive Runtime can investigate a real technical
+defect from source-visible artifacts, identify the right failure mechanism,
+recommend a testable correction, and produce lower-overhead value than a strong
+direct same-model workflow.
+
+Purpose: exercise the actual runtime against frozen, provenance-bearing defects
+from real open-source projects and later fresh private field cases. Ground truth
+must be executable wherever practical. The direct condition receives the same
+issue description, source artifacts, failing observations, model route, and
+resource ceiling. Structural report completeness is not a success metric unless
+the diagnosis and next action are also correct.
+
+Tasks:
+
+1. Define an evaluation-only field-case contract containing origin, license,
+   immutable upstream revision, problem statement, visible artifacts, hidden
+   gold semantics, executable reproduction, success criteria, and contamination
+   status.
+2. Start with reduced reproductions of real defects from BugsInPy or an
+   equivalent reproducible benchmark. Preserve upstream provenance and hashes;
+   label reductions honestly rather than calling them full-project execution.
+3. Give Polya and direct the same source-visible evidence packet. Do not expose
+   the developer patch, fixed implementation, hidden rubric, or condition label
+   to either condition.
+4. Run Polya through the real `CognitiveRuntime`/`CognitiveKernel`, deterministic
+   gap detection, explicit artifact acquisition, evidence evaluation,
+   deliberation, verification, recovery, budget, and trace boundaries. Do not
+   use the deterministic pre-platform report template as the Polya condition.
+5. Preflight every case by showing that the frozen buggy reproduction fails and
+   the corresponding fixed reproduction passes. A case that cannot reproduce is
+   excluded and recorded, never silently scored.
+6. Score diagnosis mechanism, implicated component, corrective action,
+   evidence citation, check quality, unsupported claims, terminal truthfulness,
+   model calls, tokens, latency, and acquisition work separately. Preserve raw
+   outputs for independent review.
+7. Generate a separately keyed condition-blind packet. Automated rubric results
+   may qualify the harness but may not make `product_value_claim_ready` true
+   without independent human review.
+8. Add paired defects sharing a structural debugging pattern. Admit a reusable
+   procedure only after the first result is executable and verified, then test
+   whether the related second case reduces acquisition or semantic work without
+   incorrect transfer.
+9. Add fresh, post-selection technical cases from real product use after the
+   public historical harness is stable. Report public-benchmark contamination
+   risk explicitly.
+10. Compare against at least the direct same-model condition first. Add current
+    practical product and human-workflow baselines before any external product
+    superiority claim.
+
+First diagnostic field pilot (2026-08-22):
+
+- The one-pair PySnooper reduced-reproduction pilot is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/145237-02dec531/summary.json`.
+- The direct condition produced the correct concrete mechanism, exact one-line
+  correction, and executable regression check in one call. The initial lexical
+  rubric incorrectly scored that semantic answer as a failure; the scorer must
+  retain this raw output as a regression case before another qualification run.
+- Polya's real runtime correctly represented the problem and deterministically
+  inspected all three explicit visible artifacts. It then spent two unnecessary
+  model attempts on semantic admission of local source-visible evidence; the
+  model evaluator failed its contract and Polya stopped safely with insufficient
+  evidence. No unsupported conclusion escaped.
+- The representation's four unknowns all required the identical explicit local
+  artifact set, but the deterministic gap detector emitted four separate gaps.
+  This creates avoidable reacquisition and duplicate-evidence failure risk.
+- Required mechanism correction: when provenance, containment, readability,
+  lexical relevance, source class, and temporal rules are deterministically
+  decidable for explicitly selected local artifacts, evidence admission must not
+  call a model. Multiple unknowns served by the same bounded local inspection
+  must be consolidated before acquisition while preserving every unknown in the
+  inspectable gap text. Semantic deliberation and verification remain separate;
+  deterministic admission does not make artifact claims true by itself.
+- The diagnostic result is a failed pilot, not evidence of product value. The
+  configured route was `openrouter/auto`; it must not be described as a pinned
+  premium model. Repeated qualification remains pending after the mechanisms and
+  scorer are corrected and regression-tested.
+- The corrected one-pair rerun is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/150142-02dec531/summary.json`. Direct
+  passed in one call. Polya and direct happened to receive the same actual model
+  from the auto route, and Polya reduced its model use to the single
+  representation call, but Polya still stopped without a diagnosis.
+- The rerun exposed two deterministic no-progress defects. Inspector-added line
+  prefixes such as `1:` and `7:` entered numeric contradiction logic and created
+  a false conflict between complementary issue and source-code excerpts. After
+  that unresolved result, repeated inspection of the identical artifact snapshot
+  was counted as success until the cycle ceiling. Source-location metadata must
+  be stripped before semantic claim comparison, and a repeated unchanged local
+  artifact snapshot must return an explicit no-new-evidence observation rather
+  than masquerading as progress.
+- A third diagnostic attempt at
+  `evals/chapter_13k/live_runs/2026-08-22/150431-02dec531/summary.json` was not a
+  valid comparison: both Polya representation provider attempts returned no text
+  while the later direct request succeeded. The runtime stopped safely, but the
+  harness mislabeled the pair as completed and treated the direct-only actual
+  model identity as route equivalence. A condition with provider attempts and no
+  successful response must make the pair provider-blocked, and actual-model
+  equivalence requires a successful direct response plus either a successful
+  same-model Polya response or a genuinely zero-attempt deterministic Polya
+  result. Provider failure is not a cognitive-quality observation.
+- The first healthy pinned-premium comparison is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/150846-16a8dce2/summary.json` using
+  `google/gemini-3.7-flash`, selected from the account-filtered official model
+  catalog because it declares structured-output support and no expiration. Both
+  conditions used that exact actual model. Both identified the correct mechanism
+  and correction, and both supplied an executable `check.verify` path-write
+  assertion. The initial scorer rejected the check because it looked only at the
+  normalized checklist field and ignored the concrete regression procedure in
+  Polya's final report; full user-visible check content must be scored and the raw
+  outputs retained as regressions.
+- Correcting that scorer does not create a product win. Polya used three model
+  calls and 14,518 tokens versus direct's one call and 3,063 tokens. The field
+  case shows the next intelligence objective: deterministic task framing for
+  explicit source-visible investigations where the representation procedure is
+  known, followed by the smallest semantic proposal and an executable governed
+  verifier. Additional prose-producing calls are overhead unless they improve a
+  hidden outcome or replace human work.
+- Chapter 13-K's next experimental mechanism is the source-patch verification
+  loop. It starts outside core contracts: a bounded model proposal names one
+  admitted source URI, one exact old substring, one replacement, one admitted
+  check URI, a diagnosis, and a check summary. Deterministic guards require both
+  files to be visible canonical evidence under an allowlisted root, require the
+  old substring exactly once, and reject multi-file or ambiguous edits.
+- A governed source-patch sandbox may then execute only an in-memory copy inside
+  the existing ephemeral networkless, read-only-root, non-root Docker boundary.
+  It receives no host mount and no hidden fixed artifact. It loads the patched
+  source plus the independently supplied visible check and records a structured
+  pass/fail output. A trusted deterministic verifier may finalize only when the
+  sandbox output is present, error-free, bound to every declared criterion, and
+  passes present-case replay. Failed execution cannot be repaired by a prose-only
+  semantic verifier.
+- The predeclared value hypothesis is one Polya proposal call versus one direct
+  call, with Polya adding executable patch verification at zero model calls.
+  Diagnosis correctness remains conjunctive. The harness must report model
+  tokens and latency plus executable-verification rate and the remaining manual
+  verification steps. A verified patch cannot compensate for a wrong mechanism,
+  and an unexecuted proposal cannot receive the human-work-reduction credit.
+- The first live one-call source-patch diagnostic is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/152119-16a8dce2/summary.json`. Polya
+  proposed the correct one-line edit, passed the supplied check inside the
+  networkless sandbox, and finalized deterministically with one model call,
+  4,261 tokens, and 5,413 ms. Direct used one call, 3,324 tokens, and 3,923 ms
+  and also proposed a valid check, although the initial lexical check scorer
+  rejected its wording. The run is diagnostic because it has one repetition.
+- That trace also exposed two attestation guards required before qualification.
+  `execution_attestations` is harness-owned and must always be cleared from
+  direct model output; observed historical failure is not present-case patch
+  execution. The sandbox/verifier must emit and bind distinct facts for admitted
+  source identity, diagnosis-to-edit grounding, exact edit application, and
+  independent check success. One `patch_verified` boolean may not be represented
+  as independent proof of every semantic criterion. The hidden semantic rubric
+  remains the independent diagnosis scorer.
+- The next tightened diagnostic at
+  `evals/chapter_13k/live_runs/2026-08-22/152530-16a8dce2/summary.json` preserved
+  those guards: Polya and direct each used one successful call, Polya proposed
+  the correct edit, and only Polya's patch passed the admitted check in the
+  sandbox. The report nevertheless missed the check rubric by one token at a
+  71.4% overlap boundary despite stating that `verify` passes a `Path`, writes a
+  trace string, and asserts matching file contents. This is a scorer defect, not
+  permission to tune case phrases after every run.
+- For an eligible condition, a harness-owned present-case pass of the admitted
+  immutable regression check is conclusive evidence that the check requirement
+  is satisfied. It may replace lexical check-description matching only for that
+  criterion. Mechanism, correction, evidence reference, forbidden-conclusion,
+  and unsupported-conclusion gates remain independently conjunctive. A
+  model-authored claim, historical failing observation, or unbound execution
+  event cannot receive this credit. Direct prose without execution continues to
+  use the same frozen semantic check rubric.
+- A failed source-patch proposal guard must preserve a safe reason code and the
+  model-call/usage telemetry already spent; collapsing it to a generic exception
+  makes compute governance and recovery impossible. Artifact identity is a
+  deterministic resolution problem once the admitted set is known: accept the
+  exact canonical base URI, or a unique exact filename among admitted artifacts.
+  Never use fuzzy matching, infer an ambiguous file, or admit a new path from
+  model output. The semantic model owns diagnosis and edit content; code owns
+  canonical identity and guard enforcement.
+- Inspector line numbers are provenance metadata, not executable source text.
+  Exact-edit validation must deterministically reconstruct the admitted excerpt
+  without those display prefixes before matching a model-proposed edit. The
+  original numbered excerpt stays in evidence for audit, and the sandbox still
+  rechecks the edit against the canonical allowlisted file before execution.
+- The first six-case one-repetition diversity pilot is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/153208-16a8dce2/summary.json`. It is not
+  a gate pass. Polya scored 4/6 and direct 5/6 with one call per case; all six
+  Polya patches actually passed their admitted sandbox checks, although the
+  harness reported 5/6 because it incorrectly coupled execution credit to the
+  separate final semantic-verification result.
+- The two observed Polya score failures were evaluation/finalization defects,
+  not permission to count the run as passed. In `fastapi_skip_defaults`, both
+  conditions explicitly diagnosed ignored `skip_defaults` and prescribed
+  `response.dict(skip_defaults=skip_defaults)`, but long grammatical rubric
+  phrases diluted the discriminating-token overlap. In `httpie_unset_header`,
+  the correct edit and check passed, but diagnosis grounding demanded half of
+  the newly introduced syntax words rather than accepting edit-context overlap
+  plus the changed concept `None`.
+- Semantic phrase support therefore uses the strict coverage rule, or—for
+  phrases with at least four shared discriminating terms—a lower 50% coverage
+  floor. Cross-case correct answers must remain negative controls, and generic
+  wrong diagnoses must still fail. Diagnosis-to-edit grounding requires at
+  least two source/edit context terms plus at least one changed term; it does not
+  by itself replace the hidden diagnosis rubric. Executable-verification rate is
+  derived solely from the trace-owned present-case sandbox pass, while terminal
+  diagnosis success remains conjunctive with semantic verification.
+- The deterministic rubric tokenizer must preserve full identifiers and also
+  decompose snake_case and CamelCase into semantic components. Otherwise
+  `skip_defaults`, `skip-default`, and `skip defaults`, or `ResponseModel` and
+  `response model`, are falsely treated as unrelated. This normalization is
+  case-independent and remains bounded by the same positive and negative
+  regression controls.
+- The corrected six-case diversity rerun is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/153746-16a8dce2/summary.json`. Polya and
+  direct each passed 6/6 with one identical pinned-model call per case. Polya
+  executed and passed 6/6 admitted checks versus 0/6 for direct, while using
+  26,236 versus 20,012 tokens (1.311x) and 5,053 versus 3,692 ms mean latency.
+  This supports proceeding to repetition; it is not a gate result or a cheaper-
+  compute claim.
+- The scorer, executable-attestation rule, case corpus, and value frontier are
+  frozen before the three-repetition qualification. A later outcome-informed
+  change invalidates that run and requires a new clearly identified evaluation
+  generation. The predeclared advantage is equal model-call count and equal
+  diagnosis quality plus trace-owned executable verification that replaces a
+  manual step; token or latency superiority is not expected in this generation.
+- The frozen three-repetition qualification is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/153932-16a8dce2/summary.json` and failed:
+  direct passed 18/18; Polya passed 17/18, despite all 18 Polya patches passing
+  their admitted executable checks. Polya used 18 model calls versus direct's
+  19, but lower answer quality correctly prevented the value-frontier win.
+- The lone failure was not a benchmark-rubric change. Polya proposed the correct
+  `response.dict(skip_defaults=skip_defaults)` repair and passed the check, then
+  its own deterministic finalizer suppressed the report because bare-token
+  symmetric difference erased the changed qualified identifier
+  `response.dict`. The 17/18 run remains failed. Any grounding correction begins
+  a new evaluation generation.
+- Diagnosis/edit grounding must preserve qualified code identifiers such as
+  `response.dict`, `response.name`, and `value.decode` alongside their component
+  tokens. A diagnosis is edit-grounded only when it overlaps the edit context
+  and names at least one term or qualified identifier whose presence changes.
+  The independent frozen semantic rubric still decides benchmark correctness.
+- The generation-2 one-case regression pilot is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/154346-16a8dce2/summary.json`. The
+  formerly suppressed skip-default case passed in both conditions with one call
+  each, and Polya's admitted patch passed present-case execution. Evaluation
+  generation 2 is frozen at this point before repeating the 18-pair run; the
+  generation-1 17/18 failure is not overwritten or retrospectively rescored.
+- The frozen generation-2 qualification is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/154420-16a8dce2/summary.json` and passes
+  the automated historical gate. Polya passed 18/18 diagnoses and 18/18 admitted
+  executable patch checks with 18 model calls. Direct passed 17/18 frozen-rubric
+  diagnoses, executed 0/18 patches, and used 19 model calls because one output
+  required schema repair. Every pair observed the same pinned actual model;
+  Polya had zero unsupported/forbidden conclusions.
+- The demonstrated advantage is narrow: verified outcome at no greater model-
+  call count, not token or latency efficiency. Polya used 77,961 versus 64,455
+  tokens (1.210x) and 5,575 versus 4,515 ms mean latency. Public historical
+  contamination risk, reduced fixtures, a single provider/model, and the direct
+  condition's one frozen-rubric paraphrase miss all remain explicit.
+- `product_value_claim_ready` remains false. Independent condition-blind human
+  review, fresh post-selection private field cases, and a controlled paired-case
+  procedure-transfer result are still mandatory. The passing automated result
+  must not be described as general intelligence, frontier-product superiority,
+  full-repository autonomy, or a mandate to govern people or institutions.
+- Generation 3 targets token efficiency without adding calls. The experimental
+  source-patch capability receives a deterministic minimal-sufficient state
+  projection containing only the represented problem, observed failing
+  reproduction, constraints, success criteria, canonical admitted artifact
+  identities, and full admitted excerpts. It must omit duplicated raw prompt,
+  gap, hypothesis, plan, execution, verification, and trace state. Inspector
+  display line numbers are removed from the model view while canonical URI
+  provenance remains.
+- The projection is capability-specific and versioned; it does not truncate an
+  admitted source or check, omit contrary evidence, or summarize semantic
+  content through another model. The normal full-state gateway remains the
+  default for every other capability. A projection that cannot preserve the
+  complete admitted evidence boundary must fail back to the full view rather
+  than silently hide evidence.
+- The generation-3 one-case context-compilation pilot is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/155136-16a8dce2/summary.json`. Both
+  conditions passed with one call; Polya also passed the admitted executable
+  repair and used 2,899 total tokens versus direct's 3,538 (0.819x). Polya input
+  fell from 3,097 tokens in the generation-2 regression pilot to 1,674 (46.0%)
+  without changing the corpus or external scorer. This is a pilot, not a
+  repeated efficiency claim.
+- The generation-3 six-case diversity run is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/155204-16a8dce2/summary.json` and failed
+  quality at 5/6 despite 6/6 passing Polya sandbox checks. It nevertheless
+  measured 16,252 versus 22,435 direct tokens (0.724x) and 6 versus 7 calls.
+  The failed case used the semantically equivalent qualified reference
+  `ResponseModel.dict` while the concrete edit used `response.dict`; the hard
+  changed-token grounding rule again suppressed a correct report.
+- Deterministic `diagnosis_grounded` therefore means only what code can prove
+  without another semantic call: the diagnosis is nontrivially bound to the
+  exact edit context through at least two source/edit identifiers. It remains
+  separate from exact edit application and present-case check success. It does
+  not certify prose-level causal correctness; the frozen external semantic
+  rubric and human review own that judgment. Requiring exact changed-token
+  overlap falsely conflates lexical form with semantic grounding and is removed
+  in evaluation generation 4.
+- The generation-4 regression pilot is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/155514-16a8dce2/summary.json`; the
+  formerly suppressed case passed with one call per condition, a passing Polya
+  sandbox check, and 0.777x direct tokens.
+- The generation-4 six-case diversity pilot is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/155529-16a8dce2/summary.json`. Both
+  conditions passed 6/6 with six calls. Polya passed 6/6 executable checks and
+  used 15,939 versus 20,732 direct tokens (0.769x); Polya mean latency was 4,755
+  versus 4,912 ms. Generation 4's product mechanisms, projection, corpus,
+  external scorer, and value rule are frozen before repeated qualification.
+- The frozen generation-4 repeated qualification is preserved at
+  `evals/chapter_13k/live_runs/2026-08-22/155648-16a8dce2/summary.json` and passes
+  the automated historical gate. Polya passed 18/18 diagnoses and 18/18 admitted
+  executable checks with 18 model calls and 48,287 tokens. Direct passed 18/18
+  diagnoses, executed 0/18 patches, and used 19 calls and 64,257 tokens. Polya
+  therefore used 0.751x direct tokens (24.9% fewer) and one fewer call while
+  adding present-case execution. Polya mean latency was 5,043 versus 4,358 ms,
+  so latency superiority is not claimed.
+- This is the first repeated evidence for the intended low-compute mechanism:
+  deterministic framing, evidence admission, context compilation, sandbox
+  execution, and verification surround one irreducible semantic proposal. It is
+  still limited to six public historical reduced Python reproductions and one
+  pinned model, with potential training contamination. It does not satisfy the
+  independent-human, fresh-private, procedure-transfer, full-repository,
+  cross-domain, or general-intelligence gates. `product_value_claim_ready`
+  remains false.
+- Blind review artifacts must remove both case-local and repository-root paths
+  recursively from visible evidence and every response field. Replacing paths
+  only in the problem packet is insufficient because a response can cite an
+  absolute URI containing the product/repository name and leak condition
+  provenance. Regenerating a sanitized packet from frozen raw results does not
+  change outputs, scores, or the evaluation generation; the separate condition
+  key retains the untouched audit mapping.
+
+Done when:
+
+- Every admitted case has immutable provenance plus failing-buggy and
+  passing-fixed executable preflight evidence.
+- Polya's result comes from the production-composed cognitive loop and exposes
+  the selected actions, admitted evidence, checks, uncertainty, and resources.
+- Both conditions are scored on the same hidden semantic rubric and independent
+  human reviewers receive condition-blind outputs.
+- Repeated evaluation preserves outcome quality and safety while showing a
+  predeclared material advantage in either correctness, unsupported-conclusion
+  rate, total compute, latency, or human investigation overhead.
+- A related second-task study shows verified procedural transfer lowers work;
+  otherwise no compounding-intelligence claim is made.
+- `product_value_claim_ready` remains false until non-historical field cases and
+  independent review pass.
+
+Bounded claim: passing this chapter's first public historical gate would prove
+that Polya's runtime can be evaluated end to end on field-derived executable
+defects. It would not establish contamination-free current frontier
+superiority, general software-engineering autonomy, or cross-domain general
+intelligence.
+
+#### Core-value priority: Chapter 13-P production-path investigation proof
+
+Pause additional deployment and account-flow work until the actual public runtime
+can complete realistic artifact-grounded investigations and its overhead is
+measured against a direct same-model answer. A real repository dependency-remediation
+task exposed zero evidence acquisition and unnecessary clarification; unit-test
+counts and earlier reduced source-patch benchmarks did not catch that failure.
+
+Narrow deterministic lookup applicability to genuinely single-artifact fact
+lookup. Multi-artifact synthesis must preserve all evidence inputs and use bounded
+semantic framing. Existing typed gap/source hints take precedence over incidental
+words in file paths; a JSON filename alone is not a request for numerical
+measurement. Version these behavior changes, add regressions at the public runtime
+boundary, and rerun the frozen failing task without overwriting the failed record.
+Exclude quoted artifact paths from lookup-intent classification. Allow bounded
+semantic framing enough output space for its schema (3,000 tokens per response,
+still subject to the shared run budget); avoid spending the same insufficient
+allowance twice on a truncated framing response.
+Inspect complete small text artifacts within a shared 64,000-character acquisition
+allowance instead of silently stopping at 40 lines. Allocate space across explicit
+files, label partial coverage in the admitted excerpt, and keep line provenance
+accurate when a long line must be cut. Reading an excerpt is not proof that a
+multi-part evidence gap has been resolved.
+Keep fused deliberation concise: two meaningful alternatives and at most two
+grouped analytic tasks, with no repeated long evidence quotations. Let one model
+attempt use the existing capability deadline rather than imposing a shorter
+45-second cutoff and repeating the same slow generation. The shared duration,
+call and token budgets continue to apply.
+Preserve explicitly quoted artifact references from the user's original request
+in the validated framing sources even when a model abbreviates their names. Model
+paraphrasing must not erase the evidence inputs used for source routing.
+Enforce the provider request's total wall-clock allowance across connection,
+headers, and response-body reads. An individual socket read timeout is insufficient
+when a provider sends periodic bytes without a completion. Cancel and close the
+local request at the deadline, preserve a typed timeout, and never claim that local
+cancellation proves remote generation or billing stopped.
+Make the existing temperature option nullable and omit it unless explicitly
+requested. Structured runtime calls and their repairs must not force a sampling
+parameter that reasoning models reject. Keep JSON support and provider data-policy
+requirements enabled; do not silently weaken those routing requirements to make
+an incompatible request pass.
+Preserve the requested deliverable's scope in framing and verification. A request
+for a proposed remediation plan must be checked for factual coverage, constraints,
+uncertainty, and a valid future test plan; it must not silently become a request to
+execute remediation. Conversely, a request for an implemented fix still requires
+observed execution and checks. Analytic task outputs must contain the actual
+findings, not only disclaimers that external actions were not performed.
+Allow the fused analysis response up to 6,000 output tokens. The isolated repaired
+route needed 3,894 tokens for valid findings, exceeding the previous 3,600-token
+ceiling. This remains bounded by admission and run accounting; prefer one complete
+analytic response to a truncated response followed by repair.
+Track evidence coverage, outcome correctness, unsupported claims, latency, tokens,
+and remaining manual work. Dogfooding is not independent blind evaluation or
+repeat-use proof; those product-value gates remain open.
+
+Add an experimental deterministic source-fact check for dependency-remediation
+investigations that explicitly request constraint analysis. Parse only complete,
+admitted JSON/TOML snapshots; never inspect the host environment or execute source
+content. Compute comparisons between supplied advisory fix versions and declared
+requirements, preserving optional groups, environment markers, installed parent
+identity, and source provenance. These comparisons concern the listed versions,
+not all later releases or demonstrated resolver compatibility.
+When deduplication is requested, count affected packages, vulnerability records,
+distinct scanner IDs, and connected components of supplied IDs/aliases separately.
+An alias component is a grouping in the supplied scan, not independently confirmed
+identity or proof that different fix contexts are interchangeable.
+Provide the computed facts to analysis and conclusion checking. Require a compact
+verbatim source-fact block in a passing conclusion and reject omitted facts before
+recording a verified reflection. Keep the procedure, its coverage result, and
+limits in trace metadata rather than promoting a new core score or contract.
+This is a necessary factual-coverage gate, not a semantic proof: a copied fact can
+still be contradicted elsewhere in prose. Independent semantic falsification and
+fresh-case outcome review remain required. Unsupported, ambiguous, malformed, or
+partial source bundles cannot earn a passing deterministic source-fact check.
+Keep heuristic evidence conflicts narrow: shared digits are not a shared subject.
+Only compare numeric claims when the nonnumeric subject agrees and each claim has
+one comparable numeric value; unanchored JSON fields such as `version` do not
+identify a package. Different entities, measurements, or multi-value records need
+semantic or structured comparison. Absence of a heuristic conflict is not proof
+that sources agree. Apply the same subject boundary to numeric corroboration.
+For an explicitly conditional proposal, framing must retain acknowledged missing
+environment choices as conditions and future verification requirements, rather
+than immediately requesting those same choices. Blocking `unknowns` still include
+facts needed from the supplied sources and any uncertainty that prevents even a
+useful conditional answer. Never apply this exception to requested execution,
+unconditional feasibility, or an ambiguous objective. Prove this boundary with a
+real conditional-plan run and retain the existing execution-evidence negative case.
+Keep residual uncertainty visible after a conditional investigation completes.
+The conclusion checker may produce bounded optional report metadata listing open
+questions that do not block the requested deliverable. Store it as a trace event
+bound to that exact final conclusion; the CLI and persisted report consume it
+alongside existing unfilled gaps. Do not change the canonical gap/state contracts,
+promote conditions to verified facts, or change completion/confidence solely because
+nonblocking questions remain. Reject malformed metadata and ignore stale answer
+bindings. This starts as experimental reporting metadata, not a new core concept.
+
+Measure and reduce recurring framing overhead before adding more model stages.
+Keep the ten validated framing examples as regression fixtures, but evaluate a
+smaller fixed prompt set covering ambiguous objectives, premature solution
+selection with an explicit mode override, and reversible planning. Retain all
+framing rules and the full output schema; never remove supplied evidence, success
+criteria, or independent conclusion checking to achieve a token saving. Omit
+example fields only when contract defaults reconstruct the same example exactly.
+Version the prompt and compare the candidate with the previous prompt across all
+ten framing categories and production-path positive/negative cases. Record quality
+regressions and actual provider usage before adopting the candidate. This is an
+efficiency experiment, not proof of advantage over a direct answer.
+The three-example candidate failed that compatibility gate: modes changed on four
+fixtures and three fixtures added clarification stops. Do not adopt it. Retain all
+ten examples and test the narrower alternative: omit reconstructible default
+example fields and use compact JSON separators in model-bound schemas/payloads.
+Preserve every schema constraint and canonical state value, including full admitted
+source excerpts. This serialization change still requires live regression checks.
+
+Retain failed verification diagnostics when recovery materially changes the state.
+The current verification must still be invalidated, but record its prior report in
+a versioned audit event before clearing it. If recovery then stops without a new
+verification, CLI and persisted reports may show the latest failed report with
+explicit historical labels and a request for new evidence. Historical checks must
+never establish current success, confidence, a final answer, or reusable learning.
+Current verification takes precedence; malformed history and invalidated passing
+reports cannot act as fallback verification. This uses trace metadata and existing
+report fields, not a new canonical contract or completion mechanism.
+
+Planning must have a truthful recovery exit when required observations cannot be
+obtained through available execution capabilities. Extend the experimental planner
+response to choose either bounded executable tasks or at most three focused
+clarification questions, never both or neither. Route the latter through the
+existing blocked/human-input-required observation and durable clarification flow,
+preserving failed verification and resource usage. Ask only for genuinely missing
+evidence needed by the requested deliverable; supplied sources and explicitly
+allowed conditions in a proposal must not trigger redundant questions. Do not
+substitute table measurement, simulation, or analysis for missing real execution
+records. Validate this with actual failed-state planner input and local/persisted
+recovery regressions; no new core gap type or autonomous permission is introduced.
+
+The user's general-purpose ambition requires a working knowledge-on-demand path,
+not only local technical artifacts. Prove the same controller can identify a gap,
+acquire public sources online, evaluate them, solve and verify the task, and later
+reuse verified learning across different problems. Do not require training a new
+foundation model or collecting a massive local corpus. Existing pretrained models
+remain replaceable reasoning capabilities; their upstream training and inference
+costs are not eliminated by this architecture. Cross-domain ability and transfer
+must be measured rather than claimed from architecture alone.
+
+The current installation has no configured Brave key. Add an explicitly selected
+OpenRouter search adapter using the already configured account, with one server
+search use, one tool step, bounded result/excerpt counts and a cancellable total
+deadline. Use only provider citation annotations containing original source
+excerpts as candidates; discard synthesized answer text. Preserve partial-coverage
+semantics and the existing evidence-evaluation gate. Record model-request usage,
+search use, token/cost telemetry and unknown usage on failures; a search request
+may contain an initial and final provider inference turn. Keep that distinction
+auditable. Missing/invalid search telemetry or source excerpts cannot masquerade
+as successful research. Keep Brave available and offline mode network-free.
+The controller still owns whether to search, the target gap, the research budget,
+evidence admission and stopping. Enable the adapter only through explicit search
+configuration; secret values never enter trace, reports, or source control.
+Model-backed external search must reserve both existing model-request and external
+call budgets. Permit that combination on the experimental external capability
+definition; keep deterministic/human/memory capabilities unable to reserve model
+calls and keep external-call reservations exclusive to external capabilities.
+Do not hide the model cost by classifying a hybrid request as zero-model search.
+
+Treat human questions for externally acquirable gaps as recovery actions, not cheap
+competitors to feasible autonomous acquisition. After capability, privacy, failure
+and budget gates, defer a fallback question when a non-human action for that same
+gap remains available. Keep explicit user-owned clarification immediate and retain
+human recovery when automated routes are unavailable, blocked or exhausted. Record
+this deferral in the decision trace; do not tune cost estimates to force a demo.
+When every declared source is explicitly public/official online material, treat
+words such as "measurement", "experiment" and "document" as research subjects,
+not instructions to run a local experiment or inspect a file. Explicit user-owned
+information and local references retain their own routes. Mixed source requests
+must not be globally reclassified as public research.
+
+Preserve explicit source requirements in bounded search queries. Batch unresolved
+public-source questions that share the same declared source set, just as local
+artifact questions share one inspection; evidence evaluation must cover the whole
+batch before resolving it. Preserve the constituent questions in the gap text.
+Do not let rejected access pages poison valid candidates: rejected material never
+becomes evidence, and ungrounded extracted claims must be rejected individually
+with recorded diagnostics and usage. Keep distinct relevant pages from one host
+while counting that host only once for corroboration. An explicitly requested
+official-source account can use one authoritative source when independent
+corroboration is not requested; broader public research retains the two-source
+gate. Semantic support, temporal validity, contradictions and final verification
+remain mandatory. Neither page counts nor a source's reputation prove its claims.
+
+Framing must apply the deliverable boundary without requiring the literal phrase
+"conditional plan": a sourced explanation plus a proposed diagnostic does not
+require private incident observations. Record unobserved case-specific facts as
+limitations and future checks, not blocking acquisition targets. Public-source
+evaluation asks whether retrieved facts support the requested bounded analysis,
+not whether every inference or proposed next step appears verbatim in a source.
+Only mutually incompatible claims under the same conditions form a contradiction;
+different epochs, rounding or overlapping uncertainty intervals alone do not.
+
+When a research batch leaves a gap unresolved, let its existing semantic evaluator
+return an optional bounded next query naming the specific missing public fact.
+Store it with the evaluation rationale in trace metadata and let the controller's
+next search consume it only for that same gap. Retain declared source restrictions,
+the source-admission gate and all research/privacy budgets. This experimental
+acquisition-output field has a producer (evaluator), consumer (query builder),
+regressions for bounds/target isolation and a live repeated-search failure to
+address; it does not create a new canonical planning engine or let sources choose
+actions. Do not repeatedly ask a broad original question after learning which
+specific part lacks evidence. This does not solve incorrect framing of private
+incident facts as necessary public research.
+
+Add one bounded scope-review recovery after a public evidence batch fails to close
+its gap despite admitted evidence. Use the existing reframe action, with an
+experimental model capability, before another search. The reviewer classifies
+every original constituent question as still needed, supported by an exact quote
+from admitted evidence, or nonblocking for the requested deliverable. Nonblocking
+judgments require an exact quote of the user's scope boundary and an explanation;
+the model selects a bounded index into verbatim user-input spans and the adapter
+records the original span, avoiding paraphrased or invented quotations.
+These judgments become explicit constraints/limitations, never facts or successful checks.
+Preserve the original goal, success criteria, known facts and existing constraints.
+Allow at most one review attempt per run, within existing model/time/privacy
+budgets. Missing, duplicate or invented question identifiers invalidate the review.
+An invalid supporting or scope quotation leaves that question still needed and
+records the rejected disposition; it cannot discard valid classifications for
+other questions or silently count as support. Use bounded question indexes rather
+than requiring the model to reproduce lengthy question text.
+
+Retain question-group membership as trace metadata. Add an experimental typed
+state-update command for superseding a gap during this reframe: this is necessary
+because existing resolved-gap updates falsely imply knowledge was obtained.
+The kernel archives the old gap in the scope-review event and removes it without
+marking it filled; the capability emits replacement gaps for supported and still
+needed questions. Supported replacements have provenance; nonblocking questions
+remain reportable limitations. Final conclusion verification still checks the
+unchanged user deliverable. Regression gates include explanation/diagnostic cases,
+actual-execution negative controls, tampered quotes and incomplete classifications.
+Measure successful outcomes and total resource use against the preserved failures;
+do not equate fewer searches with lower total inference cost.
+Progressive retrieval may return a different relevant excerpt from a previously
+seen URL. Deduplicate identical URI/excerpt snapshots, not every reuse of a URL;
+otherwise the newly targeted passage can never enter evidence. Repeated passages
+must not add independent sources. Keep the same semantic, provenance and budget
+gates for each new excerpt and test both genuine duplicates and new passages.
+
+After search discovers an admitted public source but its snippets do not close the
+knowledge gap, permit a bounded direct page read before another search. This is an
+experimental external capability using the existing search action and candidate
+staging/evaluation path, not a new answer generator. Read only previously admitted
+public HTTPS URLs, with public-address DNS validation and connection pinning,
+certificate/hostname verification, no credentials, redirects or environment proxy,
+a total deadline, a 2 MB decoded-body byte limit and text/HTML content types. Extract
+bounded relevant passages deterministically; retain source URL, content hash,
+selection offsets and truncation metadata. Source content never becomes instructions
+or admitted evidence without the existing evaluator. Each read spends one external
+call from the same total budget; permit at most two attempts per run and no repeat
+URL. A failed page read must not suppress a separately available web-search route.
+When a completed page read still leaves its gap unsupported, return to targeted
+search instead of automatically reading another page from the same discovery batch.
+A subsequent discovery can enable another distinct page read if budget remains. Privacy and offline gates apply. This avoids paying for repeated model-backed
+search when the identified document already contains the missing knowledge.
+Negative tests cover private/loopback/mixed DNS answers, redirects, unsupported
+content, oversized/slow responses, unadmitted URLs, repeated reads and accounting.
+Live regressions must report successful outcomes, remaining failures and total
+model/search/page-read costs; no general efficiency claim follows from a repair.
+
+Verification-driven research recovery (experimental): a failed conclusion check
+may propose at most two public-reference questions, each bound by index to an
+actual failed check. These are acquisition requests, never facts or successful
+checks. The adapter creates unfilled gaps and retains the failed report in a
+versioned trace event; allow one such round per run. Requests for private state,
+authorization or actual execution do not belong in public-reference questions.
+Existing source admission, privacy, offline, time, call and token limits remain
+authoritative. Recovered evidence invalidates the earlier verdict. Before checking
+again, run fresh state-only analysis with distinct task IDs while retaining the
+earlier analysis as history. The final checker must evaluate the unchanged user
+objective against current evidence, including unresolved execution requirements.
+Regression gates cover failed-check binding, repeated recovery, unavailable tools,
+privacy and exhausted budgets, source admission, fresh analysis, retained failure
+history and a new independent verification. Record the unchanged DART case's
+actual outcome and costs, including failure; do not turn this into a special-case
+answer or claim general cost advantage.
+Use the same default allowance of 24 controller cycles in the CLI and persisted
+runtime: the former API default of 12 can stop a search/evaluate/recovery sequence
+immediately before its final check. This is a loop-step allowance, not permission
+to raise model calls, tokens, external calls or elapsed-time budgets. Preserve
+explicit lower cycle limits and test the default plus a constrained run.
+
+The DART development replay exposed an incorrect passing answer that changed
+`33.24 min ± 1.4 s` into `33.24 ± 1.4 minutes`. Add a narrow deterministic
+time-uncertainty consistency check before accepting model verification: parse
+explicit numeric central values and uncertainties with seconds/minutes/hours,
+normalize both to seconds, and compare with admitted raw source excerpts sharing
+the same central value. A conflicting uncertainty fails verification and retains
+the failed candidate in a trace artifact; it never silently rewrites the answer.
+This is necessary consistency coverage only, not a full measurement verifier.
+It does not validate confidence levels, inferred errors, non-time dimensions,
+unparsed prose, or whether a source itself is correct. Test equivalent conversions,
+mixed units, negative changes and the preserved false-pass example.
+
+Chapter 13-P acquisition refinement: when a scope review validates supported
+constituent questions, preserve that progress even if no question is deferred.
+Archive the original group, retain source-bound supported questions, and batch
+the still-needed questions into one smaller public gap. Keep original goals and
+success criteria unchanged; no unsupported question may become filled. Record
+parent/replacement lineage so targeted-query guidance survives regrouping.
+
+Let the existing evidence evaluation optionally propose a research continuation:
+discover a different source, or read a specified already-admitted public source.
+This is a bounded hint, not authority to dispatch a tool. The adapter validates
+the proposed URL against admitted evidence; an invalid choice falls back to
+discovery with an audit reason. The controller and page reader retain all privacy,
+budget, DNS, provenance and verification gates. A targeted search query should
+lead with the remaining question rather than generic publisher boilerplate.
+No extra model call, new canonical state field or larger budget is introduced.
+Evaluate partial progress without deferral, bad quotations, lineage, unavailable
+or rejected source choices, and unchanged live DART and HTTP tasks. Retain every
+failure and report total resource costs; known-case repairs are not held-out wins.
+The first HTTP regression exposed a targeted read selecting publisher/front
+matter instead of a specifically requested numbered section. Honor explicit
+section references in retrieval queries before lexical ranking, within the same
+six-passage/9,000-character limits. Section selection is source navigation, not
+verification, and must work on synthetic non-HTTP documents as well.
+Retain whole-user-question lexical coverage when reading a nominated document;
+add its explicit residual section references without letting publisher identifiers
+or URLs displace requested topics. A persisted DART replay also exposed a generated
+U+0000 claim crashing PostgreSQL JSONB persistence. Render null characters as a
+visible escape at the existing text-sanitization boundary; preserve surrounding
+content and do not infer a mathematical symbol. Test actual database persistence.
+Only actual numbered headings receive a section-coverage ranking bonus; page
+front matter must compete on body relevance. The HTTP replay also exposed a
+circular finalization requirement: the fused conclusion checker demanded a final
+answer before the stage that produces it. Make that stage's existing ownership
+explicit: verify the substantive analysis and citations, then compose the answer
+in the same checked output. Missing facts, analysis, or requested execution must
+still fail; absent prewritten prose alone must not cause a research handoff.
+
+Chapter 13-P transfer experiment: connect verified source/check outcomes to the
+next source/check investigation through owner-scoped candidate-edit memory. Learn
+only a bounded exact replacement after the original fails, the candidate passes
+the unchanged supplied check, and final verification/reflection complete. Store
+edit, source/check hashes, capability versions and source-session provenance in
+existing procedural metadata. This is a proposed repair, not promotion of a
+general executable procedure or evidence that the next problem has the same cause.
+
+Recall at most one unambiguous edit whose old text occurs once in the newly
+admitted source. Ambiguous, mutated or version-stale memory must fall back to the
+normal model route. Every recalled proposal goes through current snapshot checks,
+failing-original/passing-candidate sandbox execution and independent deterministic
+verification. A wrong transfer must fail; never copy prior answers, checks or
+permissions. Preserve existing consent, owner isolation and resource budgets.
+
+Evaluate first encounter, changed-code transfer without memory, transfer with
+memory, and an intentionally incompatible check. Freeze tasks before running;
+count learning cost plus reuse cost, actual model tokens, execution and storage.
+Use invented supplied rules to test applying current task information, without
+claiming this rules out pretrained arithmetic or programming knowledge.
+Exact-fragment transfer is narrow: it does not learn arbitrary algorithms, rename
+variables, or establish fresh independent product superiority. Report failures
+and amortization honestly before expanding the mechanism.
+Bind the source/check verifier declarations to the sandbox's fixed four observed
+invariants before execution, and record them for both passing and failing checks.
+Failure must reach deterministic rejection rather than losing its verifier and
+falling back to a semantic verdict. Reject altered expectations or output paths.
+The frozen transfer pilot exposed false rejection of numeric-only repairs by the
+existing identifier-only explanation check. Include exact code numeric literals
+in this lexical relevance check, without treating lexical matches as causal
+proof. Keep missing/unrelated explanations failing and current execution mandatory.
+
+Transfer delivery result: both frozen synthetic families completed related edits
+with zero model requests after one successful learning request. Fresh incompatible
+checks rejected both recalled edits. A persisted API/workbench pair independently
+exercised owner-scoped storage, a new source/check snapshot, and zero-request reuse.
+The cold comparator completed one family and falsely rejected the other on a
+sentence-final numeric literal; preserve that failure despite the later predicate
+repair. All attempts, including an aborted export and provider timeouts, are in
+`evals/chapter_13p/repair_transfer/results.json`; interpretation and reproduction
+are in its README. Validation: 704 backend tests with real PostgreSQL/Docker, no
+skips, plus formatting, lint and strict types. This closes the narrow candidate
+reuse implementation gate only. General semantic transfer, economical recovery,
+independent competitive outcomes and real repeat-use preference remain open.
+
+Chapter 13-P recovery increment: after a recalled edit is deterministically
+rejected, route once to the existing source-patch proposer with the current rule,
+admitted source/check and rejected edit/check feedback. It must propose a different
+candidate against the original snapshot. The trusted adapter may supersede the
+single failed active task, archiving its complete plan in trace metadata and
+retaining its execution output and historical failed verification. Use a new task
+ID so no previous result or verification binding can satisfy the replacement.
+Do not change source/check admission, success criteria, permissions or budgets.
+Reject duplicate edits and repeated recovery; unavailable models, exhaustion or
+another failed check must remain honest stops. Only the accepted current repair
+may appear in the candidate diff or become a lesson. Prove recovery on both
+preserved incompatible protocol cases, plus unchanged-check, stale-binding,
+no-model, repeated-edit and exhausted-budget negatives. No new core state field
+is needed: start supersession as validated adapter metadata in the existing trace.
+
+Recovery delivery: both preserved incompatible protocol cases now record a failed
+recalled candidate followed by a successful replacement, using one model request
+each (1,842 and 1,836 tokens). A persisted workbench run also passes with one
+request and 1,861 tokens, with the correct replacement diff. Prior failures are
+retained in the ledger. All 716 backend tests pass with PostgreSQL and Docker,
+including invalid supersession, budget, duplicate-edit and second-failure cases.
+These known-case results close the bounded recovery implementation gate only.
+
+Chapter 13-P structural transfer experiment: freeze three new source/check
+families before implementation and measure cold versus existing-memory transfer.
+The baseline repeats model work when names and statement context change. When no
+exact lesson matches, derive an expression rewrite from an existing verified
+old/new fragment without new training or a new persisted contract. Match Python
+syntax with consistent one-to-one identifier substitution; retain literal values
+and operator shape. Support only bounded expressions built from names, constants,
+arithmetic, comparisons and boolean operators. Exclude calls, attributes, indexing,
+bindings and unsupported syntax. The replacement may use only names already in
+the old pattern; wrap the replacement to preserve surrounding precedence.
+
+Require one unambiguous occurrence across candidate lessons and current source.
+Multiple possible sites or competing replacements fall back to the ordinary
+model route. Record pattern version and name mapping as experimental trace detail.
+This is syntactic transfer, not type inference, semantic equivalence or arbitrary
+procedure induction. Existing sandbox checks, budget admission, failure recovery
+and learning gates apply unchanged. Compare frozen before/after runs, count initial
+learning cost, retain failures and test incompatible rules, ambiguous matches,
+unsupported syntax, scope/capture hazards and unchanged host source.
+
+Structural delivery: all three frozen families required one model request per
+transfer with the prior exact-memory path; all three now complete adapted
+transfer with zero requests and fresh sandbox checks. Every incompatible-rule
+variant rejects the adapted edit and recovers with one new model proposal. A
+persisted boolean-task pair also records zero-request renamed-expression reuse.
+Initial learning plus one related transfer per family totals 4,299 recorded
+tokens with adaptation versus 8,722 with cold transfer, excluding other development
+runs. The full ledger and scope are in
+`evals/chapter_13p/repair_transfer/structural-results.json`. All 742 backend tests
+pass with PostgreSQL and Docker. This establishes bounded syntactic adaptation
+on small author-created cases; independent usefulness, rich semantic transfer
+and broad competitive advantage remain open.
+
+#### Chapter 13-L: Investigator Runtime Delivery
+
+Status: local runtime delivery gate complete. Deliver the proven runtime through the local product
+entrypoint while Chapter 13-K's independent review and fresh-case gates remain
+open. This chapter does not declare those gates passed.
+
+The public `polyabrain investigate` command must run the same configured
+Cognitive Runtime as the API and export its actual state, evidence, hypotheses,
+execution results, verification, reflection, resource ledger, and report.
+Curated template demonstrations remain under an explicit `proof` command.
+Known deterministic tasks work offline; other tasks require the existing
+OpenRouter configuration and stop honestly when it is unavailable. No provider
+credentials or settings dump may enter exported artifacts.
+Unconfigured semantic capabilities must not be registered as usable routes or
+charge fictitious provider calls through a fake test client.
+
+Deterministic representation must have its own zero-model-call capability
+reservation. A zero-call budget must not reject known arithmetic or explicit
+clarification merely because the semantic representation route reserves model
+retries. The controller may select the deterministic route only when the
+existing deterministic parser recognizes the input, and that capability must
+reject an unrecognized input before any provider invocation.
+The same reservation distinction applies to the existing deterministic arithmetic
+deliberation and conclusion checks; a known procedure must not reserve model
+tokens merely because it shares implementation with a semantic capability.
+
+Before source-patch execution is exposed, bind both source and check contents
+to complete admitted snapshots. Reject changed or partially admitted files
+before launching a container, and record snapshot hashes with the execution.
+Passing a supplied regression check demonstrates only that check's scope;
+lexical diagnosis grounding is not independent proof of causal correctness.
+
+Delivery gates:
+
+1. One command produces real auditable outcomes without Postgres or Redis.
+2. Verified completion, missing input, failed verification, unavailable provider,
+   and budget exhaustion have truthful artifacts and distinct exit behavior.
+3. Artifact exports are private by default, never overwrite an existing run,
+   and identify code version, actual capability versions, budgets, and usage.
+4. Local arithmetic, explicit-artifact lookup, and failure paths are checked
+   through the public entrypoint; source-patch snapshot regressions pass.
+5. Documentation distinguishes implementation proof, historical qualification,
+   remaining product-value gates, and future frontend/cloud delivery.
+
+Verification: 423 tests pass locally with database integration enabled against
+a fresh migrated Postgres/pgvector instance. Ruff, formatting, strict mypy,
+legacy proof artifacts, Chapter 11 examples, and Compose validation pass. No
+new live provider superiority claim is made. The complete product, fresh-case
+evaluation, independent review, frontend, and cloud gates remain open.
+
+#### Chapter 13-M: Recoverable Local Investigations
+
+Status: local recovery gate complete. Close the local workflow gap between a
+bounded run, a clarification, and the next useful action before frontend polish.
+
+Persist validated state at capability boundaries in an owner-private local
+recovery store. Reports are exports, never executable checkpoints: recovery
+must load only the local store, preserve the original budget and accumulated
+usage, require the same runtime code and capability configuration, and consume
+each checkpoint at most once. Record an in-flight marker before dispatch;
+uncertain interrupted calls must never be silently replayed or charged as zero.
+Concurrent recovery must not duplicate external work. Redaction that changes
+state makes that snapshot ineligible for execution.
+
+Expose `polyabrain resume RUN_DIRECTORY`. Continue safely completed cycles
+without repeating their tools. For a missing-input pause, accept a full revised
+problem through `--answer`, revalidate its representation and all conclusions,
+and preserve session identity, prior resource charges, and parent audit lineage.
+Answering does not grant additional tool permissions or reset any resource cap.
+Export each continuation into a new private directory and retain earlier reports.
+
+Verification gates: public CLI continuation and clarification; uninterrupted
+versus resumed outcome equivalence; cumulative budget enforcement; concurrent
+and repeated claim rejection; modified export and checkpoint rejection;
+in-flight interruption refusal; configuration/code mismatch refusal; and honest
+documentation of recovery limits. This does not complete fresh-case evaluation,
+independent review, repeat-use, frontend, or cloud delivery gates.
+
+Validation: 433 tests pass with database integration enabled against an isolated
+fresh Postgres/pgvector instance; repository lint, backend formatting, and strict
+mypy pass. A public CLI pause/resume produces a verified arithmetic report with
+zero model calls and preserved session identity. See
+`docs/03_implementation/Chapter_13M_Recoverable_Local_Investigations.md` for
+private-store retention, frozen-evidence semantics, and unreconciled in-flight
+or terminal-export failure boundaries.
+
+#### Chapter 13-N: Source-Visible Investigation Delivery
+
+Status: public workflow implemented and locally verified; fresh user-case proof
+remains pending. Bring the source-patch investigation procedure into the
+public Investigator without making a broader repository-repair claim.
+
+An explicit source/check pair may initialize a deterministic task representation
+and complete, provenance-bearing local snapshots. Require allowed artifact roots
+and code-execution opt-in. Register the proposal and sandbox capabilities through
+the shared runtime composer only for this explicit workflow. The model proposes
+one bounded exact edit; the original host source and check remain unchanged.
+
+The sandbox must run the same admitted check against the original and patched
+source in separate ephemeral containers. Require a completed failing original
+check followed by a completed passing patched check. A preexisting pass, timeout,
+truncated output, missing test results, or patched failure cannot verify a fix.
+Record both outcomes, content hashes, tool version, and total execution cost.
+Reports must label the diagnosis as proposed, disclose the supplied-check scope,
+and export a reviewable edit. The in-process Python check harness still lacks
+hostile-code attestation; this workflow is explicitly experimental and may not
+claim independent causal verification or general repository repair.
+
+Delivery gates: public CLI parsing and permission failures; shared-composer
+end-to-end proposal and before/after verification; vacuous-check and failed-fix
+regressions; unchanged host files; private edit artifacts and checkpoint resume;
+and a fresh non-secret technical investigation through the public entrypoint.
+Continue into the user-facing workbench after the actual investigation path is
+usable. Independent review, fresh-case superiority, and repeat-use gates remain.
 
 #### Chapter 14: Constraint Discovery Engine
 
@@ -1707,6 +3305,18 @@ Done when:
 
 #### Chapter 61: Frontend Bootstrap
 
+Status: local workbench implemented and verified against the full Docker stack.
+The UI provides persisted sessions, live checkpoint traces, actual resource
+measurements, evidence, hypotheses, reports, history, clarification, export, and
+manual-review feedback. See `docs/03_implementation/Chapter_61_70_Local_Investigator_Workbench.md`
+for delivered behavior and remaining per-chapter gates. Source/check input in the
+browser is now delivered through Chapter 13-O; explicit mode/context wiring is
+delivered in Chapter 62. Fresh technical user runs and substantive mode-quality
+evaluations remain open. This does not declare the broader Chapter 60 alpha or Chapter 13-K product-value gates passed. Use actual
+API sessions and reports, truthful loading/failure states, and capability-bound
+trace updates. Do not substitute demo records or fabricated progress for runtime
+outputs. Authentication and tenant isolation must precede public cloud launch.
+
 Tasks:
 
 1. Create Next.js app.
@@ -1720,6 +3330,33 @@ Done when:
 - Frontend runs and can call backend health endpoint.
 
 #### Chapter 62: Problem Input Screen
+
+Current technical-delivery increment (implemented; Chapter 13-O): expose the existing opt-in single-source /
+supplied-check workflow in the local UI. User-selected Python snapshots are
+stored as application artifacts with content hashes and explicit per-run consent;
+the API admits only those immutable bytes into a private temporary directory,
+then invokes the same source/check runtime and isolated before/after verifier as
+the CLI. Backend code execution must also be enabled. No host file is edited, no
+Docker socket is granted to the general Compose API, and no new cognitive ranking
+signal is introduced. Candidate edits remain proposals until the supplied check
+passes; the final API report must use measured execution outcome and medium
+confidence, with scope and uncertainty visible. Source retention, provider-data
+consent, unavailable sandbox handling, tamper refusal, exact diff export, and
+positive/negative integration checks are delivery requirements. Full-repository
+execution and adversarial-code attestation remain excluded.
+
+Mode-delivery increment (implemented; see `Chapter_62_Mode_And_Context_Delivery.md`): pass the persisted user mode and optional domain into
+problem representation, preserve its validated choice in approach trace events,
+and supply the selected mode plus its verification checklist to downstream model
+capabilities as prompt context. Compare requires explicit alternatives and common
+criteria; Review requires inspectable claims and checks; Investigate requires
+competing explanations and discriminating evidence. Missing information still
+routes to clarification or insufficient evidence. This is trace/prompt policy,
+not a new state field, score, or reason to bypass existing verifier gates. CLI
+calls without a mode hint continue to infer mode. The UI exposes the existing
+three modes and optional user-authored context fields; source/check stays an
+explicit Investigate workflow. Verification must cover overridden modes through
+the actual API composer, downstream request context, and browser request payloads.
 
 Tasks:
 
@@ -1877,6 +3514,24 @@ Done when:
 
 #### Chapter 73: Authentication
 
+Implementation direction (Chapter 73): use provider-agnostic OpenID Connect
+through Authlib (authorization code, PKCE, validated ID token), followed by a
+short-lived, revocable opaque browser session. Persist only its hash and an
+issuer/subject-derived user identifier. Authenticated deployments fail closed
+without explicit HTTPS public origin, issuer/client configuration, signing
+secret, and admitted subject allowlist. Local/test bypass remains explicit in
+the environment and is not a public deployment mode.
+
+Authorize every private API request and every session identifier before access.
+Assign ownership from the authenticated principal, never request content.
+Namespace semantic, episodic, and procedural memory by the same principal,
+including deduplication and learned strategy updates. Historical unowned records
+remain local-only. Browser proxy, CSRF checks, login/logout, negative cross-user
+API and memory tests, and actual protocol validation are part of this gate.
+OIDC provider provisioning, public hosting, operational retention, and daily
+spending controls remain separate launch gates; a passing local auth test does
+not establish public beta readiness.
+
 Tasks:
 
 1. Add simple auth for MVP.
@@ -1932,6 +3587,17 @@ Done when:
 - Retrieved text is evidence, not an instruction channel.
 
 #### Chapter 77: Cost Controls
+
+Initial authenticated delivery: atomically admit each run or clarification resume
+against per-user and service-wide UTC daily invocation allowances and concurrency
+limits. Persist admission and the configured per-invocation resource ceilings
+before any provider/tool dispatch. Count failed and interrupted work conservatively;
+never silently refund uncertain calls. An unfinished admission retains its slot
+until completion or explicit operator release after confirming the worker stopped.
+Expose the user's remaining allowance and reset time in the workbench. This bounds
+how many already-budgeted invocations can start; it is not a currency-denominated
+billing cap. Actual price reconciliation, caching, retention and hosted operational
+proof remain separate parts of this chapter.
 
 Tasks:
 
@@ -3176,6 +4842,10 @@ Done when:
 
 #### Chapter 164: LLM Call Reduction
 
+Chapter 13-D implements the first product-critical slice. This later chapter
+scales and profiles that mechanism across the mature platform rather than
+introducing it for the first time.
+
 Tasks:
 
 1. Replace simple LLM decisions with deterministic logic where reliable.
@@ -3218,6 +4888,10 @@ Done when:
 
 #### Chapter 167: Model Routing
 
+Chapter 13-D establishes capability-kind and budget-aware routing in the early
+cognitive runtime. This later chapter adds multi-model quality tiers and
+production routing policy.
+
 Tasks:
 
 1. Classify engine calls by required reasoning strength.
@@ -3231,6 +4905,10 @@ Done when:
 - PolyaBrain uses expensive reasoning only where it earns its keep.
 
 #### Chapter 168: Budget Enforcement
+
+Chapter 13-D establishes hard per-run cognitive budgets. This later chapter
+extends enforcement to user, organization, billing-period, and administrative
+limits.
 
 Tasks:
 

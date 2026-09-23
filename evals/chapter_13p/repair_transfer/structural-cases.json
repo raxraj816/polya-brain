@@ -1,0 +1,39 @@
+{
+  "version": "structural_repair_development@0.1.0",
+  "scope": "Author-created cases frozen before the structural transfer implementation; not an independent held-out benchmark.",
+  "families": [
+    {
+      "id": "line_total",
+      "problem": "The supplied billing rule is quantity multiplied by price. Repair the function against the independent supplied check.",
+      "source": "def line_total(quantity, price):\n    return quantity + price\n",
+      "check": "def verify(implementation):\n    assert implementation.line_total(4, 7) == 28\n    assert implementation.line_total(0, 11) == 0\n",
+      "transfer_problem": "Compute a batch charge as units multiplied by rate. Negative units must be rejected. Repair against the supplied check.",
+      "transfer_source": "def batch_charge(units, rate):\n    if units < 0:\n        raise ValueError('negative units')\n    amount = (units + rate)\n    return amount\n",
+      "transfer_check": "def verify(implementation):\n    for units, rate in [(0, 3), (7, 11), (1, 5), (300, 17)]:\n        assert implementation.batch_charge(units, rate) == units * rate\n    try:\n        implementation.batch_charge(-1, 5)\n    except ValueError:\n        pass\n    else:\n        raise AssertionError('negative units accepted')\n",
+      "negative_problem": "This different batch rule requires units minus rate, with the same negative-unit guard. A remembered multiplication is wrong here.",
+      "negative_check": "def verify(implementation):\n    assert implementation.batch_charge(7, 2) == 5\n    assert implementation.batch_charge(20, 3) == 17\n"
+    },
+    {
+      "id": "inclusive_threshold",
+      "problem": "An account qualifies when its score is at least the threshold, including equality. Repair the supplied function and verify the check.",
+      "source": "def qualifies(score, threshold):\n    return score > threshold\n",
+      "check": "def verify(implementation):\n    assert implementation.qualifies(9, 9) is True\n    assert implementation.qualifies(8, 9) is False\n    assert implementation.qualifies(10, 9) is True\n",
+      "transfer_problem": "A sensor is ready when measured level is at least the required level. Preserve the bool return and support equality. Repair against the current check.",
+      "transfer_source": "def sensor_ready(measured, required):\n    ready = measured > required\n    return ready\n",
+      "transfer_check": "def verify(implementation):\n    for measured, required in [(0, 0), (-3, -3), (2.5, 2.5), (4, 7), (100, 9)]:\n        assert implementation.sensor_ready(measured, required) is (measured >= required)\n",
+      "negative_problem": "This different sensor signals readiness only BELOW the required value. Repair against this current independent check; inclusive-above recall is wrong.",
+      "negative_check": "def verify(implementation):\n    assert implementation.sensor_ready(4, 7) is True\n    assert implementation.sensor_ready(7, 7) is False\n    assert implementation.sensor_ready(9, 7) is False\n"
+    },
+    {
+      "id": "two_required_flags",
+      "problem": "The gate opens only when both enabled and ready are true. Repair the supplied function against all four boolean combinations.",
+      "source": "def gate_open(enabled, ready):\n    return enabled or ready\n",
+      "check": "def verify(implementation):\n    for enabled in [False, True]:\n        for ready in [False, True]:\n            assert implementation.gate_open(enabled, ready) is (enabled and ready)\n",
+      "transfer_problem": "A release is allowed only when both reviewed and approved are true. Preserve all boolean outcomes and repair against the supplied check.",
+      "transfer_source": "def release_allowed(reviewed, approved):\n    allowed = (reviewed or approved)\n    return allowed\n",
+      "transfer_check": "def verify(implementation):\n    for reviewed in [False, True]:\n        for approved in [False, True]:\n            assert implementation.release_allowed(reviewed, approved) is (reviewed and approved)\n",
+      "negative_problem": "This different release rule requires reviewed to be true AND approved to be false. Repair against the independent check; both-true recall is wrong.",
+      "negative_check": "def verify(implementation):\n    for reviewed in [False, True]:\n        for approved in [False, True]:\n            assert implementation.release_allowed(reviewed, approved) is (reviewed and not approved)\n"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+Zephyra Transport Protocol — Revision 8
+Rule Z8.2: retry_ceiling = 11.

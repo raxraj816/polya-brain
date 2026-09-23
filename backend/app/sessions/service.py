@@ -7,17 +7,26 @@ from datetime import datetime, timedelta
 from typing import Protocol
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
+from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions, scope_limitations
+from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
+from app.cognition.verification_history import (
+    HISTORICAL_NEXT_ACTION,
+    VERIFICATION_INVALIDATED_EVENT,
+    historical_failure,
+)
 from app.config import get_settings
 from app.db.models import (
     ClarificationRequest,
     EvidenceItem,
     KnowledgeGap,
+    PlanTask,
     ProblemSession,
     ReasoningEvent,
+    StructuredProblem,
     VerificationReport,
     utc_now,
 )
@@ -30,6 +39,7 @@ from app.models.sessions import (
     SessionReportResponse,
 )
 from app.problem_understanding.persistence import SQLAlchemyStructuredProblemRepository
+from app.sessions.admission import RunAdmissionPolicy, UsageLimitError, resource_limits
 from app.tracing.persistence import SQLAlchemyTraceRepository
 from app.tracing.sanitization import sanitize_text
 
@@ -101,8 +111,11 @@ class SessionExecutionResult:
     state: PolyaState
     awaiting_user_input: bool = False
     clarifying_questions: tuple[str, ...] = ()
+    persisted_event_count: int = 0
 
     def __post_init__(self) -> None:
+        if not 0 <= self.persisted_event_count <= len(self.state["events"]):
+            raise ValueError("persisted trace prefix must fit the returned state")
         if self.awaiting_user_input and not self.clarifying_questions:
             raise ValueError("awaiting_user_input requires clarifying_questions")
         if not self.awaiting_user_input and self.clarifying_questions:
@@ -132,6 +145,7 @@ class PolyaSessionService:
         stale_run_timeout_seconds: int | None = None,
         clarification_timeout_seconds: int | None = None,
         memory_repository: SQLAlchemyMemoryRepository | None = None,
+        admission_policy: RunAdmissionPolicy | None = None,
     ) -> None:
         self._db_session = db_session
         self._runner = runner
@@ -140,6 +154,8 @@ class PolyaSessionService:
         self._structured_problem_repository = SQLAlchemyStructuredProblemRepository(db_session)
         self._cognitive_state_repository = SQLAlchemyCognitiveStateRepository(db_session)
         self._memory_repository = memory_repository
+        self._admission_policy = admission_policy
+        self._admission_id: UUID | None = None
         timeout_seconds = (
             get_settings().session_run_timeout_seconds
             if stale_run_timeout_seconds is None
@@ -178,6 +194,7 @@ class PolyaSessionService:
     ) -> ProblemSession:
         """Create and commit a durable problem session."""
         problem_session = ProblemSession(
+            user_id=self._db_session.info.get("owner_id"),
             raw_input=raw_input.strip(),
             mode=mode.value,
             domain=domain.strip() if domain is not None else None,
@@ -224,6 +241,21 @@ class PolyaSessionService:
             .limit(1)
         )
 
+        history = None
+        if verification is None and problem_session.verification_status != "passed":
+            history_event = self._db_session.scalar(
+                select(ReasoningEvent)
+                .where(
+                    ReasoningEvent.session_id == session_id,
+                    ReasoningEvent.event_type == VERIFICATION_INVALIDATED_EVENT,
+                )
+                .order_by(ReasoningEvent.sequence_number.desc())
+                .limit(1)
+            )
+            if history_event is not None:
+                history = historical_failure(history_event.event_metadata)
+        display_verification = verification or history
+
         evidence_used = [item for item in evidence if not item.contradicts_hypothesis_ids]
         evidence_against = [item for item in evidence if item.contradicts_hypothesis_ids]
         if verification is not None and verification.passed:
@@ -237,7 +269,54 @@ class PolyaSessionService:
         else:
             confidence_level = "insufficient_evidence"
 
+        source_patch_plan = self._db_session.scalar(
+            select(PlanTask).where(
+                PlanTask.session_id == session_id, PlanTask.tool_name == "source_patch_sandbox"
+            )
+        )
+        if source_patch_plan is not None and verification is not None and verification.passed:
+            confidence_level = "medium"
         reflection = reflection_event.event_metadata if reflection_event is not None else None
+        questions = [item.description for item in gaps if not item.filled]
+        structured_problem = self._db_session.scalar(
+            select(StructuredProblem).where(StructuredProblem.session_id == session_id)
+        )
+        if structured_problem is not None:
+            questions.extend(scope_limitations(structured_problem.constraints))
+        if (
+            problem_session.status == SESSION_STATUS_COMPLETED
+            and verification
+            and verification.passed
+        ):
+            metadata_event = self._db_session.scalar(
+                select(ReasoningEvent)
+                .where(
+                    ReasoningEvent.session_id == session_id,
+                    ReasoningEvent.event_type == REPORT_METADATA_EVENT,
+                )
+                .order_by(ReasoningEvent.sequence_number.desc())
+                .limit(1)
+            )
+            if metadata_event is not None:
+                questions.extend(
+                    report_questions(metadata_event.event_metadata, problem_session.final_answer)
+                )
+        if problem_session.status == SESSION_STATUS_AWAITING_USER_INPUT:
+            clarification = self._db_session.scalar(
+                select(ClarificationRequest)
+                .where(
+                    ClarificationRequest.session_id == session_id,
+                    ClarificationRequest.status == CLARIFICATION_STATUS_PENDING,
+                )
+                .order_by(ClarificationRequest.requested_at.desc())
+                .limit(1)
+            )
+            if clarification is not None:
+                questions = list(dict.fromkeys([*clarification.questions, *questions]))
+        if source_patch_plan is not None:
+            questions.append(
+                "Do additional integration or regression checks support this candidate edit?"
+            )
         follow_ups = reflection.get("follow_up_actions", []) if reflection else []
         if isinstance(follow_ups, list) and follow_ups and isinstance(follow_ups[0], str):
             recommended_next_action = follow_ups[0]
@@ -247,8 +326,15 @@ class PolyaSessionService:
             )
         elif verification is not None and verification.recommended_route:
             recommended_next_action = verification.recommended_route
+        elif history is not None:
+            recommended_next_action = HISTORICAL_NEXT_ACTION
         else:
             recommended_next_action = "Gather the missing evidence before drawing a conclusion."
+
+        if source_patch_plan is not None:
+            recommended_next_action = (
+                "Review the candidate diff and run broader integration checks before applying it."
+            )
 
         def report_evidence(item: EvidenceItem) -> SessionReportEvidence:
             return SessionReportEvidence(
@@ -266,14 +352,59 @@ class PolyaSessionService:
             verification_status=problem_session.verification_status or "not_verified",
             evidence_used=[report_evidence(item) for item in evidence_used],
             evidence_against=[report_evidence(item) for item in evidence_against],
-            checks_performed=list(verification.checks_run) if verification else [],
-            failed_checks=list(verification.failed_checks) if verification else [],
-            contradictions=list(verification.contradictions) if verification else [],
-            open_questions=[item.description for item in gaps if not item.filled],
+            checks_performed=(
+                source_patch_checks()
+                if source_patch_plan is not None
+                and verification is not None
+                and verification.passed
+                else list(display_verification.checks_run)
+                if display_verification
+                else []
+            ),
+            failed_checks=list(display_verification.failed_checks) if display_verification else [],
+            contradictions=list(display_verification.contradictions)
+            if display_verification
+            else [],
+            open_questions=list(dict.fromkeys(questions)),
             recommended_next_action=recommended_next_action,
             reflection=reflection,
             audit_trace_path=f"/api/v1/sessions/{session_id}/events",
         )
+
+    def _admit_run(self, session_id: UUID) -> None:
+        if self._admission_policy is None:
+            return
+        try:
+            self._admission_id = self._admission_policy.acquire(session_id)
+        except UsageLimitError:
+            self._db_session.rollback()
+            raise
+        self._trace_repository.persist_events(
+            session_id=session_id,
+            events=[
+                StateEvent(
+                    engine_name="run_admission",
+                    event_type="run_admitted",
+                    reasoning_mode=ReasoningMode.EXECUTE,
+                    summary="Reserved one daily invocation and an active run slot before dispatch.",
+                    metadata={
+                        "admission_id": str(self._admission_id),
+                        "allowance_unit": "bounded_invocation",
+                        "resource_limits": resource_limits(self._admission_policy.settings),
+                    },
+                )
+            ],
+        )
+
+    def _finish_admission(self, session_id: UUID) -> None:
+        if self._admission_policy is None or self._admission_id is None:
+            return
+        record = self._db_session.get(ProblemSession, session_id)
+        if record is None or record.status == SESSION_STATUS_RUNNING:
+            # An interrupted or unrecorded outcome must retain its concurrency slot.
+            return
+        self._admission_policy.finish(self._admission_id, record.status)
+        self._admission_id = None
 
     def _claim_created_session_for_run(self, session_id: UUID) -> ProblemSession:
         """Atomically move one created session to running, or raise."""
@@ -300,6 +431,7 @@ class PolyaSessionService:
             self._db_session.rollback()
             raise SessionConflictError(conflict_message)
 
+        self._admit_run(session_id)
         self._db_session.commit()
         problem_session = self._db_session.get(ProblemSession, claimed_session_id)
         if problem_session is None:
@@ -367,6 +499,40 @@ class PolyaSessionService:
         execution: SessionExecutionResult,
     ) -> SessionRunResult:
         events = list(execution.state["events"])
+        # Persist the accepted state, independent of each producer's event name.
+        # Fused and deterministic capabilities do not necessarily emit the
+        # legacy reflection/execution events themselves.
+        for output in execution.state["execution_outputs"]:
+            metadata = output.model_dump(mode="json")
+            if not any(
+                event.event_type == "execution_output_recorded" and event.metadata == metadata
+                for event in events
+            ):
+                events.append(
+                    StateEvent(
+                        engine_name="cognitive_runtime",
+                        event_type="execution_output_recorded",
+                        reasoning_mode=ReasoningMode.EXECUTE,
+                        summary=output.summary,
+                        metadata=metadata,
+                    )
+                )
+        reflection = execution.state["reflection"]
+        if reflection is not None:
+            metadata = reflection.model_dump(mode="json")
+            if not any(
+                event.event_type == "reflection_recorded" and event.metadata == metadata
+                for event in events
+            ):
+                events.append(
+                    StateEvent(
+                        engine_name="cognitive_runtime",
+                        event_type="reflection_recorded",
+                        reasoning_mode=ReasoningMode.REFLECT,
+                        summary=reflection.outcome_summary,
+                        metadata=metadata,
+                    )
+                )
         if execution.awaiting_user_input:
             events.append(
                 StateEvent(
@@ -377,9 +543,9 @@ class PolyaSessionService:
                     metadata={"questions": list(execution.clarifying_questions)},
                 )
             )
-        records = self._trace_repository.persist_events(
+        self._trace_repository.persist_events(
             session_id=problem_session.id,
-            events=events,
+            events=events[execution.persisted_event_count :],
         )
         structured_problem = execution.state["structured_problem"]
         if structured_problem is not None:
@@ -408,6 +574,20 @@ class PolyaSessionService:
             problem_session.status = SESSION_STATUS_COMPLETED
             problem_session.completed_at = now
             problem_session.final_answer = execution.state["final_answer"]
+            patch_task = next(
+                (
+                    task
+                    for task in execution.state["plan"]
+                    if task.tool_name == "source_patch_sandbox"
+                ),
+                None,
+            )
+            if (
+                patch_task is not None
+                and execution.state["verification"]
+                and execution.state["verification"].passed
+            ):
+                problem_session.final_answer = source_patch_conclusion(patch_task.params)
             problem_session.confidence = None
             problem_session.verification_status = _verification_status(execution.state)
             if self._memory_repository is not None:
@@ -419,7 +599,14 @@ class PolyaSessionService:
         self._db_session.refresh(problem_session)
         return SessionRunResult(
             session=problem_session,
-            event_count=len(records),
+            event_count=int(
+                self._db_session.scalar(
+                    select(func.count(ReasoningEvent.id)).where(
+                        ReasoningEvent.session_id == problem_session.id
+                    )
+                )
+                or 0
+            ),
             clarifying_questions=execution.clarifying_questions,
         )
 
@@ -461,6 +648,8 @@ class PolyaSessionService:
                 self._db_session.commit()
             sanitized_error = sanitize_text(f"{type(exc).__name__}: {exc}")
             raise SessionRunFailedError(sanitized_error) from exc
+        finally:
+            self._finish_admission(session_id)
 
     def respond_to_session(self, session_id: UUID, answer: str) -> SessionRunResult:
         """Persist one clarification answer and resume the same session."""
@@ -502,6 +691,7 @@ class PolyaSessionService:
                 f"clarification request expired for problem session {session_id}"
             )
 
+        self._admit_run(session_id)
         clarification.answer = normalized_answer
         clarification.answered_at = now
         clarification.status = CLARIFICATION_STATUS_ANSWERED
@@ -547,3 +737,5 @@ class PolyaSessionService:
                 self._db_session.commit()
             sanitized_error = sanitize_text(f"{type(exc).__name__}: {exc}")
             raise SessionRunFailedError(sanitized_error) from exc
+        finally:
+            self._finish_admission(session_id)

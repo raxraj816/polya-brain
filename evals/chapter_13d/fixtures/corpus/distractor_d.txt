@@ -1,0 +1,2 @@
+Praxion Cooling Specification — P-11
+The primary loop rests for 26 minutes after shutdown.

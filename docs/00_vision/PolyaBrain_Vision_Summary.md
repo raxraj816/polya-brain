@@ -8,9 +8,34 @@ Purpose: Build a real intelligence system focused on understanding and solving p
 
 PolyaBrain is not intended to be another LLM focused primarily on more parameters, more training data, more GPUs, or memorizing more information.
 
+Binding product identity:
+
+> **PolyaBrain is a product-first, initially cloud-hosted, model-agnostic
+> Cognitive Runtime that turns difficult objectives into verified outcomes by
+> acquiring knowledge on demand, using deterministic procedures whenever
+> possible, invoking bounded model reasoning when necessary, and learning
+> reusable procedures from verified work.**
+
+The layers are explicit:
+
+- **Product now:** PolyaBrain Investigator, a verified technical
+  problem-solving workbench.
+- **Enduring core:** PolyaBrain Cognitive Runtime.
+- **Initial delivery:** managed cloud product and API, with portable runtime
+  boundaries for sovereign, private, and local deployment.
+- **Eventual platform:** PolyaBrain Intelligence OS, only after dependent
+  applications, developers, and cross-domain proof exist.
+- **Models and tools:** replaceable capabilities, not PolyaBrain itself.
+
+General-purpose intelligence is the long-term architectural ambition, not the
+initial market category or a current superiority claim.
+
 Goal:
 
 Build a real intelligence system focused on reasoning, first-principles thinking, problem understanding, verification, reflection, and learning.
+
+Winning means producing more verified useful outcomes per unit of money, time,
+tokens, compute, risk, and human attention than strong practical alternatives.
 
 ## Fundamental Principle
 

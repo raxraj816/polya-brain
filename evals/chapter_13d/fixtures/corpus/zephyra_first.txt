@@ -1,0 +1,2 @@
+Zephyra Transport Protocol — Revision 7
+Rule Z7.4: request_timeout_ticks = 37.

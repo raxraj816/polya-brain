@@ -17,17 +17,38 @@ from app.acquisition import (
     local_artifact_capability,
     web_search_capability,
 )
+from app.acquisition.openrouter import (
+    SEARCH_OUTPUT_TOKEN_RESERVE,
+    SEARCH_TIMEOUT_SECONDS,
+    OpenRouterSearchProvider,
+)
+from app.acquisition.page_reader import PublicPageReader, public_page_capability
+from app.acquisition.providers import SearchProvider
 from app.cognition.adapters import (
     constraint_discovery_capability,
     problem_representation_capability,
 )
 from app.cognition.capabilities import CapabilityRegistry
+from app.cognition.contracts import CapabilityKind
 from app.cognition.controller import CognitiveController, ProceduralPreferenceProvider
 from app.cognition.local_capabilities import calculator_capability, human_input_capability
-from app.cognition.model_capabilities import model_reasoning_capabilities
+from app.cognition.model_capabilities import planner_capability
 from app.cognition.model_gateway import CognitiveModelGateway
+from app.cognition.on_demand_capabilities import on_demand_cognitive_capabilities
+from app.cognition.performance import CapabilityPerformanceLedger
+from app.cognition.procedure_compiler import ProcedureCompiler
+from app.cognition.repair_memory import RepairLesson, repair_recall_capability
 from app.cognition.runtime import CognitiveRuntime
+from app.cognition.scope_review import scope_review_capability
+from app.cognition.semantic_broker import (
+    RoutedCognitiveModelGateway,
+    RoutedProblemUnderstandingProvider,
+    SemanticModelRoute,
+    SemanticRouteHealthLedger,
+)
 from app.cognition.session_runner import CognitiveSessionRunner
+from app.cognition.source_patch_investigation import source_patch_investigator_capability
+from app.cognition.task_model import CognitiveResourceBudget
 from app.config import Settings
 from app.engines import ConstraintDiscoveryEngine, ProblemRepresentationEngine
 from app.execution import (
@@ -37,26 +58,34 @@ from app.execution import (
     controlled_experiment_capability,
     python_sandbox_capability,
     scenario_simulation_capability,
+    source_patch_sandbox_capability,
     table_measurement_capability,
 )
+from app.graph.state import StateEvent
 from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
 from app.memory.capability import SemanticMemorySearch, semantic_memory_capability
-from app.models.contracts import EvidenceItem, RiskLevel
+from app.models.contracts import EvidenceItem, ProductMode, RiskLevel
 
 
-def build_representation_session_runner(
+def build_cognitive_runtime(
     settings: Settings,
     *,
+    enable_source_patch: bool = False,
+    mode_hint: ProductMode | None = None,
+    domain_hint: str | None = None,
     prior_research_query_count: Callable[[str], int] | None = None,
-    prior_evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
     semantic_memory: SemanticMemorySearch | None = None,
     procedural_memory: ProceduralPreferenceProvider | None = None,
-) -> CognitiveSessionRunner:
-    """Build the honest representation-only persisted cognitive runner.
+    repair_lesson_loader: Callable[[], list[RepairLesson]] | None = None,
+    performance_ledger: CapabilityPerformanceLedger | None = None,
+    semantic_route_health_ledger: SemanticRouteHealthLedger | None = None,
+) -> CognitiveRuntime:
+    """Compose the shared production runtime for API and local investigations.
 
     Deterministic fallbacks still work without credentials. Unrecognized inputs
     fail closed at the provider boundary instead of silently using the old stub.
     """
+    adaptive_ledger = performance_ledger or CapabilityPerformanceLedger()
     configured_key = settings.openrouter_api_key.get_secret_value().strip()
     configured_model = settings.openrouter_model.strip()
     client: LLMClient
@@ -67,11 +96,48 @@ def build_representation_session_runner(
         client = FakeLLMClient([])
         model = configured_model or "unconfigured-representation-provider"
 
+    fallback_models = list(
+        dict.fromkeys(
+            item.strip()
+            for item in settings.openrouter_fallback_models.split(",")
+            if item.strip() and item.strip() != model
+        )
+    )
+    if len(fallback_models) > 1:
+        raise ValueError("the first semantic broker supports at most one fallback model")
+    semantic_routes = [
+        SemanticModelRoute(model_slug=model, priority=0, timeout_seconds=90.0),
+        *[
+            SemanticModelRoute(model_slug=fallback, priority=index, timeout_seconds=90.0)
+            for index, fallback in enumerate(fallback_models, start=1)
+        ],
+    ]
+    route_health = semantic_route_health_ledger or SemanticRouteHealthLedger()
+    understanding_provider = (
+        RoutedProblemUnderstandingProvider(
+            client,
+            semantic_routes,
+            health_ledger=route_health,
+        )
+        if configured_key and configured_model
+        else None
+    )
     engine = ProblemRepresentationEngine(
         client=client,
         model=model,
+        mode_hint=mode_hint,
+        domain_hint=domain_hint,
+        understanding_provider=understanding_provider,
     )
-    gateway = CognitiveModelGateway(client, model)
+    gateway = (
+        RoutedCognitiveModelGateway(
+            client,
+            semantic_routes,
+            health_ledger=route_health,
+        )
+        if configured_key and configured_model
+        else CognitiveModelGateway(client, model)
+    )
     sensitive_data_approved = bool(
         configured_key
         and configured_model
@@ -79,7 +145,9 @@ def build_representation_session_runner(
         and settings.openrouter_zdr
     )
     registry = CapabilityRegistry()
-    registry.register(problem_representation_capability(engine))
+    if configured_key and configured_model:
+        registry.register(problem_representation_capability(engine))
+    registry.register(problem_representation_capability(engine, deterministic_only=True))
     registry.register(constraint_discovery_capability(ConstraintDiscoveryEngine()))
     registry.register(calculator_capability())
     registry.register(human_input_capability())
@@ -158,11 +226,20 @@ def build_representation_session_runner(
     )
     configured_search_key = settings.search_api_key.get_secret_value().strip()
     requires_evidence_evaluator = False
+    provider: SearchProvider | None = None
     if settings.search_provider.casefold() == "brave" and configured_search_key:
         provider = BraveSearchProvider(
             configured_search_key,
             base_url=settings.search_base_url,
         )
+    elif (
+        settings.search_provider.casefold() == "openrouter"
+        and settings.openrouter_api_key.get_secret_value().strip()
+        and configured_model
+    ):
+        provider = OpenRouterSearchProvider(settings)
+    if provider is not None:
+        model_backed_search = isinstance(provider, OpenRouterSearchProvider)
         registry.register(
             web_search_capability(
                 provider,
@@ -172,6 +249,17 @@ def build_representation_session_runner(
                     max_total_candidates=settings.research_max_total_candidates,
                 ),
                 prior_query_count=prior_research_query_count,
+                max_model_calls=1 if model_backed_search else 0,
+                max_output_tokens=SEARCH_OUTPUT_TOKEN_RESERVE if model_backed_search else 0,
+                timeout_seconds=SEARCH_TIMEOUT_SECONDS if model_backed_search else 20.0,
+                capability_version=provider.capability_version
+                if isinstance(provider, OpenRouterSearchProvider)
+                else None,
+            )
+        )
+        registry.register(
+            public_page_capability(
+                PublicPageReader(), max_total_candidates=settings.research_max_total_candidates
             )
         )
         requires_evidence_evaluator = True
@@ -192,6 +280,32 @@ def build_representation_session_runner(
         for item in settings.artifact_allowed_roots.split(pathsep)
         if item.strip()
     ]
+    if enable_source_patch:
+        if not settings.code_execution_enabled or not configured_artifact_roots:
+            raise ValueError(
+                "Source-patch investigation requires explicit execution and artifact permissions."
+            )
+        registry.register(
+            source_patch_sandbox_capability(
+                DockerPythonSandbox(
+                    image=settings.code_execution_image,
+                    limits=DockerSandboxLimits(
+                        timeout_seconds=settings.code_execution_timeout_seconds,
+                        memory_megabytes=settings.code_execution_memory_mb,
+                    ),
+                ),
+                configured_artifact_roots,
+            )
+        )
+        if repair_lesson_loader is not None:
+            registry.register(repair_recall_capability(repair_lesson_loader))
+        if configured_key and configured_model:
+            registry.register(
+                source_patch_investigator_capability(
+                    gateway,
+                    approved_for_sensitive_data=sensitive_data_approved,
+                )
+            )
     if configured_artifact_roots:
         inspector = LocalArtifactInspector(
             configured_artifact_roots,
@@ -259,27 +373,77 @@ def build_representation_session_runner(
                 memory_evidence_loader=memory_evidence_loader,
             )
         )
-    for capability in model_reasoning_capabilities(
+    for capability in on_demand_cognitive_capabilities(
         gateway,
         approved_for_sensitive_data=sensitive_data_approved,
-        available_sources=sources.prompt_description(),
-        available_execution_tools=(
-            "calculator",
-            "executor",
-            "simulator",
-            "experiment",
-            *(("python_sandbox",) if settings.code_execution_enabled else ()),
-            *(("measurement",) if configured_artifact_roots else ()),
-        ),
     ):
+        if capability.definition.kind is CapabilityKind.MODEL and not (
+            configured_key and configured_model
+        ):
+            continue
         registry.register(capability)
+    if configured_key and configured_model:
+        registry.register(
+            scope_review_capability(gateway, approved_for_sensitive_data=sensitive_data_approved)
+        )
+        registry.register(
+            planner_capability(
+                gateway,
+                approved_for_sensitive_data=sensitive_data_approved,
+                available_execution_tools=(
+                    "calculator",
+                    "simulator",
+                    "experiment",
+                    *(("python_sandbox",) if settings.code_execution_enabled else ()),
+                    *(("measurement",) if configured_artifact_roots else ()),
+                ),
+            )
+        )
+    return CognitiveRuntime(
+        registry,
+        controller=CognitiveController(
+            procedural_memory=procedural_memory,
+            semantic_memory=semantic_memory,
+            performance_policy=adaptive_ledger,
+        ),
+        budget=CognitiveResourceBudget(
+            max_model_calls=settings.cognitive_max_model_calls,
+            max_external_calls=settings.cognitive_max_external_calls,
+            max_input_tokens=settings.cognitive_max_input_tokens,
+            max_output_tokens=settings.cognitive_max_output_tokens,
+            max_normalized_cost=settings.cognitive_max_normalized_cost,
+            max_duration_ms=settings.cognitive_max_duration_ms,
+        ),
+        procedure_compiler=ProcedureCompiler(),
+        performance_ledger=adaptive_ledger,
+    )
+
+
+def build_representation_session_runner(
+    settings: Settings,
+    *,
+    mode_hint: ProductMode | None = None,
+    domain_hint: str | None = None,
+    prior_research_query_count: Callable[[str], int] | None = None,
+    prior_evidence_loader: Callable[[str], list[EvidenceItem]] | None = None,
+    semantic_memory: SemanticMemorySearch | None = None,
+    procedural_memory: ProceduralPreferenceProvider | None = None,
+    performance_ledger: CapabilityPerformanceLedger | None = None,
+    semantic_route_health_ledger: SemanticRouteHealthLedger | None = None,
+    progress_writer: Callable[[str, list[StateEvent]], None] | None = None,
+) -> CognitiveSessionRunner:
+    """Adapt the shared runtime to durable API session dispositions."""
     return CognitiveSessionRunner(
-        CognitiveRuntime(
-            registry,
-            controller=CognitiveController(
-                procedural_memory=procedural_memory,
-                semantic_memory=semantic_memory,
-            ),
+        build_cognitive_runtime(
+            settings,
+            mode_hint=mode_hint,
+            domain_hint=domain_hint,
+            prior_research_query_count=prior_research_query_count,
+            semantic_memory=semantic_memory,
+            procedural_memory=procedural_memory,
+            performance_ledger=performance_ledger,
+            semantic_route_health_ledger=semantic_route_health_ledger,
         ),
         evidence_loader=prior_evidence_loader,
+        progress_writer=progress_writer,
     )

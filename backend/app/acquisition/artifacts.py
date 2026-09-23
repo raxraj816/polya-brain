@@ -97,11 +97,32 @@ class LocalArtifactInspector:
 
     def inspect(self, raw_input: str, target: str) -> list[EvidenceCandidate]:
         """Return bounded excerpts from explicit, permitted file references."""
-        referenced = self._referenced_paths(f"{raw_input}\n{target}")
-        candidates: list[EvidenceCandidate] = []
-        for rank, path in enumerate(referenced[: self._max_candidates], start=1):
-            candidates.append(self._candidate(path, target, rank))
-        return candidates
+        referenced = self._referenced_paths(f"{raw_input}\n{target}")[: self._max_candidates]
+        if not referenced:
+            return []
+        documents: list[tuple[Path, list[str]]] = []
+        for path in referenced:
+            try:
+                documents.append((path, path.read_text(encoding="utf-8").splitlines()))
+            except (OSError, UnicodeError) as exc:
+                raise ValueError("referenced artifact is not readable UTF-8 text") from exc
+        # Reserve a fair initial share for each file, then give unused space to
+        # larger files. Small supplied manifests must not disappear behind a log.
+        allowance = 64_000
+        lengths = [
+            sum(len(line) + len(str(i)) + 3 for i, line in enumerate(lines, 1))
+            for _, lines in documents
+        ]
+        allocations = [min(length, allowance // len(documents)) for length in lengths]
+        remaining = allowance - sum(allocations)
+        for index, length in enumerate(lengths):
+            extra = min(length - allocations[index], remaining)
+            allocations[index] += extra
+            remaining -= extra
+        return [
+            self._candidate(path, lines, target, rank, allocations[rank - 1])
+            for rank, (path, lines) in enumerate(documents, 1)
+        ]
 
     def _referenced_paths(self, text: str) -> list[Path]:
         raw_paths = [match.group("path") for match in _QUOTED.finditer(text)]
@@ -139,12 +160,16 @@ class LocalArtifactInspector:
             return False
         return any(path.is_relative_to(root) for root in self._roots)
 
-    def _candidate(self, path: Path, target: str, rank: int) -> EvidenceCandidate:
-        try:
-            content = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeError) as exc:
-            raise ValueError("referenced artifact is not readable UTF-8 text") from exc
-        lines = content.splitlines()
+    def _candidate(
+        self,
+        path: Path,
+        lines: list[str],
+        target: str,
+        rank: int,
+        max_chars: int,
+    ) -> EvidenceCandidate:
+        if not lines or not any(line.strip() for line in lines) or max_chars < 1:
+            raise ValueError("referenced artifact contains no inspectable text")
         query_words = {
             word.casefold()
             for word in _WORD.findall(target)
@@ -155,22 +180,38 @@ class LocalArtifactInspector:
             for index, line in enumerate(lines)
             if query_words and any(word in line.casefold() for word in query_words)
         ]
+        full_size = sum(len(line) + len(str(i)) + 3 for i, line in enumerate(lines, 1))
         anchor = matching[0] if matching else 0
-        start = max(0, anchor - 8)
-        end = min(len(lines), start + 40)
-        excerpt = "\n".join(
-            f"{line_number}: {lines[line_number - 1]}" for line_number in range(start + 1, end + 1)
-        ).strip()
-        if not excerpt:
-            raise ValueError("referenced artifact contains no inspectable text")
+        start = 0 if full_size <= max_chars else max(0, anchor - 8)
+        selected: list[str] = []
+        used = 0
+        partial_line = False
+        for index in range(start, len(lines)):
+            numbered = f"{index + 1}: {lines[index]}"
+            space = max_chars - used - (1 if selected else 0)
+            if space <= 0:
+                break
+            selected.append(numbered[:space])
+            used += len(selected[-1]) + (1 if len(selected) > 1 else 0)
+            if len(numbered) > space:
+                partial_line = True
+                break
+        end = start + len(selected)
+        complete = start == 0 and end == len(lines) and not partial_line
+        coverage = "complete file" if complete else "partial file; omitted content remains"
+        if partial_line:
+            coverage += "; last displayed line is truncated"
+        excerpt = f"[Source coverage: {coverage}; total lines: {len(lines)}]\n" + "\n".join(
+            selected
+        )
         uri = f"{path.as_uri()}#L{start + 1}-L{end}"
         identity = hashlib.sha256(f"{uri}|{excerpt}".encode()).hexdigest()[:16]
         return EvidenceCandidate(
             id=f"artifact-{identity}",
             source_type="local_text_artifact",
             source_uri=uri,
-            title=f"Local artifact {path.name}, lines {start + 1}-{end}",
-            excerpt=excerpt[:8000],
+            title=f"Local artifact {path.name}, lines {start + 1}-{end} ({coverage})",
+            excerpt=excerpt,
             source_rank=rank,
             source_score=1.0 if matching else 0.5,
         )
@@ -180,7 +221,7 @@ def local_artifact_capability(inspector: LocalArtifactInspector) -> FunctionCapa
     """Expose explicit local inspection through the cognitive capability registry."""
     definition = CapabilityDefinition(
         name="inspector",
-        version="local_text_artifact_inspector@0.1.0",
+        version="local_text_artifact_inspector@0.2.0",
         supported_actions={CognitiveActionType.INSPECT},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -214,9 +255,26 @@ def local_artifact_capability(inspector: LocalArtifactInspector) -> FunctionCapa
         acquisition_id = (
             "acq-"
             + hashlib.sha256(
-                f"{state['session_id']}|{action.id}|{candidates[0].id}".encode()
+                (
+                    f"{state['session_id']}|{action.target}|"
+                    + "|".join(candidate.id for candidate in candidates)
+                ).encode()
             ).hexdigest()[:16]
         )
+        if any(
+            event.event_type == ACQUISITION_EVENT
+            and event.metadata.get("acquisition_id") == acquisition_id
+            for event in state["events"]
+        ):
+            return CognitiveObservation(
+                action_id=action.id,
+                capability=definition.name,
+                capability_version=definition.version,
+                status=ObservationStatus.INCONCLUSIVE,
+                summary="The explicit local artifact snapshot is unchanged; no new evidence was acquired.",
+                payload={"acquisition_id": acquisition_id, "candidate_count": 0},
+                failure_kind="duplicate_artifact_snapshot",
+            )
         event = StateEvent(
             engine_name=definition.name,
             event_type=ACQUISITION_EVENT,

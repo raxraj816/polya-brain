@@ -19,6 +19,76 @@ Each benchmark case should include:
 - Expected clarifying questions, when relevant.
 - Expected verification checks.
 - Scoring rubric.
+- Knowledge that is available at run time and knowledge deliberately withheld.
+- Model-call, token, acquisition, latency, and normalized-cost budgets.
+- Whether the case is a first encounter or a held-out structural transfer case.
+
+## On-Demand Learning Track
+
+Maintain an unfamiliar micro-world track in addition to normal real-world
+cases. A micro-world supplies a fictional manual, API, rule system, table, or
+tool at run time so success cannot be credited to memorized model knowledge.
+Cases must require targeted acquisition and at least one verifiable consequence
+of the supplied rules.
+
+Compare:
+
+1. A direct model with the same answer budget.
+2. A full-context model given every available document.
+3. An ordinary retrieve-then-answer baseline.
+4. PolyaBrain using gap-driven acquisition and the cognitive resource ledger.
+
+Use paired held-out cases to measure procedural transfer. The second case must
+change surface details while preserving only the intended structural procedure;
+the evaluator must reject answer memorization and unverifiable shortcuts.
+
+## Executable Verifier Track
+
+Maintain held-out verification checkpoints in which the candidate, mandatory
+success criteria, and independent observations are fixed. Compare a direct
+model with complete observations, a full-context model, ordinary retrieval, and
+PolyaBrain's typed verifier factory. Report verdict correctness, false-pass and
+false-reject rate, criterion coverage, calls, tokens, latency, and parsing or
+provider failures.
+
+This track isolates verifier value. It must never be reported as end-to-end
+problem-solving evidence. A verifier shape learned or compiled on one source
+case must be retested on changed surface details, failed criteria, missing
+observations, stale capability versions, poisoned memory, and safety-constraint
+mismatches before reuse.
+
+## Adaptive Scheduler Track
+
+Maintain held-out task families with prior capability-health histories and a
+separate present-case route oracle. Cover healthy, repeatedly degraded,
+recovered, and version-changed capabilities. Compare the declared-cost static
+controller with the adaptive controller using rotated execution order and at
+least five repetitions.
+
+Report verified route outcome, wrong-route rate, external/model calls, tokens,
+capability latency, regret relative to the best eligible route, and scheduler
+overhead. Test explicitly that sparse failures do not blacklist a capability,
+new versions do not inherit stale health, recovery can restore a route, and
+fabricated strong performance cannot bypass privacy, approval, or hard budget
+gates. Keep this track separate from end-to-end intelligence claims.
+
+## Adversarial Epistemic-Control Track
+
+Maintain paired answerable and intentionally unanswerable cases in which the
+runtime receives incomplete, conflicting, stale, misleading, or unavailable
+information. Include retrieved prompt injections and false-premise questions.
+The same-model baseline must receive the same tools, observations, budgets, and
+untrusted-data warning.
+
+Score correct answers and correct abstentions separately. Report abstention
+precision and recall, unsupported-conclusion rate, contradiction-resolution
+accuracy, temporal-source selection, criterion coverage, prompt-injection
+success rate, acquisition non-progress, external/model calls, tokens, latency,
+and cost. A system must not improve its score by refusing answerable tasks or
+by guessing on unanswerable tasks.
+
+This track isolates evidence governance. It is not by itself proof of broad
+end-to-end product value or general intelligence.
 
 ## Categories
 
@@ -51,6 +121,10 @@ Each benchmark case should include:
 - Report usefulness.
 - Latency.
 - Estimated cost.
+- Model calls and tokens by logical stage.
+- External acquisitions and irrelevant context consumed.
+- Expected verified progress per cost for selected actions.
+- First-encounter versus transfer-case efficiency.
 
 ## Chapter 60 Minimum
 
@@ -71,3 +145,175 @@ Each benchmark case should include:
 ## Guardrail
 
 Do not optimize only for impressive demos. Benchmark repeatability is a product requirement.
+
+
+## Mode-delivery regression expectations
+
+API/user overrides must be preserved in problem representation and downstream
+capability context. Compare cases must identify explicit alternatives and shared
+criteria; missing comparative evidence must prevent an unsupported winner.
+Review cases must distinguish confirmed defects from unresolved risks and state
+acceptance checks. Investigation cases must distinguish observed symptoms from
+unverified causes and seek discriminating evidence. Mode labels and successful
+arithmetic wiring tests do not count as substantive mode-quality evidence.
+Chapter 62 adds transport/prompt-context regression checks; fresh verified
+Compare/Review tasks remain part of the product-value evaluation gate.
+
+## Production-path dependency investigation regressions (Chapter 13-P)
+
+Freeze the task and complete artifacts before running the public Investigator CLI
+and a direct same-model baseline. Score outcome facts independently of the
+runtime's own `passed` flag. Include direct upper bounds, installed parent pins,
+multiple fixed release branches, optional/environment-conditional dependencies,
+no listed fix, duplicate IDs, and transitive alias groups. Keep ambiguous,
+malformed and partial-source controls, and test copied facts with contradictory
+prose so necessary coverage is never mislabeled semantic verification.
+
+Retain each failed run; fixes invalidate its use as a held-out case. Fresh
+synthetic transfer cases are useful regression evidence but are not independent
+blind evaluation, learned procedure transfer, or real-user product preference.
+
+## Core-loop efficiency and recovery regressions (Chapter 13-P)
+
+Compare the unchanged runtime with a direct same-model answer on a frozen
+non-dependency incident case. Check observation/inference separation, competing
+causes, whether a proposed infrastructure purchase is justified, reversible
+experiments, residual uncertainty and unperformed-action boundaries. Record
+source-review limitations and actual tokens/latency, including baseline strengths.
+
+Prompt compression must preserve mode overrides, clarification boundaries and
+wrong-cause warnings across all ten framing fixtures. These examples appear in
+the prompts and therefore measure compatibility, not held-out quality. Keep
+failed prompt candidates and distinguish input savings from whole-run savings.
+Execution-negative cases must not pass from metadata alone; if recovery clears a
+failed verification and then stops, both report paths must retain its explicitly
+historical diagnostics without promoting them to a current verdict.
+
+## Knowledge-on-demand public-runtime checks (Chapter 13-P)
+
+Start scientific and technical investigations with no supplied documents. Require
+actual public-source acquisition, independently inspect the retrieved excerpts,
+and distinguish observation from inference and a proposed experiment from an
+executed one. Preserve failed attempts before fixes; subsequent replays are
+regressions, not held-out wins. Record model-backed search as both model and external
+usage, and report unknown usage rather than inventing zero cost after failures.
+
+Negative controls include missing citation excerpts, invalid search telemetry,
+provider timeout, CAPTCHA-only pages, ungrounded extracted claims, unavailable
+sources, privacy constraints and exhausted budgets. Multiple pages from one host
+must not manufacture independent corroboration. Grouped questions cannot resolve
+from evidence for only their first question. Official-source reporting does not
+establish broad causal or cross-domain validity. A full product claim still needs
+fresh comparisons, learned procedure transfer and repeat use by real users.
+
+
+Scope-recovery evaluations must distinguish an explanation plus proposed diagnostic
+from a request to prove an actual incident cause or perform a fix. Test incomplete,
+duplicate and invented question identifiers, missing source support, invalid user
+scope references, partial deferral, retained uncertainty in both report paths and
+invalidation of prior verification. A model's selection of a real user quote is
+provenance, not independent proof that the selected fact is nonblocking.
+
+Page-reading checks must start with a discovered source, select useful material
+beyond the initial snippet, stage it without admitting it, and record actual read
+usage alongside search/model usage. Exercise private and mixed DNS answers,
+connection pinning and TLS host retention, redirects, non-text content, decoded
+response limits, total deadlines, repeat URLs, candidate exhaustion, privacy and
+offline composition. Different excerpts from one page do not create independent
+corroboration. Development regressions retain failed attempts; changing a bound or
+routing rule after seeing a failure makes the next run a repair, not a held-out win.
+
+### Verification-driven public research recovery
+
+Start with a failed final check after initial research has been marked complete.
+Require an actual failed-check-bound research request, separate source admission,
+fresh analysis with distinct task IDs, and a new independent verification before
+success. Retain prior failures; do not silently accept the old analysis. Test
+invalid check indices, passing verdicts with research requests, repeated rounds,
+private/execution requirements, unavailable tools, sensitive-data boundaries and
+exhausted call budgets. Re-run the unchanged NASA DART task with all previous
+failures retained and report model/search/page usage and actual termination.
+Model-suggested public-source classification is not itself a correctness gate;
+this recovery does not replace observed execution or establish cost advantage.
+
+Retain the DART false pass that rewrote `−33.24 min ± 1.4 s` as
+`−33.24 ± 1.4 minutes`. Evaluate the final answer against raw admitted excerpts,
+not only model-extracted claims. The time-uncertainty guard must reject this case,
+accept exact equivalent conversions, and document unmatched/unparsed quantities
+as outside its narrow coverage. A runtime `completed` status alone does not make
+a development result correct.
+
+### Residual research and source selection
+
+Exercise supported + still-needed groups with no deferral: retire the original
+group, retain source provenance for supported facts and keep all remaining
+questions in one unfilled group. Invalid quotations remain blocking. Preserve
+criteria and constraints; an all-needed review must not claim progress. Verify
+that only query/read guidance crosses parent lineage, with newer child guidance
+taking precedence. Discovery hints must avoid page reads, admitted nominations
+must select only eligible untried pages, and invented/rejected nominations must
+fall back to search. Test passage targeting and model/external-call accounting.
+Re-run unchanged DART and HTTP tasks with all attempts and costs retained. These
+are development regressions, not fresh comparisons or general cost evidence.
+
+Retain both HTTP failures where targeted-query publisher identifiers displaced
+GET/PUT passages. Explicit numbered sections must outrank publisher/front matter
+without increasing the six-passage/9,000-character limit. Preserve the original
+user's requested-topic coverage; test a synthetic non-HTTP section inventory.
+Retain the persisted DART failure from a generated U+0000 claim. Trace JSONB and
+accepted-claim persistence must retain a visible escape and unchanged source text,
+without inventing a sign or treating malformed text as new measurement evidence.
+
+Test that unnumbered front matter does not consume a numbered-heading bonus.
+Retain the HTTP finalization failure that demanded a pre-existing final answer.
+Replay its admitted evidence and analysis without supplying an answer: the final
+checker must compose a supported explanation while a matched actual-execution
+negative probe still fails. These frozen live-model probes supplement deterministic
+regressions; they do not prove arbitrary prompt compliance or held-out success.
+
+Latest development outcome: DART completed in the CLI but still stalled in the
+persisted workbench. HTTP completed after the composition repair; manual review
+found a section-9.3.1 citation whose supporting selected passage was section 6.4.1.
+Preserve this citation-fidelity defect instead of equating runtime status with
+independent correctness. Full-run costs and failed attempts remain in the ledger.
+
+### Candidate repair transfer (Chapter 13-P)
+
+Freeze the two supplied fictional protocol families in
+`evals/chapter_13p/repair_transfer/cases.json` before live execution. Run first
+encounter, related changed-code cold, related changed-code warm and incompatible
+warm conditions. Cold uses the same production one-call proposal path and
+sandbox/check access. Warm receives only the serialized lesson learned from the
+first completed run. It must propose no new model call when exact reuse applies,
+but must rerun the present baseline and candidate checks. Record initial learning
+cost, transfer cost, tokens, time, lesson bytes, unchanged host source and every
+failure. A wrong transfer must have an explicit deterministic failed verdict.
+
+These are author-created development cases, not independent held-out evidence.
+Changed function names, inputs and surrounding guards leave the intended exact
+edit fragment intact; parameter renaming and general program transformation are
+outside the experiment. Real PostgreSQL API tests additionally verify owner
+isolation, persistence and reuse across separate source/check sessions.
+
+Recovery follow-up: replay the same incompatible ORBIT-R18 and MERIDIAN-D cases
+with their previously serialized lessons. Require a failed recalled edit followed
+by a distinct successful candidate using the unchanged source/check snapshots.
+Count both sandbox attempts and the one proposal-model request; keep the original
+failed verdict and plan in the trace. Validate current-candidate reporting, diff
+export and learning through the real persisted API. Negative tests cover no model,
+exhausted budgets, vacuous checks, repeated or equivalent edits, a second failing
+candidate, stale task IDs, changed bindings, forged history and injected verdicts.
+The successful known-case replays are recorded separately in
+`evals/chapter_13p/repair_transfer/recovery-results.json`; they do not relabel old
+failures or establish held-out reliability.
+
+Structural follow-up: `repair_transfer/structural-cases.json` freezes billing,
+inclusive-threshold and two-required-flag tasks before implementation. Compare
+first learning, cold transfer, prior exact-memory transfer, and expression-adapted
+transfer after changing names and statement context. Preserve the same independent
+checks and run incompatible-rule variants. Count initial learning separately from
+reuse and retain all runs in `structural-results.json`. Reject unsupported calls,
+attributes, indexing, introduced names/bindings, inconsistent name substitutions,
+literal type/value changes, duplicate text, ambiguous sites and resource overflow.
+Check precedence and Unicode spans plus persisted API reuse. These are new
+author-created development families, not independently held-out comparisons.

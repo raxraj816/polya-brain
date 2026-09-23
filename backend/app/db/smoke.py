@@ -30,6 +30,7 @@ SAFE_SEED_ENVIRONMENTS = {"local", "test"}
 ALLOW_SEED_ENV_VAR = "POLYABRAIN_ALLOW_DB_SEED"
 
 REQUIRED_TABLES = {
+    "human_feedback",
     "clarification_requests",
     "problem_sessions",
     "structured_problems",

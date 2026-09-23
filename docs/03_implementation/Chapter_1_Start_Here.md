@@ -20,6 +20,29 @@ Use this file as the practical implementation entrypoint.
 
 Those are preserved for context, but they are not Chapter 1 implementation instructions.
 
+## Binding Product Lock
+
+```text
+PolyaBrain is a product-first, initially cloud-hosted, model-agnostic Cognitive
+Runtime that turns difficult objectives into verified outcomes by acquiring
+knowledge on demand, using deterministic procedures whenever possible, invoking
+bounded model reasoning when necessary, and learning reusable procedures from
+verified work.
+```
+
+- **Build now:** PolyaBrain Investigator, the verified technical
+  problem-solving workbench.
+- **Build it through:** the domain-independent PolyaBrain Cognitive Runtime.
+- **Deliver initially as:** a managed cloud product and API after local proof,
+  with portable sovereign, private, and local boundaries.
+- **Treat as replaceable:** LLMs, search, memory, tools, knowledge sources, and
+  infrastructure providers.
+- **Earn later:** PolyaBrain Intelligence OS through dependent applications,
+  developers, and cross-domain proof.
+
+The unit of value is a verified problem outcome, not a chat response. Optimize
+for verified useful outcomes per unit of total cost and human attention.
+
 ## First Implementation Goal
 
 Build the smallest complete PolyaBrain core loop:
@@ -31,11 +54,15 @@ The first milestone is not a perfect engine. The first milestone is one traceabl
 Before building the full platform shell, run the pre-platform proof harness for
 the technical investigation wedge. The harness must produce local file artifacts
 for trace, evidence, hypotheses, verification, report, and a direct LLM baseline
-comparison. The local CLI entrypoint is:
+comparison. The production runtime CLI entrypoint is:
 
 ```bash
-./polyabrain investigate "technical problem..." --clean
+./polyabrain investigate "technical problem..."
 ```
+
+The older template demonstration is available as `./polyabrain proof`; its
+artifacts are not production-runtime outcomes. See
+`Chapter_13L_Investigator_Runtime_Delivery.md` for current local usage and limits.
 
 ## First 10 Chapters
 
@@ -65,4 +92,7 @@ Follow the master plan exactly:
 
 ## Chapter 1 Success
 
-Chapter 1 is successful when the product direction is locked, the repository foundation is clear, and everyone understands that PolyaBrain Core Platform is the product.
+Chapter 1 is successful when the repository foundation is clear and every
+builder can distinguish the initial product, enduring runtime, initial delivery,
+eventual OS category, and replaceable model/tool layer without inference or
+contradiction.

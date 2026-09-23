@@ -1,0 +1,89 @@
+[
+  {
+    "id": "release_all_rules_pass",
+    "family": "multi_rule",
+    "problem_type": "multi_rule_decision",
+    "question": "Should fictional release Aster-4 be approved?",
+    "candidate": "Aster-4 satisfies every declared release rule.",
+    "criteria": [
+      {"text": "Every required test passes.", "operation": "all_true", "actual_path": "tests"},
+      {"text": "The measured risk score is at most 0.2.", "operation": "less_than_or_equal", "actual_path": "risk", "expected": 0.2},
+      {"text": "The independent release decision is approved.", "operation": "equals", "actual_path": "approved", "expected": true}
+    ],
+    "observation": {"tests": [true, true, true], "risk": 0.14, "approved": true},
+    "expected_accept": true,
+    "distractors": ["Aster-3 used a risk threshold of 0.4.", "A draft memo predicted two test failures before the final run."]
+  },
+  {
+    "id": "release_one_test_fails",
+    "family": "multi_rule",
+    "problem_type": "multi_rule_decision",
+    "question": "Should fictional release Boreal-9 be approved?",
+    "candidate": "Boreal-9 satisfies every declared release rule.",
+    "criteria": [
+      {"text": "Every required test passes.", "operation": "all_true", "actual_path": "tests"},
+      {"text": "The measured risk score is at most 0.2.", "operation": "less_than_or_equal", "actual_path": "risk", "expected": 0.2},
+      {"text": "The independent release decision is approved.", "operation": "equals", "actual_path": "approved", "expected": true}
+    ],
+    "observation": {"tests": [true, false, true], "risk": 0.08, "approved": true},
+    "expected_accept": false,
+    "distractors": ["All optional documentation checks passed.", "The failed assertion passed in Boreal-8."]
+  },
+  {
+    "id": "release_risk_exceeds_limit",
+    "family": "multi_rule",
+    "problem_type": "multi_rule_decision",
+    "question": "Should fictional release Cygnus-2 be approved?",
+    "candidate": "Cygnus-2 satisfies every declared release rule.",
+    "criteria": [
+      {"text": "Every required test passes.", "operation": "all_true", "actual_path": "tests"},
+      {"text": "The measured risk score is at most 0.2.", "operation": "less_than_or_equal", "actual_path": "risk", "expected": 0.2},
+      {"text": "The independent release decision is approved.", "operation": "equals", "actual_path": "approved", "expected": true}
+    ],
+    "observation": {"tests": [true, true], "risk": 0.31, "approved": true},
+    "expected_accept": false,
+    "distractors": ["A preliminary simulation estimated risk at 0.11.", "Cygnus-1 allowed risk up to 0.5."]
+  },
+  {
+    "id": "debug_regression_passes",
+    "family": "debugging",
+    "problem_type": "structured_debugging",
+    "question": "Does the fictional Quill parser patch fix the reported regression?",
+    "candidate": "The Quill patch fixes the regression without a test-runner error.",
+    "criteria": [
+      {"text": "Every regression assertion passes.", "operation": "all_true", "actual_path": "assertions"},
+      {"text": "The isolated runner reports no execution error.", "operation": "no_error", "actual_path": "error"}
+    ],
+    "observation": {"assertions": [true, true, true, true], "error": null},
+    "expected_accept": true,
+    "distractors": ["An obsolete branch failed a tokenizer test.", "The issue report predicted a timeout before the patch."]
+  },
+  {
+    "id": "debug_regression_still_fails",
+    "family": "debugging",
+    "problem_type": "structured_debugging",
+    "question": "Does the fictional Ravel parser patch fix the reported regression?",
+    "candidate": "The Ravel patch fixes the regression without a test-runner error.",
+    "criteria": [
+      {"text": "Every regression assertion passes.", "operation": "all_true", "actual_path": "assertions"},
+      {"text": "The isolated runner reports no execution error.", "operation": "no_error", "actual_path": "error"}
+    ],
+    "observation": {"assertions": [true, true, false, true], "error": null},
+    "expected_accept": false,
+    "distractors": ["The formatter suite passed 40 unrelated checks.", "A developer expected the third assertion to pass."]
+  },
+  {
+    "id": "debug_runner_errors",
+    "family": "debugging",
+    "problem_type": "structured_debugging",
+    "question": "Does the fictional Solace parser patch fix the reported regression?",
+    "candidate": "The Solace patch fixes the regression without a test-runner error.",
+    "criteria": [
+      {"text": "Every regression assertion passes.", "operation": "all_true", "actual_path": "assertions"},
+      {"text": "The isolated runner reports no execution error.", "operation": "no_error", "actual_path": "error"}
+    ],
+    "observation": {"assertions": [true, true, true], "error": "runner timed out before teardown"},
+    "expected_accept": false,
+    "distractors": ["A local dry run completed before the final isolated run.", "The patch changes only six lines."]
+  }
+]

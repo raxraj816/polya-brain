@@ -26,6 +26,16 @@ Current chapter notes:
 - `Chapter_13_Problem_Representation_Engine.md`
 - `Chapter_13C_General_Cognitive_Control_Proof.md`
 - `Chapter_13C_Outcome_Benchmark_Operations.md`
+- `Chapter_13D_On_Demand_Task_Learning.md`
+- `Chapter_13E_Verifier_Factory_And_Procedure_Compiler.md`
+- `Chapter_13F_Adaptive_Cognitive_Scheduler.md`
+- `Chapter_13G_Deadline_Aware_Cognition.md`
+- `Chapter_13H_Semantic_Capability_Broker.md`
+- `Chapter_13I_Evidence_Closure_And_Semantic_Necessity.md`
+- `Chapter_13J_Adversarial_Epistemic_Control_Gate.md`
+- `Chapter_13K_Non_Synthetic_Investigator_Gate.md`
+- `Chapter_13L_Investigator_Runtime_Delivery.md`
+- `Chapter_13P_Core_Value_Recovery.md`
 - `Chapter_14_Constraint_Discovery_Engine.md`
 - `Chapter_15_Clarifying_Question_Flow.md`
 - `Chapter_16_20_Memory_Foundation.md`

@@ -6,12 +6,14 @@ from typing import Protocol
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db_session
 from app.cognition.bootstrap import build_representation_session_runner
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
-from app.db.models import ProblemSession
+from app.db.models import Artifact, ProblemSession
+from app.graph.state import StateEvent
 from app.memory import SQLAlchemyMemoryRepository
 from app.models.contracts import ProductMode
 from app.models.sessions import (
@@ -27,7 +29,9 @@ from app.sessions import (
     SessionNotFoundError,
     SessionRunFailedError,
 )
+from app.sessions.admission import RunAdmissionPolicy, UsageLimitError
 from app.sessions.service import SessionRunResult
+from app.sessions.source_check import SourceCheckSessionRunner
 from app.tracing.persistence import SQLAlchemyTraceRepository
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
@@ -72,8 +76,41 @@ def get_session_service(
     trace_repository = SQLAlchemyTraceRepository(db_session)
     cognitive_repository = SQLAlchemyCognitiveStateRepository(db_session)
     memory_repository = SQLAlchemyMemoryRepository(db_session)
+
+    def publish_progress(session_id: str, events: list[StateEvent]) -> None:
+        if not events:
+            return
+        with request.app.state.session_factory() as progress_session:
+            SQLAlchemyTraceRepository(progress_session).persist_events(
+                session_id=UUID(session_id), events=events
+            )
+            progress_session.commit()
+
+    source_input = None
+    stored_session = None
+    path_session_id = request.path_params.get("session_id")
+    if path_session_id:
+        try:
+            parsed_session_id = UUID(str(path_session_id))
+        except ValueError:
+            parsed_session_id = None
+        if parsed_session_id is not None:
+            stored_session = db_session.get(ProblemSession, parsed_session_id)
+            source_input = db_session.scalar(
+                select(Artifact).where(
+                    Artifact.session_id == parsed_session_id,
+                    Artifact.artifact_type == "source_check_input",
+                )
+            )
+    settings = request.app.state.settings
+    if settings.auth_required:
+        # Uploaded snapshots have their own explicitly consented temporary root.
+        # Global host roots are operator-only until project permissions exist.
+        settings = settings.model_copy(update={"artifact_allowed_roots": ""})
     runner = build_representation_session_runner(
-        request.app.state.settings,
+        settings,
+        mode_hint=ProductMode(stored_session.mode) if stored_session is not None else None,
+        domain_hint=stored_session.domain if stored_session is not None else None,
         prior_research_query_count=lambda session_id: trace_repository.count_events(
             UUID(session_id),
             event_type="research_query_started",
@@ -83,11 +120,30 @@ def get_session_service(
         ),
         semantic_memory=memory_repository,
         procedural_memory=memory_repository,
+        performance_ledger=request.app.state.capability_performance_ledger,
+        semantic_route_health_ledger=request.app.state.semantic_route_health_ledger,
+        progress_writer=publish_progress,
     )
     return PolyaSessionService(
         db_session,
-        runner=runner,
+        runner=(
+            SourceCheckSessionRunner(
+                request.app.state.settings,
+                source_input.artifact_metadata,
+                progress_writer=publish_progress,
+                repair_lesson_loader=memory_repository.load_repair_lessons,
+            )
+            if source_input is not None
+            else runner
+        ),
         memory_repository=memory_repository,
+        stale_run_timeout_seconds=settings.session_run_timeout_seconds,
+        clarification_timeout_seconds=settings.clarification_timeout_seconds,
+        admission_policy=(
+            RunAdmissionPolicy(db_session, settings, db_session.info["owner_id"])
+            if settings.auth_required
+            else None
+        ),
     )
 
 
@@ -183,6 +239,10 @@ def run_session(
     """Run a created session synchronously through the available capabilities."""
     try:
         run_result = session_service.run_session(session_id)
+    except UsageLimitError as exc:
+        raise HTTPException(
+            429, detail=str(exc), headers={"Retry-After": str(exc.retry_after)}
+        ) from exc
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except SessionConflictError as exc:
@@ -216,6 +276,10 @@ def respond_to_session(
     """Resume an awaiting session without discarding its persisted trace."""
     try:
         run_result = session_service.respond_to_session(session_id, request.answer)
+    except UsageLimitError as exc:
+        raise HTTPException(
+            429, detail=str(exc), headers={"Retry-After": str(exc.retry_after)}
+        ) from exc
     except SessionNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except SessionConflictError as exc:

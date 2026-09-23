@@ -52,9 +52,65 @@ class ProblemSession(Base):
 
     __table_args__ = (
         Index("ix_problem_sessions_status", "status"),
+        Index("ix_problem_sessions_user_id", "user_id"),
         Index("ix_problem_sessions_created_at", "created_at"),
         Index("ix_problem_sessions_run_started_at", "run_started_at"),
     )
+
+
+class RunAdmission(Base):
+    """Durable quota charge and concurrency slot, acquired before run dispatch."""
+
+    __tablename__ = "run_admissions"
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("problem_sessions.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    user_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    outcome: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    resource_limits: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    __table_args__ = (
+        Index("ix_run_admissions_user_started", "user_id", "started_at"),
+        Index("ix_run_admissions_started", "started_at"),
+        Index("ix_run_admissions_finished", "finished_at"),
+    )
+
+
+class AuthSession(Base):
+    """Revocable browser session; raw credentials and provider tokens are never stored."""
+
+    __tablename__ = "auth_sessions"
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
+
+
+class HumanFeedback(Base):
+    """User corrections for manual review; never automatic verified knowledge."""
+
+    __tablename__ = "human_feedback"
+
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("problem_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    feedback_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    correction: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+    __table_args__ = (Index("ix_human_feedback_session_created", "session_id", "created_at"),)
 
 
 class ClarificationRequest(Base):
@@ -288,6 +344,9 @@ class KnowledgeChunk(Base):
     """Semantic memory chunk with optional pgvector embedding."""
 
     __tablename__ = "knowledge_chunks"
+    owner_id: Mapped[str] = mapped_column(
+        String(128), nullable=False, default="__local__", server_default="__local__", index=True
+    )
 
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
     session_id: Mapped[UUID | None] = mapped_column(
@@ -332,6 +391,9 @@ class EpisodicMemory(Base):
     """A completed, verified problem-solving episode available for transfer."""
 
     __tablename__ = "episodic_memories"
+    owner_id: Mapped[str] = mapped_column(
+        String(128), nullable=False, default="__local__", server_default="__local__", index=True
+    )
 
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
     source_session_id: Mapped[UUID] = mapped_column(
@@ -366,6 +428,9 @@ class ProceduralStrategy(Base):
     """A reusable action preference learned only from verified outcomes."""
 
     __tablename__ = "procedural_strategies"
+    owner_id: Mapped[str] = mapped_column(
+        String(128), nullable=False, default="__local__", server_default="__local__", index=True
+    )
 
     id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -388,6 +453,7 @@ class ProceduralStrategy(Base):
 
     __table_args__ = (
         UniqueConstraint(
+            "owner_id",
             "problem_type",
             "gap_type",
             "action_type",

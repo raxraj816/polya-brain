@@ -80,6 +80,16 @@ class CognitiveRunStatus(StrEnum):
     FAILED = "failed"
 
 
+class CapabilityKind(StrEnum):
+    """Execution substrate used for cost-aware cognitive routing."""
+
+    DETERMINISTIC = "deterministic"
+    MODEL = "model"
+    EXTERNAL = "external"
+    MEMORY = "memory"
+    HUMAN = "human"
+
+
 class CapabilityDefinition(ContractModel):
     """Auditable metadata for one capability available to PolyaBrain."""
 
@@ -91,12 +101,25 @@ class CapabilityDefinition(ContractModel):
     approved_for_sensitive_data: bool = False
     timeout_seconds: float = Field(default=30.0, gt=0.0)
     estimated_cost: Score = 0.0
+    kind: CapabilityKind = CapabilityKind.DETERMINISTIC
+    max_model_calls: Annotated[int, Field(ge=0, le=10)] = 0
+    max_external_calls: Annotated[int, Field(ge=0, le=10)] = 0
+    max_output_tokens: Annotated[int, Field(ge=0, le=100_000)] = 0
 
     @model_validator(mode="after")
     def capability_must_support_an_action(self) -> CapabilityDefinition:
         """Prevent inert capability definitions from entering the registry."""
         if not self.supported_actions:
             raise ValueError("capability must support at least one cognitive action")
+        if (
+            self.kind not in {CapabilityKind.MODEL, CapabilityKind.EXTERNAL}
+            and self.max_model_calls
+        ):
+            raise ValueError(
+                "only model or model-backed external capabilities may reserve model calls"
+            )
+        if self.kind is not CapabilityKind.EXTERNAL and self.max_external_calls:
+            raise ValueError("only external capabilities may reserve external calls")
         return self
 
 
@@ -144,6 +167,7 @@ class CognitiveStateUpdate(ContractModel):
     constraints_to_add: list[NonEmptyStr] = Field(default_factory=list)
     gaps_to_add: list[KnowledgeGap] = Field(default_factory=list)
     resolved_gap_targets: list[NonEmptyStr] = Field(default_factory=list)
+    superseded_gap_targets: list[NonEmptyStr] = Field(default_factory=list)
     hypotheses_to_add: list[Hypothesis] = Field(default_factory=list)
     plan_tasks_to_add: list[PlanTask] = Field(default_factory=list)
     execution_outputs_to_add: list[ExecutionOutput] = Field(default_factory=list)

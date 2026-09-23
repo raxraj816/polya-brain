@@ -40,16 +40,22 @@ Use an ADR when a change alters one of these surfaces:
 Small implementation choices that do not affect these surfaces can stay in code
 reviews, implementation notes, or tests.
 
-## D-001: Build PolyaBrain Core Platform First
+## D-001: Build PolyaBrain Investigator Through The Cognitive Runtime
 
 Status: accepted.
 
 Owner: Acting Founding CTO.
 
-Decision: PolyaBrain Core Platform is the product. The MVP implements the
-stateful Polya loop first: problem input, representation, constraints, gaps,
-evidence/tools, hypotheses, plan, execution, verification, reflection, and
-report.
+Decision: PolyaBrain Investigator is the initial user-facing product. It is
+built through the domain-independent PolyaBrain Cognitive Runtime. The MVP
+implements the smallest useful stateful loop: problem input, representation,
+constraints, gaps, evidence/tools, hypotheses, plan, execution, verification,
+reflection, and report.
+
+The initial delivery target after local proof is a managed cloud product and
+API with portable runtime boundaries. PolyaBrain Intelligence OS is a later
+platform category that must be earned; it is not the MVP product claim. Language
+models and tools remain replaceable capabilities.
 
 Rationale:
 
@@ -61,7 +67,7 @@ Rationale:
 
 Tradeoffs:
 
-- The first platform will feel narrower than the full long-term vision.
+- The first product will feel narrower than the full long-term vision.
 - Some domain-specific polish waits until the core loop proves value.
 
 Verification path:
@@ -73,8 +79,9 @@ Verification path:
 
 Revisit trigger:
 
-- Only revisit if repeated user tests show the core loop is not the source of
-  product value.
+- Revisit the wedge if repeated user tests show it is not valuable. Revisit the
+  runtime boundary only if evidence shows the core loop is not the source of
+  transferable product value.
 
 ## D-002: Use A Python/FastAPI Modular Monolith First
 

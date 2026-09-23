@@ -20,6 +20,7 @@ from app.problem_understanding.contracts import (
     ParserRetryPolicy,
     ProblemUnderstandingRunResult,
 )
+from app.problem_understanding.fallbacks import explicit_artifact_references
 from app.problem_understanding.parser import (
     ProblemUnderstandingParseError,
     parse_problem_understanding,
@@ -55,6 +56,7 @@ def generate_problem_understanding(
     sleep: Callable[[float], None] = time.sleep,
 ) -> ProblemUnderstandingRunResult:
     """Run the Chapter 11 boundary and stop safely after bounded repair attempts."""
+    started = time.perf_counter()
     retry_policy = parser_retry_policy or ParserRetryPolicy()
     request = build_problem_understanding_request(
         state,
@@ -63,6 +65,7 @@ def generate_problem_understanding(
         domain_hint=domain_hint,
         options=request_options,
     )
+    overall_timeout = request.options.total_timeout_seconds
     responses: list[LLMResponse] = []
     response = complete_with_retry(client, request, sleep=sleep)
     responses.append(response)
@@ -74,9 +77,23 @@ def generate_problem_understanding(
                 raise ProblemUnderstandingParseError(
                     "selected_mode must preserve the supplied user mode_hint"
                 )
+            # Source references belong to the request, not to the model's
+            # paraphrase. Access still passes through the inspector's root checks.
+            sources = list(
+                dict.fromkeys(
+                    [
+                        *parsed.output.required_data_sources,
+                        *(
+                            f"explicit local artifact {path}"
+                            for path in explicit_artifact_references(state["raw_input"])
+                        ),
+                    ]
+                )
+            )
+            output = parsed.output.model_copy(update={"required_data_sources": sources})
             return ProblemUnderstandingRunResult(
-                output=parsed.output,
-                structured_problem=parsed.output.to_structured_problem(),
+                output=output,
+                structured_problem=output.to_structured_problem(),
                 prompt_version=PROBLEM_UNDERSTANDING_PROMPT_VERSION,
                 provider=response.provider,
                 model=response.model,
@@ -101,6 +118,27 @@ def generate_problem_understanding(
                 invalid_response=response.text,
                 parse_error=exc.safe_message,
             )
+            if overall_timeout is not None:
+                remaining = overall_timeout - (time.perf_counter() - started)
+                if remaining <= 0:
+                    raise LLMClientError(
+                        LLMErrorCode.TIMEOUT,
+                        "Problem-understanding deadline was exhausted before repair.",
+                        provider=client.provider,
+                    ) from exc
+                request = request.model_copy(
+                    update={
+                        "options": request.options.model_copy(
+                            update={
+                                "timeout_seconds": min(
+                                    request.options.timeout_seconds,
+                                    remaining,
+                                ),
+                                "total_timeout_seconds": remaining,
+                            }
+                        )
+                    }
+                )
             response = complete_with_retry(client, request, sleep=sleep)
             responses.append(response)
 

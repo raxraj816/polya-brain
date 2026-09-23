@@ -1,0 +1,486 @@
+{
+  "version": "scope_page_recovery_development@0.1.0",
+  "date": "2026-09-20",
+  "model": "openai/gpt-5.6-luna",
+  "conditions": {
+    "model_request_limit": 12,
+    "external_call_limit": 3,
+    "run_deadline_seconds": 300,
+    "search": "OpenRouter Exa server search",
+    "source_documents_supplied": false,
+    "new_training": false
+  },
+  "limitations": [
+    "Sequential development repairs, not independent or held-out evaluations.",
+    "Model-backed search may contain two inference turns per recorded request.",
+    "No direct-model cost advantage established.",
+    "DNS completed once but did not reproduce in the workbench replay.",
+    "HTTP completed after multiple recorded development failures; repeatability remains unproven.",
+    "All raw artifacts remain in ignored local runs/core-value folders.",
+    "Source selection is bounded lexical retrieval, not guaranteed complete document coverage.",
+    "The earlier successful DART task stopped after two page reads; this exposed starvation of targeted discovery.",
+    "The subsequent DART replay closed acquisition after one search, then failed final source/measurement checks and requested user input instead of reopening public research. It did not exercise the new read-to-search recovery rule.",
+    "A subsequent DART runtime completed status was rejected during review for a seconds-to-minutes uncertainty error. A narrow deterministic guard now rejects that preserved false pass; completed is not independently proven correctness.",
+    "Legacy-state replays adapt a failed check to the new research-output schema by hand; they test recovery execution, not live model generation of that request. Recorded resources are cumulative; elapsed time is for the replay invocation.",
+    "The final DART workbench run still requested public information after exhausting its external budget. It did not reach final verification, so it does not demonstrate the new recovery path or robust completion.",
+    "Residual-source development includes two HTTP regressions and one PostgreSQL null-character failure, retained with their subsequent repairs. Optional navigation hints are fallible and do not establish evidence or tool permission.",
+    "Residual source revision: fresh DART CLI completed but persisted DART replay still exhausted acquisition.",
+    "Final HTTP CLI runtime pass has an imprecise GET section citation despite substantively supporting evidence elsewhere in the retrieved page.",
+    "Frozen composition positive/actual-execution negative probes exercise revised prompt behavior on known evidence, not broad reliability."
+  ],
+  "tasks": {
+    "dns": "Investigate why an application can still receive NXDOMAIN after an administrator adds a previously missing DNS name. Acquire the relevant official IETF RFC material online; no documents are supplied. Explain the negative-caching mechanism and how its lifetime is determined, distinguish that explanation from proof of the cause in this particular incident, and propose a bounded diagnostic check with the expected observations for negative caching versus a wrong authoritative configuration. Cite only sources actually retrieved and do not claim to have queried the affected resolver.",
+    "http": "Using official IETF HTTP specifications you retrieve online, explain the difference between a safe method and an idempotent method. Compare GET, PUT and POST, and describe what that distinction does and does not justify when a client retries after losing a response. Cite the retrieved passages, distinguish protocol semantics from proof about a particular server, and give one useful check for a proposed retry policy. No documents are supplied.",
+    "dart": "Investigate NASA's DART planetary-defense experiment using official NASA sources you find online. What measured change to Dimorphos's orbit was reported, and what does that observation establish or leave uncertain about kinetic-impact deflection? Separate measured observations from broader inference. Cite the sources actually retrieved, compare a supported conclusion with an overbroad alternative, state remaining uncertainty and a useful next verification step. No source documents are supplied; acquire the missing public knowledge rather than asking me to provide it. Do not claim that this proves every asteroid threat can be deflected."
+  },
+  "runs": [
+    {
+      "run_id": "polya-dns-scope-recovery",
+      "status": "needs_input",
+      "model_requests": 9,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 26844,
+      "elapsed_seconds": 60.67
+    },
+    {
+      "run_id": "polya-http-scope-recovery",
+      "status": "needs_input",
+      "model_requests": 8,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 26936,
+      "elapsed_seconds": 47.55
+    },
+    {
+      "run_id": "polya-dns-scope-indexed",
+      "status": "needs_input",
+      "model_requests": 8,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 24598,
+      "elapsed_seconds": 47.76
+    },
+    {
+      "run_id": "polya-http-scope-indexed",
+      "status": "needs_input",
+      "model_requests": 8,
+      "searches": 3,
+      "page_reads": 0,
+      "external_calls": 3,
+      "tokens": 26364,
+      "elapsed_seconds": 48.19
+    },
+    {
+      "run_id": "polya-dns-page-reader",
+      "status": "needs_input",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 25286,
+      "elapsed_seconds": 45.79
+    },
+    {
+      "run_id": "polya-http-page-reader",
+      "status": "needs_input",
+      "model_requests": 5,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 19499,
+      "elapsed_seconds": 39.14
+    },
+    {
+      "run_id": "polya-dns-page-bounded",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 24697,
+      "elapsed_seconds": 42.31
+    },
+    {
+      "run_id": "polya-http-page-bounded",
+      "status": "insufficient_evidence",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 25706,
+      "elapsed_seconds": 45.61
+    },
+    {
+      "run_id": "polya-dns-passage-ranking",
+      "status": "completed",
+      "model_requests": 7,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 34434,
+      "elapsed_seconds": 58.8
+    },
+    {
+      "run_id": "polya-http-passage-ranking",
+      "status": "needs_input",
+      "model_requests": 5,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 18742,
+      "elapsed_seconds": 50.68
+    },
+    {
+      "run_id": "polya-http-section-reader",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 24509,
+      "elapsed_seconds": 42.8
+    },
+    {
+      "run_id": "polya-http-weighted-sections",
+      "status": "needs_input",
+      "model_requests": 5,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 18715,
+      "elapsed_seconds": 35.42
+    },
+    {
+      "run_id": "polya-http-task-passages",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 26992,
+      "elapsed_seconds": 52.89
+    },
+    {
+      "run_id": "polya-http-diverse-passages",
+      "status": "completed",
+      "model_requests": 7,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 33716,
+      "elapsed_seconds": 71.71
+    },
+    {
+      "run_id": "polya-dart-page-regression",
+      "status": "needs_input",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 2,
+      "external_calls": 3,
+      "tokens": 30693,
+      "elapsed_seconds": 48.5
+    },
+    {
+      "run_id": "polya-dart-discovery-recovery",
+      "status": "needs_input",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 0,
+      "external_calls": 1,
+      "tokens": 27914,
+      "elapsed_seconds": 52.23
+    },
+    {
+      "run_id": "polya-dart-verification-research",
+      "status": "completed",
+      "model_requests": 9,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 51238,
+      "elapsed_seconds": 80.63,
+      "review_result": "false_pass: answer changes source uncertainty of 1.4 seconds to 1.4 minutes",
+      "intervention": null,
+      "note": "New typed verification recovery was not exercised; pre-verification page-to-search recovery was exercised."
+    },
+    {
+      "run_id": "polya-dart-verification-frozen-replay",
+      "status": "insufficient_evidence",
+      "model_requests": 6,
+      "searches": 1,
+      "page_reads": 0,
+      "external_calls": 1,
+      "tokens": 27914,
+      "elapsed_seconds": 0.0,
+      "review_result": "development replay; did not complete",
+      "intervention": "Legacy failed output adapted to one typed public question; historical usage retained.",
+      "note": "First replay misrouted published measurement to unavailable measurement tools."
+    },
+    {
+      "run_id": "polya-dart-verification-frozen-routed",
+      "status": "insufficient_evidence",
+      "model_requests": 9,
+      "searches": 2,
+      "page_reads": 0,
+      "external_calls": 2,
+      "tokens": 47671,
+      "elapsed_seconds": 34.25,
+      "review_result": "development replay; did not complete",
+      "intervention": "Legacy failed output adapted to one typed public question; historical usage retained.",
+      "note": "Search, admission and reanalysis completed; final checker reservation needs four requests with only three remaining."
+    },
+    {
+      "run_id": "polya-dart-verification-preplanner",
+      "status": "completed",
+      "model_requests": 9,
+      "searches": 2,
+      "page_reads": 0,
+      "external_calls": 2,
+      "tokens": 52579,
+      "elapsed_seconds": 40.84,
+      "intervention": "Reconstructed recorded event prefix before obsolete planner handoff, preserving prefix resource usage. Adapted its legacy failed check to one typed public question manually.",
+      "review_result": "Completed research, admission, fresh analysis and independent verification; retained 1.4-second uncertainty and explicitly unresolved source reconciliation.",
+      "note": "Development replay, not held-out proof or live generation of the typed request. Original objective, evidence and budgets preserved. Cumulative usage includes the historical prefix."
+    },
+    {
+      "run_id": "polya-dart-residual-sources",
+      "status": "completed",
+      "model_requests": 8,
+      "searches": 2,
+      "page_reads": 0,
+      "external_calls": 2,
+      "tokens": 38299,
+      "elapsed_seconds": 115.27,
+      "review_result": "Completed with two searches and no page read. The nominated PDF was ineligible for direct reading, so discovery acquired applicability evidence. Final answer retained seconds units and bounded generalization."
+    },
+    {
+      "run_id": "polya-http-residual-sources",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 25649,
+      "elapsed_seconds": 56.89,
+      "review_result": "Failed: explicit read query selected front matter and omitted the GET passage; exhausted three external calls."
+    },
+    {
+      "run_id": "polya-http-explicit-sections",
+      "status": "needs_input",
+      "model_requests": 7,
+      "searches": 2,
+      "page_reads": 1,
+      "external_calls": 3,
+      "tokens": 24779,
+      "elapsed_seconds": 52.1,
+      "review_result": "Failed: requested broad section references plus publisher terms still displaced GET/PUT passages; preserved before restoring whole-user lexical coverage."
+    },
+    {
+      "run_id": "polya-http-section-coverage",
+      "status": "needs_input",
+      "model_requests": 9,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 44810,
+      "elapsed_seconds": 80.58,
+      "review_result": "Acquisition closed, but checker demanded an already written final answer. Planner recovery requested input despite sufficient substantive analysis."
+    },
+    {
+      "run_id": "polya-http-composition-final",
+      "status": "completed",
+      "model_requests": 7,
+      "searches": 1,
+      "page_reads": 1,
+      "external_calls": 2,
+      "tokens": 32682,
+      "elapsed_seconds": 76.56,
+      "review_result": "Runtime completed with a substantive safe/idempotent comparison. Manual review found GET citation points at section 9.3.1, while selected evidence supplies that point through section 6.4.1; exact passage-citation fidelity remains imperfect. Do not treat runtime pass as independent proof."
+    }
+  ],
+  "live_actual_cause_negative_control": {
+    "artifact": "scope-negative-indexed-result.json",
+    "passed": true,
+    "model_requests": 1,
+    "tokens": 1271
+  },
+  "workbench_replays": [
+    {
+      "task": "dns",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 49.34,
+      "verification_status": "awaiting_user_input",
+      "open_question_count": 5
+    },
+    {
+      "task": "http",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 36.66,
+      "verification_status": "awaiting_user_input",
+      "open_question_count": 4
+    },
+    {
+      "task": "http",
+      "revision": "final section coverage",
+      "explicit_mode": "compare",
+      "run_http_status": 200,
+      "elapsed_seconds": 75.33,
+      "verification_status": "passed",
+      "open_question_count": 7,
+      "usage": {
+        "model_calls": 8,
+        "external_calls": 2,
+        "input_tokens": 28785,
+        "output_tokens": 8447
+      },
+      "searches": 1,
+      "page_reads": 1
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-verification",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 69.23,
+      "verification_status": "not_verified",
+      "open_question_count": 0,
+      "usage": {
+        "model_calls": 8,
+        "external_calls": 3,
+        "input_tokens": 33539,
+        "output_tokens": 7565
+      },
+      "searches": 2,
+      "page_reads": 1,
+      "review_result": "The API default of 12 cycles stopped after deliberation, before a final check. Fixed by aligning the shared default to 24; original resource budgets unchanged."
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-final",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 56.64,
+      "verification_status": "awaiting_user_input",
+      "open_question_count": 2,
+      "usage": {
+        "model_calls": 7,
+        "external_calls": 3,
+        "input_tokens": 26666,
+        "output_tokens": 5788
+      },
+      "searches": 2,
+      "page_reads": 1,
+      "review_result": "The 24-cycle run exhausted three external calls with a broad public gap unresolved and requested input. Final checker and new verification-driven recovery were not reached."
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-residual-sources",
+      "explicit_mode": "investigate",
+      "run_http_status": 500,
+      "verification_status": "run_failed",
+      "review_result": "Generated assessment claim contained U+0000; PostgreSQL JSONB rejected trace persistence. Server log confirmed the unsupported Unicode escape. Session stopped without final artifacts; subsequent repair adds visible escaping for generated claims and trace text."
+    },
+    {
+      "task": "dart",
+      "revision": "workbench-dart-source-final",
+      "explicit_mode": "investigate",
+      "run_http_status": 200,
+      "elapsed_seconds": 69.19,
+      "verification_status": "awaiting_user_input",
+      "usage": {
+        "model_calls": 7,
+        "external_calls": 3,
+        "input_tokens": 26910,
+        "output_tokens": 5706
+      },
+      "searches": 2,
+      "page_reads": 1,
+      "review_result": "No persistence crash. Residual applicability questions remained unresolved after three external calls; final deliberation/check not reached. This is not an end-to-end completion."
+    },
+    {
+      "task": "http",
+      "revision": "workbench-http-composition-final",
+      "explicit_mode": "compare",
+      "run_http_status": 200,
+      "elapsed_seconds": 93.99,
+      "verification_status": "passed",
+      "open_question_count": 5,
+      "usage": {
+        "model_calls": 7,
+        "external_calls": 2,
+        "input_tokens": 26346,
+        "output_tokens": 8395
+      },
+      "searches": 1,
+      "page_reads": 1,
+      "review_result": "Persisted completion with cited explanation, alternatives and server-specific limitations. Browser history/report showed 7 model calls, 34741 tokens, 2 external calls, evidence and checks. Known development case, not independent correctness or cost proof."
+    }
+  ],
+  "validation": {
+    "backend_tests": 684,
+    "failures": 0,
+    "skipped": 0,
+    "postgres_integration": true,
+    "ruff": true,
+    "mypy": true,
+    "chapter11_fixtures": 10,
+    "preplatform_artifacts": 6,
+    "offline_model_calls": 0,
+    "offline_external_calls": 0,
+    "verification_research_revision": {
+      "backend_tests": 668,
+      "backend_skipped": 0,
+      "ruff": "passed",
+      "mypy_sources": 129,
+      "frontend_typecheck": "passed",
+      "frontend_unit_tests": 2,
+      "browser_tests": 6,
+      "formatting": "passed"
+    },
+    "residual_source_revision": {
+      "backend_tests": 684,
+      "skipped": 0,
+      "ruff": "passed",
+      "mypy_sources": 129,
+      "postgres_null_trace": "passed",
+      "postgres_null_claim": "passed",
+      "browser_report_readback": "passed: HTTP completed report, evidence, checks and resource counts visible"
+    }
+  },
+  "composition_probes": [
+    {
+      "probe": "composition",
+      "frozen_source_run": "polya-http-section-coverage",
+      "passed": true,
+      "model_calls": 1,
+      "usage": {
+        "input_tokens": 7842,
+        "output_tokens": 1796,
+        "cached_input_tokens": 0,
+        "reasoning_tokens": 263,
+        "estimated_cost_usd": 0.00411555
+      },
+      "intervention": "Pre-check event prefix and evidence/analysis reused without final answer; negative request demands actual server execution. Development-only, not full fresh run."
+    },
+    {
+      "probe": "execution-negative",
+      "frozen_source_run": "polya-http-section-coverage",
+      "passed": false,
+      "model_calls": 1,
+      "usage": {
+        "input_tokens": 7743,
+        "output_tokens": 623,
+        "cached_input_tokens": 1466,
+        "reasoning_tokens": 102,
+        "estimated_cost_usd": 0.00234602
+      },
+      "intervention": "Pre-check event prefix and evidence/analysis reused without final answer; negative request demands actual server execution. Development-only, not full fresh run."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Zephyra Transport Protocol — Revision 7
+
+Rule Z7.1: A session begins with a silver SYN glyph.
+Rule Z7.2: At most 6 packets may occupy one cobalt window.
+Rule Z7.3: A retry uses the previous packet nonce plus 2.
+Rule Z7.4: request_timeout_ticks = 37.
+Rule Z7.5: A closed session retains no amber lease.
+
+This fictional manual exists only for the Chapter 13-D unfamiliar-task proof.

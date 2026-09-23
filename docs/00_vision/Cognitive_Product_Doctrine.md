@@ -34,13 +34,49 @@ How can the mechanism be tested, inspected, and improved?
 
 PolyaBrain is a brain-inspired problem-solving intelligence system.
 
-More practically:
+For the person using it, PolyaBrain is a cognitive workbench that helps them
+understand, investigate, solve, verify, and learn from difficult problems.
+It should make reasoning visible, evidence inspectable, uncertainty explicit,
+resource use auditable, and learning reusable.
+
+The statements above define the product purpose and human experience. The
+binding architecture that delivers them is:
+
+The binding definition is:
 
 ```text
-PolyaBrain is a cognitive workbench that helps a person understand, investigate, solve, verify, and learn from difficult problems.
+PolyaBrain is a product-first, initially cloud-hosted, model-agnostic Cognitive
+Runtime that turns difficult objectives into verified outcomes by acquiring
+knowledge on demand, using deterministic procedures whenever possible, invoking
+bounded model reasoning when necessary, and learning reusable procedures from
+verified work.
 ```
 
-It should make reasoning visible, evidence inspectable, uncertainty explicit, and learning reusable.
+The initial user-facing product is PolyaBrain Investigator, a verified technical
+problem-solving workbench. The Cognitive Runtime is the enduring intelligence
+core. Cloud is the initial delivery model, not a dependency of the intelligence.
+Language models are replaceable semantic processors. “Intelligence OS” is an
+eventual platform category that must be earned through dependent applications,
+developers, and cross-domain proof.
+
+The unit of value is a verified problem outcome, not a chat response.
+
+General-purpose intelligence is the architectural ambition, not the initial
+market category or an unearned superiority claim.
+
+## Invention And Winning Doctrine
+
+PolyaBrain may invent a new algorithm, representation, verifier, procedure
+language, memory mechanism, small specialized model, or infrastructure component
+when a measured product limitation requires it. Experimental intelligence must
+begin in prompts, metadata, traces, optional capabilities, research, or evals and
+earn promotion into core contracts.
+
+The primary optimization target is verified useful outcomes per unit of money,
+time, tokens, compute, risk, and human attention. A problem category is won only
+through repeated held-out evidence against strong practical baselines, including
+outcome quality, unsupported conclusions, total resource cost, transfer savings,
+and whether real users choose to return with another difficult problem.
 
 ## Research-To-Product Rule
 
@@ -168,3 +204,12 @@ Do not let PolyaBrain become:
 PolyaBrain should help users become better problem solvers.
 
 It should not merely answer. It should help understand, investigate, verify, and learn.
+
+### Product identity and workflow scope
+
+PolyaBrain is the product identity. Investigator describes the first verifiable
+workflow, not the boundary of its ambition. The enduring loop must support
+recognizing missing knowledge or skills, acquiring what is needed, acting through
+available capabilities, checking outcomes and retaining verified procedures.
+“Your physical brain” is a founder aspiration for a personal, capable system;
+it is not a current claim of embodiment or human-equivalent general ability.

@@ -4,21 +4,37 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Iterable
 from typing import Protocol
 
 from app.cognition.capabilities import CapabilityRegistry
 from app.cognition.contracts import (
+    CapabilityDefinition,
     CognitiveActionCandidate,
     CognitiveActionDecision,
     CognitiveActionType,
     LearnedActionPreference,
     RejectedCognitiveAction,
 )
+from app.cognition.epistemic_control import derive_epistemic_status
+from app.cognition.evidence_closure import deterministic_evidence_attestation_available
+from app.cognition.performance import AdaptiveActionEstimate
+from app.cognition.repair_recovery import EVENT as REPAIR_RECOVERY_EVENT
+from app.cognition.repair_recovery import recalled_failure_task
+from app.cognition.scope_review import scope_review_available
+from app.cognition.task_model import (
+    accumulated_usage,
+    budget_rejection_reason,
+    configured_budget,
+    reservation_fits,
+)
+from app.cognition.verification_factory import deterministic_verification_available
+from app.cognition.verification_research import needs_recovery_analysis
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.1.0"
+POLICY_VERSION = "cognitive-controller-v0.5.5"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -119,6 +135,21 @@ class SemanticMemoryAvailabilityProvider(Protocol):
         ...
 
 
+class ActionPerformancePolicy(Protocol):
+    """Bounded empirical adjustment applied only after controller hard gates."""
+
+    policy_version: str
+
+    def estimate(
+        self,
+        state: PolyaState,
+        candidate: CognitiveActionCandidate,
+        definition: CapabilityDefinition,
+    ) -> AdaptiveActionEstimate:
+        """Estimate version-scoped verified progress and marginal cost."""
+        ...
+
+
 def _unique(items: Iterable[str]) -> list[str]:
     return list(dict.fromkeys(items))
 
@@ -153,32 +184,43 @@ def _state_fingerprint(state: PolyaState) -> str:
 
 def _preferred_action_for_gap(gap: KnowledgeGap) -> CognitiveActionType:
     """Map the nature of an obstacle to a general cognitive action."""
+    typed = {
+        "numeric_computation": CognitiveActionType.CALCULATE,
+        "missing_measurement": CognitiveActionType.MEASURE,
+        "missing_artifact_knowledge": CognitiveActionType.INSPECT,
+        "controlled_experiment": CognitiveActionType.EXPERIMENT,
+        "simulation": CognitiveActionType.SIMULATE,
+        "current_external_fact": CognitiveActionType.SEARCH,
+        "user_owned_information": CognitiveActionType.CLARIFY,
+    }.get(gap.gap_type)
+    if typed is not None:
+        return typed
     text = " ".join(
         part for part in (gap.gap_type, gap.description, gap.suggested_source or "") if part
     ).lower()
+    # Paths are data references, not instructions to ask their named users.
+    text = re.sub(r"(?:file://)?(?:[A-Za-z]:)?[/\\][^\s]+", " ", text)
 
-    if any(token in text for token in ("ambiguous", "clarif", "user", "human input")):
+    def contains(terms: tuple[str, ...]) -> bool:
+        return any(re.search(r"\b" + re.escape(term) + r"\w*\b", text) for term in terms)
+
+    if contains(("ambiguous", "clarif", "user", "human input")):
         return CognitiveActionType.CLARIFY
-    if any(token in text for token in ("contradiction", "wrong problem", "reframe")):
+    if contains(("contradiction", "wrong problem", "reframe")):
         return CognitiveActionType.REFRAME
-    if any(token in text for token in ("calculator", "arithmetic", "compute", "numeric")):
+    if contains(("calculator", "arithmetic", "compute", "numeric")):
         return CognitiveActionType.CALCULATE
-    if any(token in text for token in ("experiment", "falsif", "controlled test")):
+    if contains(("experiment", "falsif", "controlled test")):
         return CognitiveActionType.EXPERIMENT
-    if any(token in text for token in ("simulation", "simulate")):
+    if contains(("simulation", "simulate")):
         return CognitiveActionType.SIMULATE
-    if any(token in text for token in ("measure", "metric", "baseline", "dataset")):
+    if contains(("measure", "metric", "baseline", "dataset")):
         return CognitiveActionType.MEASURE
-    if any(
-        token in text for token in ("code", "file", "log", "document", "repository", "artifact")
-    ):
+    if contains(("code", "file", "log", "document", "repository", "artifact")):
         return CognitiveActionType.INSPECT
-    if any(token in text for token in ("memory", "past case", "prior strategy")):
+    if contains(("memory", "past case", "prior strategy")):
         return CognitiveActionType.RETRIEVE_MEMORY
-    if any(
-        token in text
-        for token in ("web", "official", "public", "current", "source", "research", "api")
-    ):
+    if contains(("web", "official", "public", "current", "source", "research", "api")):
         return CognitiveActionType.SEARCH
     return CognitiveActionType.OBSERVE
 
@@ -194,6 +236,10 @@ def _failure_history(
         if event.metadata.get("target") != target:
             continue
         if event.metadata.get("status") not in {"failed", "blocked", "inconclusive"}:
+            continue
+        # A document-read failure does not establish failure of web discovery,
+        # even though both use the general SEARCH action.
+        if event.metadata.get("capability") == "public_page_reader":
             continue
         raw_type = event.metadata.get("action_type")
         if isinstance(raw_type, str):
@@ -230,11 +276,25 @@ def _constraint_discovery_completed(state: PolyaState) -> bool:
 
 def _gap_detection_completed(state: PolyaState) -> bool:
     return any(
-        event.engine_name == "gap_detector"
-        and event.event_type == "gap_detection_completed"
-        and event.metadata.get("status") == "ok"
+        event.event_type == "gap_detection_completed" and event.metadata.get("status") == "ok"
         for event in state["events"]
     )
+
+
+def _capability_for_action(
+    action_type: CognitiveActionType,
+    registry: CapabilityRegistry,
+) -> str:
+    """Prefer compute-aware implementations while preserving legacy fallbacks."""
+    preferences = {
+        CognitiveActionType.DETECT_GAPS: ("task_gap_detector", "gap_detector"),
+        CognitiveActionType.HYPOTHESIZE: ("deliberator", "reasoner"),
+        CognitiveActionType.VERIFY: ("conclusion_checker", "verifier"),
+    }
+    for name in preferences.get(action_type, ()):
+        if registry.supports(name, action_type):
+            return name
+    return _DEFAULT_CAPABILITY[action_type]
 
 
 def _pending_evidence_acquisition(state: PolyaState) -> str | None:
@@ -277,9 +337,11 @@ class CognitiveController:
         self,
         procedural_memory: ProceduralPreferenceProvider | None = None,
         semantic_memory: SemanticMemoryAvailabilityProvider | None = None,
+        performance_policy: ActionPerformancePolicy | None = None,
     ) -> None:
         self.procedural_memory = procedural_memory
         self.semantic_memory = semantic_memory
+        self.performance_policy = performance_policy
 
     def generate_candidates(
         self,
@@ -289,9 +351,21 @@ class CognitiveController:
         """Generate bounded candidates without asking a model to control the run."""
         problem = state["structured_problem"]
         if problem is None:
+            from app.problem_understanding.fallbacks import deterministic_problem_understanding
+
+            deterministic = (
+                registry.supports(
+                    "deterministic_problem_representation",
+                    CognitiveActionType.INTERPRET,
+                )
+                and deterministic_problem_understanding(state) is not None
+            )
             return [
                 self._candidate(
                     CognitiveActionType.INTERPRET,
+                    capability="deterministic_problem_representation"
+                    if deterministic
+                    else "problem_representation",
                     target="raw problem input",
                     purpose="Construct a validated initial problem representation.",
                     expected="A structured goal, knowns, unknowns, constraints, and success criteria.",
@@ -318,7 +392,8 @@ class CognitiveController:
                 )
             ]
 
-        if registry.supports("gap_detector", CognitiveActionType.DETECT_GAPS) and not (
+        gap_detector = _capability_for_action(CognitiveActionType.DETECT_GAPS, registry)
+        if registry.supports(gap_detector, CognitiveActionType.DETECT_GAPS) and not (
             _gap_detection_completed(state)
         ):
             return [
@@ -332,6 +407,7 @@ class CognitiveController:
                     ),
                     usefulness=0.95,
                     registry=registry,
+                    capability=gap_detector,
                 )
             ]
 
@@ -359,8 +435,64 @@ class CognitiveController:
             reverse=True,
         )
         if unresolved:
+            reviewer = registry.get("scope_reviewer")
+            scope_budget = configured_budget(state)
+            for gap in unresolved[:3]:
+                if (
+                    reviewer is not None
+                    and scope_review_available(state, gap.description)
+                    and (
+                        not _requires_sensitive_data_boundary(state)
+                        or reviewer.definition.approved_for_sensitive_data
+                    )
+                    and (
+                        scope_budget is None
+                        or reservation_fits(
+                            reviewer.definition, scope_budget, accumulated_usage(state)
+                        )
+                    )
+                ):
+                    return [
+                        self._candidate(
+                            CognitiveActionType.REFRAME,
+                            target=gap.description,
+                            purpose="Review whether missing facts actually block the requested deliverable before another search.",
+                            expected="Evidence-bound facts and explicit nonblocking limitations without weakening success criteria.",
+                            usefulness=0.9,
+                            registry=registry,
+                            capability="scope_reviewer",
+                        )
+                    ]
+            # Acquisition adapters also import cognition contracts during startup.
+            from app.acquisition.page_reader import page_read_target
+
+            reader = registry.get("public_page_reader")
+            for gap in unresolved[:3]:
+                if (
+                    reader is not None
+                    and not _requires_sensitive_data_boundary(state)
+                    and page_read_target(state, gap.description) is not None
+                    and (
+                        scope_budget is None
+                        or reservation_fits(
+                            reader.definition, scope_budget, accumulated_usage(state)
+                        )
+                    )
+                ):
+                    return [
+                        self._candidate(
+                            CognitiveActionType.SEARCH,
+                            target=gap.description,
+                            purpose="Read the discovered document's missing passages before another search.",
+                            expected="Bounded untrusted passages for source evaluation.",
+                            usefulness=0.9,
+                            registry=registry,
+                            capability="public_page_reader",
+                        )
+                    ]
             candidates: list[CognitiveActionCandidate] = []
             for gap in unresolved[:3]:
+                epistemic_status = derive_epistemic_status(state, gap)
                 preferred = _preferred_action_for_gap(gap)
                 failed = _failure_history(state, gap.description)
                 learned = (
@@ -437,7 +569,10 @@ class CognitiveController:
                         self._candidate(
                             action_type,
                             target=gap.description,
-                            purpose=gap.why_needed,
+                            purpose=(
+                                f"{gap.why_needed} Residual evidence need: "
+                                f"{epistemic_status.rationale}"
+                            ),
                             expected=(
                                 "An observation that resolves or materially narrows "
                                 f"the gap: {gap.description}"
@@ -464,17 +599,96 @@ class CognitiveController:
                 )
             ]
 
-        if not state["hypotheses"]:
+        if needs_recovery_analysis(state):
             return [
                 self._candidate(
                     CognitiveActionType.HYPOTHESIZE,
                     target=problem.core_question,
-                    purpose="Generate testable explanations or solution paths from current evidence.",
-                    expected="Distinct candidates with expected signals and falsification criteria.",
-                    usefulness=0.82,
+                    purpose="Reassess earlier analysis against recovered evidence and failed checks.",
+                    expected="Fresh evidence-bound analysis followed by independent verification.",
+                    usefulness=0.93,
                     registry=registry,
+                    capability="deliberator",
                 )
             ]
+
+        if not state["hypotheses"]:
+            hypothesis_candidates: list[CognitiveActionCandidate] = []
+            if problem.problem_type == "source_patch_investigation" and registry.supports(
+                "source_patch_recall", CognitiveActionType.HYPOTHESIZE
+            ):
+                hypothesis_candidates.append(
+                    self._candidate(
+                        CognitiveActionType.HYPOTHESIZE,
+                        target=problem.core_question,
+                        purpose="Recall one candidate edit for current-case sandbox verification.",
+                        expected="An unambiguous past edit or an explicit memory miss.",
+                        usefulness=0.95,
+                        registry=registry,
+                        capability="source_patch_recall",
+                    )
+                )
+            if deterministic_evidence_attestation_available(state) and registry.supports(
+                "attested_evidence_procedure",
+                CognitiveActionType.HYPOTHESIZE,
+            ):
+                hypothesis_candidates.append(
+                    self._candidate(
+                        CognitiveActionType.HYPOTHESIZE,
+                        target=problem.core_question,
+                        purpose=(
+                            "Close a fully attested deterministic result before spending "
+                            "semantic compute."
+                        ),
+                        expected=(
+                            "An integrity-bound candidate plus replayable deterministic check."
+                        ),
+                        usefulness=0.98,
+                        registry=registry,
+                        capability="attested_evidence_procedure",
+                    )
+                )
+            hypothesis_capability = (
+                "arithmetic_deliberator"
+                if problem.problem_type == "simple_arithmetic"
+                and registry.supports("arithmetic_deliberator", CognitiveActionType.HYPOTHESIZE)
+                else "source_patch_investigator"
+                if problem.problem_type
+                in {"field_derived_technical_investigation", "source_patch_investigation"}
+                and registry.supports(
+                    "source_patch_investigator",
+                    CognitiveActionType.HYPOTHESIZE,
+                )
+                else "artifact_lookup_procedure"
+                if problem.problem_type == "explicit_artifact_lookup"
+                and registry.supports(
+                    "artifact_lookup_procedure",
+                    CognitiveActionType.HYPOTHESIZE,
+                )
+                else None
+            )
+            hypothesis_candidates.append(
+                self._candidate(
+                    CognitiveActionType.HYPOTHESIZE,
+                    target=problem.core_question,
+                    purpose=(
+                        "Propose one exact source edit for governed present-case execution."
+                        if hypothesis_capability == "source_patch_investigator"
+                        else "Generate testable explanations or solution paths from current evidence."
+                    ),
+                    expected=(
+                        "One evidence-bound edit plus an independently executable check."
+                        if hypothesis_capability == "source_patch_investigator"
+                        else "Distinct candidates with expected signals and falsification criteria."
+                    ),
+                    usefulness=(
+                        0.94 if hypothesis_capability == "source_patch_investigator" else 0.82
+                    ),
+                    registry=registry,
+                    capability=hypothesis_capability,
+                )
+            )
+            return hypothesis_candidates
 
         if not state["plan"]:
             return [
@@ -507,7 +721,47 @@ class CognitiveController:
             ]
 
         if state["verification"] is None:
-            return [
+            verification_candidates: list[CognitiveActionCandidate] = []
+            if deterministic_evidence_attestation_available(state) and registry.supports(
+                "attested_evidence_procedure",
+                CognitiveActionType.VERIFY,
+            ):
+                verification_candidates.append(
+                    self._candidate(
+                        CognitiveActionType.VERIFY,
+                        target=problem.core_question,
+                        purpose=(
+                            "Replay every trusted evidence binding before deterministic "
+                            "finalization."
+                        ),
+                        expected=(
+                            "A passing report only if producer, version, provenance, hash, "
+                            "quality, and criterion coverage still match."
+                        ),
+                        usefulness=0.99,
+                        registry=registry,
+                        capability="attested_evidence_procedure",
+                    )
+                )
+            verification_capability = (
+                "arithmetic_conclusion_checker"
+                if problem.problem_type == "simple_arithmetic"
+                and registry.supports("arithmetic_conclusion_checker", CognitiveActionType.VERIFY)
+                else "verifier_factory"
+                if registry.supports(
+                    "verifier_factory",
+                    CognitiveActionType.VERIFY,
+                )
+                and deterministic_verification_available(state)
+                else "artifact_lookup_procedure"
+                if problem.problem_type == "explicit_artifact_lookup"
+                and registry.supports(
+                    "artifact_lookup_procedure",
+                    CognitiveActionType.VERIFY,
+                )
+                else None
+            )
+            verification_candidates.append(
                 self._candidate(
                     CognitiveActionType.VERIFY,
                     target=problem.core_question,
@@ -515,10 +769,31 @@ class CognitiveController:
                     expected="Independent checks with pass, failure, or contradiction details.",
                     usefulness=0.96,
                     registry=registry,
+                    capability=verification_capability,
                 )
-            ]
+            )
+            return verification_candidates
 
         if not state["verification"].passed:
+            if recalled_failure_task(state) is not None:
+                return [
+                    self._candidate(
+                        CognitiveActionType.REPLAN,
+                        target=problem.core_question,
+                        purpose="Propose a different edit after the recalled candidate failed the current check.",
+                        expected="One new candidate for fresh baseline and candidate execution.",
+                        usefulness=0.9,
+                        registry=registry,
+                        capability="source_patch_investigator",
+                    )
+                ]
+            if any(
+                e.event_type in {REPAIR_RECOVERY_EVENT, "source_patch_memory_proposed"}
+                for e in state["events"]
+            ):
+                return [
+                    self._stop_candidate(registry, "bounded repair recovery failed verification")
+                ]
             return [
                 self._candidate(
                     CognitiveActionType.REPLAN,
@@ -553,6 +828,8 @@ class CognitiveController:
         candidates = self.generate_candidates(state, registry)
         available: list[CognitiveActionCandidate] = []
         rejected: list[RejectedCognitiveAction] = []
+        budget = configured_budget(state)
+        usage = accumulated_usage(state)
         for candidate in candidates:
             if candidate.action_type is CognitiveActionType.STOP:
                 available.append(candidate)
@@ -581,6 +858,22 @@ class CognitiveController:
                 continue
             capability = registry.get(candidate.capability)
             if (
+                budget is not None
+                and capability is not None
+                and not reservation_fits(capability.definition, budget, usage)
+            ):
+                rejected.append(
+                    RejectedCognitiveAction(
+                        candidate_id=candidate.id,
+                        rationale=(
+                            f"Capability {candidate.capability} cannot fit the remaining "
+                            "hard cognitive budget: "
+                            f"{budget_rejection_reason(capability.definition, budget, usage)}."
+                        ),
+                    )
+                )
+                continue
+            if (
                 _requires_sensitive_data_boundary(state)
                 and capability is not None
                 and not capability.definition.approved_for_sensitive_data
@@ -597,20 +890,59 @@ class CognitiveController:
                 continue
             available.append(candidate)
 
-        if not available:
-            selected = self._stop_candidate(registry, "no safe supported action")
-        else:
-            selected = max(available, key=self._utility)
-
-        for candidate in available:
-            if candidate.id == selected.id:
-                continue
+        autonomous_targets = {
+            candidate.target
+            for candidate in available
+            if candidate.action_type
+            not in {
+                CognitiveActionType.ASK_HUMAN,
+                CognitiveActionType.CLARIFY,
+                CognitiveActionType.STOP,
+            }
+        }
+        deferred = [
+            candidate
+            for candidate in available
+            if candidate.action_type is CognitiveActionType.ASK_HUMAN
+            and candidate.target in autonomous_targets
+        ]
+        for candidate in deferred:
             rejected.append(
                 RejectedCognitiveAction(
                     candidate_id=candidate.id,
                     rationale=(
-                        f"Lower bounded utility ({self._utility(candidate):.3f}) than "
-                        f"selected action ({self._utility(selected):.3f})."
+                        "Deferred fallback human question: a safe, supported autonomous "
+                        "action for the same gap fits the remaining budget."
+                    ),
+                )
+            )
+        available = [candidate for candidate in available if candidate not in deferred]
+
+        if not available:
+            selected = self._stop_candidate(registry, "no safe supported action")
+        else:
+            selected = max(
+                available,
+                key=lambda candidate: self._utility(state, registry, candidate)[0],
+            )
+
+        selected_utility, selected_estimate = self._utility(state, registry, selected)
+
+        for candidate in available:
+            if candidate.id == selected.id:
+                continue
+            candidate_utility, candidate_estimate = self._utility(
+                state,
+                registry,
+                candidate,
+            )
+            rejected.append(
+                RejectedCognitiveAction(
+                    candidate_id=candidate.id,
+                    rationale=(
+                        f"Lower bounded utility ({candidate_utility:.3f}) than selected "
+                        f"action ({selected_utility:.3f}). "
+                        f"Adaptive estimate: {self._estimate_rationale(candidate_estimate)}"
                     ),
                 )
             )
@@ -622,8 +954,10 @@ class CognitiveController:
             rejected=rejected,
             rationale=(
                 f"Selected {selected.action_type.value} for {selected.target} from "
-                f"explicit state using usefulness, cost, risk, failure history, "
-                f"and declared capability availability."
+                f"explicit state using expected verified progress per marginal cost, "
+                f"risk, failure history, remaining budget, and declared capability "
+                f"availability. Selected bounded utility {selected_utility:.3f}. "
+                f"Adaptive estimate: {self._estimate_rationale(selected_estimate)}"
             ),
         )
 
@@ -639,7 +973,7 @@ class CognitiveController:
         capability: str | None = None,
         risk: RiskLevel = RiskLevel.LOW,
     ) -> CognitiveActionCandidate:
-        capability_name = capability or _DEFAULT_CAPABILITY[action_type]
+        capability_name = capability or _capability_for_action(action_type, registry)
         definition = registry.get(capability_name)
         estimated_cost = definition.definition.estimated_cost if definition is not None else 1.0
         identity = hashlib.sha256(
@@ -674,12 +1008,39 @@ class CognitiveController:
             capability=CONTROLLER_CAPABILITY,
         )
 
-    @staticmethod
-    def _utility(candidate: CognitiveActionCandidate) -> float:
+    def _utility(
+        self,
+        state: PolyaState,
+        registry: CapabilityRegistry,
+        candidate: CognitiveActionCandidate,
+    ) -> tuple[float, AdaptiveActionEstimate | None]:
+        progress = candidate.expected_usefulness
+        effective_cost = candidate.estimated_cost
+        estimate: AdaptiveActionEstimate | None = None
+        capability = registry.get(candidate.capability)
+        if self.performance_policy is not None and capability is not None:
+            estimate = self.performance_policy.estimate(
+                state,
+                candidate,
+                capability.definition,
+            )
+            progress *= estimate.progress_multiplier
+            effective_cost += estimate.extra_effective_cost
+        verified_progress_per_cost = progress / (0.1 + effective_cost)
         return (
-            candidate.expected_usefulness
-            - (0.25 * candidate.estimated_cost)
-            - _RISK_PENALTY[candidate.risk_level]
+            verified_progress_per_cost - _RISK_PENALTY[candidate.risk_level],
+            estimate,
+        )
+
+    @staticmethod
+    def _estimate_rationale(estimate: AdaptiveActionEstimate | None) -> str:
+        if estimate is None:
+            return "disabled; used declared estimates only."
+        return (
+            f"{estimate.policy_version}, samples={estimate.sample_count}, "
+            f"confidence={estimate.sample_confidence:.3f}, progress multiplier="
+            f"{estimate.progress_multiplier:.3f}, extra cost="
+            f"{estimate.extra_effective_cost:.3f}. {estimate.rationale}"
         )
 
 

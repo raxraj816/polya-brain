@@ -2,9 +2,25 @@
 
 This folder is organized so implementation can start from a small, stable working set.
 
+## Product Identity Quick Reference
+
+```text
+Product now: PolyaBrain Investigator
+Enduring core: PolyaBrain Cognitive Runtime
+Initial delivery: managed cloud product and API with portable boundaries
+Eventual platform: PolyaBrain Intelligence OS, only after it is earned
+Models and tools: replaceable capabilities
+Optimization target: verified useful outcomes per unit of total cost and human attention
+```
+
+General-purpose intelligence is the long-term architectural ambition, not the
+initial market category or a current superiority claim. The binding definition,
+invention mandate, product evolution, and win standard are in Section 1 of the
+master plan.
+
 ## Source Of Truth
 
-- Implementation plan: `../PolyaBrain_Product_Implementation_Master_Plan.md`
+- Binding product identity and implementation plan: `../PolyaBrain_Product_Implementation_Master_Plan.md`
 - Vision: `00_vision/PolyaBrain_Final_Foundational_Design.md`
 - Vision summary: `00_vision/PolyaBrain_Vision_Summary.md`
 - Cognitive product doctrine: `00_vision/Cognitive_Product_Doctrine.md`
@@ -22,6 +38,7 @@ This folder is organized so implementation can start from a small, stable workin
 - Product acceleration playbook: `03_implementation/Product_Acceleration_Playbook.md`
 - Research reading guide: `04_research/Research_Reading_Guide.md`
 - Creative problem-solving research translation: `04_research/Creative_Problem_Solving_Product_Translation.md`
+- On-demand task-learning thesis: `04_research/On_Demand_Task_Learning_Thesis.md`
 
 ## Folder Guide
 

@@ -314,7 +314,15 @@ def test_kernel_runs_observe_decide_act_update_verify_reflect_end_to_end() -> No
         CognitiveActionType.STOP,
     ]
     assert any(event.event_type == "cognitive_action_decision" for event in result.state["events"])
-    assert any(event.event_type == "capability_observation" for event in result.state["events"])
+    observation_events = [
+        event for event in result.state["events"] if event.event_type == "capability_observation"
+    ]
+    assert observation_events
+    assert all(
+        isinstance(event.metadata.get("duration_ms"), int | float)
+        and event.metadata["duration_ms"] >= 0
+        for event in observation_events
+    )
 
 
 def test_raw_input_runs_through_real_representation_adapter_and_kernel() -> None:
@@ -710,6 +718,12 @@ def test_failed_verification_is_invalidated_then_rerun_after_replan() -> None:
     assert result.state["verification"] is not None
     assert result.state["verification"].passed
     assert result.state["final_answer"] == "x = 3"
+
+    invalidations = [
+        event for event in result.state["events"] if event.event_type == "verification_invalidated"
+    ]
+    assert len(invalidations) == 1
+    assert invalidations[0].metadata["report"]["failed_checks"] == ["The two sides differed."]
 
 
 def test_passing_verification_without_success_criteria_coverage_is_rejected() -> None:

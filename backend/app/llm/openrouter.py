@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Mapping
+from concurrent.futures import ThreadPoolExecutor
 from time import perf_counter
 from typing import Any
 
@@ -169,7 +171,7 @@ class OpenRouterLLMClient:
         data_collection: str = "deny",
         zdr: bool = False,
         require_parameters_for_json: bool = True,
-        transport: httpx.BaseTransport | None = None,
+        transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         normalized_key = api_key.strip()
         if not normalized_key:
@@ -206,7 +208,7 @@ class OpenRouterLLMClient:
         cls,
         settings: Settings | None = None,
         *,
-        transport: httpx.BaseTransport | None = None,
+        transport: httpx.AsyncBaseTransport | None = None,
     ) -> OpenRouterLLMClient:
         """Create an adapter from environment-backed backend settings."""
         resolved = settings or get_settings()
@@ -242,29 +244,44 @@ class OpenRouterLLMClient:
         payload: dict[str, Any] = {
             "model": request.model,
             "messages": [message.model_dump(mode="json") for message in request.messages],
-            "temperature": request.options.temperature,
-            "max_completion_tokens": request.options.max_output_tokens,
+            # OpenRouter's provider eligibility metadata currently standardizes
+            # this portable field as ``max_tokens``. Using the newer alias can
+            # eliminate otherwise compatible routes when require_parameters is on.
+            "max_tokens": request.options.max_output_tokens,
             "stream": False,
             "provider": provider,
         }
+        if request.options.temperature is not None:
+            payload["temperature"] = request.options.temperature
         if request.options.json_mode:
             payload["response_format"] = {"type": "json_object"}
         return payload
+
+    async def _send_with_deadline(self, request: LLMRequest) -> httpx.Response:
+        # HTTPX's timeout is per I/O operation. A trickling response can keep
+        # resetting it indefinitely, so cancellation must cover the entire call.
+        async with asyncio.timeout(request.options.timeout_seconds):
+            async with httpx.AsyncClient(
+                timeout=request.options.timeout_seconds,
+                transport=self._transport,
+            ) as client:
+                return await client.post(
+                    self._chat_completions_url,
+                    headers=self._headers(),
+                    json=self._payload(request),
+                )
 
     def complete(self, request: LLMRequest) -> LLMResponse:
         """Send one request and normalize the successful OpenRouter response."""
         started_at = perf_counter()
         try:
-            with httpx.Client(
-                timeout=request.options.timeout_seconds,
-                transport=self._transport,
-            ) as client:
-                response = client.post(
-                    self._chat_completions_url,
-                    headers=self._headers(),
-                    json=self._payload(request),
-                )
-        except httpx.TimeoutException as exc:
+            # Keep the synchronous provider contract usable from an existing
+            # event loop, while giving the network operation cancellable I/O.
+            with ThreadPoolExecutor(max_workers=1, thread_name_prefix="polya-provider") as executor:
+                response = executor.submit(
+                    lambda: asyncio.run(self._send_with_deadline(request))
+                ).result()
+        except (TimeoutError, httpx.TimeoutException) as exc:
             raise LLMClientError(
                 LLMErrorCode.TIMEOUT,
                 "OpenRouter request timed out.",
