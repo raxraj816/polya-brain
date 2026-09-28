@@ -249,7 +249,9 @@ class SQLAlchemyMemoryRepository:
                 tags=[str(item) for item in chunk.tags],
                 admission_status=chunk.admission_status,
             )
-            for chunk, row_distance in rows
+            # Positional access preserves each column's type across SQLAlchemy
+            # 2.0/2.1; direct Row iteration can widen both values to object.
+            for chunk, row_distance in ((row[0], row[1]) for row in rows)
         ]
 
     def search_episodes(
@@ -292,7 +294,7 @@ class SQLAlchemyMemoryRepository:
                 similarity_score=max(0.0, min(1.0, 1.0 - float(row_distance))),
                 created_at=episode.created_at,
             )
-            for episode, row_distance in rows
+            for episode, row_distance in ((row[0], row[1]) for row in rows)
         ]
 
     def has_relevant_memory(self, query: str, domain: str | None = None) -> bool:
