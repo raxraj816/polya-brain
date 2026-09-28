@@ -141,6 +141,12 @@ def test_experiment_exports_independent_score_and_separates_injection(tmp_path, 
     if not _docker_available():
         pytest.skip("requires configured Docker sandbox")
     output = tmp_path / "run"
+    # Exercise CI's credential-free environment without loading the developer's
+    # .env. Runtime admission still needs the explicit fake provider settings.
+    monkeypatch.setenv("OPENROUTER_API_KEY", "")
+    monkeypatch.setattr(
+        "evals.chapter_13p.source_recovery.run.Settings", lambda: settings(tmp_path)
+    )
     fake = FakeLLMClient(
         [
             LLMResponse(
