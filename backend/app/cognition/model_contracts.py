@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from pydantic import Field, JsonValue, model_validator
+from pydantic import Field, JsonValue, ValidationInfo, model_validator
 
+from app.cognition.generated_checks import validate_generated_checks
 from app.cognition.report_metadata import ConclusionReportMetadata
 from app.graph.state import ExecutionOutput
 from app.models.contracts import (
@@ -37,12 +38,13 @@ class PlanGenerationOutput(ContractModel):
     clarifying_questions: list[NonEmptyStr] = Field(default_factory=list, max_length=3)
 
     @model_validator(mode="after")
-    def task_ids_must_be_unique(self) -> PlanGenerationOutput:
+    def task_ids_must_be_unique(self, info: ValidationInfo) -> PlanGenerationOutput:
         if bool(self.tasks) == bool(self.clarifying_questions):
             raise ValueError("planner requires either tasks or clarification questions, never both")
         ids = [task.id for task in self.tasks]
         if len(ids) != len(set(ids)):
             raise ValueError("plan task ids must be unique")
+        validate_generated_checks(self.tasks, info.context)
         return self
 
 
@@ -79,11 +81,12 @@ class DeliberationCapabilityOutput(ContractModel):
 
     hypotheses: list[Hypothesis] = Field(min_length=1, max_length=5)
     tasks: list[PlanTask] = Field(min_length=1, max_length=6)
-    execution_outputs: list[ExecutionOutput] = Field(min_length=1, max_length=6)
+    execution_outputs: list[ExecutionOutput] = Field(default_factory=list, max_length=6)
 
     @model_validator(mode="after")
     def plan_and_outputs_must_be_bounded_and_aligned(
         self,
+        info: ValidationInfo,
     ) -> DeliberationCapabilityOutput:
         task_ids = [task.id for task in self.tasks]
         output_ids = [output.task_id for output in self.execution_outputs]
@@ -91,8 +94,12 @@ class DeliberationCapabilityOutput(ContractModel):
             raise ValueError("deliberation task ids must be unique")
         if len(output_ids) != len(set(output_ids)):
             raise ValueError("deliberation output task ids must be unique")
-        if set(task_ids) != set(output_ids):
-            raise ValueError("every deliberation task requires one inspectable output")
+        analytic_ids = {task.id for task in self.tasks if task.tool_name != "python_sandbox"}
+        if analytic_ids != set(output_ids):
+            raise ValueError(
+                "every analytic task requires one output; sandbox outputs must come from execution"
+            )
+        validate_generated_checks(self.tasks, info.context)
         return self
 
 

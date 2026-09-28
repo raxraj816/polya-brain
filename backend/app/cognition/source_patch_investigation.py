@@ -19,7 +19,7 @@ from app.cognition.contracts import (
     ObservationStatus,
 )
 from app.cognition.model_gateway import CognitiveModelGateway
-from app.cognition.repair_recovery import recalled_failure_task, supersession_event
+from app.cognition.repair_recovery import failed_source_patch_task, supersession_event
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import (
     ContractModel,
@@ -32,7 +32,7 @@ from app.models.contracts import (
     RiskLevel,
 )
 
-SOURCE_PATCH_INVESTIGATOR_VERSION = "source_patch_investigator@0.3.0"
+SOURCE_PATCH_INVESTIGATOR_VERSION = "source_patch_investigator@0.4.0"
 SOURCE_PATCH_CONTEXT_PROJECTION_VERSION = "source_patch_context@0.3.0"
 
 
@@ -122,7 +122,7 @@ def _source_patch_state_projection(
         "success_criteria": list(problem.success_criteria),
         "admitted_evidence": admitted_evidence,
     }
-    rejected = recalled_failure_task(state)
+    rejected = failed_source_patch_task(state)
     if rejected is not None and state["verification"] is not None:
         projection["rejected_edit"] = rejected.model_dump(mode="json")
         projection["failed_checks"] = list(state["verification"].failed_checks)
@@ -156,9 +156,9 @@ def source_patch_investigator_capability(
     ) -> CognitiveObservation:
         if (
             action.action_type is CognitiveActionType.REPLAN
-            and recalled_failure_task(state) is None
+            and failed_source_patch_task(state) is None
         ):
-            raise ValueError("Source-patch recovery requires a measured rejected memory edit")
+            raise ValueError("Source-patch recovery requires a measured rejected source edit")
         problem = state["structured_problem"]
         if problem is None or problem.problem_type not in {
             "field_derived_technical_investigation",
@@ -200,6 +200,7 @@ def source_patch_investigator_capability(
             "model": result.model,
             "usage": result.usage.model_dump(mode="json"),
             "model_calls": result.model_calls,
+            "response_repair": result.response_repair,
             "route_attempts": [item.model_dump(mode="json") for item in result.route_attempts],
         }
         observation = proposal_observation(

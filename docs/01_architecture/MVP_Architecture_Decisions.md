@@ -236,6 +236,15 @@ boundary; retain its full plan, observed output and historical failed verificati
 A unique replacement task ID prevents old execution/verifier bindings from passing
 the new repair. No permission, criterion or resource budget is reset.
 
+The same route now accepts a measured failed first model edit. Recovery eligibility
+binds complete, failed original/candidate executions to the current admitted
+source/check and candidate digests, plus trusted proposal/execution events. A
+vacuous check, timeout, truncated/missing execution or mismatched snapshot stops
+without another proposal. Source-patch investigations with ineligible failures
+also stop instead of sending a generic planner around these restrictions. A
+second failed edit cannot start another recovery; execution and verifier gates
+remain mandatory and only the current verified replacement can become a lesson.
+
 The current candidate owns final reporting and learning after its independent
 checks pass. A duplicate or second failed proposal, vacuous original check, missing
 model or exhausted allowance cannot become success. Two known protocol failures
@@ -253,3 +262,112 @@ patterns use the ordinary route. Verification and bounded failed-transfer recove
 remain unchanged. Three development families now reuse with zero requests; their
 incompatible rules reject the reused edit and recover with one request each.
 This is a limited structural generalization, not arbitrary procedural learning.
+
+### Chapter 13-P: coding verification and recovery boundary
+
+Reject missing, ambiguous, unsuccessful, truncated or empty sandbox checks before
+calling the conclusion model. This deterministic preflight can reject execution;
+it cannot certify an algorithm. Successful execution still requires independent
+semantic review of requirements, correctness and complexity. Analytic metadata
+containing an invariant or complexity claim is not a verifier.
+
+A replacement Python plan uses optional `params.supersedes_task_id` to name one
+earlier sandbox task. It must retain all original assertions and pass fresh
+execution. Task names never retire failures; unrelated tasks remain required.
+Changed oracles need separate justification and are not supported by this
+automatic path. Preserve all failed observations for audit. Before accepting a
+coding answer, compare its Python blocks with active executed implementations.
+This identity check is necessary provenance, not proof of correctness. These
+checks use existing plan metadata and reports; no core contract is promoted.
+
+### Chapter 13-P: preserve framing context during schema repair
+
+The matched calendar pilot exposed a repair-boundary failure: an omitted required
+`unknown` list was repaired into the answer the runtime should compute, then
+routed to the user as a missing fact. Schema repair now retains the original
+system framing rules, configured capabilities and serialized user input. Invalid
+output stays untrusted user-role data. Empty required lists are allowed explicitly;
+actual missing facts still require clarification. This is a prompt/context repair,
+not a parser default that silently treats missing unknowns as solved.
+
+Sandbox-enabled fused proposals receive 6,000 output tokens by default because
+the previous 3,200 cap truncated a complete implementation/test proposal. Explicit
+overrides and the total run budget still bind; the non-coding default is unchanged.
+The subsequent live rerun uses the same frozen case and independent checks.
+
+### Chapter 13-P: bounded terminal review
+
+The recovery planner now uses the same remaining-budget principle: reserve an
+integer number of full-output provider attempts, enforce that allowance across
+retries/schema repairs/routes, and reject an invocation that cannot afford one
+attempt. Unknown remote usage remains charged as reserved output, and privacy
+and checkpoint admission still apply.
+
+Generated test expectations are screened before proposal admission. Preserve
+explicit user examples and existing checks; prefer executable simple references
+for additional cases. `generated_check_sources@0.1.0` rejects direct call/literal
+equality or identity assertions that lack token-equivalent user provenance or an
+unchanged admitted check. The initial response and its bounded repair both use
+this policy. When nested schema validation fails, the gateway independently
+collects detectable test-origin errors for the same bounded repair request; it
+does not spend another attempt to reveal a previously hidden diagnostic.
+No literal is silently rewritten. The screen is deliberately narrow:
+it cannot prove dynamic reference semantics or detect every alias-hidden guess.
+Final review must inspect reference independence, specification fidelity and
+actual assertions. The sandbox's `python_checks@0.2.0` harness rejects single
+expressions evaluating to False while preserving statements and helper calls.
+
+Coding delivery now has an optional deterministic assembly step after semantic
+review. `docker_python_sandbox@0.4.0` retains exact code, test-list and result hashes
+in its execution event. The reviewer sees the full canonical implementation and
+test results, but can use issued SHA-256 references rather than copying code into
+its answer. `tested_code_delivery@0.1.0` validates those bindings and complete,
+unique references before attachment. Final code-identity checks remain in force.
+Old execution records without bindings retain the full-code response path.
+Neither references nor passing finite tests bypass correctness/complexity review.
+
+The conclusion checker can reserve fewer provider attempts when the trace's
+remaining resources cannot fit its full retry/fallback policy. Its optional
+function-adapter reservation is consumed by controller admission and checkpoint
+rechecking; execution derives the same bound and independently rejects exhaustion.
+One allowance covers all retries, schema repair and configured fallback routes.
+Every admitted attempt reserves a full per-request output allowance; provider
+exceptions with unreported tokens retain that reservation in the usage ledger.
+Provider-reported usage stays separate from this conservative charge. Adapter
+retries are disabled at the actual dispatch boundary. Review instructions and
+code-identity acceptance are unchanged. Other capabilities keep static admission;
+this does not claim a comprehensive pre-request input-token or monetary meter.
+
+The v5 pilot also exposed a preventable contract-repair request: an unexecuted
+algorithm was labeled `selected` without evidence. The deliberator prompt now
+spells out the existing hypothesis validator requirements and keeps unexecuted
+algorithm proposals as candidates. Predicted test success and desired complexity
+belong in proposed checks or analysis, not evidence. The validator remains strict;
+this prompt change is evaluated by a fresh frozen-case rerun, not assumed effective.
+
+### Chapter 13-P: compact capability requests
+
+`cognitive_capability@0.9.0` elides only default null/empty collection fields from
+typed state objects. Scalar statuses, risk, priority, flags, zero values, arbitrary
+JSON tool inputs/outputs, code, assertions, provenance and failed checks remain
+explicit. Canonical state and stored artifacts are unchanged. Output schemas
+omit presentation titles while retaining property names, descriptions, defaults,
+required fields and validation bounds. Repair prompts reuse the original schema
+once rather than repeating it.
+
+With no admitted evidence, fused deliberation and hypothesis-generation schemas
+allow candidate/deferred/rejected statuses only. The gateway enforces this on
+initial and repair responses, including extra-field pruning; invented support
+strings cannot unlock selection, verification or falsification. With evidence,
+the original contract remains available. This does not establish that every
+cited evidence string is valid; existing evidence and terminal review still apply.
+
+
+`cognitive_capability@0.10.0` adds bounded structural edits for parseable invalid
+responses. It retains the complete original capability context and schema, asks
+only for explicit changed fields, applies edits to a copy, and reruns the original
+validation. Malformed original JSON keeps full-response repair. The protocol
+cannot create parent paths, insert/delete list elements, replace the root or use
+overlapping paths. It does not change canonical state or waive recovery rules.
+Existing observation traces retain bounded repair identity metadata through the
+semantic broker; no new persistent field or migration is introduced.

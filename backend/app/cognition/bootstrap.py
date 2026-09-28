@@ -29,7 +29,7 @@ from app.cognition.adapters import (
     problem_representation_capability,
 )
 from app.cognition.capabilities import CapabilityRegistry
-from app.cognition.contracts import CapabilityKind
+from app.cognition.contracts import CapabilityKind, CognitiveActionType
 from app.cognition.controller import CognitiveController, ProceduralPreferenceProvider
 from app.cognition.local_capabilities import calculator_capability, human_input_capability
 from app.cognition.model_capabilities import planner_capability
@@ -61,6 +61,7 @@ from app.execution import (
     source_patch_sandbox_capability,
     table_measurement_capability,
 )
+from app.execution.sandbox import PYTHON_SANDBOX_PLAN_INSTRUCTIONS
 from app.graph.state import StateEvent
 from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
 from app.memory.capability import SemanticMemorySearch, semantic_memory_capability
@@ -122,13 +123,6 @@ def build_cognitive_runtime(
         if configured_key and configured_model
         else None
     )
-    engine = ProblemRepresentationEngine(
-        client=client,
-        model=model,
-        mode_hint=mode_hint,
-        domain_hint=domain_hint,
-        understanding_provider=understanding_provider,
-    )
     gateway = (
         RoutedCognitiveModelGateway(
             client,
@@ -145,9 +139,6 @@ def build_cognitive_runtime(
         and settings.openrouter_zdr
     )
     registry = CapabilityRegistry()
-    if configured_key and configured_model:
-        registry.register(problem_representation_capability(engine))
-    registry.register(problem_representation_capability(engine, deterministic_only=True))
     registry.register(constraint_discovery_capability(ConstraintDiscoveryEngine()))
     registry.register(calculator_capability())
     registry.register(human_input_capability())
@@ -373,9 +364,30 @@ def build_cognitive_runtime(
                 memory_evidence_loader=memory_evidence_loader,
             )
         )
+    runtime_context = (
+        sources.prompt_description()
+        + "\n"
+        + (
+            PYTHON_SANDBOX_PLAN_INSTRUCTIONS
+            if settings.code_execution_enabled
+            else "Python sandbox execution is disabled. Do not claim it is available."
+        )
+    )
+    engine = ProblemRepresentationEngine(
+        client=client,
+        model=model,
+        mode_hint=mode_hint,
+        domain_hint=domain_hint,
+        understanding_provider=understanding_provider,
+        runtime_context=runtime_context,
+    )
+    if configured_key and configured_model:
+        registry.register(problem_representation_capability(engine))
+    registry.register(problem_representation_capability(engine, deterministic_only=True))
     for capability in on_demand_cognitive_capabilities(
         gateway,
         approved_for_sensitive_data=sensitive_data_approved,
+        allow_python_sandbox=registry.supports("python_sandbox", CognitiveActionType.EXECUTE),
     ):
         if capability.definition.kind is CapabilityKind.MODEL and not (
             configured_key and configured_model

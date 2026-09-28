@@ -1,6 +1,7 @@
 """Runtime settings for the PolyaBrain backend."""
 
 from functools import lru_cache
+from typing import Literal
 from urllib.parse import urlsplit
 
 from pydantic import Field, SecretStr, model_validator
@@ -23,6 +24,10 @@ class Settings(BaseSettings):
     oidc_client_id: str = Field(default="", alias="OIDC_CLIENT_ID")
     oidc_client_secret: SecretStr = Field(default=SecretStr(""), alias="OIDC_CLIENT_SECRET")
     oidc_allowed_subjects: str = Field(default="", alias="OIDC_ALLOWED_SUBJECTS")
+    oidc_registration_mode: Literal["invite_only", "self_service"] = Field(
+        default="invite_only", alias="OIDC_REGISTRATION_MODE"
+    )
+    oidc_blocked_subjects: str = Field(default="", alias="OIDC_BLOCKED_SUBJECTS")
     daily_user_run_limit: int = Field(
         default=20, ge=0, le=10000, alias="POLYABRAIN_DAILY_USER_RUN_LIMIT"
     )
@@ -42,6 +47,8 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def validate_auth_configuration(self) -> Settings:
         if not self.auth_required:
+            if self.oidc_registration_mode == "self_service":
+                raise ValueError("Self-service registration requires authentication")
             if self.environment not in {"local", "test"}:
                 raise ValueError("Authentication is required outside local/test environments")
             return self
@@ -49,7 +56,10 @@ class Settings(BaseSettings):
             len(self.secret_key) < 32
             or not self.oidc_client_id
             or not self.oidc_client_secret.get_secret_value()
-            or not any(sub.strip() for sub in self.oidc_allowed_subjects.split(","))
+            or (
+                self.oidc_registration_mode == "invite_only"
+                and not any(sub.strip() for sub in self.oidc_allowed_subjects.split(","))
+            )
         ):
             raise ValueError(
                 "Authentication requires a signing secret (32+ characters), OIDC client and admitted subjects"

@@ -12,6 +12,7 @@ from typing import Annotated, TypeVar
 
 from pydantic import Field, JsonValue
 
+from app.cognition.attempt_budget import ProviderAttemptBudget
 from app.cognition.capabilities import AuditedCapabilityError
 from app.cognition.model_gateway import (
     COGNITIVE_CAPABILITY_PROMPT_VERSION,
@@ -418,6 +419,7 @@ class RoutedProblemUnderstandingProvider:
         mode_hint: ProductMode | None,
         domain_hint: str | None,
         total_timeout_seconds: float,
+        runtime_context: str | None = None,
     ) -> ProblemUnderstandingExecution:
         def execute_route(
             route_client: LLMClient,
@@ -430,6 +432,7 @@ class RoutedProblemUnderstandingProvider:
                 model=route.model_slug,
                 mode_hint=mode_hint,
                 domain_hint=domain_hint,
+                runtime_context=runtime_context,
                 request_options=LLMRequestOptions(
                     max_output_tokens=PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS,
                     json_mode=True,
@@ -520,13 +523,21 @@ class RoutedCognitiveModelGateway(CognitiveModelGateway):
         total_timeout_seconds: float = 90.0,
         context: dict[str, JsonValue] | None = None,
         state_projection: dict[str, JsonValue] | None = None,
+        max_provider_attempts: int | None = None,
     ) -> ModelCapabilityResult[OutputT]:
+        allowance = (
+            ProviderAttemptBudget(max_provider_attempts, max_output_tokens)
+            if max_provider_attempts is not None
+            else None
+        )
+
         def execute_route(
             route_client: LLMClient,
             route: SemanticModelRoute,
             route_budget: float,
         ) -> ModelCapabilityResult[OutputT]:
-            return CognitiveModelGateway(route_client, route.model_slug).complete(
+            bounded_client = allowance.wrap(route_client) if allowance is not None else route_client
+            return CognitiveModelGateway(bounded_client, route.model_slug).complete(
                 capability=capability,
                 instructions=instructions,
                 output_type=output_type,
@@ -552,6 +563,9 @@ class RoutedCognitiveModelGateway(CognitiveModelGateway):
                     "procedure": "semantic_route_broker",
                     "policy_version": BROKER_POLICY_VERSION,
                     "model_calls": exc.provider_attempts,
+                    "unreported_output_token_reservation": (
+                        allowance.unreported_output_token_reservation if allowance else 0
+                    ),
                     "usage": exc.usage.model_dump(mode="json"),
                     "terminal_failure_kind": exc.terminal_failure_kind,
                     "route_attempts": [item.model_dump(mode="json") for item in exc.route_attempts],
@@ -560,9 +574,13 @@ class RoutedCognitiveModelGateway(CognitiveModelGateway):
         result = execution.output
         return ModelCapabilityResult(
             output=result.output,
+            response_repair=result.response_repair,
             provider=result.provider,
             model=result.model,
             usage=execution.usage,
             model_calls=execution.provider_attempts,
             route_attempts=execution.route_attempts,
+            unreported_output_token_reservation=(
+                allowance.unreported_output_token_reservation if allowance else 0
+            ),
         )

@@ -166,6 +166,7 @@ def scope_review_capability(
             "provider": result.provider,
             "model": result.model,
             "model_calls": result.model_calls,
+            "response_repair": result.response_repair,
             "usage": result.usage.model_dump(mode="json"),
         }
 

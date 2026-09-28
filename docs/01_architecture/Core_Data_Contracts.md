@@ -290,6 +290,32 @@ verify admission and release behavior. Details: Chapter 77 durable run allowance
 
 ## Chapter 13-P provider options and deliverable scope
 
+`PlanGenerationOutput` and `DeliberationCapabilityOutput` validate generated
+Python literal expectations with local parser context (`raw_input` and previously
+admitted Python tests). This adds no serialized contract field or model authority.
+Direct function-call/literal assertions without an explicit matching user example
+are rejected for bounded repair. Existing admitted tests remain unchanged.
+`generated_check_sources_screened` records the policy version and affected task
+IDs; it explicitly leaves semantic oracle review outstanding. Absence of a flagged
+literal is not proof of test validity or coverage. Prose-paraphrased examples may
+be rejected conservatively; computed/aliased expectations require semantic review.
+
+Sandbox execution trace metadata records `test_harness_version`. A single test
+expression returning False is now a failed check, with its original index;
+statement suites and assertion helpers retain normal Python execution semantics.
+Non-Boolean expression results are not newly interpreted as assertions.
+
+The optional `tested_code_delivery` capability context is experimental metadata.
+Its SHA-256 markers refer to active Python implementations whose exact code,
+tests and result match a sandbox-produced `sandbox_execution_completed` event.
+The model's existing `final_answer` string can contain each issued marker on a
+separate line, with independently reviewed explanation. Runtime assembly rejects
+unknown, repeated, incomplete, inline, fenced or mixed-code references. It runs
+only after a passing semantic review, then retains normal delivery validation.
+No new core field or verification authority is introduced. `tested_code_attached`
+records task/code bindings and hashes of the provider and delivered answers.
+These hashes bind recorded content; they are not signatures or formal proofs.
+
 The existing `LLMRequestOptions.temperature` is optional (`None` by default).
 Runtime prompt builders produce the unset value, and the provider adapter omits
 it from the request; explicit numeric overrides remain bounded and are forwarded.
@@ -561,16 +587,20 @@ causal verification; execution against the admitted check remains mandatory.
 
 ### Bounded repair recovery metadata
 
-`source_patch_recovery@0.1.0` uses `source_patch_recovery_proposed` trace metadata
-for one supersession after a recalled edit fails deterministic verification. The
+`source_patch_recovery@0.2.0` uses `source_patch_recovery_proposed` trace metadata
+for one supersession after a model-proposed or recalled edit fails deterministic verification. The
 source-patch adapter produces the complete retired and replacement tasks; the
 kernel independently validates the producer, failed state, exact unchanged
 source/check/verifier bindings, new task ID and genuinely different candidate
 source. Other state changes or injected verdicts invalidate the supersession.
+Eligibility also requires a trusted proposal event, an observed sandbox event,
+complete failed baseline and candidate checks, and source/check/candidate digests
+bound to current admitted snapshots and the exact failed edit. Timeouts, truncated
+outputs, missing results, duplicate outputs and changed bindings do not qualify.
 It removes only the retired active task, retains execution/hypothesis history,
 and archives failed verification through the existing invalidation mechanism.
 
-The existing proposer (`source_patch_investigator@0.3.0`, context `0.3.0`) receives
+The existing proposer (`source_patch_investigator@0.4.0`, context `0.3.0`) receives
 the rejected edit and failed checks only during recovery. It cannot edit the
 check or publish a verdict. Fresh sandbox execution must revalidate all four
 criteria. The verifier (`verifier-factory@0.1.1`) composes the source/check answer
@@ -600,5 +630,51 @@ The existing proposal event carries `transfer_kind`, `pattern_version` and
 `name_mapping`. These are experimental audit metadata, not correctness signals.
 The adapter neither executes code nor reads the check to manufacture a pass.
 Current sandbox execution and independent verification still own acceptance.
+
+Coding recovery uses optional `PlanTask.params.supersedes_task_id` metadata,
+produced by the planner and consumed by the conclusion execution preflight. The
+value names an earlier Python sandbox task; retirement requires fresh successful
+execution retaining every earlier assertion, including duplicate assertions.
+Unknown references, dropped or altered checks, and task-name-only recovery do
+not retire failures. The original plan and observations stay in the audit record.
+No new core field or success score is introduced. This rule is covered by runtime
+recovery and adversarial verification regressions in `test_coding_execution.py`.
 Python operator overloading and semantic role differences are not inferred by
 syntax; a match remains a hypothesis limited by the supplied check's coverage.
+
+Bounded conclusion review adds optional observation metadata
+`reserved_model_calls`, `reserved_output_tokens` and
+`unreported_output_token_reservation`. The checker produces the reservation;
+the controller and checkpoint gate consume the adapter's matching definition.
+The gateway produces the unknown-output reservation for attempted requests that
+raised without a response. The kernel adds that conservative charge to its
+output ledger while retaining provider-reported usage separately. Tests cover
+shared retry/repair/fallback limits, zero dispatch after exhaustion, privacy,
+checkpoint admission and unknown-usage accounting. No canonical state field,
+new reasoning engine or ranking score is introduced.
+
+### Compact model transport
+
+`model_wire.compact_record` consumes canonical contract instances and produces
+request-only dictionaries that omit default nulls and empty collections. Scalar
+status/risk/priority/Boolean defaults stay visible. Round-trip regressions restore
+the same typed objects and preserve arbitrary JSON values exactly after JSON decoding. `compact_schema` drops display titles, never properties named
+`title`, and retains validation keywords. No persisted contract fields change.
+
+For proposal output types only, the gateway derives a local
+`unselected_hypotheses_only` validation context from absence of admitted evidence.
+Its request schema and response validation both enforce candidate/deferred/rejected
+statuses in that state. This flag is not model-produced or a new public contract.
+The repair uses the same policy and does not rewrite a returned status.
+
+
+### Bounded response-repair transport
+
+`ResponseEdits` and `ResponseEdit` are experimental model-wire contracts outside
+canonical state. The gateway produces a repaired pending observation by applying
+explicit bounded edits to a copied parsed response and re-running its complete
+admission. Gateway result metadata is consumed by model-backed capabilities and
+the broker, then filtered into existing observation trace metadata as
+`response_repair`. It contains version/form/hashes/paths only. No schema-valid
+proposal is evidence merely because repair succeeded. Invalid patches receive no
+additional repair beyond existing provider/route limits.

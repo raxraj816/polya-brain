@@ -2,10 +2,18 @@ import { describe, it, expect } from "vitest";
 import {
   sourceLink,
   reportMarkdown,
+  problemTitle,
   type Session,
   type Report,
 } from "../lib/api";
 describe("inspectable exports", () => {
+  it("keeps short questions intact and bounds long Unicode headings", () => {
+    expect(problemTitle("What is 17 * 6?")).toBe("What is 17 * 6?");
+    expect(problemTitle("Explain\n  the error.")).toBe("Explain the error.");
+    const title = problemTitle("🧠".repeat(200));
+    expect(Array.from(title)).toHaveLength(140);
+    expect(title).toBe("🧠".repeat(139) + "…");
+  });
   it("only links web sources and never executes source-supplied schemes", () => {
     expect(sourceLink("javascript:alert(1)")).toBeUndefined();
     expect(sourceLink("file:///private/input.py")).toBeUndefined();
@@ -14,8 +22,11 @@ describe("inspectable exports", () => {
     );
   });
   it("exports contrary evidence, failed checks, uncertainty, and audit handle", () => {
+    const original =
+      "Why did the check fail?\n\n" + "Keep every constraint. ".repeat(30);
+    expect(problemTitle(original).length).toBeLessThan(original.length);
     const result = reportMarkdown(
-      { id: "example", raw_input: "Why did the check fail?" } as Session,
+      { id: "example", raw_input: original } as Session,
       {
         session_id: "example",
         reflection: null,
@@ -40,6 +51,7 @@ describe("inspectable exports", () => {
         audit_trace_path: "/api/v1/sessions/example/events",
       } as Report,
     );
+    expect(result).toContain(original);
     for (const text of [
       "Counterexample",
       "No reproduction",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import selectors
 import subprocess
@@ -22,10 +23,44 @@ from app.cognition.contracts import (
     CognitiveStateUpdate,
     ObservationStatus,
 )
+from app.cognition.execution_gaps import pending_sandbox_gaps
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import ContractModel, EvidenceItem, ReasoningMode, RiskLevel
 
 _TEST_MARKER = "__POLYABRAIN_TEST_RESULTS__="
+PYTHON_TEST_HARNESS_VERSION = "python_checks@0.2.0"
+
+GENERATED_CHECK_INSTRUCTIONS = (
+    "Treat model-generated expected answers as hypotheses, not facts. Preserve explicit "
+    "user examples and assertions verbatim. For additional invented cases, compute expected "
+    "results in the sandbox using a simple reference implementation derived directly from "
+    "the specification (such as exhaustive enumeration on small inputs). Admission rejects "
+    "ANY new function-call/literal expected-result assertion, even when the answer seems "
+    "obvious or is mathematically derived. Only exact examples supplied in raw_input may "
+    "use literal expected results. For EVERY additional boundary, random or scale case, "
+    "use the shape assert candidate(args) == reference(args), or assert an independently "
+    "derived property; do not write assert candidate(args) == 1, == -1, or is None. "
+    "For large inputs where an exhaustive reference is too costly, use a separately "
+    "derived scalable reference or property and state its coverage limits. "
+    "The reference must not call or reuse the candidate algorithm. "
+    "Put the reference and bounded differential cases in params.tests, separate from the "
+    "deliverable implementation. Use explicit assert statements for every comparison, "
+    "including randomized loops and input-preservation checks. A bare Boolean expression "
+    "is not a substitute for an assertion suite. Do not change user examples or weaken "
+    "existing checks to match candidate output. Explain any unavailable reference or "
+    "unresolved oracle ambiguity rather than claiming comprehensive verification. "
+)
+
+PYTHON_SANDBOX_PLAN_INSTRUCTIONS = (
+    "python_sandbox executes a PlanTask with params.code (complete Python, at most "
+    "20000 characters) and params.tests (at most 20 assertion strings, each at most "
+    "2000 characters). Each task runs in a fresh networkless container with Python "
+    "standard library only, no host files or package installation. Include the actual "
+    "implementation in code, and meaningful assertions in tests. The runtime invokes "
+    "the container and records exit_code, stdout, stderr, tests_run and test_results. "
+    "No shell command or output format needs to be supplied by the user. Results "
+    "exist only after execution; never invent them."
+)
 
 
 class SandboxTestResult(ContractModel):
@@ -160,7 +195,14 @@ import sys as __pb_sys
 __pb_results = []
 for __pb_index, __pb_test in enumerate({serialized_tests}, start=1):
     try:
-        exec(__pb_test, globals())
+        try:
+            __pb_expression = compile(__pb_test, "<polya-check>", "eval")
+        except SyntaxError:
+            exec(__pb_test, globals())
+        else:
+            __pb_value = eval(__pb_expression, globals())
+            if __pb_value is False:
+                raise AssertionError("The test expression evaluated to False.")
         __pb_results.append({{"index": __pb_index, "passed": True, "error_type": None}})
     except BaseException as __pb_error:
         __pb_results.append({{"index": __pb_index, "passed": False, "error_type": type(__pb_error).__name__}})
@@ -244,7 +286,7 @@ def python_sandbox_capability(sandbox: DockerPythonSandbox) -> FunctionCapabilit
     """Execute only a plan task explicitly assigned to the Python sandbox."""
     definition = CapabilityDefinition(
         name="python_sandbox",
-        version="docker_python_sandbox@0.1.0",
+        version="docker_python_sandbox@0.4.0",
         supported_actions={CognitiveActionType.EXECUTE},
         risk_level=RiskLevel.MEDIUM,
         approved_for_sensitive_data=False,
@@ -333,6 +375,8 @@ def python_sandbox_capability(sandbox: DockerPythonSandbox) -> FunctionCapabilit
             ],
             proposed_update=CognitiveStateUpdate(
                 execution_outputs_to_add=[output],
+                resolved_gap_targets=pending_sandbox_gaps(state),
+                unknowns_to_resolve=pending_sandbox_gaps(state),
                 trace_events_to_add=[
                     StateEvent(
                         engine_name=definition.name,
@@ -340,6 +384,14 @@ def python_sandbox_capability(sandbox: DockerPythonSandbox) -> FunctionCapabilit
                         reasoning_mode=ReasoningMode.EXECUTE,
                         summary=summary,
                         metadata={
+                            "task_id": task.id,
+                            "test_harness_version": PYTHON_TEST_HARNESS_VERSION,
+                            "code_sha256": hashlib.sha256(code.encode()).hexdigest(),
+                            "tests_sha256": hashlib.sha256(
+                                json.dumps(raw_tests, separators=(",", ":")).encode()
+                            ).hexdigest(),
+                            "result_sha256": hashlib.sha256(serialized.encode()).hexdigest(),
+                            "resolved_execution_gaps": [gap for gap in pending_sandbox_gaps(state)],
                             "exit_code": result.exit_code,
                             "runtime_ms": result.runtime_ms,
                             "tests_run": result.tests_run,

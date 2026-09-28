@@ -299,3 +299,50 @@ def test_persisted_repair_transfers_across_renamed_expression(client, monkeypatc
         and e["metadata"].get("transfer_kind") == "alpha_expression"
         for e in events
     )
+
+
+def test_failed_first_model_edit_recovers_persists_and_reuses_only_verified_edit(
+    client, monkeypatch
+):
+    from app.cognition.repair_recovery import EVENT
+    from app.memory import SQLAlchemyMemoryRepository
+
+    class FirstWrong(DynamicProposal):
+        def complete(self, request):
+            self.replacement = "count - unit_price" if not self.requests else "count * unit_price"
+            return super().complete(request)
+
+    fake = FirstWrong()
+    monkeypatch.setattr("app.cognition.bootstrap.OpenRouterLLMClient.from_settings", lambda _: fake)
+    session_id = client.post("/api/v1/source-check", json=payload()).json()["id"]
+    assert client.post(f"/api/v1/sessions/{session_id}/run").status_code == 200
+    assert len(fake.requests) == 2
+    report = client.get(f"/api/v1/sessions/{session_id}/report").json()
+    assert report["verification_status"] == "passed"
+    candidate = client.get(f"/api/v1/sessions/{session_id}/candidate").json()["candidate"]
+    assert "+    return count * unit_price" in candidate["patch"]
+    assert "count - unit_price" not in candidate["patch"]
+    events = client.get(f"/api/v1/sessions/{session_id}/events", params={"limit": 200}).json()[
+        "events"
+    ]
+    assert any(e["event_type"] == EVENT for e in events)
+    assert any(e["event_type"] == "verification_invalidated" for e in events)
+    owner = client.app.dependency_overrides[require_principal]()
+    with client.app.state.session_factory() as db:
+        db.info["owner_id"] = owner
+        lessons = SQLAlchemyMemoryRepository(db).load_repair_lessons()
+        assert len(lessons) == 1
+        assert lessons[0].source_session_id == session_id
+        assert lessons[0].new_text == "count * unit_price"
+        db.info["owner_id"] = "another-owner"
+        assert SQLAlchemyMemoryRepository(db).load_repair_lessons() == []
+    second = client.post(
+        "/api/v1/source-check",
+        json=payload(
+            source_code=SOURCE.replace("total", "invoice"),
+            check_code="def verify(implementation):\n    assert implementation.invoice(11, 4) == 44\n",
+        ),
+    ).json()["id"]
+    assert client.post(f"/api/v1/sessions/{second}/run").status_code == 200
+    assert client.get(f"/api/v1/sessions/{second}/report").json()["verification_status"] == "passed"
+    assert len(fake.requests) == 2

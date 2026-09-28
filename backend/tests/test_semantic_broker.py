@@ -147,7 +147,12 @@ def test_routed_gateway_preserves_capability_state_projection() -> None:
     payload = json.loads(client.requests[0].messages[1].content)
     assert payload["current_state"] == projection
     schema = client.requests[0].messages[0].content.split("OUTPUT_JSON_SCHEMA:\n", 1)[1]
-    assert json.loads(schema) == BrokerOutput.model_json_schema()
+    assert json.loads(schema) == {
+        "additionalProperties": False,
+        "properties": {"answer": {"minLength": 1, "type": "string"}},
+        "required": ["answer"],
+        "type": "object",
+    }
 
 
 def test_typed_primary_failure_falls_back_and_counts_failed_attempts() -> None:

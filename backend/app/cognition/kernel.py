@@ -399,7 +399,9 @@ class CognitiveKernel:
                 if elapsed_ms >= active_budget.max_duration_ms or (
                     selected_capability is not None
                     and not reservation_fits(
-                        selected_capability.definition, active_budget, current_usage
+                        self.registry.reservation(decision.selected.capability, state),
+                        active_budget,
+                        current_usage,
                     )
                 ):
                     state = _append_event(

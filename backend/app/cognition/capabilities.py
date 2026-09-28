@@ -13,6 +13,7 @@ from app.cognition.contracts import (
     CognitiveObservation,
     ObservationStatus,
 )
+from app.cognition.response_repair import safe_repair_metadata
 from app.graph.state import PolyaState
 from app.tracing.sanitization import sanitize_text
 
@@ -67,7 +68,18 @@ def safe_observation_trace_telemetry(payload: JsonValue) -> dict[str, JsonValue]
     if type(model_calls) is int and model_calls >= 0:
         telemetry["model_calls"] = model_calls
 
+    for key in (
+        "reserved_model_calls",
+        "reserved_output_tokens",
+        "unreported_output_token_reservation",
+    ):
+        value = payload.get(key)
+        if type(value) is int and value >= 0:
+            telemetry[key] = value
+
     raw_attempts = payload.get("route_attempts")
+    if repair := safe_repair_metadata(payload.get("response_repair")):
+        telemetry["response_repair"] = repair
     if not isinstance(raw_attempts, list):
         return telemetry
 
@@ -113,9 +125,16 @@ class FunctionCapability:
         self,
         definition: CapabilityDefinition,
         executor: CapabilityExecutor,
+        *,
+        reservation: Callable[[PolyaState], CapabilityDefinition] | None = None,
     ) -> None:
         self.definition = definition
         self._executor = executor
+        self._reservation = reservation
+
+    def reservation(self, state: PolyaState) -> CapabilityDefinition:
+        """Return the invocation bound enforced by this adapter's executor."""
+        return self._reservation(state) if self._reservation is not None else self.definition
 
     def execute(
         self,
@@ -161,6 +180,15 @@ class CapabilityRegistry:
         return bool(
             capability is not None and action_type in capability.definition.supported_actions
         )
+
+    def reservation(self, name: str, state: PolyaState) -> CapabilityDefinition:
+        """Resolve optional bounded adapters; other capabilities remain static."""
+        capability = self.get(name)
+        if capability is None:
+            raise ValueError(f"capability is not registered: {name}")
+        if isinstance(capability, FunctionCapability):
+            return capability.reservation(state)
+        return capability.definition
 
     def definitions(self) -> list[CapabilityDefinition]:
         """Expose sorted metadata for action generation and audit."""

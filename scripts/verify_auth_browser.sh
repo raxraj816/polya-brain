@@ -11,7 +11,13 @@ export POLYABRAIN_SECRET_KEY=browser-test-signing-secret-32-characters
 export OIDC_ISSUER=http://127.0.0.1:18005
 export OIDC_CLIENT_ID=browser-client
 export OIDC_CLIENT_SECRET=browser-secret
-export OIDC_ALLOWED_SUBJECTS=alice,bob
+export OIDC_REGISTRATION_MODE=${OIDC_REGISTRATION_MODE:-invite_only}
+if [[ "$OIDC_REGISTRATION_MODE" == self_service ]]; then
+  export OIDC_ALLOWED_SUBJECTS=''
+else
+  export OIDC_ALLOWED_SUBJECTS=alice,bob
+fi
+export OIDC_BLOCKED_SUBJECTS=''
 export OPENROUTER_API_KEY='' OPENROUTER_MODEL='' SEARCH_API_KEY='' SEARCH_PROVIDER=''
 export POLYABRAIN_API_URL=http://127.0.0.1:18004
 export PORT=3014 POLYABRAIN_TEST_AUTH=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:3014

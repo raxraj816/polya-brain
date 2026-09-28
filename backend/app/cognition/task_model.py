@@ -368,11 +368,14 @@ def resource_usage_for(
         value = usage_data.get(name, 0)
         return int(value) if isinstance(value, int) and not isinstance(value, bool) else 0
 
+    unreported_output = payload.get("unreported_output_token_reservation", 0)
+    if type(unreported_output) is not int or unreported_output < 0:
+        unreported_output = 0
     return CognitiveResourceUsage(
         model_calls=max(0, model_calls),
         external_calls=max(0, external_calls),
         input_tokens=count("input_tokens"),
-        output_tokens=count("output_tokens"),
+        output_tokens=count("output_tokens") + unreported_output,
         normalized_cost=definition.estimated_cost,
         duration_ms=max(0.0, duration_ms),
     )

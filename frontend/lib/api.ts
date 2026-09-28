@@ -134,3 +134,13 @@ export function reportMarkdown(session: Session, report: Report): string {
   );
 }
 export const words = (value: string) => value.replaceAll("_", " ");
+
+export function problemTitle(rawInput: string): string {
+  const text = rawInput.trim().replace(/\s+/gu, " ");
+  const characters = Array.from(text);
+  if (characters.length <= 140) return text;
+  let excerpt = characters.slice(0, 139).join("");
+  const boundary = excerpt.lastIndexOf(" ");
+  if (boundary >= 80) excerpt = excerpt.slice(0, boundary);
+  return `${excerpt.trimEnd()}…`;
+}
