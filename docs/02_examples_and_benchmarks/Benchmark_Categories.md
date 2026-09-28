@@ -317,3 +317,106 @@ attributes, indexing, introduced names/bindings, inconsistent name substitutions
 literal type/value changes, duplicate text, ambiguous sites and resource overflow.
 Check precedence and Unicode spans plus persisted API reuse. These are new
 author-created development families, not independently held-out comparisons.
+
+### Coding execution acceptance regressions (Chapter 13-P)
+
+Generated-check regressions must reject unsourced literal outputs, preserve
+explicit user values and exact prior checks, and screen repaired proposals again.
+Test numeric-prefix and string-content mismatches so similar-looking examples
+cannot supply false provenance. A dynamic reference passing this static screen is
+not certified: execute checks against wrong implementations and wrong oracles,
+and retain independent semantic review. False single-expression tests must fail.
+Recovery planning must work with a last affordable provider attempt without
+bypassing output budgets, retries, privacy or checkpoint limits.
+
+The frozen `fresh-graph-cases.json` task tests finite/infinite walk counting with
+irrelevant cycles, parallel edges, self-loops and an empty walk. Its independent
+oracle uses transitive closure and bounded-length walk counting on 600 seeded
+multigraphs, plus boundary/scale checks. Validate that oracle against a separate
+linear implementation and targeted mutants before the first model run. Report
+these as developer checks, not an independent benchmark or external judge.
+
+Code-reference delivery must preserve independent review, reject stale/altered
+execution bindings, retain all active implementations and expand only complete
+unique references. Test both full-code and reference responses through actual
+Docker recovery. Preserve raw provider responses separately from assembled final
+artifacts. Report output-copy reduction separately from total token/latency changes.
+The signed-array `transfer-cases.json` task adds an untouched problem family with
+3,000 brute-force oracle comparisons plus boundary and large-input checks. It is
+developer-authored, frozen before live attempts, and not an independent holdout.
+
+Run `backend/tests/test_coding_execution.py` for the public runtime coding path.
+Negative controls include missing/failed/empty/truncated execution, duplicate
+outputs, incorrect complexity claims, changed delivered code, dropped assertions,
+invalid replacement references and unrelated failed tasks. Passing local tests
+must still invoke independent semantic review; a failed attempt must not spend
+that model call. The real-Docker recovery cases use scripted model responses,
+retain the original failed observation and assertions, and deliver the exact
+corrected code after a fresh run. They test orchestration, not model reasoning.
+
+Historical selected coding runs and one-call direct answers remain development
+evidence. They are not a matched, repeated, held-out superiority experiment.
+In particular, the old interval case changed its test oracle and predates the
+current recovery contract; do not treat its status as current-contract acceptance.
+
+Evaluator audit: `coding_execution/historical-audit.json` replays the historical
+delivered implementations in Docker and applies current recovery requirements.
+All three code implementations pass the developer checks, but the interval run
+fails current execution acceptance. Historical direct answers are not replayable
+because their source artifacts were omitted. A missing artifact is unverified,
+not demonstrated incorrect. The median problem prompts also differ. New direct
+runs preserve full artifacts and checkpoint attempted/finished cases without
+overwriting earlier runs. `test_coding_eval_evidence.py` includes false-completion,
+ambiguous-code, duplicate-case, artifact-binding and interruption controls.
+
+Matched-access follow-up: `coding_execution/matched-cases.json` freezes one new
+calendar-intersection case with half-open endpoints, touching/overlapping windows,
+negative times, immutability and sparse large coordinates. `matched.py` compares
+the public runtime with a lean model/sandbox feedback loop under common outer
+call, output-token, time and execution ceilings. Both see exactly the same task;
+neither sees the independent checks until solving ends. Alternate arm order and
+retain every attempt, including harness failures. The common outcome is delivered
+code passing the developer checks; additional runtime acceptance is separate.
+This is a repeated development pilot, not independent held-out or market proof.
+
+The v4 scheduling failure becomes a regression in `test_bounded_verification.py`:
+three of six calls already spent must still permit independent review. Also test
+one remaining call, malformed output, transient retries, fallback routes, an
+exhausted output allowance, checkpoint admission and sensitive data rejection.
+Successful review remains necessary; an unreviewed candidate cannot count as a
+completed outcome. Keep the frozen pilot's common limits unchanged for live reruns.
+
+Source-edit recovery uses `evals/chapter_13p/source_recovery/case.json`: a new
+retry-deadline fixture with an explicitly injected incomplete first proposal.
+The public runtime must observe its failure, propose a different source-only edit,
+rerun the original immutable check, preserve the failed verdict and pass 3,000
+independent randomized deadline comparisons withheld from the model. Report the
+injected response separately from real provider calls/tokens. Original code and
+the injected partial fix are mandatory negative controls. This is a controlled
+recovery experiment, not autonomous initial diagnosis or a competitive benchmark.
+
+### Compact-interface cost check
+
+Replay saved gateway responses without provider calls to compare message bytes
+at the same state and response. Include initial plus repair requests, preserve
+all validation constraints except display titles, and distinguish this mechanical
+byte saving from live tokens or outcome improvements. Tests cover null/empty
+elision, preserved scalar defaults, exact arbitrary JSON, code/tests, provenance,
+failed checks, unchanged caller-supplied projections, and no-evidence status
+restrictions in initial and repair responses. Live paired pilots retain the same
+model, cases, tools and budgets; every intermediate outcome remains reportable.
+
+Bounded response-edit repair must preserve unmentioned content and revalidate
+the complete reconstructed response. Negative controls cover invalid paths,
+overlapping edits, index coercion, limits, unsupported hypothesis statuses,
+unsourced checks, and exhausted budgets. Test malformed-original full repair and
+full-response compatibility. Record repaired paths and hashes without values in
+the durable trace. Separate runs that actually apply edits from those that need
+no repair; do not attribute the latter's savings to edit application.
+
+The latest signed-array and graph repetitions each complete 2/2 in both arms,
+with Polya runtime acceptance and independent checks passing. The separate saved
+browser graph run also passes the same 600 random and eight boundary/scale checks.
+Measured usage, prior attempts, small-sample limits and browser delivery checks
+are recorded in `Chapter_13P_Compact_Model_Interface.md`. All remain developer
+evidence; lean still uses fewer tokens and less time on these cases.

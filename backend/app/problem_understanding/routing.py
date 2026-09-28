@@ -62,6 +62,7 @@ class ProblemUnderstandingProvider(Protocol):
         mode_hint: ProductMode | None,
         domain_hint: str | None,
         total_timeout_seconds: float,
+        runtime_context: str | None = None,
     ) -> ProblemUnderstandingExecution:
         """Generate one validated representation inside the supplied deadline."""
         ...

@@ -50,6 +50,53 @@ def test_sandbox_runs_code_and_assertions_in_isolated_python() -> None:
     assert not result.timed_out
 
 
+def test_false_expression_is_not_silently_reported_as_a_pass() -> None:
+    result = _sandbox().execute(
+        "def wrong(values): return 0\ndef helper(): assert 2 + 2 == 4",
+        [
+            "wrong([1, 2]) == 3",
+            "all(wrong(values) == sum(values) for values in ([1], [2]))",
+            "False",
+            "wrong([]) == 0",
+            "helper()",
+            "assert wrong([]) == 0",
+            "for values in ([1], [2]):\n    assert wrong(values) == sum(values)",
+            "this is invalid python !",
+        ],
+    )
+    assert result.exit_code != 0
+    assert [item.passed for item in result.test_results] == [
+        False,
+        False,
+        False,
+        True,
+        True,
+        True,
+        False,
+        False,
+    ]
+    assert result.test_results[0].error_type == "AssertionError"
+    assert result.test_results[-1].error_type == "SyntaxError"
+
+
+def test_differential_checks_reject_wrong_code_and_wrong_reference() -> None:
+    oracle = "def oracle(values, target):\n    return min((j-i for i in range(len(values)) for j in range(i+1,len(values)+1) if sum(values[i:j]) >= target), default=-1)"
+    result = _sandbox().execute(
+        "def incorrect(values, target): return 2",
+        [oracle + "\nassert incorrect([-1, -2, -3], -5) == oracle([-1, -2, -3], -5)"],
+    )
+    assert result.exit_code != 0
+    assert not result.test_results[0].passed
+    # An incorrect expected answer cannot pass merely because it appears in a
+    # generated oracle. An immutable user example still falsifies it.
+    wrong_oracle = _sandbox().execute(
+        "def oracle(values, target): return 0",
+        ["assert oracle([], 0) == -1"],
+    )
+    assert wrong_oracle.exit_code != 0
+    assert not wrong_oracle.test_results[0].passed
+
+
 def test_sandbox_blocks_network_and_writable_root_filesystem() -> None:
     result = _sandbox().execute(
         """import socket

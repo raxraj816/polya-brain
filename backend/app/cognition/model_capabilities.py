@@ -12,7 +12,7 @@ from app.cognition.arithmetic_pack import (
     arithmetic_verification_output,
     is_simple_arithmetic,
 )
-from app.cognition.capabilities import FunctionCapability
+from app.cognition.capabilities import AuditedCapabilityError, FunctionCapability
 from app.cognition.contracts import (
     CapabilityDefinition,
     CapabilityKind,
@@ -22,6 +22,7 @@ from app.cognition.contracts import (
     CognitiveStateUpdate,
     ObservationStatus,
 )
+from app.cognition.generated_checks import check_source_event
 from app.cognition.model_contracts import (
     AnalysisExecutionOutput,
     ConclusionCheckOutput,
@@ -33,6 +34,13 @@ from app.cognition.model_contracts import (
     VerificationCapabilityOutput,
 )
 from app.cognition.model_gateway import CognitiveModelGateway, ModelCapabilityResult
+from app.cognition.task_model import (
+    accumulated_usage,
+    configured_budget,
+    remaining_budget,
+    reservation_fits,
+)
+from app.execution.sandbox import GENERATED_CHECK_INSTRUCTIONS
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import ContractModel, ReasoningMode, RiskLevel
 
@@ -79,6 +87,8 @@ def _payload[PayloadT: ContractModel](
         "model": result.model,
         "usage": result.usage.model_dump(mode="json"),
         "model_calls": result.model_calls,
+        "response_repair": result.response_repair,
+        "unreported_output_token_reservation": result.unreported_output_token_reservation,
         "route_attempts": [
             {
                 "route": item.route,
@@ -228,7 +238,7 @@ def planner_capability(
     """Translate hypotheses into bounded executable checks."""
     definition = CapabilityDefinition(
         name="planner",
-        version=gateway.capability_version("model_planner@0.2.0"),
+        version=gateway.capability_version("model_planner@0.6.0"),
         supported_actions={CognitiveActionType.PLAN, CognitiveActionType.REPLAN},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
@@ -236,17 +246,45 @@ def planner_capability(
         estimated_cost=0.15,
         kind=CapabilityKind.MODEL,
         max_model_calls=gateway.max_provider_attempts_per_capability,
-        max_output_tokens=2200,
+        max_output_tokens=6000 if "python_sandbox" in available_execution_tools else 2200,
     )
+
+    def reservation(state: PolyaState) -> CapabilityDefinition:
+        calls = definition.max_model_calls
+        budget = configured_budget(state)
+        if budget is not None:
+            remaining = remaining_budget(budget, accumulated_usage(state))
+            calls = min(
+                calls,
+                remaining.max_model_calls,
+                remaining.max_output_tokens // definition.max_output_tokens,
+            )
+        # A one-attempt minimum makes admission reject exhausted runs rather
+        # than advertising a zero-cost model action that cannot complete.
+        calls = max(1, calls)
+        return definition.model_copy(
+            update={
+                "max_model_calls": calls,
+                "max_output_tokens": calls * definition.max_output_tokens,
+            }
+        )
 
     def execute(
         action: CognitiveActionCandidate,
         state: PolyaState,
     ) -> CognitiveObservation:
         result: ModelCapabilityResult[PlanGenerationOutput] | None = None
+        bound = reservation(state)
         if is_simple_arithmetic(state):
             output = arithmetic_plan_output(state)
         else:
+            budget = configured_budget(state)
+            if budget is not None and not reservation_fits(bound, budget, accumulated_usage(state)):
+                raise AuditedCapabilityError(
+                    "Recovery planning cannot fit the remaining cognitive budget.",
+                    failure_kind="resource_budget_exhausted",
+                    payload={"model_calls": 0},
+                )
             result = gateway.complete(
                 capability=definition.name,
                 instructions=(
@@ -265,7 +303,11 @@ def planner_capability(
                     "acquired but calculator is not an execution tool, use executor to check the "
                     "recorded evidence; do not name calculator. Use python_sandbox only for bounded "
                     "Python execution; params must contain code and may contain a list of assert "
-                    "tests. Use measurement only for a supplied CSV/JSON table; params must "
+                    "tests. To replace a failed Python task, set params.supersedes_task_id to "
+                    "that earlier task's exact id and retain every original assertion verbatim "
+                    "in params.tests; additional tests are allowed. A task name such as fixed "
+                    "does not replace prior checks. Do not weaken or rewrite a failed test "
+                    "oracle to make code pass. Use measurement only for a supplied CSV/JSON table; params must "
                     "contain source and one read-only SELECT statement in sql. Otherwise "
                     "use simulator only with simulation_spec containing explicit initial_value, "
                     "periods, scenario_rates, optional threshold, and unit. Use experiment only "
@@ -275,13 +317,27 @@ def planner_capability(
                     "acquisition tool merely because it appears in prior evidence. Select only "
                     "from AVAILABLE_EXECUTION_TOOLS: "
                     f"{', '.join(available_execution_tools)}."
+                    + (
+                        GENERATED_CHECK_INSTRUCTIONS
+                        if "python_sandbox" in available_execution_tools
+                        else ""
+                    )
                 ),
                 output_type=PlanGenerationOutput,
                 state=state,
-                max_output_tokens=2200,
+                max_output_tokens=definition.max_output_tokens,
                 total_timeout_seconds=definition.timeout_seconds,
+                max_provider_attempts=bound.max_model_calls,
             )
             output = result.output
+        payload: JsonValue = (
+            _payload(result) if result is not None else {"procedure": "deterministic"}
+        )
+        if result is not None and isinstance(payload, dict):
+            payload.update(
+                reserved_model_calls=bound.max_model_calls,
+                reserved_output_tokens=bound.max_output_tokens,
+            )
         if output.clarifying_questions:
             return CognitiveObservation(
                 action_id=action.id,
@@ -290,7 +346,7 @@ def planner_capability(
                 status=ObservationStatus.BLOCKED,
                 failure_kind="human_input_required",
                 summary="Planning requires missing evidence that available execution tools cannot obtain.",
-                payload=_payload(result) if result is not None else {"procedure": "deterministic"},
+                payload=payload,
                 proposed_update=CognitiveStateUpdate(
                     questions_to_ask=output.clarifying_questions,
                 ),
@@ -310,11 +366,14 @@ def planner_capability(
             capability_version=definition.version,
             status=ObservationStatus.SUCCEEDED,
             summary=f"Created {len(output.tasks)} bounded plan task(s).",
-            payload=_payload(result) if result is not None else {"procedure": "deterministic"},
-            proposed_update=CognitiveStateUpdate(plan_tasks_to_add=output.tasks),
+            payload=payload,
+            proposed_update=CognitiveStateUpdate(
+                plan_tasks_to_add=output.tasks,
+                trace_events_to_add=check_source_event(output.tasks, definition.name),
+            ),
         )
 
-    return FunctionCapability(definition, execute)
+    return FunctionCapability(definition, execute, reservation=reservation)
 
 
 def analysis_executor_capability(

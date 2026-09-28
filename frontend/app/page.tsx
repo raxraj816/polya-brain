@@ -25,10 +25,12 @@ import {
 } from "@/components/source-check";
 import { RunOverview } from "@/components/run-overview";
 import { FeedbackPanel } from "@/components/feedback";
+import { ReportContent } from "@/components/report-content";
 import {
   api,
   trace,
   reportMarkdown,
+  problemTitle,
   sourceLink,
   words,
   type Session,
@@ -103,8 +105,10 @@ function ReportPanel({ report }: { report: Report }) {
   return (
     <>
       <section className="conclusion">
-        <div className="eyebrow">Conclusion</div>
-        <p>{report.final_conclusion || "No conclusion recorded yet."}</p>
+        <h2 className="eyebrow">Conclusion</h2>
+        <ReportContent
+          markdown={report.final_conclusion || "No conclusion recorded yet."}
+        />
       </section>
       <div className="report-grid">
         <Items title="Checks performed" items={report.checks_performed} />
@@ -361,9 +365,10 @@ export default function Workbench() {
           <input
             aria-label="Search investigations"
             placeholder="Search history…"
+            maxLength={200}
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value);
+              setSearch(e.target.value.slice(0, 200));
               setOffset(0);
             }}
           />
@@ -421,7 +426,7 @@ export default function Workbench() {
                 className={`history-item ${id === s.id ? "selected" : ""}`}
                 onClick={() => select(s.id)}
               >
-                <span>{s.raw_input}</span>
+                <span>{problemTitle(s.raw_input)}</span>
                 <small>
                   <i className={`status-dot ${s.status}`} />
                   {words(s.status)} ·{" "}
@@ -675,7 +680,14 @@ export default function Workbench() {
                   <span className="eyebrow">{words(session.data.mode)}</span>
                   <span className="session-id">{id.slice(0, 8)}</span>
                 </div>
-                <h1>{session.data.raw_input}</h1>
+                <h1>{problemTitle(session.data.raw_input)}</h1>
+                {problemTitle(session.data.raw_input) !==
+                  session.data.raw_input && (
+                  <details className="original-problem">
+                    <summary>Read the full problem</summary>
+                    <div>{session.data.raw_input}</div>
+                  </details>
+                )}
                 <div className="detail-meta">
                   <span
                     className={`badge ${report.data?.verification_status === "passed" ? "verified" : ""}`}

@@ -1,0 +1,17 @@
+{
+  "id": "retry_deadline",
+  "scope": "Developer-authored controlled failure injection; not a held-out or competitive benchmark.",
+  "problem": "Repair next_retry(now, attempt, base_delay, cap_delay, deadline). Inputs are integers: attempt >= 0, base_delay > 0, cap_delay > 0. Retry delay is min(base_delay * 2**attempt, cap_delay). Return now + delay only when it is strictly before deadline, otherwise None. Use the supplied source and immutable check; propose an exact source edit and verify it. Do not modify the host files.",
+  "source": "def next_retry(now, attempt, base_delay, cap_delay, deadline):\n    delay = min(base_delay * (attempt + 1), cap_delay)\n    when = now + delay\n    return when if when <= deadline else None\n",
+  "check": "def verify(implementation):\n    f = implementation.next_retry\n    assert f(10, 0, 3, 100, 100) == 13\n    assert f(10, 3, 3, 100, 100) == 34\n    assert f(10, 3, 3, 100, 34) is None\n    assert f(10, 3, 3, 100, 35) == 34\n    assert f(10, 8, 3, 20, 31) == 30\n    assert f(10, 8, 3, 20, 30) is None\n    assert f(-10, 2, 2, 100, 0) == -2\n    assert f(10, 0, 3, 100, 10) is None\n",
+  "injected_edit": {
+    "old_text": "base_delay * (attempt + 1)",
+    "new_text": "base_delay * 2**attempt",
+    "diagnosis": "next_retry uses attempt + 1 instead of exponential backoff for delay; the first candidate only changes that expression.",
+    "correction_rationale": "Candidate for execution, not a complete verified repair.",
+    "regression_check_summary": "Run all supplied retry timing, cap and deadline assertions."
+  },
+  "independent_checks": [
+    "import random\nrng = random.Random(92417)\nfor _ in range(1000):\n    now = rng.randrange(-10000,10000)\n    attempt = rng.randrange(21)\n    base = rng.randrange(1,100)\n    cap = rng.randrange(1,1000)\n    delay = min(base * (2 ** attempt), cap)\n    for offset in (-1,0,1):\n        deadline = now + delay + offset\n        expected = now + delay if offset == 1 else None\n        assert next_retry(now, attempt, base, cap, deadline) == expected, (now,attempt,base,cap,deadline)\nprint('independent_retry_checks', 3000)"
+  ]
+}

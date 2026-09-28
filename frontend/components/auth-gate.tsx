@@ -14,6 +14,7 @@ type Identity = {
   required: boolean;
   authenticated: boolean;
   workspace_id: string | null;
+  registration_mode?: "invite_only" | "self_service";
 };
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const client = useQueryClient();
@@ -70,7 +71,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
           workspace.
         </p>
         <a className="auth-link" href="/api/backend/api/v1/auth/login">
-          Sign in
+          {auth.data.registration_mode === "self_service"
+            ? "Sign in or create account"
+            : "Sign in"}
         </a>
       </main>
     );

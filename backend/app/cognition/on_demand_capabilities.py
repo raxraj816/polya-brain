@@ -7,7 +7,8 @@ import re
 from pydantic import JsonValue
 
 from app.cognition.arithmetic_pack import is_simple_arithmetic
-from app.cognition.capabilities import FunctionCapability
+from app.cognition.capabilities import AuditedCapabilityError, FunctionCapability
+from app.cognition.code_delivery import assemble_tested_code, code_delivery_context
 from app.cognition.contracts import (
     CapabilityDefinition,
     CapabilityKind,
@@ -22,6 +23,12 @@ from app.cognition.evidence_closure import (
     TrustedEvidenceAttester,
     attested_evidence_procedure_capability,
 )
+from app.cognition.execution_gaps import SANDBOX_GAP_TYPE, is_sandbox_work
+from app.cognition.execution_verification import (
+    coding_delivery_failures,
+    sandbox_verification_failures,
+)
+from app.cognition.generated_checks import check_source_event
 from app.cognition.measurement_units import VERSION as MEASUREMENT_VERSION
 from app.cognition.measurement_units import uncertainty_failures
 from app.cognition.model_capabilities import (
@@ -31,6 +38,12 @@ from app.cognition.model_capabilities import (
 from app.cognition.model_contracts import ConclusionCheckOutput, DeliberationCapabilityOutput
 from app.cognition.model_gateway import CognitiveModelGateway
 from app.cognition.report_metadata import report_metadata_event
+from app.cognition.task_model import (
+    accumulated_usage,
+    configured_budget,
+    remaining_budget,
+    reservation_fits,
+)
 from app.cognition.verification_factory import verifier_factory_capability
 from app.cognition.verification_research import (
     ANALYSIS_EVENT,
@@ -40,6 +53,7 @@ from app.cognition.verification_research import (
 from app.cognition.verification_research import (
     VERSION as RESEARCH_VERSION,
 )
+from app.execution.sandbox import GENERATED_CHECK_INSTRUCTIONS, PYTHON_SANDBOX_PLAN_INSTRUCTIONS
 from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import (
     EvidenceItem,
@@ -126,11 +140,11 @@ def _gap_type(unknown: str, source: str) -> str:
     }.get(source, "missing_observation")
 
 
-def task_gap_detector_capability() -> FunctionCapability:
+def task_gap_detector_capability(*, allow_python_sandbox: bool = False) -> FunctionCapability:
     """Convert explicit unknowns into actionable gaps without a model call."""
     definition = CapabilityDefinition(
         name="task_gap_detector",
-        version="explicit_unknown_gap_detector@0.2.2",
+        version=f"explicit_unknown_gap_detector@0.3.0+python-{allow_python_sandbox}",
         supported_actions={CognitiveActionType.DETECT_GAPS},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=True,
@@ -153,6 +167,52 @@ def task_gap_detector_capability() -> FunctionCapability:
         for unknown in problem.unknowns:
             if unknown.casefold() in existing:
                 unbatched_unknowns.append(unknown)
+                continue
+            # A fully specified coding task may still contain the model's
+            # internal design questions (algorithm logic, edge handling, or
+            # implementation approach). Those are hypothesis work for the
+            # deliberator, not user-owned facts that should trigger clarify.
+            problem_kind = problem.problem_type.casefold()
+            internal_coding = (
+                "algorithm" in problem_kind
+                or "coding" in problem_kind
+                or "program" in problem_kind
+                or "source_patch" in problem_kind
+            ) and any(
+                marker in unknown.casefold()
+                for marker in (
+                    "algorithm",
+                    "implementation",
+                    "logic",
+                    "edge handling",
+                    "partition",
+                    "indexing",
+                    "boundary",
+                    "condition",
+                    "approach",
+                    "complexity",
+                    "solution",
+                )
+            )
+            if internal_coding and not re.search(
+                r"\b(?:user|customer|private|production|staging|remote|historical|"
+                r"credentials?|permissions?|environment|library version|external|web)\b",
+                unknown.casefold(),
+            ):
+                continue
+            if allow_python_sandbox and is_sandbox_work(
+                unknown, problem.required_data_sources, state["raw_input"]
+            ):
+                unbatched_unknowns.append(unknown)
+                gaps.append(
+                    KnowledgeGap(
+                        description=unknown,
+                        gap_type=SANDBOX_GAP_TYPE,
+                        priority=PriorityLevel.HIGH,
+                        why_needed="Run the configured sandbox to obtain this observation before verification.",
+                        suggested_source="python_sandbox",
+                    )
+                )
                 continue
             source = _source_for_unknown(unknown, problem.required_data_sources)
             if source == "local artifact":
@@ -413,6 +473,7 @@ def deliberator_capability(
     max_output_tokens: int = 6000,
     timeout_seconds: float = 90.0,
     deterministic_only: bool = False,
+    allow_python_sandbox: bool = False,
 ) -> FunctionCapability:
     """Fuse candidate generation, minimal planning, and state-only analysis."""
     if not 512 <= max_output_tokens <= 100_000:
@@ -423,7 +484,7 @@ def deliberator_capability(
         name="arithmetic_deliberator" if deterministic_only else "deliberator",
         version="arithmetic_deliberator@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_deliberator@0.7.0"),
+        else gateway.capability_version(f"fused_deliberator@0.10.0+python-{allow_python_sandbox}"),
         supported_actions={CognitiveActionType.HYPOTHESIZE},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -458,13 +519,20 @@ def deliberator_capability(
                 instructions=(
                     "Using only canonical evidence and state, construct distinct falsifiable "
                     "candidate solutions, the smallest set of checks needed for every success "
-                    "criterion, and one inspectable state-only analytic output for every task. "
+                    "criterion, and one inspectable output for each state-only analytic task. "
                     "This call combines hypothesis, planning, and bounded analysis; it does not "
-                    "verify or finalize. Every task tool_name must be 'deliberator'. Every output "
+                    "verify or finalize. Keep unexecuted algorithm proposals at status='candidate'. "
+                    "A selected hypothesis requires actual supporting or contradicting evidence, "
+                    "verification checks, falsification criteria, and a selection rationale. "
+                    "Predicted test results and desired complexity are not observed evidence; "
+                    "keep them as proposed checks or analytic justification. Leave evidence_for "
+                    "and evidence_against empty when no actual evidence supports them. "
+                    "Analytic task tool_name must be 'deliberator'. Every output "
                     "must distinguish evidence-backed claims from assumptions and must never "
                     "claim new search, measurement, code execution, or external action. "
                     "Keep the response compact: propose two meaningful alternatives and at "
-                    "most two grouped analytic tasks covering the success criteria. Use source "
+                    "most two grouped analytic tasks covering the success criteria. Keep code "
+                    "and tests compact and avoid duplicating the implementation in analysis. Use source "
                     "references and concise findings, not repeated evidence quotations. "
                     "Do not fill optional fields with redundant prose. Each execution_output.output "
                     "must contain your actual analytic findings, such as an itemized inventory or "
@@ -476,7 +544,23 @@ def deliberator_capability(
                     "If verification_research_requested is present, reassess the earlier failed "
                     "checks using newly admitted evidence. Earlier analytic outputs are history, "
                     "not proof of the revised conclusion. Explicitly identify which earlier "
-                    "claims remain supported, change, or remain unresolved. " + INSTRUCTIONS
+                    "claims remain supported, change, or remain unresolved. "
+                    + (
+                        "For an implemented/tested deliverable, also propose one pending "
+                        "task with tool_name='python_sandbox' and risk_level='medium'. "
+                        "Return NO execution_output for that task. Only the registered tool "
+                        "can produce it later. Include complete code and tests, including "
+                        "boundary cases and an independent reference oracle where practical. "
+                        "Analytic tasks should explain the candidate and justify correctness "
+                        "and complexity; do not put an untested replacement implementation "
+                        "in their outputs. "
+                        + PYTHON_SANDBOX_PLAN_INSTRUCTIONS
+                        + GENERATED_CHECK_INSTRUCTIONS
+                        if allow_python_sandbox
+                        else "Python execution is unavailable. Use only deliberator tasks. "
+                        "Never claim actual test execution from analytic reasoning."
+                    )
+                    + INSTRUCTIONS
                 ),
                 output_type=DeliberationCapabilityOutput,
                 state=state,
@@ -490,6 +574,7 @@ def deliberator_capability(
                 "model": result.model,
                 "usage": result.usage.model_dump(mode="json"),
                 "model_calls": result.model_calls,
+                "response_repair": result.response_repair,
                 "route_attempts": [
                     {
                         "route": item.route,
@@ -501,8 +586,26 @@ def deliberator_capability(
                     for item in result.route_attempts
                 ],
             }
-        if any(task.tool_name != definition.name for task in output.tasks):
-            raise ValueError("fused deliberation may use only its state-only analytic boundary")
+        allowed_tools = {definition.name}
+        if allow_python_sandbox and not deterministic_only:
+            allowed_tools.add("python_sandbox")
+        if any(task.tool_name not in allowed_tools for task in output.tasks):
+            raise ValueError("fused deliberation selected an unavailable execution tool")
+        for task in output.tasks:
+            if task.tool_name != "python_sandbox":
+                continue
+            code, tests = task.params.get("code"), task.params.get("tests")
+            if (
+                not isinstance(code, str)
+                or not 1 <= len(code.strip()) <= 20_000
+                or not isinstance(tests, list)
+                or not 1 <= len(tests) <= 20
+                or any(
+                    not isinstance(test, str) or not 1 <= len(test.strip()) <= 2000
+                    for test in tests
+                )
+            ):
+                raise ValueError("sandbox proposal requires bounded code and nonempty assertions")
         recovery_events: list[StateEvent] = []
         if needs_recovery_analysis(state):
             # Preserve prior work and disambiguate every new task/output pair even
@@ -554,14 +657,16 @@ def deliberator_capability(
             status=ObservationStatus.SUCCEEDED,
             summary=(
                 f"Constructed {len(output.hypotheses)} candidate(s) and "
-                f"{len(output.tasks)} completed analytic check(s) in one bounded pass."
+                f"{len(output.execution_outputs)} analytic output(s) and "
+                f"{len(output.tasks) - len(output.execution_outputs)} pending execution task(s)."
             ),
             payload=payload,
             proposed_update=CognitiveStateUpdate(
                 hypotheses_to_add=output.hypotheses,
                 plan_tasks_to_add=output.tasks,
                 execution_outputs_to_add=output.execution_outputs,
-                trace_events_to_add=recovery_events,
+                trace_events_to_add=recovery_events
+                + check_source_event(output.tasks, definition.name),
             ),
         )
 
@@ -585,7 +690,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.7.2"),
+        else gateway.capability_version("fused_conclusion_checker@0.12.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -596,18 +701,60 @@ def conclusion_checker_capability(
         timeout_seconds=1.0 if deterministic_only else timeout_seconds,
     )
 
+    def reservation(state: PolyaState) -> CapabilityDefinition:
+        if deterministic_only:
+            return definition
+        # Each possible dispatch has enough reserved output space for the full
+        # request. Fewer retries never means a smaller or skipped review.
+        calls = min(definition.max_model_calls, 100_000 // max_output_tokens)
+        budget = configured_budget(state)
+        if budget is not None:
+            remaining = remaining_budget(budget, accumulated_usage(state))
+            calls = min(
+                calls, remaining.max_model_calls, remaining.max_output_tokens // max_output_tokens
+            )
+        # Retain a one-request minimum so the controller rejects exhausted runs.
+        calls = max(1, calls)
+        return definition.model_copy(
+            update={"max_model_calls": calls, "max_output_tokens": calls * max_output_tokens}
+        )
+
     def execute(
         action: CognitiveActionCandidate,
         state: PolyaState,
     ) -> CognitiveObservation:
         source_facts = dependency_source_facts(state)
         source_events: list[StateEvent] = []
-        if is_simple_arithmetic(state):
+        delivery_binding: dict[str, JsonValue] | None = None
+        execution_failures = sandbox_verification_failures(state)
+        if execution_failures:
+            output = ConclusionCheckOutput(
+                report=VerificationReport(
+                    passed=False,
+                    checks_run=["Checked recorded Python sandbox execution."],
+                    failed_checks=execution_failures,
+                    confidence_delta=-0.2,
+                    recommended_route="Resolve failed or missing sandbox execution before completion.",
+                )
+            )
+            payload: JsonValue = {
+                "procedure": "deterministic_execution_preflight",
+                "model_calls": 0,
+            }
+        elif is_simple_arithmetic(state):
             output = _arithmetic_conclusion_output(state)
-            payload: JsonValue = {"procedure": "deterministic", "model_calls": 0}
+            payload = {"procedure": "deterministic", "model_calls": 0}
         else:
             if deterministic_only:
                 raise ValueError("deterministic arithmetic requires its recognized task shape")
+            bound = reservation(state)
+            budget = configured_budget(state)
+            if budget is not None and not reservation_fits(bound, budget, accumulated_usage(state)):
+                raise AuditedCapabilityError(
+                    "Conclusion review cannot fit the remaining cognitive budget.",
+                    failure_kind="resource_budget_exhausted",
+                    payload={"model_calls": 0},
+                )
             result = gateway.complete(
                 capability=definition.name,
                 instructions=(
@@ -622,6 +769,26 @@ def conclusion_checker_capability(
                     "supported findings into final_answer with the requested explanation and "
                     "citations. Missing facts, missing requested analysis, or missing actual "
                     "execution still fail; missing prewritten prose alone is not a failed check. "
+                    "For a coding deliverable independently inspect the full implementation "
+                    "in each active sandbox task's params.code and its observed test results. "
+                    "Include correctness and complexity justification. When capability_context "
+                    "contains tested_code_delivery references, place each supplied marker once "
+                    "on its own line in final_answer, outside any code fence, instead of "
+                    "copying code. The runtime attaches the exact tested implementation there. "
+                    "Do not include other code blocks or invent references. References are "
+                    "delivery instructions, never evidence that the algorithm is correct. "
+                    "Without references, include the complete executed implementation verbatim "
+                    "in a Python code block. Do not silently rewrite tested code. "
+                    "Passing finite tests is evidence, not proof of asymptotic "
+                    "complexity or external judge acceptance. "
+                    "Inspect test expectations as well as candidate code. User-provided "
+                    "examples must be preserved. For generated differential tests, inspect "
+                    "the reference against the specification and check that it does not "
+                    "call or duplicate the candidate algorithm. Verify comparisons actually "
+                    "assert their outcomes, including randomized and input-preservation "
+                    "checks. A helper definition or ignored Boolean result is not observed "
+                    "test coverage. Reject unsupported coverage claims and unresolved "
+                    "oracle conflicts; never repair them by silently editing tests. "
                     "Reflection may generalize a procedure only within stated preconditions. "
                     "Verify the deliverable requested in raw_input. For a proposed plan, check "
                     "its factual coverage, constraint consistency, uncertainties, and future "
@@ -655,7 +822,8 @@ def conclusion_checker_capability(
                 state=state,
                 max_output_tokens=max_output_tokens,
                 total_timeout_seconds=definition.timeout_seconds,
-                context=source_facts.context(),
+                context={**source_facts.context(), **code_delivery_context(state)},
+                max_provider_attempts=bound.max_model_calls,
             )
             output = result.output
             payload = {
@@ -663,6 +831,10 @@ def conclusion_checker_capability(
                 "model": result.model,
                 "usage": result.usage.model_dump(mode="json"),
                 "model_calls": result.model_calls,
+                "response_repair": result.response_repair,
+                "reserved_model_calls": bound.max_model_calls,
+                "reserved_output_tokens": bound.max_output_tokens,
+                "unreported_output_token_reservation": result.unreported_output_token_reservation,
                 "route_attempts": [
                     {
                         "route": item.route,
@@ -674,6 +846,27 @@ def conclusion_checker_capability(
                     for item in result.route_attempts
                 ],
             }
+        delivery_failures: list[str] = []
+        if output.report.passed and output.final_answer:
+            try:
+                assembled, delivery_binding = assemble_tested_code(state, output.final_answer)
+                output = output.model_copy(update={"final_answer": assembled})
+            except ValueError as exc:
+                delivery_failures.append(str(exc))
+        delivery_failures.extend(coding_delivery_failures(state, output.final_answer or ""))
+        if output.report.passed and delivery_failures:
+            output = ConclusionCheckOutput(
+                report=VerificationReport(
+                    passed=False,
+                    checks_run=[
+                        *output.report.checks_run,
+                        "Checked delivered Python code against active executed code.",
+                    ],
+                    failed_checks=delivery_failures,
+                    confidence_delta=-0.2,
+                    recommended_route="Return the active tested implementation without rewriting it.",
+                )
+            )
         if source_facts.applicable:
             failures = source_facts.failures(output.final_answer or "")
             check = "Checked required dependency source-fact coverage against complete admitted snapshots (necessary coverage only)."
@@ -745,6 +938,16 @@ def conclusion_checker_capability(
                         recommended_route="Revise the analysis using the measurement units in the admitted raw source excerpts.",
                     )
                 )
+        if output.report.passed and delivery_binding is not None:
+            source_events.append(
+                StateEvent(
+                    engine_name=definition.name,
+                    event_type="tested_code_attached",
+                    reasoning_mode=ReasoningMode.VERIFY,
+                    summary="Attached exact executed code after semantic review and delivery checks.",
+                    metadata=delivery_binding,
+                )
+            )
         if output.report.passed and output.final_answer and output.report_metadata is not None:
             source_events.append(
                 report_metadata_event(
@@ -788,7 +991,7 @@ def conclusion_checker_capability(
             ),
         )
 
-    return FunctionCapability(definition, execute)
+    return FunctionCapability(definition, execute, reservation=reservation)
 
 
 def on_demand_cognitive_capabilities(
@@ -798,10 +1001,11 @@ def on_demand_cognitive_capabilities(
     max_output_tokens_per_call: int | None = None,
     timeout_seconds_per_call: float | None = None,
     trusted_evidence_attesters: tuple[TrustedEvidenceAttester, ...] = (),
+    allow_python_sandbox: bool = False,
 ) -> tuple[FunctionCapability, ...]:
     """Return the minimum zero/one/two-call Chapter 13-D semantic suite."""
     return (
-        task_gap_detector_capability(),
+        task_gap_detector_capability(allow_python_sandbox=allow_python_sandbox),
         artifact_lookup_procedure_capability(),
         attested_evidence_procedure_capability(trusted_evidence_attesters),
         verifier_factory_capability(),
@@ -810,13 +1014,17 @@ def on_demand_cognitive_capabilities(
         deliberator_capability(
             gateway,
             approved_for_sensitive_data=approved_for_sensitive_data,
-            max_output_tokens=max_output_tokens_per_call or 6000,
-            timeout_seconds=timeout_seconds_per_call or 90.0,
+            allow_python_sandbox=allow_python_sandbox,
+            # Complete code, assertions and analysis exceeded 3200 tokens in the
+            # frozen calendar pilot. Reserve capacity within the existing budget.
+            max_output_tokens=max_output_tokens_per_call
+            or (6000 if allow_python_sandbox else 3200),
+            timeout_seconds=timeout_seconds_per_call or 75.0,
         ),
         conclusion_checker_capability(
             gateway,
             approved_for_sensitive_data=approved_for_sensitive_data,
             max_output_tokens=max_output_tokens_per_call or 3200,
-            timeout_seconds=timeout_seconds_per_call or 90.0,
+            timeout_seconds=timeout_seconds_per_call or 75.0,
         ),
     )

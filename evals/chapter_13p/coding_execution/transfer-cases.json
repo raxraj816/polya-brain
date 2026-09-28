@@ -1,0 +1,7 @@
+[
+  {
+    "id": "shortest_span",
+    "role": "developer-authored transfer check, frozen before first live attempt; not independently held out",
+    "prompt": "Implement shortest_span(values: list[int], threshold: int) -> int. Return the length of the shortest NONEMPTY contiguous subarray whose sum is at least threshold, or -1 if none exists. values may be empty and may contain positive, zero or negative integers; threshold may also be positive, zero or negative. There are at most 100000 values; each value and threshold is between -1000000000 and 1000000000. Do not mutate the input. Required worst-case time O(n) and space O(n), where n is len(values). Examples: shortest_span([2,-1,2],3)==3; shortest_span([0],0)==1; shortest_span([],0)==-1; shortest_span([-5],-4)==-1. Return a complete Python implementation, a correctness explanation and time/space complexity. Use the available Python sandbox to test boundaries and randomized cases. Distinguish observed execution from reasoning. All requirements are supplied; no external research is needed."
+  }
+]

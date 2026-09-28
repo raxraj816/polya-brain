@@ -1,16 +1,37 @@
 """Bounded source-edit supersession, carried in trusted adapter trace metadata."""
 
+import hashlib
+
 from app.cognition.contracts import CognitiveObservation, ObservationStatus
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import PlanTask, ReasoningMode
 
 EVENT = "source_patch_recovery_proposed"
-VERSION = "source_patch_recovery@0.1.0"
+VERSION = "source_patch_recovery@0.2.0"
 CAPABILITY = "source_patch_investigator"
 
 
-def recalled_failure_task(state: PolyaState) -> PlanTask | None:
-    """Only a measured, rejected first recalled edit can enter this recovery."""
+def _observed_failure(value: object) -> bool:
+    """Require a complete failed check, not a timeout or missing observation."""
+    if not isinstance(value, dict):
+        return False
+    tests = value.get("test_results")
+    return (
+        type(value.get("exit_code")) is int
+        and value["exit_code"] != 0
+        and value.get("timed_out") is False
+        and value.get("output_truncated") is False
+        and value.get("tests_run") == 1
+        and isinstance(tests, list)
+        and len(tests) == 1
+        and isinstance(tests[0], dict)
+        and tests[0].get("index") == 1
+        and tests[0].get("passed") is False
+    )
+
+
+def failed_source_patch_task(state: PolyaState) -> PlanTask | None:
+    """One measured, rejected model or recalled edit can enter bounded recovery."""
     problem, verdict = state["structured_problem"], state["verification"]
     if (
         problem is None
@@ -19,11 +40,6 @@ def recalled_failure_task(state: PolyaState) -> PlanTask | None:
         or verdict.passed
         or len(state["plan"]) != 1
         or any(e.event_type == EVENT for e in state["events"])
-        or not any(
-            e.event_type == "source_patch_memory_proposed"
-            and e.engine_name == "source_patch_recall"
-            for e in state["events"]
-        )
     ):
         return None
     task = state["plan"][0]
@@ -36,15 +52,58 @@ def recalled_failure_task(state: PolyaState) -> PlanTask | None:
         or output.get("baseline_failed") is not True
         or output.get("source_admitted") is not True
         or output.get("patch_verified") is not False
+        or not _observed_failure(output.get("baseline"))
+        or not _observed_failure(output.get("patched"))
+    ):
+        return None
+    for role in ("source", "check"):
+        uri = task.params.get(f"{role}_uri")
+        admitted = [e for e in state["evidence"] if e.source_uri == uri and e.raw_excerpt]
+        if len(admitted) != 1 or output.get(f"{role}_uri") != uri:
+            return None
+        snapshot = admitted[0].raw_excerpt
+        assert snapshot is not None
+        if output.get(f"{role}_snapshot_sha256") != hashlib.sha256(snapshot.encode()).hexdigest():
+            return None
+        if role == "source":
+            old_text, new_text = task.params.get("old_text"), task.params.get("new_text")
+            if (
+                not isinstance(old_text, str)
+                or not isinstance(new_text, str)
+                or snapshot.count(old_text) != 1
+            ):
+                return None
+            candidate = snapshot.replace(old_text, new_text, 1)
+            if (
+                output.get("patched_source_sha256")
+                != hashlib.sha256(candidate.encode()).hexdigest()
+            ):
+                return None
+    if not any(
+        event.event_type == "source_patch_proposed"
+        and event.engine_name in {CAPABILITY, "source_patch_recall"}
+        and event.metadata.get("source_uri") == task.params.get("source_uri")
+        and event.metadata.get("check_uri") == task.params.get("check_uri")
+        and event.metadata.get("old_text_occurrences_in_excerpt") == 1
+        for event in state["events"]
+    ):
+        return None
+    if not any(
+        event.event_type == "source_patch_sandbox_completed"
+        and event.engine_name == "source_patch_sandbox"
+        and event.metadata.get("source_snapshot_sha256") == output.get("source_snapshot_sha256")
+        and event.metadata.get("check_snapshot_sha256") == output.get("check_snapshot_sha256")
+        and event.metadata.get("patch_verified") is False
+        for event in state["events"]
     ):
         return None
     return task
 
 
 def supersession_event(state: PolyaState, replacement: PlanTask) -> StateEvent:
-    old = recalled_failure_task(state)
+    old = failed_source_patch_task(state)
     if old is None:
-        raise ValueError("No eligible recalled failure remains for repair recovery")
+        raise ValueError("No eligible measured source-edit failure remains for recovery")
     if (
         replacement.id in {t.id for t in state["plan"]}
         or replacement.id in {o.task_id for o in state["execution_outputs"]}
@@ -83,7 +142,7 @@ def supersession_event(state: PolyaState, replacement: PlanTask) -> StateEvent:
         engine_name=CAPABILITY,
         event_type=EVENT,
         reasoning_mode=ReasoningMode.REFRAME,
-        summary="Retired the rejected memory edit; its replacement requires fresh execution and verification.",
+        summary="Retired the rejected source edit; its replacement requires fresh execution and verification.",
         metadata={
             "version": VERSION,
             "retired_task": old.model_dump(mode="json"),

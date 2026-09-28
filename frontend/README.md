@@ -51,8 +51,9 @@ address. CI runs the tests against a production frontend build and a real backen
 
 ## Current boundaries
 
-- Local, single-workspace preview; no authentication or tenant isolation. The UI
-  and proxy accept localhost access only. Do not expose the backend publicly.
+- Local preview shares its workspace when authentication is disabled. Configured
+  public mode requires authenticated, owner-scoped access; see the authentication
+  instructions below. Local checks do not establish hosted release readiness.
 - Investigate, Compare, and Review are wired into framing and downstream prompt
   guidance. Optional time, metric, and entity context is preserved as user input.
   Mode selection cannot bypass evidence or verification requirements. Substantive
@@ -77,6 +78,10 @@ address. CI runs the tests against a production frontend build and a real backen
   or learned verified procedures. Review disposition and identity are pending.
 - Hypotheses show stored confidence, not an invented confidence-change chart.
   Source handles are clickable only for HTTP(S); local handles remain text.
+- Long problems have a compact title and expandable original request. Reports
+  render Markdown without raw HTML, remote images or unsafe links. Code blocks
+  preserve indentation and offer Copy code; exports retain the full original
+  problem and Markdown conclusion. Search accepts at most 200 characters.
 
 The UI is a way to collect real usage evidence, not proof that PolyaBrain has
 passed the broader alpha or product-value gates.

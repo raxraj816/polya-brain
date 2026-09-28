@@ -1995,6 +1995,194 @@ intelligence.
 
 #### Core-value priority: Chapter 13-P production-path investigation proof
 
+Chapter 13-P coding execution repair: a fully specified algorithm request must
+not pause for the invocation syntax of PolyaBrain's own configured tools or for
+test results that those tools can produce. Supply the framing boundary with
+trusted runtime capability context, separate from the user's problem. Preserve
+missing user requirements, permissions, unavailable external observations and
+disabled-tool limitations; capability availability never establishes execution.
+Keep this context in prompts and versioned trace metadata, outside core contracts.
+
+The experimental fused deliberator may propose a bounded Python sandbox task
+when that tool is actually configured. It may emit analytic outputs only for its
+own analytic tasks; sandbox tasks remain pending until the registered executor
+produces observations. The controller still owns dispatch, privacy, risk and
+budget gates. A conclusion requires actual passing execution plus separate
+review of correctness and requested complexity; passing examples alone do not
+prove an algorithm or establish LeetCode acceptance. Preserve the failed median
+run, evaluate the repair through the public CLI, and use fresh coding tasks and
+disabled-tool/failed-execution controls before claiming a general repair.
+The framing-context pilot still classified future sandbox results as unknowns.
+Narrow references to the runtime's own sandbox invocation/results must therefore
+remain explicit execution gaps: plan and dispatch the configured tool, then resolve
+the gap from its actual observation. Do not erase them by prompt instruction or
+pretend that availability proves a result. Historical, private, remote-environment,
+permission and ambiguous task requirements remain evidence/input gaps. A truncated
+framing response also demonstrated the need for a 6,000-token response allowance;
+all actual attempts remain charged against the existing run budget.
+
+The repaired coding path also keeps model design questions inside deliberation when
+the task is fully specified, while retaining user-owned environment and permission
+questions as blocking gaps. A failed sandbox attempt may be superseded only by a
+later task with explicit `params.supersedes_task_id` naming that attempt, retaining
+all its assertions and completing fresh execution. Words such as "fixed" in an
+action or task name do not retire checks. Changing a test oracle requires separate
+justification and is not supported by this automatic recovery rule.
+The failed observation remains in the audit trail. Algorithm explanations are
+unverified proposals, even when their metadata contains an invariant and complexity
+strings. Remove the experimental deterministic coding finalizer: finite tests and
+an explanation's presence cannot verify correctness, complexity or task coverage.
+Fail missing or unsuccessful execution before spending on semantic verification;
+otherwise retain independent semantic review and require delivered Python code
+to match active executed code. This optimization saves calls on failed attempts
+without weakening the acceptance standard. Test false complexity claims, unrelated
+recovery tasks, dropped assertions, and changed final code with negative controls.
+The Chapter 13-P proof now includes the median regression plus fresh interval-union
+and lexicographic-topological-ordering cases, with independent developer-authored
+checks and code-identity checks.
+
+The live proof artifacts are `runs/coding-readiness/median-gemini-v5`,
+`runs/coding-readiness/integer-coverage-gemini-v1`, and
+`runs/coding-readiness/toposort-gemini-v1`. Their independent checks passed:
+median exhaustive pairs plus 2,000 randomized pairs and bounded index access;
+interval coverage across 5,000 randomized sets and extreme endpoints; and
+topological ordering across 350 brute-force graph cases plus a 10,000-node chain.
+`evals/chapter_13p/coding_execution/gate.py` now packages these independent
+checks into one coverage gate that fails closed on missing cases, failed runtime
+reports, failed developer-authored checks, or delivered code that differs from
+the code executed in the sandbox. This is a verification gate, not a direct-model
+baseline or a claim of external judge acceptance.
+
+A same-model direct baseline is now runnable through
+`evals/chapter_13p/coding_execution/direct_baseline.py`, with resource comparison
+from `compare.py`. The historical comparison reported all three simple coding cases
+passing in both workflows, while Polya used 3/5/3 model calls and substantially more
+tokens and latency than the one-call direct answers. This is useful evidence: the
+runtime and verification loop work, but the coding wedge has no efficiency or
+outcome advantage on easy tasks yet. The next benchmark must include harder tasks,
+failure injection and recovery, where evidence and controlled execution can add
+value that a direct answer does not provide. The historical interval-coverage run
+changed a test oracle during recovery and predates explicit recovery links. Keep
+its artifacts, but do not count it as passing the current recovery acceptance
+rules. These selected development runs are not a controlled superiority trial.
+The replacement recovery regression uses scripted model responses and real Docker
+execution through the public runtime: a negative-integer assertion fails, the
+replacement preserves both assertions, and separate semantic review is required.
+It proves runtime routing and audit behavior, not autonomous model repair quality.
+
+Before expanding the coding comparison, make the evaluator fail closed. A saved
+`completed` status is not independent correctness evidence. Replay the exact
+delivered code against the current developer checks, enforce current execution
+and recovery requirements, and reject duplicate/missing cases or ambiguous code.
+Preserve the direct baseline's full prompt, response, extracted code, check digest,
+usage and failed attempts; disable hidden provider retries for this one-call arm.
+Write each result as it finishes and never overwrite a prior experiment. Missing
+historical code or usage remains unavailable, not a pass or zero cost. Report
+input mismatches and unequal tool access explicitly; a replay of selected old runs
+cannot become a controlled superiority experiment.
+
+The evaluator repair's Docker replay is recorded in
+`evals/chapter_13p/coding_execution/historical-audit.json`: all three delivered
+Polya implementations pass the developer checks, but interval coverage fails
+current recovery acceptance. The direct baseline's missing code prevents replay;
+those historical outcomes remain unverified. Median's prompt differs between
+arms. The new evaluator regression suite covers these false-win paths, and the
+combined evaluator/coding/sandbox test run passed 72 tests without skips.
+
+Next compare the public runtime with a small model-plus-sandbox repair loop.
+Both arms receive the identical frozen prompt, model route, fresh networkless
+Python sandbox, and common outer ceilings for provider calls, output tokens,
+elapsed time and sandbox attempts. Preserve every provider request/response and
+tool attempt before proceeding. Disable route fallbacks and hidden retries.
+The lean arm proposes code/tests, observes execution and revises on failure;
+it receives no independent benchmark checks. Score delivered code with the same
+external checks after both arms finish. Runtime-only semantic/audit acceptance
+is reported separately from that common outcome metric. Start with a repeated
+development pilot; matched access alone does not make familiar tasks held out
+or prove product superiority. Use measured failures to choose the next repair.
+
+The first valid matched calendar pilot exposed two production failures before
+execution: schema repair converted the requested output into a blocking unknown,
+and the 3,200-token fused coding proposal truncated its code/tests. Repair must
+retain the original framing rules, runtime capability inventory and user input;
+required empty lists must be emitted explicitly, without inventing unknown facts.
+Use a 6,000-token allowance for sandbox-enabled proposals within the existing run
+budget, preserving explicit caller overrides. This spends enough capacity to
+produce complete executable artifacts; it does not relax semantic or execution
+acceptance. Freeze and retain the failed pilot, then rerun the same case as a
+development regression. No task-name/answer keyword exception is permitted.
+
+The subsequent frozen rerun reached execution but exposed the same truncation
+problem in the recovery planner's 2,200-token allowance. Sandbox-capable replans
+also need 6,000 tokens, with budget reservations matching the actual request.
+Generic capability schema repair must retain the original instructions/state,
+including tool identity, test-preservation and non-fabrication rules. This is the
+same context boundary as framing repair; never turn a pending sandbox task into
+an analytic result just to satisfy a schema after truncation.
+
+Release target: the user requests real-world delivery within one week. Prioritize
+the existing Investigator end-to-end workflow, reliable verified outcomes and
+honest failures, authentication/isolation, bounded spending, operational recovery,
+and a reproducible release gate. Public hosting, identity configuration and real
+user repeat-use evidence remain unproven until exercised. The user has explicitly
+chosen a public self-service launch. Add opt-in self-service OIDC admission while
+keeping invite-only as the safe deployment default. Admit only identities whose
+tokens pass the existing issuer/signature/audience/nonce checks; derive private
+workspace ownership exactly as before. Apply a configurable subject blocklist to
+new and existing sessions so operators can revoke abusive accounts. Keep daily
+per-user/global and concurrency admission limits active. Expose the configured
+registration mode to sign-in UI; provider signup must still be provisioned and
+verified in the real deployment. Do not convert the architectural ambition into
+an unrestricted solve-anything launch claim. Release timing does not waive
+correctness or access-control gates.
+
+Self-service sessions must remain bound to the configured identity issuer even
+when no allowlist is present. Prefix newly minted opaque handles with the issuer
+digest and validate it before database lookup; changing issuer or presenting a
+legacy unbound handle requires fresh sign-in. Store only the existing handle hash,
+retain the random secret, and add an issuer-switch negative regression.
+
+The v4 matched-calendar regression reached passing sandbox execution in both
+repetitions, but neither run finalized. Three provider calls had been used; the
+verifier's four-attempt reservation could not fit the remaining three of the
+six-call common ceiling. Lean completed both outcomes in one call each. Preserve
+this as a failed end-to-end gate, not an execution win. Next investigate bounded
+verification attempts under remaining resources: actual retry/repair dispatch
+must be capped, every attempt charged, semantic review retained, and the frozen
+comparison budget unchanged. Do not solve this by increasing the trial budget
+or converting a sandbox pass into a verified answer.
+
+Bind the existing conclusion checker to a smaller invocation allowance when the
+run cannot afford its full retry policy. Derive the reservation from the trace's
+remaining calls and whole per-request output allowances. The controller and
+checkpoint gate consume the same reservation that execution enforces. Share one
+attempt counter across schema repair, transient retries and fallback routes;
+deny dispatch before exceeding it and disable adapter-internal retries. Reserve
+output for every admitted attempt, including failures with unreported usage, and
+record the bound and charges in existing observation/usage metadata. Keep the
+reviewer's instructions, code-identity check, privacy and deadline gates unchanged.
+This is an optional capability adapter, not a new intelligence engine or score.
+
+The unchanged v5 calendar pilot now completes both repetitions and passes both
+independent checks plus current runtime acceptance. Each Polya run uses four
+provider calls; lean passes with one/two calls, so no efficiency or superiority
+claim is supported. Preserve that comparison. One unnecessary repair came from
+marking an unexecuted algorithm hypothesis `selected` without the evidence that
+the existing contract requires. Make the proposal prompt explain this existing
+boundary: pending algorithm proposals remain candidates; predicted test success
+and desired complexity are not observed evidence. Do not normalize away the
+validation failure or invent evidence during repair. Rerun with unchanged budgets
+to measure whether the clearer instruction reduces avoidable repair work.
+
+The v6 pilot also passes both independent outcomes and current runtime acceptance.
+Polya uses four/three calls versus lean's one/one. One proposal still incorrectly
+selects an unsupported hypothesis and needs repair. Preserve this as a mixed
+prompt experiment, not a demonstrated efficiency improvement. The completion
+repair has now passed four repetitions across v5/v6, all on the same development
+case; it does not establish generalization or market value. Stop optimizing only
+this case and next measure fresh artifact-grounded investigations and failure
+recovery against practical baselines, with total resource and human-effort costs.
+
 Pause additional deployment and account-flow work until the actual public runtime
 can complete realistic artifact-grounded investigations and its overhead is
 measured against a direct same-model answer. A real repository dependency-remediation
@@ -2396,6 +2584,34 @@ request and 1,861 tokens, with the correct replacement diff. Prior failures are
 retained in the ledger. All 716 backend tests pass with PostgreSQL and Docker,
 including invalid supersession, budget, duplicate-edit and second-failure cases.
 These known-case results close the bounded recovery implementation gate only.
+
+Chapter 13-P first-proposal recovery: the same governed repair path must also
+handle a failed first model-proposed edit. A fresh retry-deadline fixture exposes
+that the current route is restricted to memory proposals. Preserve the original
+failure before changing it. Admit one recovery only after the trusted proposal
+adapter binds the sole active task to source/check evidence and actual sandbox
+observations establish a failing original and failing candidate. Require current
+snapshot hashes and complete, non-truncated execution; never reinterpret missing
+execution, a vacuous check or a boundary failure as a repairable code defect.
+Use the existing supersession mechanism, new task ID, unchanged check/verifier
+bindings and shared budget. A repeated or second failed edit stops. Preserve the
+failed execution/verdict and learn only a freshly verified replacement. This is
+recovery from controlled fault injection, not proof of autonomous first-attempt
+diagnosis or superiority. Keep the injected proposal separate from real provider
+usage and score the recovered code against checks never supplied to the solver.
+
+First-proposal recovery evidence is preserved under `runs/source-recovery/`.
+The original live run spent two real calls and 10,030 tokens after the injected
+proposal, then stopped without a verified repair. Two post-repair runs each use
+one real call (3,290 / 3,334 tokens; 11.43 / 11.71 seconds), record patch verdicts
+`[false, true]`, and pass 3,000 withheld deadline comparisons. Host snapshots and
+the admitted check stay unchanged. This closes the controlled recovery regression,
+not general source-repair or competitive proof. The full backend suite passes
+865 tests with PostgreSQL/Docker; the subsequent 18-test API suite additionally
+verifies first-model recovery persistence, failed-verdict history, current-only
+candidate export, owner-scoped learning and fresh zero-call reuse on a related
+scripted task. Experiment scope and replay commands are in
+`evals/chapter_13p/source_recovery/README.md`.
 
 Chapter 13-P structural transfer experiment: freeze three new source/check
 families before implementation and measure cold versus existing-memory transfer.
@@ -5213,3 +5429,130 @@ The implementation should therefore optimize for:
 - and expert-grade reports.
 
 Build that first. Scale comes later.
+
+## Chapter 13-P follow-up: deterministic delivery of reviewed code
+
+Reduce avoidable model work without reducing independent semantic review. After
+successful Python execution, the conclusion checker may reference the active
+implementation by a runtime-issued SHA-256 marker instead of regenerating it.
+The runtime expands complete, unique references into the exact tested code only
+after a passing review. Correctness/complexity reasoning, checks per success
+criterion, failure history, budget enforcement and final code-identity validation
+remain mandatory. A marker is a delivery instruction, never verification evidence.
+
+This is an experimental prompt/context and trace mechanism, not a new core
+contract. Reject unknown, stale, repeated, incomplete or embedded references,
+failed execution, and mixed generated-code/reference answers. Preserve the
+existing full-code response path for compatibility. Emit inspectable code hashes
+and task bindings when expansion succeeds; keep the raw provider response in
+evaluation artifacts. Measure saved output work and completion against the same
+matched-access baseline, then test additional frozen cases. No superiority or
+generalization claim follows from an improvement on the known scheduling case.
+
+Reference availability must depend on actual sandbox records rather than a
+model's free-form problem-type label. Analyses using Python privately may return
+prose; whenever an answer delivers Python code, validate its identity against
+active executed implementations even if the framing label is unfamiliar.
+
+## Chapter 13-P follow-up: generated checks and affordable recovery
+
+The signed-array transfer failure demonstrates that generated test expectations
+are hypotheses, not ground truth. Start with a prompt-layer mechanism: preserve
+user examples verbatim, derive additional expectations using a simple reference
+implementation of the specification, and execute differential assertions on
+bounded cases. Keep the reference separate from the candidate and prohibit it
+from calling the candidate. Terminal review must inspect oracle independence,
+specification fidelity and actual assertion coverage. Shared-model mistakes remain
+possible; this is not a proof or an independent judge.
+
+The Python sandbox must not report a bare Boolean comparison as a passed test
+when its result is false. Treat a test string that is a single expression as an
+assertion when the evaluated result is Boolean; retain statement execution and
+helper checks. Capture this harness version and the recorded check results in trace.
+Do not weaken failed tests or mutate them after execution. Source/check uploads
+retain their existing immutable admission and verifier protections.
+
+The recovery planner should reserve and enforce a bounded number of provider
+attempts that fits remaining calls and output tokens, including repairs/retries
+and routes. Do not remove verification, privacy or checkpoint limits to enable
+recovery. Add adversarial wrong-code, wrong-oracle, ignored-Boolean and exhausted-
+budget regressions before rerunning the frozen comparison. Record both outcome
+quality and full cost; selected successes do not establish a product win.
+
+The first prompt-only rerun completed one of two signed-array attempts; the
+other ignored the derivation instruction. Add a narrow proposal-admission guard:
+an assertion comparing a function call with a literal expected value must match
+an explicit token-equivalent expression in the original user request or be an
+unchanged previously admitted check. Otherwise reject the proposal and use the
+existing bounded repair path to request an executable reference comparison.
+Never substitute expected values locally. Apply the rule equally to initial and
+repair responses. This static rule does not prove dynamic reference correctness,
+track every possible alias, or replace final semantic review. Its failure modes
+include conservative rejection of paraphrased examples and incomplete detection
+of guesses hidden behind variables; record these limitations explicitly.
+
+When nested hypothesis validation and generated-check screening both fail, report
+both diagnostics in the same bounded repair request. Nested schema failures must
+not hide an independently detectable bad expected value until a second repair.
+Do not demote hypotheses, invent supporting evidence, or add provider attempts to
+make the proposal valid. Preserve raw invalid responses and all failed outcomes.
+
+## Chapter 13-P follow-up: lower-overhead model interface
+
+The four latest completed coding attempts each require a proposal repair and
+consume substantially more tokens than the lean baseline. Reduce avoidable wire
+work before adding new runtime stages: omit default-valued fields from typed
+state projections, remove presentation-only JSON-schema titles, and include the
+output schema only once in a repair prompt. Preserve raw input, arbitrary tool
+parameters and outputs, complete code/tests, source provenance, explicit failures,
+and all non-default contract values. Canonical state and stored reports remain
+unchanged. Regression tests must reconstruct the same typed state from compact
+projections and preserve arbitrary JSON values exactly.
+
+For hypothesis generation and fused deliberation with no admitted evidence,
+advertise only candidate/deferred/rejected statuses in the request schema and
+reject selected/verified/falsified responses even if they invent evidence strings. Once evidence is present, retain
+the existing selection contract. Never silently demote a returned hypothesis or
+remove evidence requirements. Keep the same context policy for initial and
+bounded repair responses. This is an experimental model-boundary policy, not a
+new core field, engine, ranking signal, or substitute for verifying citations.
+
+Measure request-size reductions on saved prompts without paid model calls, then
+run the unchanged matched coding cases and budgets. Keep every failed outcome
+and compare full provider usage, completion and elapsed time. Any reduction in
+prompt size alone is not a demonstrated total-cost or product advantage. Existing
+memory reuse remains independently retested; do not turn recalled success into
+present-case proof to improve the measurements.
+
+The first compact-interface rerun still repairs literal tests whose answers may
+be correct: the prompt's "do not guess" wording is weaker than admission's
+"no new literal expected results" rule. Make that rule explicit at proposal
+time, including apparently obvious boundary/scale answers. Provide the allowed
+shape `assert candidate(args) == reference(args)` for additional cases and
+preserve exact supplied examples. Do not relax admission, change checked values,
+or remove differential execution to avoid repair.
+
+## Chapter 13-P follow-up: bounded structural response repair
+
+The compact-interface attempts still spend one complete regenerated proposal to
+repair a few invalid test strings. For syntactically valid JSON proposals, let
+the existing single repair request return a bounded list of explicit path/value
+edits instead of resending unchanged code and analysis. Each edit sets a named
+object field or replaces an existing list element; no root replacement, implicit
+path creation, list insertion/deletion, overlapping paths or silent local status
+changes. Apply edits to a deep copy of the original untrusted response, then run
+the complete original output-contract, stage-policy and generated-check admission
+validation. A rejected edit response consumes its existing attempt and fails;
+it does not trigger an extra repair. Invalid original JSON keeps full-response
+repair. Keep full-response compatibility for providers that return that shape.
+
+Record the repair protocol version, before/after content hashes, affected paths
+and response form in existing capability observation metadata. Raw provider
+responses remain in evaluation artifacts. This is a bounded transport mechanism,
+not new reasoning evidence, a relaxed test rule, a new core contract, or a grant
+to modify canonical state. Prior admitted tests and failed executions retain all
+existing recovery protections. Test malformed, overlapping, oversized, root and
+out-of-range edits, source-check and hypothesis-policy bypass attempts, exact
+preservation of untouched code/context and unchanged provider-attempt ceilings.
+Compare live full outcome and cost on both existing coding tasks before claiming
+an efficiency improvement.

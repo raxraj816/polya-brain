@@ -37,7 +37,7 @@ from app.problem_understanding import (
 from app.problem_understanding.fallbacks import deterministic_problem_understanding
 from app.problem_understanding.prompt import PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS
 
-PROBLEM_REPRESENTATION_ENGINE_VERSION: Final = "problem_representation@1.4.1"
+PROBLEM_REPRESENTATION_ENGINE_VERSION: Final = "problem_representation@1.5.0"
 
 
 @dataclass(frozen=True)
@@ -181,6 +181,7 @@ class ProblemRepresentationEngine:
         parser_retry_policy: ParserRetryPolicy | None = None,
         understanding_provider: ProblemUnderstandingProvider | None = None,
         total_timeout_seconds: float = 90.0,
+        runtime_context: str | None = None,
         fallback: Callable[..., ProblemUnderstandingRunResult | None] = (
             deterministic_problem_understanding
         ),
@@ -214,6 +215,7 @@ class ProblemRepresentationEngine:
         self._understanding_provider = understanding_provider
         self._total_timeout_seconds = total_timeout_seconds
         self._fallback = fallback
+        self._runtime_context = runtime_context
         if understanding_provider is not None:
             max_provider_attempts = understanding_provider.max_provider_attempts
             route_identity = understanding_provider.model_route
@@ -233,6 +235,8 @@ class ProblemRepresentationEngine:
                 + (mode_hint.value if mode_hint else "infer")
                 + "|"
                 + (domain_hint or "")
+                + "|"
+                + (runtime_context or "")
             ).encode()
         ).hexdigest()[:12]
         self.version = EngineVersion(
@@ -267,6 +271,7 @@ class ProblemRepresentationEngine:
                 mode_hint=self._mode_hint,
                 domain_hint=self._domain_hint,
                 total_timeout_seconds=self._total_timeout_seconds,
+                runtime_context=self._runtime_context,
             )
             return _UnderstandingExecution(
                 result=routed.result,
@@ -283,6 +288,7 @@ class ProblemRepresentationEngine:
             domain_hint=self._domain_hint,
             request_options=self._request_options,
             parser_retry_policy=self._parser_retry_policy,
+            runtime_context=self._runtime_context,
         )
         return _UnderstandingExecution(
             result=result,
@@ -331,6 +337,16 @@ class ProblemRepresentationEngine:
             input_tokens=execution.usage.input_tokens,
             output_tokens=execution.usage.output_tokens,
         )
+        if self._runtime_context is not None:
+            events.append(
+                StateEvent(
+                    engine_name=self.name,
+                    event_type="runtime_capabilities_supplied",
+                    reasoning_mode=ReasoningMode.EXPLORE,
+                    summary="Framing received configured tool context; execution is still required.",
+                    metadata={"runtime_context": self._runtime_context},
+                )
+            )
         versions = self.version.model_copy(
             update={
                 "model": result.model,

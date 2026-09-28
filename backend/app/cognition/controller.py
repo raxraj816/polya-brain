@@ -19,9 +19,10 @@ from app.cognition.contracts import (
 )
 from app.cognition.epistemic_control import derive_epistemic_status
 from app.cognition.evidence_closure import deterministic_evidence_attestation_available
+from app.cognition.execution_gaps import pending_sandbox_gaps
 from app.cognition.performance import AdaptiveActionEstimate
 from app.cognition.repair_recovery import EVENT as REPAIR_RECOVERY_EVENT
-from app.cognition.repair_recovery import recalled_failure_task
+from app.cognition.repair_recovery import failed_source_patch_task
 from app.cognition.scope_review import scope_review_available
 from app.cognition.task_model import (
     accumulated_usage,
@@ -34,7 +35,7 @@ from app.cognition.verification_research import needs_recovery_analysis
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.5"
+POLICY_VERSION = "cognitive-controller-v0.5.8"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -429,8 +430,17 @@ class CognitiveController:
                 )
             ]
 
+        execution_gaps = (
+            set(pending_sandbox_gaps(state))
+            if registry.supports("python_sandbox", CognitiveActionType.EXECUTE)
+            else set()
+        )
         unresolved = sorted(
-            (gap for gap in state["gaps"] if not gap.filled),
+            (
+                gap
+                for gap in state["gaps"]
+                if not gap.filled and gap.description not in execution_gaps
+            ),
             key=lambda gap: _PRIORITY_USEFULNESS[gap.priority],
             reverse=True,
         )
@@ -587,11 +597,14 @@ class CognitiveController:
                     )
             return candidates or [self._stop_candidate(registry, "all gap actions failed")]
 
-        if problem.unknowns:
+        blocking_unknowns = [
+            unknown for unknown in problem.unknowns if unknown not in execution_gaps
+        ]
+        if blocking_unknowns:
             return [
                 self._candidate(
                     CognitiveActionType.DECOMPOSE,
-                    target=problem.unknowns[0],
+                    target=blocking_unknowns[0],
                     purpose="Convert an unresolved unknown into an actionable knowledge gap.",
                     expected="A smaller unknown with an identifiable source or test.",
                     usefulness=0.78,
@@ -775,19 +788,19 @@ class CognitiveController:
             return verification_candidates
 
         if not state["verification"].passed:
-            if recalled_failure_task(state) is not None:
+            if failed_source_patch_task(state) is not None:
                 return [
                     self._candidate(
                         CognitiveActionType.REPLAN,
                         target=problem.core_question,
-                        purpose="Propose a different edit after the recalled candidate failed the current check.",
+                        purpose="Propose a different edit after the candidate edit failed the current check.",
                         expected="One new candidate for fresh baseline and candidate execution.",
                         usefulness=0.9,
                         registry=registry,
                         capability="source_patch_investigator",
                     )
                 ]
-            if any(
+            if problem.problem_type == "source_patch_investigation" or any(
                 e.event_type in {REPAIR_RECOVERY_EVENT, "source_patch_memory_proposed"}
                 for e in state["events"]
             ):
@@ -857,10 +870,15 @@ class CognitiveController:
                 )
                 continue
             capability = registry.get(candidate.capability)
+            reservation = (
+                registry.reservation(candidate.capability, state)
+                if capability is not None
+                else None
+            )
             if (
                 budget is not None
-                and capability is not None
-                and not reservation_fits(capability.definition, budget, usage)
+                and reservation is not None
+                and not reservation_fits(reservation, budget, usage)
             ):
                 rejected.append(
                     RejectedCognitiveAction(
@@ -868,7 +886,7 @@ class CognitiveController:
                         rationale=(
                             f"Capability {candidate.capability} cannot fit the remaining "
                             "hard cognitive budget: "
-                            f"{budget_rejection_reason(capability.definition, budget, usage)}."
+                            f"{budget_rejection_reason(reservation, budget, usage)}."
                         ),
                     )
                 )

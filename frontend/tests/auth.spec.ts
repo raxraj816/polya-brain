@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
 
+const signInLabel =
+  process.env.OIDC_REGISTRATION_MODE === "self_service"
+    ? "Sign in or create account"
+    : "Sign in";
+
 test("OIDC browser login, private history, logout and account switching", async ({
   browser,
 }) => {
@@ -13,12 +18,12 @@ test("OIDC browser login, private history, logout and account switching", async 
   const page = await context.newPage();
   await page.goto("/");
   await expect(
-    page.getByRole("link", { name: "Sign in", exact: true }),
+    page.getByRole("link", { name: signInLabel, exact: true }),
   ).toBeVisible();
   expect(
     (await context.request.get("/api/backend/api/v1/sessions")).status(),
   ).toBe(401);
-  await page.getByRole("link", { name: "Sign in", exact: true }).click();
+  await page.getByRole("link", { name: signInLabel, exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Test identity provider" }),
   ).toBeVisible();
@@ -49,9 +54,9 @@ test("OIDC browser login, private history, logout and account switching", async 
   await expect(page.locator(".conclusion")).toContainText("133");
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "Sign in", exact: true }),
+    page.getByRole("link", { name: signInLabel, exact: true }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Sign in", exact: true }).click();
+  await page.getByRole("link", { name: signInLabel, exact: true }).click();
   await page.getByRole("button", { name: "Bob", exact: true }).click();
   await expect(
     page.getByText("Private workspace", { exact: true }),

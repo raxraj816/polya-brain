@@ -1,5 +1,35 @@
 # Chapter 73: Authentication and private workspaces
 
+## Public self-service admission
+
+The release scope now includes public self-service. Set
+`OIDC_REGISTRATION_MODE=self_service` with authentication enabled to admit any
+identity validated by the configured OIDC provider. The default remains
+`invite_only`, which requires `OIDC_ALLOWED_SUBJECTS`. Self-service does not accept
+unsigned identities, another issuer's tokens, request-supplied ownership or a
+local bypass. The provider must separately support and enable account signup;
+PolyaBrain uses its hosted sign-in/signup flow and stores no passwords.
+
+`OIDC_BLOCKED_SUBJECTS` denies exact provider subject IDs in either mode, including
+previously issued sessions on their next request. Opaque handles are bound to the
+issuer digest and retain 256 bits of random secret. Changing issuer or upgrading
+from older unbound cookies requires sign-in again. Only the handle hash is stored.
+Workspace and memory ownership, CSRF checks, expiry, daily per-account/global
+allowances and concurrency limits continue to apply. Public signup does not
+bypass the run-admission service.
+
+The browser shows "Sign in or create account" in self-service mode. Both modes
+are exercised with the production frontend and a real signed-token loopback
+identity fixture. Run either mode against a migrated scratch database:
+
+```bash
+OIDC_REGISTRATION_MODE=self_service scripts/verify_auth_browser.sh
+OIDC_REGISTRATION_MODE=invite_only scripts/verify_auth_browser.sh
+```
+
+The real hosting domain and identity provider remain undecided by the user.
+These local checks establish the application flow, not hosted signup readiness.
+
 PolyaBrain now supports provider-agnostic OpenID Connect sign-in for an explicitly
 admitted private beta. Local development can still use the unauthenticated
 operator workspace. These are separate namespaces: enabling authentication does

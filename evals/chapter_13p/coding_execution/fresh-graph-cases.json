@@ -1,0 +1,7 @@
+[
+  {
+    "id": "finite_routes",
+    "role": "developer-authored fresh graph task; frozen before first live attempt, not an independent holdout",
+    "prompt": "Implement route_count(n: int, edges: list[tuple[int, int]]) -> int | None. Vertices are 0 through n-1. Count directed walks from vertex 0 to vertex n-1, modulo 1000000007. Walks may repeat vertices and edges. Return None when infinitely many such walks exist. A cycle matters only if it is reachable from 0 AND can reach n-1; cycles elsewhere must not cause None. Repeated edges are distinct route choices and must count separately. Self-loops are allowed. For n=1, the empty walk contributes one; a cycle permitting return to vertex 0 makes the result None. If n-1 is unreachable return 0. Assume 1 <= n <= 100000, len(edges) <= 200000, and all endpoints are valid. Do not mutate edges. Required time and space O(n + len(edges)); avoid recursion that can overflow on long chains. Examples: route_count(3,[(0,1),(1,2)])==1; route_count(2,[(0,1),(0,1)])==2; route_count(4,[(0,3),(0,1),(1,1)])==1; route_count(3,[(0,1),(1,1),(1,2)]) is None; route_count(1,[])==1. Return complete Python code, a correctness explanation and time/space complexity. Use the available Python sandbox to execute meaningful boundary and randomized checks. Distinguish observed checks from reasoning. All requirements are supplied; no external research is needed."
+  }
+]

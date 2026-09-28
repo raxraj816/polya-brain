@@ -67,6 +67,15 @@ def test_auth_configuration_fails_closed(changes):
         configuration(**changes)
 
 
+def test_self_service_requires_explicit_mode_and_authentication():
+    settings = configuration(OIDC_REGISTRATION_MODE="self_service", OIDC_ALLOWED_SUBJECTS="")
+    assert settings.oidc_registration_mode == "self_service"
+    with pytest.raises(ValueError):
+        configuration(OIDC_REGISTRATION_MODE="public")
+    with pytest.raises(ValueError):
+        configuration(OIDC_REGISTRATION_MODE="self_service", POLYABRAIN_AUTH_REQUIRED=False)
+
+
 @pytest.fixture
 def identity_app():
     marker = str(uuid4())
@@ -222,6 +231,50 @@ def test_invalid_oidc_response_never_creates_session(identity_app, invalid):
     assert client.get("/api/v1/sessions").status_code == 401
     if invalid == "state":
         assert provider["tokens"] == 0
+
+
+@DB
+def test_self_service_admits_new_subjects_with_private_workspaces_and_revocation(identity_app):
+    app, provider, _, _ = identity_app
+    settings = app.state.settings
+    settings.oidc_registration_mode = "self_service"
+    settings.oidc_allowed_subjects = ""
+    first, second = "new-" + str(uuid4()), "new-" + str(uuid4())
+    owner = sign_in(app, provider, first)
+    other = sign_in(app, provider, second)
+    status = owner.get("/api/v1/auth/session").json()
+    assert status["registration_mode"] == "self_service"
+    assert status["workspace_id"] == user_id_for(ISSUER, first)
+    created = owner.post("/api/v1/sessions", json={"raw_input": "Private self-service work"})
+    assert created.status_code == 201
+    session_id = created.json()["id"]
+    assert other.get(f"/api/v1/sessions/{session_id}/report").status_code == 404
+    settings.oidc_blocked_subjects = first
+    assert owner.get("/api/v1/sessions").status_code == 401
+    assert not owner.get("/api/v1/auth/session").json()["authenticated"]
+    provider["subject"] = first
+    state = start_login(owner, provider)
+    assert (
+        owner.get("/api/v1/auth/callback", params={"code": "fixture", "state": state}).status_code
+        == 401
+    )
+    assert other.get("/api/v1/sessions").status_code == 200
+    settings.oidc_issuer = "https://replacement-identity.example"
+    assert other.get("/api/v1/sessions").status_code == 401
+
+
+@DB
+def test_self_service_still_rejects_unverified_identity(identity_app):
+    app, provider, _, _ = identity_app
+    app.state.settings.oidc_registration_mode = "self_service"
+    app.state.settings.oidc_allowed_subjects = ""
+    provider["bad_signature"] = True
+    provider["subject"] = "new-" + str(uuid4())
+    client = TestClient(app, base_url=ORIGIN)
+    state = start_login(client, provider)
+    result = client.get("/api/v1/auth/callback", params={"code": "fixture", "state": state})
+    assert result.status_code == 401
+    assert COOKIE not in client.cookies
 
 
 @DB

@@ -53,6 +53,7 @@ def generate_problem_understanding(
     domain_hint: str | None = None,
     request_options: LLMRequestOptions | None = None,
     parser_retry_policy: ParserRetryPolicy | None = None,
+    runtime_context: str | None = None,
     sleep: Callable[[float], None] = time.sleep,
 ) -> ProblemUnderstandingRunResult:
     """Run the Chapter 11 boundary and stop safely after bounded repair attempts."""
@@ -64,6 +65,7 @@ def generate_problem_understanding(
         mode_hint=mode_hint,
         domain_hint=domain_hint,
         options=request_options,
+        runtime_context=runtime_context,
     )
     overall_timeout = request.options.total_timeout_seconds
     responses: list[LLMResponse] = []

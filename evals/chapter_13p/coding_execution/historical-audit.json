@@ -1,0 +1,182 @@
+{
+  "comparison": "selected_artifact_replay@0.2.0",
+  "cases": [
+    {
+      "case": "integer_coverage",
+      "polya_passed": false,
+      "direct_passed": false,
+      "polya_reported_completed": true,
+      "direct_reported_pass": true,
+      "polya_verification": {
+        "case": "integer_coverage",
+        "passed": false,
+        "prompt_sha256": "83ccdb4fc7a094d968cd15f262af1d3db8aea387b1324f8dca3c5b6ee1790c2b",
+        "checks_sha256": "9ef29c00e87ff8c79a46c8c48aa774adbcb4c8044795b5fdbaafba9202c7f629",
+        "runtime_reported_pass": true,
+        "current_execution_contract_passed": false,
+        "acceptance_failures": [
+          "Sandbox task task_sandbox_test has missing, ambiguous or failed execution."
+        ],
+        "delivered_code_identical_to_executed": true,
+        "code_sha256": "130e7b7597dd257d9add28efd4b59d6420b434eeb250f04e15015e0c8a019b7e",
+        "independent_checks": {
+          "exit_code": 0,
+          "stdout": "random_interval_sets 5000\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}]",
+          "stderr": "",
+          "runtime_ms": 299.1597499931231,
+          "timed_out": false,
+          "output_truncated": false,
+          "tests_run": 1,
+          "test_results": [
+            {
+              "index": 1,
+              "passed": true,
+              "error_type": null
+            }
+          ]
+        },
+        "independent_checks_passed": true,
+        "limits": "Developer-authored checks, not a formal proof or external judge acceptance."
+      },
+      "direct_verification": {
+        "passed": false,
+        "reason": "Saved prompt, response or code unavailable; reported pass is not replayable."
+      },
+      "both_inputs_match_declared_case": false,
+      "polya_model_calls": 5,
+      "direct_model_calls": null,
+      "polya_total_tokens": 32260,
+      "direct_total_tokens": 1626,
+      "polya_elapsed_ms": 71785.423,
+      "direct_elapsed_ms": 11112.7,
+      "polya_normalized_scheduling_cost": 1.4300000000000002,
+      "direct_estimated_cost_usd": 0.0053205
+    },
+    {
+      "case": "lexicographic_toposort",
+      "polya_passed": true,
+      "direct_passed": false,
+      "polya_reported_completed": true,
+      "direct_reported_pass": true,
+      "polya_verification": {
+        "case": "lexicographic_toposort",
+        "passed": true,
+        "prompt_sha256": "51cfde810f44e6906f4e88871d2b347cffe219c9bdba3d0592bf5c8965c58843",
+        "checks_sha256": "b8b784baf432453c0ed331cb6cf8ac07eded9ed7321da0aef9de20b792df8472",
+        "runtime_reported_pass": true,
+        "current_execution_contract_passed": true,
+        "acceptance_failures": [],
+        "delivered_code_identical_to_executed": true,
+        "code_sha256": "ea0aa621d0b7053ee12a8815beba96dc995e920b9b1e3c80dc092083a0af925b",
+        "independent_checks": {
+          "exit_code": 0,
+          "stdout": "bruteforce_graph_cases 350\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}]",
+          "stderr": "",
+          "runtime_ms": 222.37529198173434,
+          "timed_out": false,
+          "output_truncated": false,
+          "tests_run": 1,
+          "test_results": [
+            {
+              "index": 1,
+              "passed": true,
+              "error_type": null
+            }
+          ]
+        },
+        "independent_checks_passed": true,
+        "limits": "Developer-authored checks, not a formal proof or external judge acceptance."
+      },
+      "direct_verification": {
+        "passed": false,
+        "reason": "Saved prompt, response or code unavailable; reported pass is not replayable."
+      },
+      "both_inputs_match_declared_case": false,
+      "polya_model_calls": 3,
+      "direct_model_calls": null,
+      "polya_total_tokens": 18060,
+      "direct_total_tokens": 2206,
+      "polya_elapsed_ms": 51176.24,
+      "direct_elapsed_ms": 14214.651,
+      "polya_normalized_scheduling_cost": 0.8600000000000001,
+      "direct_estimated_cost_usd": 0.0074355
+    },
+    {
+      "case": "median",
+      "polya_passed": true,
+      "direct_passed": false,
+      "polya_reported_completed": true,
+      "direct_reported_pass": true,
+      "polya_verification": {
+        "case": "median",
+        "passed": true,
+        "prompt_sha256": "daaabef549169826b1817430ae2248c35fe8590c91af25e615239750773a4269",
+        "checks_sha256": "0490126e55ba48fb410dc27e5bfaa9842d2b6c191d547540b3b2f0d9b51c4a04",
+        "runtime_reported_pass": true,
+        "current_execution_contract_passed": true,
+        "acceptance_failures": [],
+        "delivered_code_identical_to_executed": true,
+        "code_sha256": "7c8e1a5cb574361b2d6b9a447b815ceb6e45f74145ef689bbb8fdf864ac16fcb",
+        "independent_checks": {
+          "exit_code": 0,
+          "stdout": "exhaustive_pairs 15875\nrandom_pairs 2000\nbounded_index_access_cases 5\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+          "stderr": "",
+          "runtime_ms": 1060.214291966986,
+          "timed_out": false,
+          "output_truncated": false,
+          "tests_run": 3,
+          "test_results": [
+            {
+              "index": 1,
+              "passed": true,
+              "error_type": null
+            },
+            {
+              "index": 2,
+              "passed": true,
+              "error_type": null
+            },
+            {
+              "index": 3,
+              "passed": true,
+              "error_type": null
+            }
+          ]
+        },
+        "independent_checks_passed": true,
+        "limits": "Developer-authored checks, not a formal proof or external judge acceptance."
+      },
+      "direct_verification": {
+        "passed": false,
+        "reason": "Saved prompt, response or code unavailable; reported pass is not replayable."
+      },
+      "both_inputs_match_declared_case": false,
+      "polya_model_calls": 3,
+      "direct_model_calls": null,
+      "polya_total_tokens": 17952,
+      "direct_total_tokens": 1792,
+      "polya_elapsed_ms": 55775.783,
+      "direct_elapsed_ms": 9084.758,
+      "polya_normalized_scheduling_cost": 0.8600000000000001,
+      "direct_estimated_cost_usd": 0.00579
+    }
+  ],
+  "all_polya_passed": false,
+  "all_direct_passed": false,
+  "all_inputs_match": false,
+  "controlled_superiority_evidence": false,
+  "limitations": [
+    "Selected historical runs do not include the cost of all development attempts.",
+    "The direct one-call arm has no tools; tool access and budgets are unequal.",
+    "Same-model routing across every request is not established by this replay.",
+    "Normalized scheduling cost and USD are different units and must not be compared.",
+    "Unavailable usage is null; an interrupted baseline is incomplete evidence.",
+    "Checks are developer-authored; they do not prove general correctness or complexity."
+  ],
+  "source_assignments": [
+    "median=runs/coding-readiness/median-gemini-v5",
+    "integer_coverage=runs/coding-readiness/integer-coverage-gemini-v1",
+    "lexicographic_toposort=runs/coding-readiness/toposort-gemini-v1"
+  ],
+  "baseline_source": "runs/coding-readiness/direct-gemini-baseline.json"
+}

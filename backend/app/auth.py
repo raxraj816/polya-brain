@@ -1,4 +1,4 @@
-"""OIDC sign-in and server-side browser sessions for the private beta."""
+"""Verified OIDC identities and private browser sessions with explicit admission."""
 
 from __future__ import annotations
 
@@ -32,6 +32,10 @@ def token_hash(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
+def issuer_cookie_prefix(settings: Settings) -> str:
+    return hashlib.sha256(settings.oidc_issuer.encode()).hexdigest() + "."
+
+
 def user_id_for(issuer: str, subject: str) -> str:
     # JSON prevents ambiguous issuer/subject separators. No email or display name stored.
     return hashlib.sha256(json.dumps([issuer, subject], separators=(",", ":")).encode()).hexdigest()
@@ -43,6 +47,17 @@ def admitted_users(settings: Settings) -> set[str]:
         for sub in settings.oidc_allowed_subjects.split(",")
         if sub.strip()
     }
+
+
+def user_is_admitted(settings: Settings, user_id: str) -> bool:
+    blocked = {
+        user_id_for(settings.oidc_issuer, sub.strip())
+        for sub in settings.oidc_blocked_subjects.split(",")
+        if sub.strip()
+    }
+    return user_id not in blocked and (
+        settings.oidc_registration_mode == "self_service" or user_id in admitted_users(settings)
+    )
 
 
 def configure_auth(app: Any, settings: Settings) -> None:
@@ -104,11 +119,11 @@ def authenticated_user(request: Request) -> str | None:
     if not settings.auth_required:
         return None
     token = request.cookies.get(cookie_name(settings), "")
-    if not token or len(token) > 128:
+    if not token or len(token) > 128 or not token.startswith(issuer_cookie_prefix(settings)):
         return None
     with request.app.state.session_factory() as db:
         record = db.get(AuthSession, token_hash(token))
-        if record and record.expires_at > utc_now() and record.user_id in admitted_users(settings):
+        if record and record.expires_at > utc_now() and user_is_admitted(settings, record.user_id):
             return str(record.user_id)
     return None
 
@@ -138,6 +153,7 @@ def auth_status(request: Request) -> JSONResponse:
             "required": settings.auth_required,
             "authenticated": user is not None,
             "workspace_id": user,
+            "registration_mode": settings.oidc_registration_mode,
         },
         headers={"Cache-Control": "no-store"},
     )
@@ -193,13 +209,13 @@ async def callback(request: Request) -> RedirectResponse:
         ):
             raise ValueError("Invalid identity")
         user = user_id_for(settings.oidc_issuer, subject)
-        if user not in admitted_users(settings):
+        if not user_is_admitted(settings, user):
             raise ValueError("Subject is not admitted")
     except Exception as exc:
         request.session.clear()
         raise HTTPException(401, "Sign-in could not be verified. Start sign-in again.") from exc
     request.session.clear()
-    handle = secrets.token_urlsafe(32)
+    handle = issuer_cookie_prefix(settings) + secrets.token_urlsafe(32)
     now = utc_now()
     with request.app.state.session_factory() as db:
         # Rotate any previous browser session, remove expired handles opportunistically.
