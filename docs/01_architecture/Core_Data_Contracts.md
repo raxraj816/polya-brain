@@ -440,9 +440,18 @@ source accounts can require one authoritative source; requested independent chec
 still require multiple sources. Neither source counting nor lexical grounding is
 proof of factual correctness; final conclusion checking remains required.
 
-Human questions for externally acquirable gaps are deferred only after a same-gap
-automated action passes capability, privacy, prior-failure and budget gates. Explicit
-user-owned clarification is unaffected. Tests include unavailable providers,
+Human questions for externally acquirable gaps are deferred after a same-gap
+automated action passes capability, privacy, prior-failure and budget gates.
+Controller 0.5.9 additionally suppresses the fallback `ask_human` for an unresolved
+`current_external_fact` target when a generated autonomous action fails budget
+reservation. Other feasible actions and explicit user-owned clarification remain
+eligible. With no eligible action, the existing `stop` decision records the public
+research budget reason, and the kernel returns `insufficient_evidence`. No new
+canonical field is introduced. CLI and completed unverified persisted reports
+parse only the latest decision to present bounded next-action guidance; a later
+decision, malformed metadata, or a verified outcome cannot reuse an old stop reason.
+Existing evidence, usage and failed checks are retained. This does not change
+unavailable-provider human fallback or prove source-selection quality. Tests include unavailable providers,
 exhausted budgets, privacy restrictions, failed searches, rejected access pages,
 unsupported extracted claims, query limits and source independence counts.
 
@@ -678,3 +687,23 @@ the broker, then filtered into existing observation trace metadata as
 `response_repair`. It contains version/form/hashes/paths only. No schema-valid
 proposal is evidence merely because repair succeeded. Invalid patches receive no
 additional repair beyond existing provider/route limits.
+
+### Citation provenance metadata
+
+The model verifier and fused conclusion checker produce the existing
+`VerificationReport` with `passed=false` when the proposed answer cites an
+unsupported web source or locator. They remove the proposed answer/reflection
+before canonical admission. Existing report and learning consumers therefore
+receive the failed state, with original model usage retained.
+
+The existing `StateEvent.metadata` carries `citation_provenance_checked` details:
+checker version, pass/fail, link counts, failure descriptions, answer SHA-256,
+and the rejected candidate truncated to 16,000 characters with a truncation flag.
+A successful check does not duplicate the answer in trace. Input ceilings are
+200,000 answer characters, 2,000,000 aggregate source excerpt characters when
+checking citations, 128 web link occurrences and 2,048 characters per checked URL.
+Overflow fails verification. No schema field or migration is added.
+
+This event records source/locator coverage, not a semantic truth certificate.
+Its producer and consumer expectations are documented in
+[Chapter 13-P citation provenance](../03_implementation/Chapter_13P_Citation_Provenance.md).

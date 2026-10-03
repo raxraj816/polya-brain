@@ -1,0 +1,115 @@
+{
+  "case_id": "release_risk_exceeds_limit",
+  "condition_order": [
+    "direct_model",
+    "full_context",
+    "ordinary_retrieval",
+    "polya"
+  ],
+  "direct_model": {
+    "accepted": false,
+    "checks_performed": [
+      "Verified criterion 0: all entries in tests are true, so every required test passes.",
+      "Verified criterion 1: measured risk is 0.31, which exceeds the allowed maximum of 0.2.",
+      "Verified criterion 2: approved equals true, so the independent release decision is approved."
+    ],
+    "citations_valid": true,
+    "context_documents": 1,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      1
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1153,
+    "latency_ms": 2276.837,
+    "model_calls": 1,
+    "output_tokens": 250,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_risk_exceeds_limit:direct_observation"
+    ],
+    "total_tokens": 1403
+  },
+  "family": "multi_rule",
+  "full_context": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked that all required tests pass: tests = [true, true], all true.",
+      "Checked that measured risk score is at most 0.2: risk = 0.31, which exceeds 0.2.",
+      "Checked that independent release decision is approved: approved = true."
+    ],
+    "citations_valid": true,
+    "context_documents": 5,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      1
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1162,
+    "latency_ms": 7757.0,
+    "model_calls": 1,
+    "output_tokens": 448,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_risk_exceeds_limit:observation:tests",
+      "release_risk_exceeds_limit:observation:risk",
+      "release_risk_exceeds_limit:observation:approved"
+    ],
+    "total_tokens": 1610
+  },
+  "ordinary_retrieval": {
+    "accepted": false,
+    "checks_performed": [
+      "Criterion 0: All required tests pass. Observed tests: [true, true]. All true, so criterion passes.",
+      "Criterion 1: Measured risk score <= 0.2. Observed risk: 0.31. 0.31 > 0.2, so criterion fails.",
+      "Criterion 2: Independent release decision approved. Observed approved: true, so criterion passes."
+    ],
+    "citations_valid": false,
+    "context_documents": 2,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      1
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1180,
+    "latency_ms": 20470.712,
+    "model_calls": 1,
+    "output_tokens": 471,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "total_tokens": 1651
+  },
+  "polya": {
+    "accepted": false,
+    "checks_performed": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+      "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant.",
+      "criterion-3-structured: Compared the structured value for exact equality."
+    ],
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_checks": [
+      "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant."
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 0,
+    "latency_ms": 2.529,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "passed": true,
+    "status": "insufficient_evidence",
+    "total_tokens": 0,
+    "verified_terminal": true
+  },
+  "repetition": 3
+}

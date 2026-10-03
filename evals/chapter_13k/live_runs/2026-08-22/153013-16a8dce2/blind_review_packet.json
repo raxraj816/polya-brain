@@ -1,0 +1,85 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-f2b872e63c74",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": null,
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [
+            "The cognitive runtime did not produce a verified field diagnosis."
+          ],
+          "response_id": "response-59ba9617c20e",
+          "root_cause": null,
+          "status": "insufficient_evidence",
+          "verification_steps": []
+        },
+        {
+          "corrective_action": "Update `APIRouter.include_router` in `buggy_impl.py` to handle `WebSocketRoute` instances alongside `APIRoute` instances by adding an `elif isinstance(route, WebSocketRoute): self.routes.append(WebSocketRoute(prefix + route.path, route.name))` branch.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-e56212d65cf6",
+          "root_cause": "`APIRouter.include_router` iterates through `child.routes` but only checks for `isinstance(route, APIRoute)`, silently dropping all `WebSocketRoute` instances when copying routes under a prefix.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Construct a child `APIRouter` with an `APIRoute` ('/items', 'items') and a `WebSocketRoute` ('/events', 'events').",
+            "Call `parent.include_router(child, '/v1')` on a parent `APIRouter`.",
+            "Verify that `parent.routes` contains both `('APIRoute', '/v1/items', 'items')` and `('WebSocketRoute', '/v1/events', 'events')`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-59ba9617c20e": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-e56212d65cf6": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "153013-16a8dce2"
+}

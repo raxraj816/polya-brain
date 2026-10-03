@@ -324,7 +324,7 @@ def test_external_gap_tries_feasible_acquisition_before_cheap_human_fallback(
         state["events"].append(budget_event(CognitiveResourceBudget(max_external_calls=0)))
     decision = CognitiveController().decide(state, registry)
     assert decision.selected.action_type is (
-        CognitiveActionType.SEARCH if blocked is None else CognitiveActionType.ASK_HUMAN
+        CognitiveActionType.SEARCH if blocked is None else CognitiveActionType.STOP
     )
     if blocked is None:
         assert any("Deferred fallback" in item.rationale for item in decision.rejected)

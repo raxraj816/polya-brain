@@ -13,6 +13,8 @@ from app.cognition.arithmetic_pack import (
     is_simple_arithmetic,
 )
 from app.cognition.capabilities import AuditedCapabilityError, FunctionCapability
+from app.cognition.citation_provenance import INSTRUCTIONS as CITATION_INSTRUCTIONS
+from app.cognition.citation_provenance import check_citations
 from app.cognition.contracts import (
     CapabilityDefinition,
     CapabilityKind,
@@ -439,7 +441,7 @@ def verifier_capability(
     """Try to falsify the proposed result against evidence and success criteria."""
     definition = CapabilityDefinition(
         name="verifier",
-        version=gateway.capability_version("model_verifier@0.1.0"),
+        version=gateway.capability_version("model_verifier@0.2.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=approved_for_sensitive_data,
@@ -466,7 +468,7 @@ def verifier_capability(
                     "execution outputs. If any criterion lacks support, a contradiction remains, "
                     "or a claimed external observation was not performed, passed must be false and "
                     "final_answer must be null. Otherwise return a concise conclusion that separates "
-                    "what is established from remaining limits."
+                    "what is established from remaining limits. " + CITATION_INSTRUCTIONS
                 ),
                 output_type=VerificationCapabilityOutput,
                 state=state,
@@ -474,6 +476,12 @@ def verifier_capability(
                 total_timeout_seconds=definition.timeout_seconds,
             )
             output = result.output
+        citation_events: list[StateEvent] = []
+        if output.report.passed and output.final_answer:
+            citation_check = check_citations(state, output.final_answer)
+            citation_events.append(citation_check.event(output.final_answer, definition.name))
+            if citation_check.failures:
+                output = VerificationCapabilityOutput(report=citation_check.reject(output.report))
         return CognitiveObservation(
             action_id=action.id,
             capability=definition.name,
@@ -488,6 +496,7 @@ def verifier_capability(
             proposed_update=CognitiveStateUpdate(
                 verification=output.report,
                 final_answer=output.final_answer,
+                trace_events_to_add=citation_events,
             ),
         )
 

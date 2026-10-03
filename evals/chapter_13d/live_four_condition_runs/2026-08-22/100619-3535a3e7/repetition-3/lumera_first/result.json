@@ -1,0 +1,106 @@
+{
+  "case_id": "lumera_first",
+  "condition_order": [
+    "ordinary_retrieval",
+    "polya",
+    "direct",
+    "full_context"
+  ],
+  "direct": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Checked provided sources: none available"
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "context_documents": 0,
+    "input_tokens": 630,
+    "latency_ms": 2292.999,
+    "model_calls": 1,
+    "output_tokens": 84,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "source_passed": null,
+    "status": "insufficient_evidence",
+    "terms_passed": false,
+    "total_tokens": 714,
+    "unsupported_forced_conclusion": false
+  },
+  "family": "policy_constraint_lookup",
+  "full_context": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Located source lumera_first (Lumera Operations Policy L-3) and confirmed it specifies the red-tier launch quorum."
+    ],
+    "conclusion": "Lumera policy L-3 requires approval from 4 of 5 wardens for a red-tier launch.",
+    "confidence": "high",
+    "context_documents": 12,
+    "input_tokens": 1109,
+    "latency_ms": 4362.651,
+    "model_calls": 1,
+    "output_tokens": 195,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "lumera_first"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 1304,
+    "unsupported_forced_conclusion": false
+  },
+  "ordinary_retrieval": {
+    "acquisitions": 1,
+    "checks_performed": [
+      "Read the supplied source text for Lumera Operations Policy L-3 and identified the explicit quorum requirement for a red-tier launch."
+    ],
+    "conclusion": "4 of 5 wardens",
+    "confidence": "high",
+    "context_documents": 1,
+    "input_tokens": 596,
+    "latency_ms": 7913.06,
+    "model_calls": 1,
+    "output_tokens": 170,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "lumera_first"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 766,
+    "unsupported_forced_conclusion": false
+  },
+  "phase": "first_encounter",
+  "polya": {
+    "acquisitions": 1,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "checks_performed": [
+      "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+    ],
+    "conclusion": "A red-tier launch requires approval from 4 of 5 wardens.",
+    "input_tokens": 0,
+    "latency_ms": 4.614,
+    "model_calls": 0,
+    "normalized_cost": 0.07,
+    "output_tokens": 0,
+    "passed": true,
+    "source_uris": [
+      "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_first.txt"
+    ],
+    "status": "completed",
+    "total_tokens": 0,
+    "unsupported_forced_conclusion": false,
+    "verification_passed": true
+  },
+  "repetition": 3
+}

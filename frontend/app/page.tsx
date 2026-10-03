@@ -15,6 +15,7 @@ import {
   Plus,
   Search,
   ShieldCheck,
+  ShieldAlert,
   Waypoints,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,12 +25,15 @@ import {
   type SourceInput,
 } from "@/components/source-check";
 import { RunOverview } from "@/components/run-overview";
+import { VerificationCard } from "@/components/verification-card";
 import { FeedbackPanel } from "@/components/feedback";
 import { ReportContent } from "@/components/report-content";
 import {
   api,
   trace,
   reportMarkdown,
+  reportConclusion,
+  sessionLabel,
   problemTitle,
   sourceLink,
   words,
@@ -106,9 +110,7 @@ function ReportPanel({ report }: { report: Report }) {
     <>
       <section className="conclusion">
         <h2 className="eyebrow">Conclusion</h2>
-        <ReportContent
-          markdown={report.final_conclusion || "No conclusion recorded yet."}
-        />
+        <ReportContent markdown={reportConclusion(report)} />
       </section>
       <div className="report-grid">
         <Items title="Checks performed" items={report.checks_performed} />
@@ -383,9 +385,9 @@ export default function Workbench() {
           }}
         >
           <option value="">All statuses</option>
-          <option value="completed">Completed</option>
+          <option value="completed">Run finished</option>
           <option value="awaiting_user_input">Needs your input</option>
-          <option value="running">Running</option>
+          <option value="running">Outcome pending</option>
           <option value="failed">Failed</option>
           <option value="created">Ready to run</option>
         </select>
@@ -429,7 +431,7 @@ export default function Workbench() {
                 <span>{problemTitle(s.raw_input)}</span>
                 <small>
                   <i className={`status-dot ${s.status}`} />
-                  {words(s.status)} ·{" "}
+                  {sessionLabel(s.status)} ·{" "}
                   {new Date(s.created_at).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -695,7 +697,7 @@ export default function Workbench() {
                     {report.data?.verification_status === "passed" ? (
                       <Check size={13} />
                     ) : null}
-                    {words(session.data.status)}
+                    {sessionLabel(session.data.status)}
                   </span>
                   <span>
                     {new Date(session.data.created_at).toLocaleString()}
@@ -718,14 +720,15 @@ export default function Workbench() {
                   <div className="live-banner" role="status">
                     <LoaderCircle className="spin" size={18} />
                     <div>
-                      <strong>Investigation in progress</strong>
+                      <strong>Awaiting a recorded outcome</strong>
                       <p>
                         {latest?.summary ||
                           "Waiting for the next recorded action…"}
                       </p>
                       <small>
-                        Trace refreshes every second. Closing this page does not
-                        cancel the backend run.
+                        Work may still be running. This saved status does not
+                        confirm live progress. Closing this page does not cancel
+                        the run.
                       </small>
                     </div>
                   </div>
@@ -755,6 +758,7 @@ export default function Workbench() {
                   </form>
                 )}
                 {events.data && <RunOverview events={events.data} />}
+                {events.data && <VerificationCard events={events.data} />}
                 <div className="tabs-bar">
                   <div role="tablist" aria-label="Investigation details">
                     {tabs.map((name, i) => (
@@ -819,7 +823,11 @@ export default function Workbench() {
                     ) : report.data ? (
                       <>
                         <div className="verification-line">
-                          <ShieldCheck size={16} />
+                          {report.data.verification_status === "passed" ? (
+                            <ShieldCheck size={16} />
+                          ) : (
+                            <ShieldAlert size={16} />
+                          )}
                           <strong>
                             {words(report.data.verification_status)}
                           </strong>

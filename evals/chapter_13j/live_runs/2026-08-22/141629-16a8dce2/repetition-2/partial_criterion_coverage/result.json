@@ -1,0 +1,116 @@
+{
+  "case_id": "partial_criterion_coverage",
+  "category": "partial_coverage",
+  "direct": {
+    "abstention_correct": true,
+    "answer_correct": false,
+    "checks_performed": [
+      "Verified request limit from multiple sources (45 requests per minute).",
+      "Checked retrieved search results for official deprecation date."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [
+      "https://docs.example.org/partial-limit",
+      "https://research.example.edu/partial-limit"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 4603.017915971577,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The current AcmeFlow API request limit is 45 requests per minute.",
+              "extra_snippets": [],
+              "id": "partial-limit-a",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-01T00:00:00Z",
+              "title": "Official request limit",
+              "url": "https://docs.example.org/partial-limit"
+            },
+            {
+              "excerpt": "Independent testing confirms the current AcmeFlow API request limit is 45 requests per minute.",
+              "extra_snippets": [],
+              "id": "partial-limit-b",
+              "provider_rank": 2,
+              "provider_score": null,
+              "published_at": "2026-08-02T00:00:00Z",
+              "title": "Independent request limit",
+              "url": "https://research.example.edu/partial-limit"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API request limit official deprecation date",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API request limit official deprecation date"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 2194,
+      "model_calls": 2,
+      "output_tokens": 689,
+      "total_tokens": 2883
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "expected_terminal": "insufficient_evidence",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": true,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [
+      "Check support for request limit (Criterion: State the request limit)",
+      "Check support for official deprecation date (Criterion: State the official deprecation date)",
+      "Check constraint compliance: do not answer unless both facts are supported by independent current evidence"
+    ],
+    "conclusion": null,
+    "cycles": 5,
+    "evidence_source_uris": [
+      "https://research.example.edu/partial-limit",
+      "https://docs.example.org/partial-limit"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 8657.298458041623,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current AcmeFlow API request limit and official deprecation date What are the current AcmeFlow API request limit and official deprecation date? primary authoritative source exact evidence"
+    ],
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 4003,
+      "model_calls": 2,
+      "output_tokens": 1988,
+      "total_tokens": 5991
+    },
+    "verification_passed": false
+  },
+  "repetition": 2
+}

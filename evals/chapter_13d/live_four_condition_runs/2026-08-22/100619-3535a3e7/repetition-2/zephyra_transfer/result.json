@@ -1,0 +1,106 @@
+{
+  "case_id": "zephyra_transfer",
+  "condition_order": [
+    "ordinary_retrieval",
+    "polya",
+    "direct",
+    "full_context"
+  ],
+  "direct": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Checked SOURCES for any content describing Zephyra revision 8 retry ceiling; SOURCES is empty."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "context_documents": 0,
+    "input_tokens": 630,
+    "latency_ms": 4136.869,
+    "model_calls": 1,
+    "output_tokens": 74,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "source_passed": null,
+    "status": "insufficient_evidence",
+    "terms_passed": false,
+    "total_tokens": 704,
+    "unsupported_forced_conclusion": false
+  },
+  "family": "versioned_protocol_lookup",
+  "full_context": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Located Zephyra Transport Protocol Revision 8 source (zephyra_transfer) and read Rule Z8.2, which states retry_ceiling = 11."
+    ],
+    "conclusion": "11",
+    "confidence": "high",
+    "context_documents": 12,
+    "input_tokens": 1132,
+    "latency_ms": 3937.057,
+    "model_calls": 1,
+    "output_tokens": 158,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "zephyra_transfer"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 1290,
+    "unsupported_forced_conclusion": false
+  },
+  "ordinary_retrieval": {
+    "acquisitions": 1,
+    "checks_performed": [
+      "Located source zephyra_transfer and read Rule Z8.2, which states retry_ceiling = 11."
+    ],
+    "conclusion": "11",
+    "confidence": "high",
+    "context_documents": 1,
+    "input_tokens": 679,
+    "latency_ms": 4200.217,
+    "model_calls": 1,
+    "output_tokens": 129,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "zephyra_transfer"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 808,
+    "unsupported_forced_conclusion": false
+  },
+  "phase": "transfer",
+  "polya": {
+    "acquisitions": 1,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "checks_performed": [
+      "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+    ],
+    "conclusion": "Rule Z8.2: retry_ceiling = 11.",
+    "input_tokens": 0,
+    "latency_ms": 3.091,
+    "model_calls": 0,
+    "normalized_cost": 0.07,
+    "output_tokens": 0,
+    "passed": true,
+    "source_uris": [
+      "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_transfer.txt"
+    ],
+    "status": "completed",
+    "total_tokens": 0,
+    "unsupported_forced_conclusion": false,
+    "verification_passed": true
+  },
+  "repetition": 2
+}

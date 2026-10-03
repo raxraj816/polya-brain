@@ -1,0 +1,11 @@
+{
+  "comparison_type": "live_full_outcome_same_model_same_tools",
+  "completed_comparison_pairs": 1,
+  "failed_case": "pagination_outcome",
+  "failed_repetition": 1,
+  "message": "unavailable: OpenRouter returned no text content.",
+  "model": "openrouter/auto",
+  "provider_error_kind": "unavailable",
+  "run_id": "122334-02dec531",
+  "status": "provider_blocked"
+}

@@ -1,0 +1,118 @@
+{
+  "case_id": "release_one_test_fails",
+  "condition_order": [
+    "ordinary_retrieval",
+    "polya",
+    "direct_model",
+    "full_context"
+  ],
+  "direct_model": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked criterion 0: tests array is [true, false, true], so not every required test passes.",
+      "Checked criterion 1: measured risk score 0.08 is at most 0.2.",
+      "Checked criterion 2: independent release decision approved is true."
+    ],
+    "citations_valid": true,
+    "context_documents": 1,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1152,
+    "latency_ms": 2175.573,
+    "model_calls": 1,
+    "output_tokens": 274,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_one_test_fails:direct_observation"
+    ],
+    "total_tokens": 1426
+  },
+  "family": "multi_rule",
+  "full_context": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked tests array [true, false, true] for all true; found false at index 1.",
+      "Checked risk 0.08 against threshold 0.2; 0.08 <= 0.2.",
+      "Checked approved flag true against required true."
+    ],
+    "citations_valid": true,
+    "context_documents": 5,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1148,
+    "latency_ms": 5516.853,
+    "model_calls": 1,
+    "output_tokens": 354,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_one_test_fails:observation:tests",
+      "release_one_test_fails:observation:risk",
+      "release_one_test_fails:observation:approved"
+    ],
+    "total_tokens": 1502
+  },
+  "ordinary_retrieval": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked source 'release_one_test_fails:observation:approved' for independent approval: found true.",
+      "Checked all supplied sources for test results: none present.",
+      "Checked all supplied sources for risk score: none present."
+    ],
+    "citations_valid": true,
+    "context_documents": 2,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0,
+      1
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1065,
+    "latency_ms": 8241.98,
+    "model_calls": 1,
+    "output_tokens": 873,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_one_test_fails:observation:approved"
+    ],
+    "total_tokens": 1938
+  },
+  "polya": {
+    "accepted": false,
+    "checks_performed": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+      "criterion-2-structured: Checked the numeric upper bound.",
+      "criterion-3-structured: Compared the structured value for exact equality."
+    ],
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_checks": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 0,
+    "latency_ms": 1.753,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "passed": true,
+    "status": "insufficient_evidence",
+    "total_tokens": 0,
+    "verified_terminal": true
+  },
+  "repetition": 2
+}

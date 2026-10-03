@@ -94,3 +94,9 @@ and resources, no replay of completed calculation, modified export isolation,
 duplicate and concurrent claims, in-flight refusal, redaction, code/configuration
 mismatch, atomic rollback, and slow checkpoint budget enforcement. These are
 recovery correctness checks, not a new competitive benchmark or product-value claim.
+
+The [2026-10-01 process-loss increment](Chapter_98_Process_Loss_Verification.md)
+adds actual SIGKILL checks at four local checkpoint/action boundaries. Safe
+continuation and uncertain-call refusal passed without Python exception cleanup.
+This strengthens local crash evidence without changing recovery policy or proving
+remote cancellation, host power-loss durability, or provider reconciliation.

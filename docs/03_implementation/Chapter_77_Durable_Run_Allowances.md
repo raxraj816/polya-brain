@@ -87,3 +87,18 @@ technical/user validation. Do not treat this increment as completion of those ga
 Validation: 495 backend tests passed with migrated Postgres; strict Python checks,
 frontend type checks/build, and the authenticated browser login/usage/investigation
 flow passed. The ordinary local workbench retains its Chapter 73 browser gate.
+
+## Follow-up: session and feedback storage writes
+
+The separate [storage-write admission increment](Chapter_77_Storage_Write_Limits.md)
+now bounds authenticated session creation (including source/check uploads) and
+feedback writes. These do not consume run allowances. Daily/per-session limits
+are distinct from edge request throttling, lifetime storage and retention; those
+remaining gates are not completed by this increment.
+
+The [2026-10-01 process-loss increment](Chapter_98_Process_Loss_Verification.md)
+also kills actual admitted subprocesses before result persistence and after a
+terminal result commits but before admission release. Both retain their active
+slot and daily charge until operator-confirmed release; an already saved report
+survives unchanged. This is scratch-database/service evidence, not a hosted worker
+or remote-provider reconciliation test.

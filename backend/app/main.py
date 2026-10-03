@@ -2,8 +2,9 @@
 
 from fastapi import Depends, FastAPI, Request
 from starlette.middleware.base import RequestResponseEndpoint
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
+from app.api.body_limits import RequestBodyLimitMiddleware
 from app.api.routes.events import router as events_router
 from app.api.routes.health import router as health_router
 from app.api.routes.memory import router as memory_router
@@ -17,6 +18,8 @@ from app.cognition.performance import CapabilityPerformanceLedger
 from app.cognition.semantic_broker import SemanticRouteHealthLedger
 from app.config import Settings, get_settings
 from app.db.session import create_database_engine, create_session_factory
+from app.sessions.admission import UsageLimitError
+from app.sessions.write_admission import FeedbackCapacityError
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -36,6 +39,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.db_engine = create_database_engine(resolved_settings.database_url)
     app.state.session_factory = create_session_factory(app.state.db_engine)
 
+    @app.exception_handler(UsageLimitError)
+    async def write_limit_response(request: Request, exc: UsageLimitError) -> JSONResponse:
+        return JSONResponse(
+            {"detail": str(exc)}, status_code=429, headers={"Retry-After": str(exc.retry_after)}
+        )
+
+    @app.exception_handler(FeedbackCapacityError)
+    async def feedback_capacity_response(
+        request: Request, exc: FeedbackCapacityError
+    ) -> JSONResponse:
+        return JSONResponse({"detail": str(exc)}, status_code=409)
+
     @app.middleware("http")
     async def private_response_headers(
         request: Request, call_next: RequestResponseEndpoint
@@ -48,6 +63,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return response
 
     configure_auth(app, resolved_settings)
+    # Last added is outermost: reject before auth, JSON parsing and dependencies.
+    app.add_middleware(RequestBodyLimitMiddleware)
     app.include_router(auth_router)
     app.include_router(health_router)
     app.include_router(sessions_router)

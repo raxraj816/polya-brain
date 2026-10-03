@@ -1,0 +1,758 @@
+{
+  "automated_gate": {
+    "metrics": {
+      "categories": {
+        "data_analysis": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        },
+        "mathematical_reasoning": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        },
+        "planning": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        },
+        "scientific_reasoning": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        },
+        "software_debugging": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        },
+        "technical_research_recovery": {
+          "meets_two_thirds": true,
+          "pass_rate": 1.0,
+          "passed": 1,
+          "total": 1
+        }
+      },
+      "completed_comparison_pairs": 6,
+      "direct_pass_rate": 1.0,
+      "direct_passed": 6,
+      "expected_comparison_pairs": 6,
+      "pass_rate_advantage": 0.0,
+      "polya_pass_rate": 1.0,
+      "polya_passed": 6,
+      "recovery_trials": 1,
+      "recovery_trials_passed": 1,
+      "unsupported_forced_conclusions": 0
+    },
+    "passed": false,
+    "requirements": {
+      "all_comparison_pairs_completed": true,
+      "all_recovery_trials_passed": true,
+      "every_category_pass_rate_at_least_two_thirds": true,
+      "minimum_three_repetitions": false,
+      "polya_pass_rate_advantage_at_least_ten_points": false,
+      "polya_pass_rate_at_least_15_of_18": true,
+      "zero_unsupported_forced_conclusions": true
+    }
+  },
+  "case_count": 6,
+  "cases": [
+    {
+      "case_id": "equation_outcome",
+      "category": "mathematical_reasoning",
+      "direct": {
+        "actions": [
+          "calculate"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Substituted x = 3 into 2x + 4 to verify 2(3) + 4 = 10."
+        ],
+        "conclusion": "The value of x that satisfies the equation 2x + 4 = 10 is x = 3.",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/equation_outcome/calculator"
+        ],
+        "latency_ms": 5574.978791875765,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "calculate",
+            "call_index": 1,
+            "capability": "calculator",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+              "status": "succeeded",
+              "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+            },
+            "target": "(10 - 4) / 2"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 1897,
+          "model_calls": 2,
+          "output_tokens": 415,
+          "total_tokens": 2312
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "polya",
+        "direct"
+      ],
+      "model": "google/gemini-3.7-flash",
+      "polya": {
+        "actions": [
+          "calculate",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verify algebraic derivation: 2x + 4 = 10 -> 2x = 6 -> x = 3.",
+          "Verify substitution check against success criterion: 2(3) + 4 = 10 equals right-hand side."
+        ],
+        "conclusion": "The solution is x = 3. Verification: substituting x = 3 into 2x + 4 yields 2(3) + 4 = 6 + 4 = 10, which matches the right-hand side.",
+        "cycles": 4,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/equation_outcome/calculator"
+        ],
+        "latency_ms": 6761.647457955405,
+        "observation_trace": [
+          {
+            "capability": "calculator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+          },
+          {
+            "capability": "deliberator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+          },
+          {
+            "capability": "conclusion_checker",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Conclusion check passed all declared criteria."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3612,
+          "model_calls": 2,
+          "output_tokens": 1837,
+          "total_tokens": 5449
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    },
+    {
+      "case_id": "pagination_outcome",
+      "category": "software_debugging",
+      "direct": {
+        "actions": [
+          "inspect"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verified the offset expression against 1-based indexing logic."
+        ],
+        "conclusion": "The pagination failure occurs because the offset is calculated as `offset = page * page_size` instead of `offset = (page - 1) * page_size`, which causes page 2 to skip records.",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/pagination_outcome/inspector"
+        ],
+        "latency_ms": 6819.649916840717,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "inspect",
+            "call_index": 1,
+            "capability": "inspector",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/pagination_outcome/inspector",
+              "status": "succeeded",
+              "summary": "The code computes offset = page * page_size. With one-based page numbers it must compute offset = (page - 1) * page_size."
+            },
+            "target": "the failing pagination code path"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 1890,
+          "model_calls": 2,
+          "output_tokens": 330,
+          "total_tokens": 2220
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "direct",
+        "polya"
+      ],
+      "model": "google/gemini-3.7-flash",
+      "polya": {
+        "actions": [
+          "inspect",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Check criterion: Identify faulty offset expression and corrected formula against canonical evidence.",
+          "Check consistency of 1-based indexing evaluation across execution outputs and hypotheses."
+        ],
+        "conclusion": "The page-2 pagination defect is caused by the calculation `offset = page * page_size` assuming 0-based indexing on 1-based input, which produces an incorrect offset. The correct expression for 1-based page numbering is `offset = (page - 1) * page_size`.",
+        "cycles": 4,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/pagination_outcome/inspector"
+        ],
+        "latency_ms": 13442.659999942407,
+        "observation_trace": [
+          {
+            "capability": "inspector",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "The code computes offset = page * page_size. With one-based page numbers it must compute offset = (page - 1) * page_size."
+          },
+          {
+            "capability": "deliberator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+          },
+          {
+            "capability": "conclusion_checker",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Conclusion check passed all declared criteria."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3691,
+          "model_calls": 2,
+          "output_tokens": 1480,
+          "total_tokens": 5171
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    },
+    {
+      "case_id": "conversion_outcome",
+      "category": "data_analysis",
+      "direct": {
+        "actions": [
+          "measure"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verified baseline conversion rate against measurement data.",
+          "Calculated relative percent change and absolute percentage point change."
+        ],
+        "conclusion": "The comparable baseline conversion rate was 10.0%, while the current conversion rate is 13.0%. This represents an absolute increase of 3.0 percentage points and a relative change of +30.0%.",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/conversion_outcome/measurement"
+        ],
+        "latency_ms": 3765.918667195365,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "measure",
+            "call_index": 1,
+            "capability": "measurement",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/conversion_outcome/measurement",
+              "status": "succeeded",
+              "summary": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+            },
+            "target": "conversion_rate_metrics"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 1893,
+          "model_calls": 2,
+          "output_tokens": 387,
+          "total_tokens": 2280
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "polya",
+        "direct"
+      ],
+      "model": "google/gemini-3.7-flash",
+      "polya": {
+        "actions": [
+          "measure",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Check baseline value against canonical measurement fixture (10.0%)",
+          "Check current conversion rate against canonical measurement fixture (13.0%)",
+          "Check relative and absolute percent change against canonical measurement fixture (+30.0% relative, +3.0 percentage points)"
+        ],
+        "conclusion": "Comparable baseline conversion is 10.0% and current conversion is 13.0%, representing a relative change of +30.0% (an absolute increase of 3.0 percentage points).",
+        "cycles": 4,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/conversion_outcome/measurement"
+        ],
+        "latency_ms": 7286.268291994929,
+        "observation_trace": [
+          {
+            "capability": "measurement",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+          },
+          {
+            "capability": "deliberator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+          },
+          {
+            "capability": "conclusion_checker",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Conclusion check passed all declared criteria."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3697,
+          "model_calls": 2,
+          "output_tokens": 1862,
+          "total_tokens": 5559
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    },
+    {
+      "case_id": "capacity_outcome",
+      "category": "planning",
+      "direct": {
+        "actions": [
+          "simulate"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verified Plan A capacity (120) against peak demand threshold (145)",
+          "Verified Plan B capacity (160) against peak demand threshold (145)",
+          "Evaluated cost of passing plans"
+        ],
+        "conclusion": "Plan B is the lowest-cost plan that satisfies the peak-demand constraint, having a capacity of 160 (exceeding the required threshold of 145) at a cost of 100, whereas Plan A fails with a capacity of 120.",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/capacity_outcome/simulator"
+        ],
+        "latency_ms": 4415.860375156626,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "simulate",
+            "call_index": 1,
+            "capability": "simulator",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/capacity_outcome/simulator",
+              "status": "succeeded",
+              "summary": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+            },
+            "target": "Plan A and Plan B peak demand capacity"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 1912,
+          "model_calls": 2,
+          "output_tokens": 438,
+          "total_tokens": 2350
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "direct",
+        "polya"
+      ],
+      "model": "google/gemini-3.7-flash",
+      "polya": {
+        "actions": [
+          "simulate",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Check demand threshold criterion: Verify Plan B capacity (160) >= 145 and Plan A capacity (120) < 145.",
+          "Check lowest-cost criterion: Verify Plan B (cost 100) is the lowest cost plan among all plans meeting demand >= 145.",
+          "Check evidence consistency: Confirm agreement across state evidence and task execution outputs."
+        ],
+        "conclusion": "Plan B is the least costly capacity plan that survives a peak demand of 145 units (capacity 160, cost 100).",
+        "cycles": 4,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/capacity_outcome/simulator"
+        ],
+        "latency_ms": 9438.577833818272,
+        "observation_trace": [
+          {
+            "capability": "simulator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+          },
+          {
+            "capability": "deliberator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+          },
+          {
+            "capability": "conclusion_checker",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Conclusion check passed all declared criteria."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3755,
+          "model_calls": 2,
+          "output_tokens": 2187,
+          "total_tokens": 5942
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    },
+    {
+      "case_id": "mechanism_outcome",
+      "category": "scientific_reasoning",
+      "direct": {
+        "actions": [
+          "experiment"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verified treatment mean (12.0) is greater than control mean (10.0), matching Mechanism B's directional prediction.",
+          "Identified stated limitation regarding external validity."
+        ],
+        "conclusion": "Mechanism B matches the treatment response because an increase of 2.0 was observed (control mean 10.0 vs. treatment mean 12.0). A limitation of this finding is that it does not establish external validity.",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/mechanism_outcome/experiment"
+        ],
+        "latency_ms": 4091.0971250850707,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "experiment",
+            "call_index": 1,
+            "capability": "experiment",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/mechanism_outcome/experiment",
+              "status": "succeeded",
+              "summary": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+            },
+            "target": "controlled test"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 1896,
+          "model_calls": 2,
+          "output_tokens": 380,
+          "total_tokens": 2276
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "polya",
+        "direct"
+      ],
+      "model": "google/gemini-3.7-flash",
+      "polya": {
+        "actions": [
+          "experiment",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verify mechanism selection matches observed positive difference (treatment mean 12.0 vs control mean 10.0 supporting Mechanism B).",
+          "Verify that the lack of external validity limitation is explicitly stated in accordance with canonical evidence."
+        ],
+        "conclusion": "Mechanism B matches the observed treatment response, as the randomized trial shows an increase of 2.0 (treatment mean 12.0 vs. control mean 10.0); however, this finding does not establish external validity.",
+        "cycles": 4,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/mechanism_outcome/experiment"
+        ],
+        "latency_ms": 9596.338874893263,
+        "observation_trace": [
+          {
+            "capability": "experiment",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+          },
+          {
+            "capability": "deliberator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Constructed 2 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+          },
+          {
+            "capability": "conclusion_checker",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Conclusion check passed all declared criteria."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3843,
+          "model_calls": 2,
+          "output_tokens": 1541,
+          "total_tokens": 5384
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    },
+    {
+      "case_id": "research_recovery_outcome",
+      "category": "technical_research_recovery",
+      "direct": {
+        "actions": [
+          "search",
+          "inspect"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Verified the official specification artifact via inspector after search failure."
+        ],
+        "conclusion": "The current official material specifies a request timeout of 45 seconds.",
+        "confidence": "high",
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/research_recovery_outcome/inspector"
+        ],
+        "latency_ms": 5935.640000039712,
+        "parse_error": null,
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "final",
+        "tool_history": [
+          {
+            "action_type": "search",
+            "call_index": 1,
+            "capability": "web_search",
+            "observation": {
+              "failure_kind": "fixture_unavailable",
+              "status": "failed",
+              "summary": "The search provider returned no results."
+            },
+            "target": "current official request timeout"
+          },
+          {
+            "action_type": "inspect",
+            "call_index": 2,
+            "capability": "inspector",
+            "observation": {
+              "source_uri": "fixture://chapter-13c-outcome/research_recovery_outcome/inspector",
+              "status": "succeeded",
+              "summary": "The bundled current official specification states request_timeout_seconds = 45."
+            },
+            "target": "official_request_timeout_specification"
+          }
+        ],
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3079,
+          "model_calls": 3,
+          "output_tokens": 428,
+          "total_tokens": 3507
+        },
+        "verification_passed": true
+      },
+      "execution_order": [
+        "direct",
+        "polya"
+      ],
+      "model": "google/gemini-3.7-flash",
+      "polya": {
+        "actions": [
+          "search",
+          "inspect",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "answer_passed": true,
+        "budget_passed": true,
+        "checks_performed": [
+          "Check that timeout value is stated directly from a source-visible current artifact (fixture://chapter-13c-outcome/research_recovery_outcome/inspector).",
+          "Check for absence of contradicting claims or alternate parameter definitions in the state evidence.",
+          "Verify provenance constraint adherence."
+        ],
+        "conclusion": "According to the bundled current official specification (`fixture://chapter-13c-outcome/research_recovery_outcome/inspector`), the current official request timeout is 45 seconds (`request_timeout_seconds = 45`).",
+        "cycles": 5,
+        "evidence_source_uris": [
+          "fixture://chapter-13c-outcome/research_recovery_outcome/inspector"
+        ],
+        "latency_ms": 7069.616875145584,
+        "observation_trace": [
+          {
+            "capability": "web_search",
+            "failure_kind": "fixture_unavailable",
+            "status": "failed",
+            "summary": "The search provider returned no results."
+          },
+          {
+            "capability": "inspector",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "The bundled current official specification states request_timeout_seconds = 45."
+          },
+          {
+            "capability": "deliberator",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+          },
+          {
+            "capability": "conclusion_checker",
+            "failure_kind": null,
+            "status": "succeeded",
+            "summary": "Conclusion check passed all declared criteria."
+          }
+        ],
+        "passed": true,
+        "recovery_passed": true,
+        "source_passed": true,
+        "terminal_status": "completed",
+        "unsupported_forced_conclusion": false,
+        "usage": {
+          "input_tokens": 3434,
+          "model_calls": 2,
+          "output_tokens": 1786,
+          "total_tokens": 5220
+        },
+        "verification_passed": true
+      },
+      "repetition": 1,
+      "shared_max_output_tokens_per_call": 1800,
+      "shared_model_call_budget": 6
+    }
+  ],
+  "comparison_pair_count": 6,
+  "comparison_type": "live_full_outcome_same_model_same_tools",
+  "direct_mean_latency_ms": 5100.5241460322095,
+  "direct_passed": 6,
+  "direct_total_tokens": 14945,
+  "fairness": {
+    "condition_order_alternates_by_case_and_repetition": true,
+    "same_model": true,
+    "same_model_call_budget": 6,
+    "same_output_token_limit_per_call": 1800,
+    "same_prestructured_problem": true,
+    "same_tools_and_observations": true,
+    "synthetic_nonconfidential_cases": true
+  },
+  "human_review_status": "pending",
+  "limitations": [
+    "Synthetic tools isolate orchestration value but do not prove field performance.",
+    "Scoring checks expected conclusion terms, source provenance, verification, and recovery.",
+    "A win requires repeated runs and blinded human review before market claims."
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya_mean_latency_ms": 8932.518222291643,
+  "polya_passed": 6,
+  "polya_total_tokens": 32725,
+  "product_value_claim_ready": false,
+  "repetitions": 1,
+  "run_id": "133131-16a8dce2",
+  "started_at": "2026-08-22T13:31:31.721987+00:00",
+  "status": "complete"
+}

@@ -12,7 +12,9 @@ from sqlalchemy.orm import Session
 
 from app.cognition.persistence import SQLAlchemyCognitiveStateRepository
 from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions, scope_limitations
+from app.cognition.research_stop import research_stop_next_action
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
+from app.cognition.stop_explanation import explain_stop
 from app.cognition.verification_history import (
     HISTORICAL_NEXT_ACTION,
     VERIFICATION_INVALIDATED_EVENT,
@@ -40,6 +42,7 @@ from app.models.sessions import (
 )
 from app.problem_understanding.persistence import SQLAlchemyStructuredProblemRepository
 from app.sessions.admission import RunAdmissionPolicy, UsageLimitError, resource_limits
+from app.sessions.write_admission import WriteAdmissionPolicy
 from app.tracing.persistence import SQLAlchemyTraceRepository
 from app.tracing.sanitization import sanitize_text
 
@@ -122,6 +125,9 @@ class SessionExecutionResult:
             raise ValueError("completed execution cannot carry clarifying_questions")
 
 
+GENERIC_NEXT_ACTION = "Gather the missing evidence before drawing a conclusion."
+
+
 def _verification_status(state: PolyaState) -> str:
     verification = state["verification"]
     if verification is None:
@@ -146,6 +152,7 @@ class PolyaSessionService:
         clarification_timeout_seconds: int | None = None,
         memory_repository: SQLAlchemyMemoryRepository | None = None,
         admission_policy: RunAdmissionPolicy | None = None,
+        write_policy: WriteAdmissionPolicy | None = None,
     ) -> None:
         self._db_session = db_session
         self._runner = runner
@@ -155,6 +162,7 @@ class PolyaSessionService:
         self._cognitive_state_repository = SQLAlchemyCognitiveStateRepository(db_session)
         self._memory_repository = memory_repository
         self._admission_policy = admission_policy
+        self._write_policy = write_policy
         self._admission_id: UUID | None = None
         timeout_seconds = (
             get_settings().session_run_timeout_seconds
@@ -193,7 +201,9 @@ class PolyaSessionService:
         domain: str | None,
     ) -> ProblemSession:
         """Create and commit a durable problem session."""
+        admitted_at = self._write_policy.acquire("session") if self._write_policy else utc_now()
         problem_session = ProblemSession(
+            created_at=admitted_at,
             user_id=self._db_session.info.get("owner_id"),
             raw_input=raw_input.strip(),
             mode=mode.value,
@@ -329,12 +339,63 @@ class PolyaSessionService:
         elif history is not None:
             recommended_next_action = HISTORICAL_NEXT_ACTION
         else:
-            recommended_next_action = "Gather the missing evidence before drawing a conclusion."
+            recommended_next_action = GENERIC_NEXT_ACTION
 
         if source_patch_plan is not None:
             recommended_next_action = (
                 "Review the candidate diff and run broader integration checks before applying it."
             )
+        elif problem_session.status == SESSION_STATUS_COMPLETED and not (
+            verification is not None and verification.passed
+        ):
+            last_decision = self._db_session.scalar(
+                select(ReasoningEvent)
+                .where(
+                    ReasoningEvent.session_id == session_id,
+                    ReasoningEvent.event_type == "cognitive_action_decision",
+                )
+                .order_by(ReasoningEvent.sequence_number.desc())
+                .limit(1)
+            )
+            if last_decision is not None:
+                recommended_next_action = (
+                    research_stop_next_action(last_decision.event_metadata)
+                    or recommended_next_action
+                )
+
+        if problem_session.status == SESSION_STATUS_RUNNING:
+            recommended_next_action = (
+                "This run has no recorded outcome yet and may still be executing. "
+                "Check the latest trace and refresh status before retrying. "
+                "If progress stops, ask your workspace operator to inspect the run."
+            )
+        elif problem_session.verification_status == "operator_stopped":
+            recommended_next_action = (
+                "Inspect the trace and any provider activity before starting a new investigation. "
+                "Releasing the local run slot does not establish external completion or cost."
+            )
+
+        stopped_checks: list[str] = []
+        stopped_failures: list[str] = []
+        if (
+            problem_session.status == SESSION_STATUS_COMPLETED
+            and display_verification is None
+            and source_patch_plan is None
+        ):
+            # A run that stopped without verification must still say what it did
+            # and why it stopped, instead of an empty report.
+            explanation = explain_stop(
+                (row.event_type, row.event_metadata, row.summary)
+                for row in self._db_session.scalars(
+                    select(ReasoningEvent)
+                    .where(ReasoningEvent.session_id == session_id)
+                    .order_by(ReasoningEvent.sequence_number)
+                )
+            )
+            stopped_checks = explanation.progress
+            stopped_failures = [explanation.failure] if explanation.failure else []
+            if explanation.next_action and recommended_next_action == GENERIC_NEXT_ACTION:
+                recommended_next_action = explanation.next_action
 
         def report_evidence(item: EvidenceItem) -> SessionReportEvidence:
             return SessionReportEvidence(
@@ -359,9 +420,13 @@ class PolyaSessionService:
                 and verification.passed
                 else list(display_verification.checks_run)
                 if display_verification
-                else []
+                else stopped_checks
             ),
-            failed_checks=list(display_verification.failed_checks) if display_verification else [],
+            failed_checks=(
+                list(display_verification.failed_checks)
+                if display_verification
+                else stopped_failures
+            ),
             contradictions=list(display_verification.contradictions)
             if display_verification
             else [],

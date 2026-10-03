@@ -1,0 +1,90 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-5f143309673c",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSkip-default response serialization still emits a field whose value equals the model default. Diagnose when default metadata is discarded, propose the smallest correction, and specify both sides of the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 6, in verify\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Response-model defaults survive skip-default serialization\n\nA route configured to skip response-model defaults still emits a field whose\nvalue is the model default when the handler returns a model instance. Diagnose\nwhere model semantics are lost and state the smallest correction and check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 10 at b77a43bc.\"\"\"\n\n\nclass ResponseModel:\n    def __init__(self, name: str, note: str | None = None) -> None:\n        self.name = name\n        self.note = note\n\n    def dict(self, *, skip_defaults: bool = False) -> dict[str, str | None]:\n        result: dict[str, str | None] = {\"name\": self.name, \"note\": self.note}\n        if skip_defaults and self.note is None:\n            result.pop(\"note\")\n        return result\n\n\ndef serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\n    value = {\"name\": response.name, \"note\": response.note}\n    return dict(value)\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    response = implementation.ResponseModel(name=\"Ada\")\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n    assert implementation.serialize_response(response, skip_defaults=False) == {\n        \"name\": \"Ada\",\n        \"note\": None,\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: `serialize_response` manually constructs a dictionary from response attributes and returns it without honoring the `skip_defaults` argument or delegating to `response.dict(skip_defaults=...)`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegate serialization to `response.dict(skip_defaults=skip_defaults)` so that model-level default suppression logic is respected when serializing the response model.\nRegression check: `verify(implementation)` validates that `serialize_response(response, skip_defaults=True)` excludes `'note'` when it defaults to `None`, while `serialize_response(response, skip_defaults=False)` retains `{'note': None}`. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-178976dd6b9d",
+          "root_cause": "Root cause: `serialize_response` manually constructs a dictionary from response attributes and returns it without honoring the `skip_defaults` argument or delegating to `response.dict(skip_defaults=...)`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegate serialization to `response.dict(skip_defaults=skip_defaults)` so that model-level default suppression logic is respected when serializing the response model.\nRegression check: `verify(implementation)` validates that `serialize_response(response, skip_defaults=True)` excludes `'note'` when it defaults to `None`, while `serialize_response(response, skip_defaults=False)` retains `{'note': None}`. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py`, update `serialize_response` to delegate serialization to `response.dict(skip_defaults=skip_defaults)` rather than manually constructing a dictionary from `response` attributes.",
+          "evidence_references": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/issue.md",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-4348921e7add",
+          "root_cause": "`serialize_response` ignores the `skip_defaults` parameter and model-level default-stripping logic on `ResponseModel.dict(...)`, manually constructing a dictionary that unconditionally retains default-valued fields like `note: None`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `check.verify(implementation)` with `response = implementation.ResponseModel(name=\"Ada\")`.",
+            "Verify that prior to the correction, `serialize_response(response, skip_defaults=True)` returns `{\"name\": \"Ada\", \"note\": None}`, triggering an `AssertionError`.",
+            "Verify that after delegating to `response.dict(skip_defaults=skip_defaults)`, `serialize_response(response, skip_defaults=True)` returns `{\"name\": \"Ada\"}` and `serialize_response(response, skip_defaults=False)` returns `{\"name\": \"Ada\", \"note\": None}`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-178976dd6b9d": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-4348921e7add": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "155514-16a8dce2"
+}

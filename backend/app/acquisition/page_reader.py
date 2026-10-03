@@ -38,7 +38,7 @@ from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import ReasoningMode
 
 CAPABILITY = "public_page_reader"
-VERSION = "public_page_reader@0.2.2"
+VERSION = "public_page_reader@0.2.3"
 MAX_BYTES = 2_000_000
 MAX_PASSAGE_CHARS = 9000
 TIMEOUT_SECONDS = 20.0
@@ -293,21 +293,67 @@ class PublicPageReader:
             return pool.submit(lambda: asyncio.run(self._read(url, query))).result()
 
 
+def _read_continuation_available(state: PolyaState, target: str, evaluation: StateEvent) -> bool:
+    """Require fresh discovery after an attempted read; fail closed on unbound failures."""
+    events = state["events"]
+    attempts = [
+        i
+        for i, event in enumerate(events)
+        if event.event_type == ATTEMPT_EVENT and event.metadata.get("target_gap") == target
+    ]
+    failures = [
+        (i, event)
+        for i, event in enumerate(events)
+        if event.event_type == "capability_observation"
+        and event.metadata.get("capability") == CAPABILITY
+        and event.metadata.get("target") == target
+        and event.metadata.get("status") in {"failed", "blocked", "inconclusive"}
+    ]
+    for index, failure in failures:
+        action_id = failure.metadata.get("action_id")
+        if failure.metadata.get("failure_kind") != "public_page_read_failed" or not action_id:
+            return False
+        # The kernel records the observation before appending its attempt event.
+        # Do not bind a later invocation's attempt to an earlier uncertain failure.
+        end = next(
+            (
+                i
+                for i in range(index + 1, len(events))
+                if events[i].event_type == "capability_observation"
+            ),
+            len(events),
+        )
+        if not any(
+            index < i < end
+            and events[i].engine_name == CAPABILITY
+            and events[i].metadata.get("action_id") == action_id
+            and isinstance((uri := events[i].metadata.get("source_uri")), str)
+            and uri.startswith("https://")
+            for i in attempts
+        ):
+            return False
+    if not attempts:
+        return not failures
+    evaluation_index = next(i for i, event in enumerate(events) if event is evaluation)
+    return any(
+        attempts[-1] < i < evaluation_index
+        and event.event_type == ACQUISITION_EVENT
+        and event.engine_name == "web_search"
+        and event.metadata.get("acquisition_id") == evaluation.metadata.get("acquisition_id")
+        and event.metadata.get("target_gap") == target
+        for i, event in enumerate(events)
+    )
+
+
 def page_read_target(state: PolyaState, target: str) -> str | None:
-    if any(
-        e.event_type == "capability_observation"
-        and e.metadata.get("capability") == CAPABILITY
-        and e.metadata.get("target") == target
-        and e.metadata.get("status") in {"failed", "blocked", "inconclusive"}
-        for e in state["events"]
-    ):
-        return None
     attempts = [e for e in state["events"] if e.event_type == ATTEMPT_EVENT]
     if len(attempts) >= 2:
         return None
     # Require a failed evaluation, including the parent group of a scope reframe.
     evaluations = _research_guidance_for_target(state, target)
     if not evaluations or evaluations[-1].metadata.get("gap_resolved") is not False:
+        return None
+    if not _read_continuation_available(state, target, evaluations[-1]):
         return None
     latest_acquisition = evaluations[-1].metadata.get("acquisition_id")
     if any(
@@ -384,7 +430,7 @@ def public_page_capability(
             event_type=ATTEMPT_EVENT,
             reasoning_mode=ReasoningMode.EXPLORE,
             summary="Attempted one bounded public page read.",
-            metadata={"source_uri": url, "target_gap": action.target},
+            metadata={"source_uri": url, "target_gap": action.target, "action_id": action.id},
         )
         # Legacy reads preserve whole-deliverable coverage; an explicit source
         # nomination below can instead focus on the residual evidence need.

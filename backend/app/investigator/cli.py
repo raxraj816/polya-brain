@@ -22,6 +22,14 @@ from app.graph.state import create_initial_state
 from app.investigator.artifacts import export_run, write_json
 from app.investigator.recovery import RecoveryError, RecoveryStore, runtime_fingerprint
 from app.investigator.source_patch import source_patch_state
+from app.memory.failure_patterns import default_store
+from app.memory.failure_patterns import describe as describe_patterns
+from app.reader.cli import add_parser as lookup_parser
+from app.reader.cli import run as lookup
+from app.verified_change.cli import add_parser as verify_change_parser
+from app.verified_change.cli import run as verify_change
+from app.verified_claims.cli import add_parser as ask_data_parser
+from app.verified_claims.cli import run as ask_data
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -57,6 +65,12 @@ def _parser() -> argparse.ArgumentParser:
         _run_options(command)
     commands.add_parser(
         "proof", help="Run the legacy curated-template demonstration (repository checkout only)."
+    )
+    verify_change_parser(commands)
+    ask_data_parser(commands)
+    lookup_parser(commands)
+    commands.add_parser(
+        "patterns", help="Show the defect patterns PolyaBrain has learned from verified work."
     )
     return parser
 
@@ -107,6 +121,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "proof":
         parser.error("Run ./polyabrain proof from the repository for the legacy demonstration.")
+    if args.command == "verify-change":
+        return verify_change(args)
+    if args.command == "ask-data":
+        return ask_data(args)
+    if args.command == "lookup":
+        return lookup(args)
+    if args.command == "patterns":
+        settings = Settings()
+        pattern_store = default_store(
+            settings.failure_patterns_path, settings.failure_patterns_enabled
+        )
+        if pattern_store is None:
+            print("Failure-pattern memory is disabled (FAILURE_PATTERNS_ENABLED=false).")
+            return 0
+        print(json.dumps(describe_patterns(pattern_store), indent=2))
+        return 0
     problem = (
         " ".join(args.problem).strip()
         if args.command == "investigate"

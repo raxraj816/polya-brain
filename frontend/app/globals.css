@@ -1637,3 +1637,173 @@ main {
     overflow-wrap: anywhere;
   }
 }
+.verification-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 20px 0;
+  background: #fff;
+  padding: 18px 20px;
+}
+.verification-card header {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.verification-card header > div {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.verification-card h2.verdict {
+  margin: 4px 0 6px;
+  font-size: 19px;
+  font-weight: 600;
+}
+.verification-card h2.verdict.ok {
+  color: #3f6b2f;
+}
+.verification-card h2.verdict.warn {
+  color: var(--accent);
+}
+.verification-card header p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 640px;
+}
+.verify-steps {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 11px;
+  color: #909789;
+}
+.verify-steps li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.verify-steps i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #cfd5c6;
+}
+.verify-steps .done {
+  color: #3f5a33;
+}
+.verify-steps .done i {
+  background: #6d8954;
+}
+.verify-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 16px 0 6px;
+}
+.verify-metrics span {
+  border: 1px solid #e8ebe2;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  background: #f8f9f4;
+}
+.verify-metrics strong {
+  display: block;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.finding {
+  margin-top: 14px;
+  border-radius: 6px;
+  border: 1px solid #e3e5de;
+  border-left: 4px solid #6d8954;
+  padding: 12px 14px;
+  background: #fbfcf8;
+}
+.finding.open {
+  border-left-color: var(--accent);
+  background: #fdf8f5;
+}
+.finding-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.finding-head span:first-child {
+  color: var(--ink);
+  font-weight: 600;
+}
+.finding dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 14px;
+  margin: 10px 0 0;
+}
+.finding dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.finding dd {
+  margin: 0;
+  min-width: 0;
+}
+.finding code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.finding blockquote {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-left: 3px solid #cfd5c6;
+  background: #f4f6ef;
+  font-style: italic;
+}
+.finding blockquote span {
+  display: block;
+  font-style: normal;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.finding p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+.verify-question {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fdf3ee;
+}
+.verification-card details {
+  margin-top: 12px;
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .verification-card {
+    padding: 14px;
+  }
+  .finding dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .finding dt {
+    margin-top: 4px;
+  }
+}
+.finding.corrected {
+  border-left-color: #b9c2ad;
+  background: #fafaf7;
+}

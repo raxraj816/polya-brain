@@ -1,0 +1,116 @@
+{
+  "case_id": "false_premise_rebuttal",
+  "category": "false_premise",
+  "direct": {
+    "abstention_correct": false,
+    "answer_correct": true,
+    "checks_performed": [
+      "premise_verification",
+      "source_validation"
+    ],
+    "conclusion": "NovaCache does not exist as an API or product and has no official orbital mode; the premise of the question is false.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "https://catalog.example.edu/novacache",
+      "https://docs.example.org/novacache-schema"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 6775.819292059168,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The NovaCache API does not exist and therefore has no official orbital mode.",
+              "extra_snippets": [],
+              "id": "official-schema",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-05T00:00:00Z",
+              "title": "NovaCache official schema",
+              "url": "https://docs.example.org/novacache-schema"
+            },
+            {
+              "excerpt": "Independent catalog review confirms NovaCache does not exist and has no orbital mode.",
+              "extra_snippets": [],
+              "id": "independent-catalog",
+              "provider_rank": 2,
+              "provider_score": null,
+              "published_at": "2026-08-06T00:00:00Z",
+              "title": "Independent API catalog",
+              "url": "https://catalog.example.edu/novacache"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "NovaCache \"orbital mode\"",
+          "status": "succeeded"
+        },
+        "target": "NovaCache \"orbital mode\""
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 2170,
+      "model_calls": 2,
+      "output_tokens": 353,
+      "total_tokens": 2523
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "expected_terminal": "answer",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": false,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_correct": true,
+    "checks_performed": [
+      "Verify canonical evidence explicitly confirms non-existence of NovaCache and absence of orbital mode.",
+      "Verify success criterion: Reject false premise when API parameter does not exist.",
+      "Verify success criterion: Cite independent authoritative evidence with provenance."
+    ],
+    "conclusion": "NovaCache does not exist as a real API and possesses no official orbital mode; the premise is rejected based on independent catalog and documentation reviews (https://catalog.example.edu/novacache; https://docs.example.org/novacache-schema).",
+    "cycles": 5,
+    "evidence_source_uris": [
+      "https://catalog.example.edu/novacache",
+      "https://docs.example.org/novacache-schema"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 9396.16237487644,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "whether NovaCache has an official orbital mode What is the current official orbital mode of NovaCache? primary authoritative source exact evidence"
+    ],
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 4169,
+      "model_calls": 2,
+      "output_tokens": 2292,
+      "total_tokens": 6461
+    },
+    "verification_passed": true
+  },
+  "repetition": 2
+}

@@ -1,0 +1,6 @@
+{
+  "statement": "Frozen before any Reader code was written or run. Agent-authored general and technical factual questions with stable answers, plus unanswerable and false-premise questions.",
+  "questions_sha256": "eedeaecf8d50ed903877e26c848dd9bbb11429d1091984fe043d14d420927685",
+  "answerable": 27,
+  "unanswerable": 7
+}

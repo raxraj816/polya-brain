@@ -23,6 +23,10 @@ from app.cognition.execution_gaps import pending_sandbox_gaps
 from app.cognition.performance import AdaptiveActionEstimate
 from app.cognition.repair_recovery import EVENT as REPAIR_RECOVERY_EVENT
 from app.cognition.repair_recovery import failed_source_patch_task
+from app.cognition.research_stop import (
+    RESEARCH_BUDGET_STOP_REASON,
+    RESEARCH_UNAVAILABLE_STOP_REASON,
+)
 from app.cognition.scope_review import scope_review_available
 from app.cognition.task_model import (
     accumulated_usage,
@@ -35,7 +39,7 @@ from app.cognition.verification_research import needs_recovery_analysis
 from app.graph.state import PolyaState
 from app.models.contracts import KnowledgeGap, PriorityLevel, RiskLevel
 
-POLICY_VERSION = "cognitive-controller-v0.5.8"
+POLICY_VERSION = "cognitive-controller-v0.5.12"
 CONTROLLER_CAPABILITY = "cognitive_controller"
 
 _PRIORITY_USEFULNESS = {
@@ -256,6 +260,15 @@ def _candidate_failed_before(
     candidate: CognitiveActionCandidate,
 ) -> bool:
     """Prevent an unchanged failed capability call from masquerading as progress."""
+    if (
+        candidate.capability == "public_page_reader"
+        and candidate.action_type is CognitiveActionType.SEARCH
+    ):
+        from app.acquisition.page_reader import page_read_target
+
+        # This gate permits only an untried URL after fresh evaluated discovery;
+        # it also rejects uncertain/unbound failures and enforces the read ceiling.
+        return page_read_target(state, candidate.target) is None
     return any(
         event.event_type == "capability_observation"
         and event.metadata.get("action_type") == candidate.action_type.value
@@ -413,9 +426,7 @@ class CognitiveController:
             ]
 
         pending_acquisition = _pending_evidence_acquisition(state)
-        if pending_acquisition is not None and registry.supports(
-            "evidence_evaluator", CognitiveActionType.EVALUATE_EVIDENCE
-        ):
+        if pending_acquisition is not None:
             return [
                 self._candidate(
                     CognitiveActionType.EVALUATE_EVIDENCE,
@@ -445,62 +456,44 @@ class CognitiveController:
             reverse=True,
         )
         if unresolved:
-            reviewer = registry.get("scope_reviewer")
-            scope_budget = configured_budget(state)
-            for gap in unresolved[:3]:
-                if (
-                    reviewer is not None
-                    and scope_review_available(state, gap.description)
-                    and (
-                        not _requires_sensitive_data_boundary(state)
-                        or reviewer.definition.approved_for_sensitive_data
-                    )
-                    and (
-                        scope_budget is None
-                        or reservation_fits(
-                            reviewer.definition, scope_budget, accumulated_usage(state)
-                        )
-                    )
-                ):
-                    return [
-                        self._candidate(
-                            CognitiveActionType.REFRAME,
-                            target=gap.description,
-                            purpose="Review whether missing facts actually block the requested deliverable before another search.",
-                            expected="Evidence-bound facts and explicit nonblocking limitations without weakening success criteria.",
-                            usefulness=0.9,
-                            registry=registry,
-                            capability="scope_reviewer",
-                        )
-                    ]
-            # Acquisition adapters also import cognition contracts during startup.
+            candidates: list[CognitiveActionCandidate] = []
+            # Preserve priority, but let an ineligible preferred route fall through.
+            # Retain it so decide() records the actual rejection in the trace.
             from app.acquisition.page_reader import page_read_target
 
-            reader = registry.get("public_page_reader")
-            for gap in unresolved[:3]:
-                if (
-                    reader is not None
-                    and not _requires_sensitive_data_boundary(state)
-                    and page_read_target(state, gap.description) is not None
-                    and (
-                        scope_budget is None
-                        or reservation_fits(
-                            reader.definition, scope_budget, accumulated_usage(state)
-                        )
+            for capability, action_type, purpose, expected, eligible in (
+                (
+                    "scope_reviewer",
+                    CognitiveActionType.REFRAME,
+                    "Review whether missing facts actually block the requested deliverable before another search.",
+                    "Evidence-bound facts and explicit nonblocking limitations without weakening success criteria.",
+                    scope_review_available,
+                ),
+                (
+                    "public_page_reader",
+                    CognitiveActionType.SEARCH,
+                    "Read the discovered document's missing passages before another search.",
+                    "Bounded untrusted passages for source evaluation.",
+                    page_read_target,
+                ),
+            ):
+                if registry.get(capability) is None:
+                    continue
+                for gap in unresolved[:3]:
+                    if not eligible(state, gap.description):
+                        continue
+                    candidate = self._candidate(
+                        action_type,
+                        target=gap.description,
+                        purpose=purpose,
+                        expected=expected,
+                        usefulness=0.9,
+                        registry=registry,
+                        capability=capability,
                     )
-                ):
-                    return [
-                        self._candidate(
-                            CognitiveActionType.SEARCH,
-                            target=gap.description,
-                            purpose="Read the discovered document's missing passages before another search.",
-                            expected="Bounded untrusted passages for source evaluation.",
-                            usefulness=0.9,
-                            registry=registry,
-                            capability="public_page_reader",
-                        )
-                    ]
-            candidates: list[CognitiveActionCandidate] = []
+                    candidates.append(candidate)
+                    if self._preferred_available(state, registry, candidate):
+                        return candidates
             for gap in unresolved[:3]:
                 epistemic_status = derive_epistemic_status(state, gap)
                 preferred = _preferred_action_for_gap(gap)
@@ -832,6 +825,26 @@ class CognitiveController:
 
         return [self._stop_candidate(registry, "verified outcome reflected")]
 
+    @staticmethod
+    def _preferred_available(
+        state: PolyaState, registry: CapabilityRegistry, candidate: CognitiveActionCandidate
+    ) -> bool:
+        if not registry.supports(candidate.capability, candidate.action_type):
+            return False
+        if _candidate_failed_before(state, candidate):
+            return False
+        capability = registry.get(candidate.capability)
+        assert capability is not None
+        if (
+            _requires_sensitive_data_boundary(state)
+            and not capability.definition.approved_for_sensitive_data
+        ):
+            return False
+        budget = configured_budget(state)
+        return budget is None or reservation_fits(
+            registry.reservation(candidate.capability, state), budget, accumulated_usage(state)
+        )
+
     def decide(
         self,
         state: PolyaState,
@@ -843,6 +856,12 @@ class CognitiveController:
         rejected: list[RejectedCognitiveAction] = []
         budget = configured_budget(state)
         usage = accumulated_usage(state)
+        public_targets = {
+            gap.description
+            for gap in state["gaps"]
+            if not gap.filled and gap.gap_type == "current_external_fact"
+        }
+        budget_blocked_public_targets: set[str] = set()
         for candidate in candidates:
             if candidate.action_type is CognitiveActionType.STOP:
                 available.append(candidate)
@@ -880,6 +899,11 @@ class CognitiveController:
                 and reservation is not None
                 and not reservation_fits(reservation, budget, usage)
             ):
+                if candidate.target in public_targets and candidate.action_type not in {
+                    CognitiveActionType.ASK_HUMAN,
+                    CognitiveActionType.CLARIFY,
+                }:
+                    budget_blocked_public_targets.add(candidate.target)
                 rejected.append(
                     RejectedCognitiveAction(
                         candidate_id=candidate.id,
@@ -918,6 +942,24 @@ class CognitiveController:
                 CognitiveActionType.STOP,
             }
         }
+        public_fallbacks = [
+            candidate
+            for candidate in available
+            if candidate.action_type is CognitiveActionType.ASK_HUMAN
+            and candidate.target in public_targets
+            and candidate.target not in autonomous_targets
+        ]
+        for candidate in public_fallbacks:
+            rejected.append(
+                RejectedCognitiveAction(
+                    candidate_id=candidate.id,
+                    rationale=(
+                        "An unavailable public research route is not missing user-owned "
+                        "information; do not substitute a fallback human question."
+                    ),
+                )
+            )
+        available = [candidate for candidate in available if candidate not in public_fallbacks]
         deferred = [
             candidate
             for candidate in available
@@ -937,7 +979,14 @@ class CognitiveController:
         available = [candidate for candidate in available if candidate not in deferred]
 
         if not available:
-            selected = self._stop_candidate(registry, "no safe supported action")
+            selected = self._stop_candidate(
+                registry,
+                RESEARCH_BUDGET_STOP_REASON
+                if budget_blocked_public_targets
+                else RESEARCH_UNAVAILABLE_STOP_REASON
+                if public_targets.intersection(candidate.target for candidate in candidates)
+                else "no safe supported action",
+            )
         else:
             selected = max(
                 available,

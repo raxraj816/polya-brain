@@ -45,3 +45,21 @@ class LLMClientError(RuntimeError):
             else None
         )
         super().__init__(f"{self.code.value}: {self.safe_message}")
+
+
+def provider_failure_reason(exc: BaseException) -> str:
+    """A short, safe, user-actionable explanation of a failed model call."""
+    if not isinstance(exc, LLMClientError):
+        return f"the model call failed ({type(exc).__name__})"
+    status = exc.status_code
+    if status == 402:
+        return (
+            "the model provider refused the request: payment required (check the account's credits)"
+        )
+    if status in {401, 403}:
+        return "the model provider rejected the credentials or permissions (check the API key)"
+    if status == 429:
+        return "the model provider rate-limited the request (retry later)"
+    if exc.code.value == "timeout":
+        return "the model provider did not answer in time"
+    return f"the model provider request failed ({exc.safe_message})"

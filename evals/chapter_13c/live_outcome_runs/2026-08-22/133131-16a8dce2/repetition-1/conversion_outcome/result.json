@@ -1,0 +1,108 @@
+{
+  "case_id": "conversion_outcome",
+  "category": "data_analysis",
+  "direct": {
+    "actions": [
+      "measure"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified baseline conversion rate against measurement data.",
+      "Calculated relative percent change and absolute percentage point change."
+    ],
+    "conclusion": "The comparable baseline conversion rate was 10.0%, while the current conversion rate is 13.0%. This represents an absolute increase of 3.0 percentage points and a relative change of +30.0%.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/conversion_outcome/measurement"
+    ],
+    "latency_ms": 3765.918667195365,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "measure",
+        "call_index": 1,
+        "capability": "measurement",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/conversion_outcome/measurement",
+          "status": "succeeded",
+          "summary": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+        },
+        "target": "conversion_rate_metrics"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1893,
+      "model_calls": 2,
+      "output_tokens": 387,
+      "total_tokens": 2280
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "measure",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Check baseline value against canonical measurement fixture (10.0%)",
+      "Check current conversion rate against canonical measurement fixture (13.0%)",
+      "Check relative and absolute percent change against canonical measurement fixture (+30.0% relative, +3.0 percentage points)"
+    ],
+    "conclusion": "Comparable baseline conversion is 10.0% and current conversion is 13.0%, representing a relative change of +30.0% (an absolute increase of 3.0 percentage points).",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/conversion_outcome/measurement"
+    ],
+    "latency_ms": 7286.268291994929,
+    "observation_trace": [
+      {
+        "capability": "measurement",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+      },
+      {
+        "capability": "deliberator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+      },
+      {
+        "capability": "conclusion_checker",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Conclusion check passed all declared criteria."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3697,
+      "model_calls": 2,
+      "output_tokens": 1862,
+      "total_tokens": 5559
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

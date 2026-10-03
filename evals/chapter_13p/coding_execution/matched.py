@@ -201,14 +201,14 @@ def lean_solve(meter: Meter, prompt: str) -> str | None:
     return None
 
 
-def run_arm(settings, case, prompt, arm, directory, limits=DEFAULT_LIMITS):
+def run_arm(settings, case, prompt, arm, directory, limits=DEFAULT_LIMITS, *, client=None):
     directory.mkdir()
     sandbox = DockerPythonSandbox(
         image=settings.code_execution_image,
         limits=DockerSandboxLimits(timeout_seconds=5, memory_megabytes=64),
     )
     meter = Meter(
-        OpenRouterLLMClient.from_settings(settings),
+        client if client is not None else OpenRouterLLMClient.from_settings(settings),
         settings.openrouter_model,
         sandbox,
         directory,
@@ -275,6 +275,7 @@ def main():
             "openrouter_model": args.model,
             "openrouter_fallback_models": "",
             "code_execution_enabled": True,
+            "verified_coding_enabled": False,
             "search_provider": "",
             "artifact_allowed_roots": "",
             "cognitive_max_model_calls": limits.model_calls,

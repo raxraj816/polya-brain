@@ -161,6 +161,31 @@ proxies, and fixed response/time/passage bounds. The same total external budget,
 privacy boundary and offline switch apply. See Chapter 13-P for live failures and
 repaired development cases; fresh efficiency/transfer comparisons remain required.
 
+For a typed public-fact gap, controller 0.5.9 now stops safely when acquisition
+cannot fit the remaining budget and no other feasible action exists. It does not
+substitute a request for user-owned information for this resource limit. Genuine
+clarifications remain available; reports expose the reason from the latest
+validated controller decision. Resource ceilings and learning gates are unchanged.
+See `Chapter_13P_Public_Research_Budget_Stop.md` for verification and scope.
+
+Controller 0.5.10 extends that boundary to typed public gaps with missing, failed
+or privacy-blocked acquisition routes. A fallback question cannot reclassify
+public evidence as user-owned. Safe alternative actions and real private-input
+clarifications remain eligible. The existing decision trace distinguishes a
+budget rejection from unavailable safe research; CLI and persisted reports expose
+the corresponding guidance without retrying or relaxing evidence/privacy gates.
+See `Chapter_13P_Public_Research_Unavailable.md`. No core contract changes.
+
+Controller 0.5.11 and page reader 0.2.3 permit a distinct page read after a known
+failed read only when a later web-discovery batch has completed evaluation.
+The failed read must have an action-bound URL attempt in the trace. Unbound or
+unknown failures remain blocked, including legacy failures without that binding.
+The same URL cannot repeat, at most two reads may be attempted per run, and shared
+budgets/privacy restrictions still apply. Acquired passages remain candidates
+until evaluated. This narrow eligibility gate supersedes the controller's generic
+same-capability failure veto only for page reads; other retry policy is unchanged.
+See `Chapter_13P_Page_Read_Recovery.md` for regression and integration evidence.
+
 ## Chapter 13-P: Verification-driven public research
 
 A failed conclusion checker can request one bounded public-research round through
@@ -371,3 +396,131 @@ cannot create parent paths, insert/delete list elements, replace the root or use
 overlapping paths. It does not change canonical state or waive recovery rules.
 Existing observation traces retain bounded repair identity metadata through the
 semantic broker; no new persistent field or migration is introduced.
+
+### Chapter 13-P: citation provenance at final verification
+
+Both model conclusion paths screen rendered web citations after semantic review
+and before proposing canonical success. A Markdown parser handles references,
+autolinks, tables and code boundaries. Citations require a current admitted URI
+and raw excerpt; numbered fragments also require a heading in that same source's
+excerpt. Other fragments require the exact admitted locator. Source claims and
+cross-references cannot supply missing section coverage.
+
+An unsupported citation produces failed verification, clears the proposed answer
+and reflection, and records bounded diagnostics in `citation_provenance_checked`.
+Model usage remains charged. Existing controller, recovery, report and memory
+paths consume the failed state; this adds no model call or core contract.
+
+Code examples and explicitly disclaimed future links are not evidence. Missing
+or disguised citations, entailment, source truth, and whether a numbered line
+actually supports a claim remain semantic review responsibilities. See
+[implementation and limits](../03_implementation/Chapter_13P_Citation_Provenance.md).
+
+### Workbench transport deadlines
+
+The browser proxy bounds complete transfers separately from backend execution:
+30 seconds for ordinary routes, 330 seconds for run/respond/event streams, with
+10-second authentication and upload sublimits. Ordinary responses are buffered
+up to 16 MiB before delivery; event streams propagate cancellation and deadline
+errors without buffering the complete stream. Neither successful headers nor
+trickling bytes renew the total deadline. A local abort never authorizes action
+replay, allowance release or a claim that backend execution stopped. Existing
+session polling and history are the recovery authority for ambiguous responses.
+See [Chapter 98 transport recovery](../03_implementation/Chapter_98_Workbench_Transport_Recovery.md)
+for error semantics, verification and remaining limits.
+
+### Authenticated storage-write admission
+
+Session creation (ordinary and source/check) and feedback use independent UTC
+daily write caps per owner and across authenticated owners. Existing persisted
+rows supply accounting under a short PostgreSQL advisory transaction lock; the
+database clock determines the admitted timestamp, and the insert commits with
+the check. No separate charge survives a rolled-back write. Feedback additionally
+stops at 100 records per session. These are API storage controls, not Cognitive
+Runtime fields, provider spend limits or a replacement for edge throttles.
+Migration `20260930_0010` adds counting indexes only. Future deletion/retention
+must preserve current-day accounting. See [policy and evidence](../03_implementation/Chapter_77_Storage_Write_Limits.md).
+
+### HTTP upload admission before parsing
+
+The outermost pure ASGI middleware bounds all HTTP request bodies to 120,000 bytes
+and 10 seconds total before authentication, routing and parsing. Declared length
+is an early rejection aid; actual chunk bytes determine admission. Completed
+bodies preserve original content and subsequent disconnect signals. Only receive
+is timed, leaving execution and response streaming under their existing controls.
+Framing failures, excess bytes, expiry and unsupported compression never dispatch
+the application. Per-request bounds do not replace server/edge header, concurrency
+or rate controls. See [Chapter 77 request-body evidence](../03_implementation/Chapter_77_Request_Body_Admission.md).
+
+### Chapter 13-P: recover malformed sandbox proposals before dispatch
+
+Sandbox code/test bounds are checked both at model-output validation and execution
+admission. This gives oversized or malformed proposals the existing single bounded
+structured-response repair, instead of failing outside that repair boundary.
+The same limits apply (20,000 code characters, 1..20 tests, 2,000 characters per
+test); no local truncation or expected-result rewriting is allowed. Literal-origin
+errors identify bounded task/test/line locations without echoing source values.
+No new core field, retry loop or relaxed success criterion is introduced.
+
+### Chapter 172: lean-first differential verification for implementation tasks
+
+Self-contained implementation requests (stated Python signature, sandbox enabled,
+no seed evidence, fresh state) bypass the general kernel and run
+`app/verified_coding`: one lean solve, one independent oracle call that never sees
+the candidate, a deterministic differential harness in the existing sandbox, and at
+most two adjudicated repair rounds grounded in verbatim problem text. Everything
+else, including resumed runs, stays in the kernel. Rationale: the kernel lost to a
+lean loop on known coding cases at about 3x cost, while the lean loop's own tests
+share its misreadings. The harness owns the verdict of agreement; models only
+propose code, references and rulings, and every applied ruling is re-executed.
+The certificate is projected into existing state contracts and trace metadata; no
+core contract field was added. Sandbox outages stop the run rather than being
+presented to a model as failing code. See
+[Chapter 172](../03_implementation/Chapter_172_Differential_Verification.md).
+
+### Chapter 173: verified changes reuse the differential harness
+
+`app/verified_change` reads two versions of one standard-library-only module
+through read-only git, runs them through the verified-coding harness in a new
+exhaustive mode (old = reference, new = candidate), and classifies concrete
+differences against the stated change intent. Behavior-preserving intents need no
+classification call. The command lives in the existing CLI (`verify-change`); no
+API, database or core contract change yet. See
+[Chapter 173](../03_implementation/Chapter_173_Verified_Changes.md).
+
+The shared differential harness at 0.2.0 preserves typed equality recursively for
+collection values and keys and typed snapshots for mutation/object checks. It
+fails closed on incomplete iterator materialization, unexecutable required checks
+and failed/truncated sandbox results. These failures use existing setup-error and
+certificate-limitations channels; no new core contract or success score is added.
+See [adversarial verification](../03_implementation/Chapter_172_Adversarial_Verification.md).
+
+At harness 0.3.0, existing generator-error and reference-timeout counters also
+block clean certification. Both consumers use bounded retry and retain partial
+counts and concrete counterexamples; coding rechecks coverage after repairs.
+Requested scale checks cannot be silently dropped. See
+[coverage behavior](../03_implementation/Chapter_172_Comparison_Coverage.md).
+
+### Chapter 174: verified claims and failure-pattern memory
+
+`app/verified_claims` answers questions over explicit local tables lean, then proves
+each quantitative claim with an independent derivation that never sees the answer's
+values or code, compared deterministically on the real data and seeded perturbed
+copies inside one sandbox run (`execute_with_data`: bounded, read-only, no mounts).
+`app/memory/failure_patterns` records confirmed defects from all three verification
+paths and retrieves them as prompt hints only; it is file-backed so local runs
+learn, and it adds no core contract or database table yet. See
+[Chapter 174](../03_implementation/Chapter_174_Verified_Claims.md).
+
+### Chapter 176: PolyaBrain Reader owns retrieval and reading
+
+`app/reader` answers factual questions without a language model or a search vendor:
+deterministic question analysis, Wikidata typed claims, Wikipedia pages ranked with
+BM25, typed span extraction with general reading rules, and a corroborated /
+single-source / conflicting / insufficient-evidence status over verbatim evidence.
+All source access goes through one polite, bounded, cached fetcher that follows
+Wikimedia's rate limits. It is exposed as `polyabrain lookup` and as the
+`SEARCH_PROVIDER=polya` research provider; it adds no core contract, API route or
+database table. Frozen trusted precision was 0.75, and by founder direction (rent
+tools, own the brain) it stays optional and opt-in, never the default. See
+[Chapter 176](../03_implementation/Chapter_176_PolyaBrain_Reader.md).

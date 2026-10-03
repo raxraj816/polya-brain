@@ -1,0 +1,107 @@
+{
+  "case_id": "mechanism_outcome",
+  "category": "scientific_reasoning",
+  "direct": {
+    "actions": [
+      "experiment"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified treatment mean (12.0) is greater than control mean (10.0), matching Mechanism B's directional prediction.",
+      "Identified stated limitation regarding external validity."
+    ],
+    "conclusion": "Mechanism B matches the treatment response because an increase of 2.0 was observed (control mean 10.0 vs. treatment mean 12.0). A limitation of this finding is that it does not establish external validity.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/mechanism_outcome/experiment"
+    ],
+    "latency_ms": 4091.0971250850707,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "experiment",
+        "call_index": 1,
+        "capability": "experiment",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/mechanism_outcome/experiment",
+          "status": "succeeded",
+          "summary": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+        },
+        "target": "controlled test"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1896,
+      "model_calls": 2,
+      "output_tokens": 380,
+      "total_tokens": 2276
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "experiment",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verify mechanism selection matches observed positive difference (treatment mean 12.0 vs control mean 10.0 supporting Mechanism B).",
+      "Verify that the lack of external validity limitation is explicitly stated in accordance with canonical evidence."
+    ],
+    "conclusion": "Mechanism B matches the observed treatment response, as the randomized trial shows an increase of 2.0 (treatment mean 12.0 vs. control mean 10.0); however, this finding does not establish external validity.",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/mechanism_outcome/experiment"
+    ],
+    "latency_ms": 9596.338874893263,
+    "observation_trace": [
+      {
+        "capability": "experiment",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+      },
+      {
+        "capability": "deliberator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed 2 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+      },
+      {
+        "capability": "conclusion_checker",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Conclusion check passed all declared criteria."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3843,
+      "model_calls": 2,
+      "output_tokens": 1541,
+      "total_tokens": 5384
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

@@ -1,0 +1,136 @@
+{
+  "case_id": "stale_only",
+  "category": "temporal_validity",
+  "direct": {
+    "abstention_correct": true,
+    "answer_correct": false,
+    "checks_performed": [
+      "exhausted_search_budget",
+      "evaluated_staleness_constraint"
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [],
+    "external_calls": 3,
+    "forbidden_output_hit": true,
+    "latency_ms": 9544.842541916296,
+    "parse_error": null,
+    "passed": false,
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The official AcmeFlow API request limit was 20 requests per minute.",
+              "extra_snippets": [],
+              "id": "stale-limit-a",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2023-01-01T00:00:00Z",
+              "title": "Archived request limit",
+              "url": "https://docs.example.org/archive-limit"
+            },
+            {
+              "excerpt": "Archived testing recorded an AcmeFlow API request limit of 20 requests per minute.",
+              "extra_snippets": [],
+              "id": "stale-limit-b",
+              "provider_rank": 2,
+              "provider_score": null,
+              "published_at": "2023-02-01T00:00:00Z",
+              "title": "Old independent request limit",
+              "url": "https://research.example.edu/archive-limit"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API request limit rate limit documentation",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API request limit rate limit documentation"
+      },
+      {
+        "action_type": "search",
+        "call_index": 2,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "current official AcmeFlow API request limit rate limit documentation 2024 2025",
+          "status": "succeeded"
+        },
+        "target": "current official AcmeFlow API request limit rate limit documentation 2024 2025"
+      },
+      {
+        "action_type": "search",
+        "call_index": 3,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "\"AcmeFlow\" API rate limit",
+          "status": "succeeded"
+        },
+        "target": "\"AcmeFlow\" API rate limit"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 5364,
+      "model_calls": 4,
+      "output_tokens": 880,
+      "total_tokens": 6244
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "expected_terminal": "insufficient_evidence",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": true,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "search",
+      "evaluate_evidence",
+      "search",
+      "evaluate_evidence",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [],
+    "conclusion": null,
+    "cycles": 7,
+    "evidence_source_uris": [],
+    "external_calls": 3,
+    "forbidden_output_hit": false,
+    "latency_ms": 14.02050000615418,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? primary authoritative source exact evidence",
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? current official documentation latest revision date alternative source domain",
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? current official documentation latest revision date direct specification dataset or changelog"
+    ],
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": false
+  },
+  "repetition": 1
+}

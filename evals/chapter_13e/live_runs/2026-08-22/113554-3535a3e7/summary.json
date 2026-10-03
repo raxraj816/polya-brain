@@ -1,0 +1,168 @@
+{
+  "benchmark": "chapter_13e_live_verifier",
+  "case_count": 1,
+  "fairness": {
+    "direct_model_receives_complete_structured_observation": true,
+    "fictional_nonconfidential_cases": true,
+    "full_context_receives_all_observation_documents_and_distractors": true,
+    "ordinary_retrieval_uses_fixed_lexical_top_two": true,
+    "rotated_condition_order": true,
+    "same_candidate_and_criteria": true,
+    "same_model_for_model_conditions": true
+  },
+  "gate": {
+    "chapter_13e_verifier_gate_passed": false,
+    "general_intelligence_win_claimed": false,
+    "metrics": {
+      "completed_case_repetitions": 1,
+      "direct_model_false_passes": 0,
+      "direct_model_passed": 1,
+      "direct_model_total_tokens": 1182,
+      "expected_case_repetitions": 1,
+      "full_context_false_passes": 0,
+      "full_context_passed": 1,
+      "full_context_total_tokens": 1535,
+      "ordinary_retrieval_false_passes": 0,
+      "ordinary_retrieval_passed": 1,
+      "ordinary_retrieval_total_tokens": 1251,
+      "polya_false_passes": 0,
+      "polya_passed": 1,
+      "polya_total_tokens": 0
+    },
+    "requirements": {
+      "all_case_repetitions_completed": true,
+      "all_polya_verdicts_correct": true,
+      "full_polya_criterion_coverage": true,
+      "minimum_three_repetitions": false,
+      "polya_quality_not_below_direct": true,
+      "polya_quality_not_below_full_context": true,
+      "polya_quality_not_below_retrieval": true,
+      "six_cases_two_families": false,
+      "zero_polya_false_passes": true,
+      "zero_polya_model_tokens": true
+    }
+  },
+  "limitations": [
+    "This benchmark isolates verification after candidate generation and observation, not end-to-end general problem solving.",
+    "Polya receives a typed declarative verifier binding; model baselines receive equivalent criteria and observation content in text/JSON.",
+    "Procedure replay and autonomous capability execution require separate outcome gates.",
+    "No general intelligence superiority claim follows from this narrow gate."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "repetitions": 1,
+  "results": [
+    {
+      "case_id": "release_all_rules_pass",
+      "condition_order": [
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked criterion 0: tests array [true, true, true] is all true.",
+          "Checked criterion 1: risk 0.14 is less than or equal to 0.2.",
+          "Checked criterion 2: approved equals true."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1071,
+        "latency_ms": 4461.976,
+        "model_calls": 1,
+        "output_tokens": 111,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:direct_observation"
+        ],
+        "total_tokens": 1182
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked that all required tests pass: tests observation is [true, true, true], all true.",
+          "Checked that measured risk score is at most 0.2: risk observation is 0.14, which is <= 0.2.",
+          "Checked that independent release decision is approved: approved observation is true."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1156,
+        "latency_ms": 6665.72,
+        "model_calls": 1,
+        "output_tokens": 379,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:observation:tests",
+          "release_all_rules_pass:observation:risk",
+          "release_all_rules_pass:observation:approved"
+        ],
+        "total_tokens": 1535
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked execution_outputs[0].output.tests = [true, true, true], all true, satisfying criterion 0.",
+          "Checked execution_outputs[0].output.risk = 0.14, which is <= 0.2, satisfying criterion 1.",
+          "Checked execution_outputs[0].output.approved = true, satisfying criterion 2."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1096,
+        "latency_ms": 4808.733,
+        "model_calls": 1,
+        "output_tokens": 155,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:distractor:1",
+          "release_all_rules_pass:distractor:2"
+        ],
+        "total_tokens": 1251
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.133,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    }
+  ],
+  "run_id": "113554-3535a3e7",
+  "started_at": "2026-08-22T11:35:54.686024+00:00",
+  "status": "complete"
+}

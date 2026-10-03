@@ -1,0 +1,109 @@
+{
+  "case_id": "release_one_test_fails",
+  "condition_order": [
+    "full_context",
+    "ordinary_retrieval",
+    "polya",
+    "direct_model"
+  ],
+  "direct_model": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked tests array [true, false, true] for all true: found false at index 1.",
+      "Checked risk 0.08 <= 0.2: passes.",
+      "Checked approved equals true: passes."
+    ],
+    "citations_valid": true,
+    "context_documents": 1,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1061,
+    "latency_ms": 9172.144,
+    "model_calls": 1,
+    "output_tokens": 388,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_one_test_fails:direct_observation"
+    ],
+    "total_tokens": 1449
+  },
+  "family": "multi_rule",
+  "full_context": {
+    "accepted": false,
+    "checks_performed": [
+      "Check 0: criterion 'Every required test passes' against observed tests [true, false, true] \u2014 found a false result, so not all required tests pass.",
+      "Check 1: criterion 'The measured risk score is at most 0.2' against observed risk 0.08 \u2014 0.08 <= 0.2, so this criterion passes.",
+      "Check 2: criterion 'The independent release decision is approved' against observed approved true \u2014 matches, so this criterion passes."
+    ],
+    "citations_valid": true,
+    "context_documents": 5,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1159,
+    "latency_ms": 2897.459,
+    "model_calls": 1,
+    "output_tokens": 363,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_one_test_fails:observation:tests",
+      "release_one_test_fails:observation:risk",
+      "release_one_test_fails:observation:approved"
+    ],
+    "total_tokens": 1522
+  },
+  "ordinary_retrieval": {
+    "accepted": false,
+    "checks_performed": [],
+    "citations_valid": false,
+    "context_documents": 2,
+    "criterion_coverage": 0.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1492,
+    "latency_ms": 85983.715,
+    "model_calls": 2,
+    "output_tokens": 1033,
+    "parse_error": "model capability response failed contract validation: source_ids: List should have at least 1 item after validation, not 0",
+    "passed": false,
+    "source_ids": [],
+    "total_tokens": 2525
+  },
+  "polya": {
+    "accepted": false,
+    "checks_performed": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+      "criterion-2-structured: Checked the numeric upper bound.",
+      "criterion-3-structured: Compared the structured value for exact equality."
+    ],
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_checks": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 0,
+    "latency_ms": 3.416,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "passed": true,
+    "status": "insufficient_evidence",
+    "total_tokens": 0,
+    "verified_terminal": true
+  },
+  "repetition": 1
+}

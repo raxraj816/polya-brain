@@ -6,6 +6,33 @@ Date prepared: 2026-05-25
 
 ## 1. Product Decision
 
+When a run already contains source evidence, initial framing must receive a bounded
+view of those existing snapshots as untrusted user-message data. Preserve original
+raw input and state; source instructions cannot change the objective. Distinguish
+reading supplied text from acquiring missing material. Do not create blocking gaps
+merely to reread facts already available for analysis, or require observations of
+future checks when only a conditional explanation was requested. Include source
+identifiers, raw excerpts and explicit truncation/omission metadata; extracted
+claims without excerpts remain labeled as such. Bound this context to 16 sources,
+24,000 content characters total and 8,000 per source. This is a prompt projection,
+not an admission or truth certificate; later semantic verification remains required.
+Keep seed evidence within the caller's existing model-disclosure authorization.
+Verify exclusion from system instructions, boundedness, preserved state and repair
+context before a separately labeled live development follow-up.
+
+Launch-preparation evaluation must separate acquisition quality from reasoning over
+an already supplied source packet. For the latter, use identical snapshots, the
+same model, no external tools, equal request/token/time ceilings and frozen prompts
+for a lean answer-and-review baseline and the production cognitive capabilities.
+Adversarial development packets cover version scope, contradictory documents,
+unsupported execution claims and source instructions. Freeze rubrics separately
+from solver input, preserve all outcomes and costs, and leave semantic judgments
+unscored until independently reviewed. A developer-authored packet is never a
+held-out task, and mechanical citation checks are never semantic correctness.
+Independent task intake, blinded ratings and voluntary-return pilot records remain
+separate gates; empty forms must not count as evidence. No comparative superiority
+claim follows from completing the evaluation machinery.
+
 This section is the binding product-identity decision for every PolyaBrain
 builder, document, architecture choice, benchmark, and roadmap chapter.
 
@@ -2349,8 +2376,39 @@ Treat human questions for externally acquirable gaps as recovery actions, not ch
 competitors to feasible autonomous acquisition. After capability, privacy, failure
 and budget gates, defer a fallback question when a non-human action for that same
 gap remains available. Keep explicit user-owned clarification immediate and retain
-human recovery when automated routes are unavailable, blocked or exhausted. Record
+human recovery for gaps whose ownership is not established when automated routes
+are unavailable or blocked. For a typed
+`current_external_fact` gap, a rejected acquisition reservation must not turn a
+public-source budget limit into a request for user-owned information. Remove that
+gap's fallback human question when a generated autonomous action cannot fit the
+remaining budget; still consider other feasible actions and genuine user-owned
+clarifications. If no action remains, stop with insufficient evidence and explain
+the acquisition budget limit in both CLI and persisted reports. Retain the exact
+rejected reservation in the existing decision trace, accumulated usage, admitted
+evidence, unresolved questions and prior failed checks. Do not reset budgets,
+automatically retry, manufacture verification, or classify arbitrary text as public
+research. Keep this reason in existing decision metadata, not a new canonical
+status or contract field. Test zero and partially consumed budgets, available
+acquisition, alternative memory, missing providers, private information, mixed
+gaps, persisted readback and stale/malformed stop metadata. This is a truthful
+termination repair, not proof that the original DART investigation now succeeds. Record
 this deferral in the decision trace; do not tune cost estimates to force a demo.
+
+Extend the typed-public boundary to missing, failed and privacy-blocked acquisition:
+an unavailable research route does not make public evidence user-owned. Reject a
+fallback `ask_human` for an unresolved `current_external_fact` target even when no
+acquisition reservation was evaluated. Prefer any remaining safe autonomous route
+and preserve genuine `user_owned_information` clarification, including mixed gaps.
+If no route remains, stop with insufficient evidence and distinguish unavailable
+safe research from an observed budget rejection in CLI and persisted guidance.
+Keep capability/privacy rejection reasons and preceding failed observations in the
+trace. Do not infer provider failure merely from missing registration, relax privacy,
+ask the user to perform the research, retry automatically, or create successful
+learning. This uses existing typed gaps and decision metadata, with no new core
+field. Verify missing configuration, actual failed/inconclusive observations,
+privacy refusal, alternate inspection/memory, mixed private gaps, unchanged untyped
+fallback and persisted reports. Earlier scope-review/page-read routing exits need
+their own evidence; this rule does not certify them or semantic source support.
 When every declared source is explicitly public/official online material, treat
 words such as "measurement", "experiment" and "document" as research subjects,
 not instructions to run a local experiment or inspect a file. Explicit user-owned
@@ -2390,6 +2448,17 @@ address; it does not create a new canonical planning engine or let sources choos
 actions. Do not repeatedly ask a broad original question after learning which
 specific part lacks evidence. This does not solve incorrect framing of private
 incident facts as necessary public research.
+
+Preferred scope-review and page-read routes must pass support, prior-failure,
+privacy and invocation-specific reservation checks before excluding alternatives.
+Retain rejected preferred candidates in the decision trace, then consider the next
+eligible preferred route or ordinary gap actions. Use the registered invocation
+reservation, not only the capability's static definition. Pending evidence
+evaluation remains an admission prerequisite: failing or unaffordable evaluation
+must stop without promoting candidates or repeatedly buying new evidence. Test
+both directions of static/dynamic reservation mismatch and preserve priority when
+the preferred action is eligible. Do not weaken evidence admission to improve a
+completion score.
 
 Add one bounded scope-review recovery after a public evidence batch fails to close
 its gap despite admitted evidence. Use the existing reframe action, with an
@@ -2439,7 +2508,22 @@ call from the same total budget; permit at most two attempts per run and no repe
 URL. A failed page read must not suppress a separately available web-search route.
 When a completed page read still leaves its gap unsupported, return to targeted
 search instead of automatically reading another page from the same discovery batch.
-A subsequent discovery can enable another distinct page read if budget remains. Privacy and offline gates apply. This avoids paying for repeated model-backed
+A subsequent discovery can enable another distinct page read if budget remains.
+This also applies after a failed read with a recorded, action-bound URL attempt:
+require a new web-discovery batch and its completed unresolved evaluation after
+the failure, then allow only an admitted, untried URL. A failure of one document
+must not permanently disable the page-reading capability for that gap. Preserve
+the two-attempt run ceiling, no-repeat-URL rule, unchanged shared budgets and
+evaluation-before-admission boundary. Missing or mismatched attempt records and
+unknown capability failures remain blocked; historical traces without the new
+attempt binding do not gain retry permission. Record the selected URL and action
+ID in existing attempt metadata, not a new core field. The controller may bypass
+its generic previous-failure veto only when this stricter page eligibility check
+establishes a distinct bounded read. Test fresh versus stale, unrelated, unevaluated
+and page-produced discovery; privacy and exhausted budgets; checkpoint serialization;
+one failed URL followed by a different successful read; and refusal of a third read.
+Successful acquisition is still untrusted candidate material, never a verified answer.
+Privacy and offline gates apply. This avoids paying for repeated model-backed
 search when the identified document already contains the missing knowledge.
 Negative tests cover private/loopback/mixed DNS answers, redirects, unsupported
 content, oversized/slow responses, unadmitted URLs, repeated reads and accounting.
@@ -2731,6 +2815,24 @@ zero model calls and preserved session identity. See
 `docs/03_implementation/Chapter_13M_Recoverable_Local_Investigations.md` for
 private-store retention, frozen-evidence semantics, and unreconciled in-flight
 or terminal-export failure boundaries.
+
+Launch-preparation verification now also uses actual SIGKILL subprocess faults:
+before dispatch, inside a capability, after completion but before result save, and
+after a safe durable checkpoint. Preserve refusal of uncertain replay and single-use
+continuation. Separately kill an admitted API worker before result persistence and
+after terminal persistence but before slot release; retain its active slot and daily
+charge until confirmed operator release, without discarding an already saved report.
+These are local deterministic fault tests, not hosted worker or provider billing proof.
+A separate loopback HTTP provider now completes after the admitted caller is
+confirmed dead. Checkpoint replay stays refused, active API admission and daily
+count remain retained, and no successful report appears. Confirmed operator release
+releases only the concurrency slot. This verifies uncertain local recovery against
+independent process completion; it does not establish external cancellation,
+provider SDK retries, invoice reconciliation or hosted operations. A subsequent
+real-HTTP probe kills and restarts Uvicorn against the same database and confirms
+retained uncertain status, duplicate/replacement admission refusal and explicit
+operator recovery. Authentication is a trusted fixture identity; browser and
+hosted restart proof remain separate.
 
 #### Chapter 13-N: Source-Visible Investigation Delivery
 
@@ -5556,3 +5658,453 @@ out-of-range edits, source-check and hypothesis-policy bypass attempts, exact
 preservation of untouched code/context and unchanged provider-attempt ceilings.
 Compare live full outcome and cost on both existing coding tasks before claiming
 an efficiency improvement.
+
+## Chapter 13-P follow-up: citation provenance before completion
+
+The readiness audit reproduced a model-passed answer citing an unadmitted URL,
+and a saved HTTP answer citing a section absent from its retained excerpts.
+Before accepting a model-proposed passing conclusion, deterministically check
+web citations against current admitted evidence. Parse Markdown links, references,
+autolinks and bare web URLs using a maintained parser; do not parse Markdown with
+regular expressions. Keep code examples outside citation interpretation. Ordinary
+narrative web links are references by default. A standalone paragraph containing
+only `Unverified link (not evidence):` and one web link may identify a future
+research target; this explicit disclaimer is not evidence or a verified claim.
+
+Require a matching source URI and a nonempty raw excerpt. Preserve path, query
+and scheme identity, allowing only syntax-equivalent URL normalization. For
+numbered section fragments, require the section heading in that source's raw
+excerpt, not a cross-reference or a model-extracted claim. Other fragments must
+already occur in the admitted source URI; unsupported locator forms require a
+document-level citation or further acquisition, never a silently rewritten link.
+This is necessary provenance coverage, not semantic entailment or evidence that
+the external source is correct. Missing citations, claims hidden in code and
+unlinked bibliographic references still require independent semantic review.
+
+Apply this check to both model verifier paths before state mutation and learning.
+A provenance failure replaces the proposed pass, removes answer/reflection, and
+retains bounded failure diagnostics and the candidate in existing trace metadata.
+Keep usage, failures and resource ceilings intact. Existing recovery may acquire
+better evidence or propose a corrected answer; it must pass fresh verification.
+No additional model request, canonical field, engine, ranking score or database
+migration is introduced. Bound parser inputs and citation counts and reject
+overflow rather than silently skipping validation.
+
+Verify wrong domains, paths, queries, missing excerpts, cross-reference-only and
+wrong-section citations, reference links/tables, encoded locators, code examples,
+explicit unverified targets, and malformed/oversized output. Preserve the saved
+failure and test synthetic non-HTTP numbered documents, both verifier adapters,
+CLI/API report truthfulness and failed-outcome learning suppression. These are
+development regressions, not a live model win or independent product validation.
+
+## Chapters 63/98 follow-up: bounded workbench proxy transfers
+
+Bound local proxy transport independently of the backend execution budget.
+Allow 30 seconds for ordinary routes and 330 seconds for run/respond and event
+stream routes, with 10-second sublimits for authentication preflight and request
+upload. The total includes preflight, upload, upstream headers and body; arriving
+headers or trickling bytes cannot reset it. Propagate browser disconnection to
+the proxy fetch, clean up streams/timers and never replay a mutation.
+
+Buffer ordinary responses up to 16 MiB before forwarding so a stalled/truncated
+body cannot appear as a complete successful JSON response. Keep event streams
+incremental with the same total deadline and cancellation cleanup. Retain the
+120,000-byte request limit, authentication checks and narrowly forwarded headers.
+Transport expiry is not proof that backend work was cancelled or never dispatched.
+Show an actionable uncertain-outcome message and use saved session/history state
+before a human retries. Do not release backend admissions or reset budgets on a
+browser timeout. Test stalled headers/bodies/uploads, disconnects, slow streams,
+auth rejection, response metadata and one-dispatch semantics; distinguish local
+transport tests from process-loss or external-provider reconciliation evidence.
+
+## Chapter 77 follow-up: authenticated storage-write admission
+
+Run allowances do not bound unexecuted session creation or feedback. Add separate
+UTC daily write limits: default 50 sessions per user and 500 across authenticated
+users, and 100 feedback records per user and 1,000 across authenticated users.
+Ordinary and source/check session creation share one allowance. A zero limit
+closes that write path while preserving reads. Operator-local bypass remains
+explicitly outside shared-service quotas. Feedback also has a lifetime cap of
+100 records per session, matching the existing bounded review list.
+
+Use existing durable session/feedback rows as successful-write accounting, with
+supporting indexes. Serialize each short count-and-write transaction across API
+workers using a PostgreSQL advisory transaction lock; read the database clock
+after acquisition and store that timestamp on the new row. Do not reserve a
+separate charge or commit before the write. Rollback consumes no allowance;
+lost responses after commit remain counted. Return 429 and Retry-After for daily
+limits, with a useful explanation and no partial source artifacts. Check identity,
+ownership, input validity and session disposition before admitting feedback.
+
+This bounds daily retained writes, not lifetime storage, raw HTTP traffic, account
+creation or provider spending. No deletion endpoint is added. Future retention or
+deletion must preserve current-window accounting or introduce durable counters
+before deleting counted rows. Prove same-user/global races, restarts, rollback,
+UTC rollover, shared source/ordinary limits, cross-account negatives and browser
+input preservation. Keep these application controls separate from edge throttles,
+data lifecycle, independent security review and public-launch approval.
+
+## Chapter 77 follow-up: request bodies before JSON parsing
+
+Apply a pure ASGI upload gate outside authentication and routing for every HTTP
+path and method, including unknown routes and operator-local mode. Buffer at most
+120,000 body bytes with one 10-second deadline for the whole upload. Reject an
+oversized declared length before receiving bytes; independently count actual
+decoded chunks so missing or misleading lengths cannot bypass the cap. Reject
+ambiguous framing and unsupported content encodings without invoking the app.
+Return 413 for size, 408 for upload expiry and 400 for malformed framing; do not
+drain an unbounded rejected body or replay an action. A disconnect before upload
+completion does not dispatch the request.
+
+Admitted requests retain original bytes, authentication and validation behavior.
+Only upload reception is timed: parsing, execution and response streaming keep
+their existing controls. Preserve response cookies and disconnect signaling.
+Prove no route/dependency/storage dispatch on rejection, valid boundary payloads,
+total time despite trickle chunks, early disconnects, real server socket behavior,
+and ordinary plus OIDC browser flows. Header parsing before ASGI, aggregate
+concurrency, request rate, decompression, and event-loop CPU scheduling require
+separate server/edge controls; this does not complete public abuse protection.
+
+## Chapter 66 follow-up: finished runs without verified conclusions
+
+A terminal invocation can have execution status `completed` while verification
+failed. In the workbench label that execution state "run finished", and reserve
+successful verification indicators for an actual passing verdict. An absent
+report conclusion reads "No verified conclusion is available" in both browser
+and export, preserving failure checks and recommended recovery. Do not display a
+rejected candidate as the conclusion; retain it as diagnostic trace data. Verify
+persisted wrong-source/wrong-section responses, reload, mobile, export, and a
+passing control using fake model outputs without claiming improved live reasoning.
+This is presentation of existing contracts, not a new outcome or automatic retry.
+
+## Chapter 171 follow-up: evidence package before competitive claims
+
+Complete a matched, spend-bounded development comparison and blinded review
+package before claiming improved quality or economy. Pin the same observed model,
+problem, sandbox access and outer limits for both arms. Preserve every failed or
+incomplete attempt; count usage from raw responses and reject missing or mismatched
+artifacts. Freeze the protocol before execution and identify all known development
+cases as such. Provider cost telemetry is not an invoice or account spending cap.
+Stop further paid dispatch on unknown cost, route mismatch or local budget denial.
+Collect independent private tasks and human judgments separately; do not create
+fictitious reviewers, participants, preferences or return use. Mechanism ablations
+remain offline/adversarial probes until paired live evidence demonstrates their
+effect on fresh outcomes. Product readiness requires both engineering gates and
+independent product-value evidence, not an aggregate test count.
+
+### Chapter 13-P follow-up: actionable generated-check repair
+
+The frozen launch-preparation coding batch on October 1 produced six stops at
+literal-expectation admission after the one bounded repair. Prose examples and
+receiver aliases do not satisfy the existing exact-token origin rule. Keep that
+rule intact: do not silently infer provenance or rewrite expected results into
+passes. Make rejection diagnostics identify the task/test indices and offending
+comparison locations (bounded, without echoing code or user data), and clarify that prose examples
+need executable reference comparisons when no exact callable assertion is supplied.
+Preserve inputs, supplied values and previously admitted checks. No new retry,
+model call, contract field or relaxed verifier is authorized by this change.
+Verify adversarial admission tests, saved failure replay, and a separately labeled
+post-change development batch under the remaining original US$5 allowance. The
+original failures remain part of the evidence; post-change results are not held out.
+
+The post-change probe also exposed an existing boundary mismatch: a 2,105-character
+sandbox test passes model output parsing, then fails the 2,000-character execution
+admission outside the bounded model repair. Move the existing code/test shape and
+size checks into the model output validation boundary as well, retaining execution
+admission as defense in depth. Report exact parameter locations without payloads.
+Use the same one bounded repair and existing limits; do not truncate tests, split
+or rewrite them silently, or mark failed proposals successful. Verify malformed
+parameter rejection and successful model-provided repair with unchanged checks.
+
+### Chapters 66/98 follow-up: persisted running state is not a liveness signal
+
+The backend-death browser probe recovered without replay but displayed
+"Investigation in progress" after confirmed worker death. Present a stored running
+state as an outcome pending, not proof of live execution. The banner should say
+that it is awaiting a recorded outcome and distinguish saved status from current
+progress. Running reports should guide trace inspection and refresh before retry;
+operator-stopped reports should guide inspection of possible provider work before
+a new investigation. Keep persisted statuses, quotas and recovery decisions
+unchanged. Verify actual browser disconnection/reconnection, late provider
+completion, operator release, export and mobile reload with one original dispatch.
+
+## Chapter 172: Differential verification and lean-first escalation
+
+Differential certificate hardening (2026-10-02): comparison must preserve boolean
+versus numeric types recursively, including mapping keys, sets and unordered
+collections. An explicit numeric-type relaxation may equate integers and floats,
+but never booleans; a collection-order relaxation does not relax its element types.
+Both sides reaching an iterator materialization limit is incomplete evidence,
+not agreement. An unexecutable required example or pinned regression must produce
+an unverified result with a reason. A sandbox timeout, nonzero exit or truncated
+output cannot be overridden by an embedded passing result marker. Exercise these
+boundaries with adversarial developer controls and valid-output controls through
+the actual sandbox and certificate consumers. These are verifier mechanism tests,
+not independent solver-quality or catch-rate evidence. No new core contract is needed.
+Mutation snapshots must preserve value types, including object fields, and
+compare post-call arguments even when both calls raise the same exception.
+Carry the concrete incomplete-check reason in existing certificate limitations
+so a user can see why independent verification stopped.
+Coverage hardening: a completed sample does not excuse failed input generation,
+skipped reference timeouts, or an unusable requested scale check. Such omissions
+prevent clean certification and enter the existing bounded generator/oracle retry.
+Preserve completed counts, concrete counterexamples and the omission reason in
+the trace/report. Observed regressions remain reportable with incomplete coverage;
+an absence of observed differences or only intended differences cannot be promoted
+to a clean result while sampling is incomplete. Recheck this after repair too.
+
+Evidence that motivates this chapter: on every known coding development case a
+lean one-call tool loop already passed the withheld checks (12/12 twice), while
+the full kernel used about 3x cost, 5x tokens and 2.3x time and initially failed
+seven of twelve at its own admission gates. Orchestration that only re-derives what
+the model already gets right cannot win. The kernel must spend its effort where a
+direct model is confidently wrong, and must cost almost nothing where it is not.
+
+Decision for self-contained implementation tasks (a requested function or class
+with a stated signature, sandbox execution enabled, no seed evidence):
+
+1. **Solve lean first.** One bounded model call proposes code, its own assertions
+   and an explanation; failures of its own assertions get bounded repair. This is
+   the same procedure as the matched lean baseline.
+2. **Build an independent oracle.** A separate call that never sees the candidate
+   receives only the problem and returns: the simplest obviously-correct reference
+   for small inputs (brute force preferred), a seeded small-input generator, the
+   examples stated in the problem as executable calls with expected results, and
+   optional scale inputs at stated limits. Examples whose call and expected text
+   are not literally present in the problem are dropped as unsourced.
+3. **Differential execution.** A deterministic harness, not a model, runs the
+   candidate and reference on sourced examples and hundreds to thousands of
+   generated inputs in the networkless sandbox, smallest sizes first, with
+   per-call time limits, input-mutation detection and exception parity. It returns
+   counts and the smallest disagreement. Scale inputs measure candidate runtime only.
+4. **Adjudicate concrete disagreements.** When candidate and reference disagree, a
+   bounded call sees the problem, the single smallest counterexample and both
+   outputs, decides which side the problem text supports (or that the problem is
+   ambiguous), states the expected value with the governing requirement, and
+   repairs the side it judged wrong. Deterministic consistency checks reject a
+   verdict whose expected value contradicts the side it selects. The repaired code
+   is re-verified from scratch. Rounds are bounded.
+5. **Certify or disclose.** Deliver one of: verified (all comparisons agree),
+   repaired and verified (with the counterexample and governing requirement),
+   disputed (unresolved disagreement, delivered with explicit warning), ambiguous
+   specification (the concrete input on which readings diverge, as an open
+   question), or unverified (oracle unusable). Never present disputed or
+   unverified code as verified.
+
+The certificate is projected into existing contracts: plan tasks and execution
+outputs for each sandbox run, evidence items for sourced examples and differential
+results, a `VerificationReport`, trace events labeled execute/verify/compare, and
+the final answer. No new core contract field is authorized; the certificate lives
+in trace metadata until it proves product value. The kernel path remains the
+default for every other input and for coding tasks with seed evidence.
+
+Known failure modes and guardrails: the oracle shares the model family and can
+share a misreading (sourced examples and concrete adjudication reduce, not remove,
+this); random testing is not proof; adjudication can side with a wrong reference
+and damage a correct candidate (measure this harm explicitly); generated inputs
+may miss the failing region; scale timing is an observation, not a complexity
+proof. Every certificate states these limits.
+
+Evaluation gate: a frozen held-out set of familiar-problem-with-a-twist tasks,
+authored and hashed before any solver run, scored by withheld checks validated
+against correct references and realistic mutants. Paired arms share the same lean
+answer: lean as delivered, lean plus one self-review/repair pass (the simplest
+strong alternative), and lean plus differential verification; the full kernel
+runs as a separate arm. Report corrected failures, harmed successes, extra calls,
+tokens, cost and time per arm under the remaining original US$5 campaign
+allowance. Agent-authored tasks are not independent human tasks; claims stay
+narrow to this category until independent tasks and real users confirm them.
+
+Chapter 172 result (2026-10-02): on 30 paired held-out attempts across 15 frozen,
+agent-authored tasks, the lean loop was correct every time once a scoring-namespace
+defect in one withheld check was fixed and disclosed. Differential verification
+fixed nothing because nothing failed, harmed nothing, issued 29 correct
+certificates and no false ones, and added about 0.01 USD per task; lean plus
+verification cost about 40% less than one kernel attempt, which failed to deliver
+once. Consequence: keep the lean-first verified path as the default for
+self-contained implementation tasks because it is cheaper than the kernel and
+auditable, but do not claim error-catching superiority until real users' tasks show
+lean failures that verification repairs. The next evidence must come from real
+specifications, not more agent-authored tasks.
+
+## Chapter 173: Verified changes — prove what an AI-written change did
+
+Chapter 172 showed that clear, self-contained tasks rarely need rescuing; the
+durable pain is trusting a change to code that already exists. The first
+user-facing verification wedge is therefore a behavior-change certificate for a
+change in the user's own repository:
+
+1. The user names a git repository, a Python module path, a function, a base
+   revision (default HEAD) and the changed version (the working tree or a second
+   revision), plus the stated intent of the change (for example "refactor; no
+   behavior change" or a pull-request description).
+2. Both versions are read from git without modifying the repository. Only modules
+   whose imports are standard library are admitted for now; anything else is
+   refused with the reason, never silently approximated.
+3. One model call writes an adversarial input generator from both function versions
+   and the intent. The deterministic differential harness then runs old and new
+   side by side in the networkless sandbox (outputs, exception types, input
+   mutation) and reports the smallest inputs on which behavior differs.
+4. Each concrete difference is classified against the stated intent as intended,
+   regression or unclear, with a verbatim quote from the intent (or none when the
+   intent is silent). A behavior-preserving intent makes every difference a
+   regression without a model call.
+5. The certificate says: no behavior change found on N inputs; only intended
+   changes; regressions found (each with input, old output, new output); or
+   unverified (module could not be isolated or no inputs could be generated).
+
+Guardrails: never edit the repository; read-only git access only; bounded source
+sizes; the generator cannot see which side is "expected"; random testing is not
+proof; a classification is a model judgment over quoted intent and is shown with
+the concrete evidence so the user decides. Evaluation must use real changes that
+later needed fixes, not agent-authored tasks, before any catch-rate claim.
+
+Chapter 173 result (QuixBugs, 2026-10-02/03): presented as behavior-preserving
+refactors, 38 of 38 real one-line bugs were flagged with concrete inputs and 0 of 37
+behavior-identical reformattings raised a false alarm, at about 0.008 USD per program,
+after the control arm exposed and the team fixed three harness comparison defects
+(v1 had 7 false alarms). Two programs and one control did not run because of
+provider failures. The dataset is public and old and the bugs are not AI-written; the
+next gate is real repository fix commits and AI-generated changes.
+
+## Chapter 174: verified claims in investigations (approved 2026-10-03)
+
+Strategy evidence and requirements: `docs/00_vision/Raising_The_Bar.md`. Every
+quantitative claim an investigation over user-supplied tables delivers carries a
+proof status; model self-review alone never counts as proof.
+
+1. Lean answer: one call sees the question, the table schema and bounded sample rows,
+   and returns the answer text, each quantitative claim with its stated value, and
+   standard-library analysis code computing every claim. The code runs on the full
+   data in the networkless sandbox; a stated value that differs from its own computed
+   value is flagged as a mismatch, never passed.
+2. Independent derivation: a separate call sees only the question, schema, sample
+   rows and the claim statements (no values, no code) and writes its own computation,
+   preferring a different method (in-memory SQL via sqlite3).
+3. Deterministic comparison on the real data and on seeded perturbed copies (row
+   subsets, shuffles, value jitter). Agreement must hold on every variant; agreement on
+   the original data alone is a coincidence risk, not proof.
+4. One bounded adjudication per disagreement with the question, both derivations and
+   values; a corrected value is shown with the original. Unresolved disagreement is
+   reported as disputed.
+5. Proof statuses: proven, corrected, mismatch (stated value contradicts its own
+   computation), disputed, unverified (no independent derivation or execution failed).
+6. Tables are read only from explicit paths, embedded read-only into the sandbox run,
+   bounded in size, and never written. Confirmed defects feed a failure-pattern store
+   (local file now, Postgres later) whose benefit must be measured before it is
+   promoted. Evaluation: frozen tasks with known answers plus controls; agent-authored
+   tasks are labeled as such until an approved public benchmark is used.
+
+## Chapter 175: runs that cannot finish must say why
+
+Trigger: a founder's exactly-once payments design problem stopped with an empty
+"insufficient evidence" report. The deliberator's 3,200-token answer was cut off,
+the structural repair resent the truncated text under the same limit and was cut off
+again, the controller correctly refused to repeat the failed action, and the report
+showed "None recorded" everywhere and advised gathering evidence that was not missing.
+
+Decisions:
+
+1. When a provider reports that generation stopped at the output limit, the gateway
+   does not repair the truncated text; it asks once for a complete, more compact
+   answer within the same per-call limit (same attempt count and reservation). A
+   second truncation is labelled `output_truncated` through the semantic broker, not
+   a generic schema failure. Prompt version `cognitive_capability@0.10.3`.
+2. The deliberator reserves 6,000 output tokens per call with or without the sandbox;
+   this fits the default 16,000-token run budget.
+3. Every run that stops without verification reports, from its trace, the steps it
+   completed, the step that failed with a plain reason (truncation, structure,
+   provider refusal or credits, timeout, unavailability, rate limit), and a specific
+   next action. The final answer keeps "stopped without a verified conclusion" and
+   appends the reason. API report, markdown export and CLI report share one function.
+4. An input that is only a conversation share link (ChatGPT, Claude, Gemini, Poe,
+   Perplexity, Copilot) is answered immediately, without a model call, with a request
+   to paste the content.
+
+## Chapter 176: PolyaBrain Reader — owned retrieval and reading (approved 2026-10-03)
+
+Founder direction: deciding what to search, reading, judging sources and extracting
+facts must be PolyaBrain's own capability, not a rented model or a paid search API.
+Building a general web search engine is out of scope (crawl, freshness and ranking
+at web scale); PolyaBrain owns the reading of the sources it chooses instead.
+
+1. Sources without a search vendor: Wikipedia (MediaWiki API, plain-text extracts),
+   Wikidata (entities, properties and typed claims), explicit public URLs, and a local
+   corpus the user supplies. A general web search engine may be added later as one
+   optional, pluggable source; it is never required.
+2. Own retrieval: deterministic query analysis (answer type, entity and property
+   phrases, key terms), passage splitting and BM25 ranking over fetched text.
+3. Own extraction without a generative model: Wikidata typed claims first (with time
+   qualifiers), then typed span extraction (years, dates, quantities, names) from the
+   highest-ranked passages, scored by query-term coverage and proximity.
+4. Own verification: every returned fact is a verbatim quote from a named source or a
+   structured claim with its entity and property; agreement across independent sources
+   raises the status to corroborated; disagreement is reported as conflicting; weak
+   support returns insufficient evidence rather than a guess.
+5. Surfaces: `polyabrain lookup` (cited answer and report) and `SEARCH_PROVIDER=polya`
+   so the runtime's research capability uses PolyaBrain-owned search.
+6. Evaluation: a frozen question set with known answers plus unanswerable and
+   false-premise questions; report accuracy, confident wrong answers and abstention.
+   Small local models (embeddings, extractive reading, entailment) are a later stage
+   requiring named, sized download approval and must beat this baseline to be kept.
+
+Result and direction (2026-10-02): the frozen Reader set (27 answerable, 7
+unanswerable, run once with no model) gave 18 correct trusted answers, 6 wrong
+trusted answers, 1 flagged conflict, 2 abstentions and 6 of 7 correct abstentions
+on unanswerable questions (trusted precision 0.75). Founder direction supersedes
+"build it ourselves" for now. PolyaBrain uses trusted external tools (OpenRouter
+models, web search APIs, sandboxes) and owns the judgment layer: tool and model
+selection for any task, verification, and learning from verified work. Owning
+infrastructure waits for resources. The Reader remains optional and opt-in, never
+the default. Its evidence discipline (verbatim quotes, corroboration, conflict
+flags, abstention) is to be applied over rented search results. See
+`docs/03_implementation/Chapter_176_PolyaBrain_Reader.md`.
+
+## Founding thesis and strategy (approved 2026-10-02, identity confirmed 2026-10-03)
+
+Binding direction agreed by the founder and the Co-Founder/CTO. Full text:
+`docs/00_vision/PolyaBrain_Founding_Thesis.md`. Where an earlier section conflicts
+with this one, this section wins.
+
+1. Identity: **PolyaBrain is an intelligence system that learns from experience,
+   outside the model.** It gets smarter with every problem it solves, without
+   training. It is not a chatbot, a model wrapper, a search engine or an auditing
+   company. Verification is one organ (Pólya's "look back") that makes learning
+   trustworthy. "Intelligence OS" is claimed only when other applications depend on
+   PolyaBrain in production.
+2. Founder's vision: for any problem, including an unknown kind, PolyaBrain works out
+   what is missing, learns it from the internet, understands it, combines it and
+   solves the problem, without massive data, compute or training.
+3. Evidence-driven refinement: a model-free reader reached trusted precision 0.75 on
+   simple facts (Chapter 176). A small rented or open-weight model is therefore one
+   part of the brain, the part that reads and speaks. PolyaBrain does not build or
+   train foundation models.
+4. The brain's loop:
+   understand → know what it doesn't know → learn it → test understanding by
+   experiment → combine and solve → look back → remember verified knowledge.
+5. Objective: maximise verified correct outcomes per unit of money, time and human
+   attention within the task's risk; the cheapest model is not the goal. Scope:
+   checkable domains first. Unverifiable results are labelled and never stored as
+   verified knowledge.
+6. Rent tools, own the brain: use the best trusted external tools. Own choosing,
+   experimenting, verifying and accumulated knowledge. Owned infrastructure waits for
+   resources. Chapter 176's Reader stays optional and opt-in.
+7. Surfaces: Investigator is the workbench. An API, an MCP server and a GitHub check
+   are later ways to reach users, not the identity. Verification output states its
+   coverage and limits.
+8. Build order (an experience ledger records every run from step 1):
+   1. reliability, done when the founder's next ten real problems finish or stop with
+      an explanation;
+   2. learning by experiment;
+   3. memory that compounds;
+   4. the learning-curve benchmark, frozen first, held-out new problems, with four
+      arms (frontier alone, cheap alone, PolyaBrain memory off, PolyaBrain memory on)
+      and default win condition:
+      - memory on beats memory off by margins fixed at freeze;
+      - fewer confident errors than the frontier model;
+      - within 5 points of frontier correctness at at most one third of its cost per
+        correct answer;
+   5. expansion to more domains, unknown problem types and integrations.
+9. Bar: Google, Nvidia, OpenAI, AWS and Microsoft. Claims are labelled measured,
+   argued or to prove; failures are reported. We change the method, never the
+   mission. PolyaBrain must win.

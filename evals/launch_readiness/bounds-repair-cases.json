@@ -1,0 +1,7 @@
+[
+  {
+    "id": "integer_coverage",
+    "role": "Known development regression; not independent or held out",
+    "prompt": "Implement covered_count(intervals: list[tuple[int, int]]) -> int. Each pair (lo, hi) denotes a closed interval of integer points, with lo <= hi. Return the number of distinct integer points covered by the union. The list may be empty, unsorted, overlapping or contain repeated intervals. Endpoints are integers between -1000000000 and 1000000000; there may be up to 100000 intervals. Do not enumerate every covered integer. Required time is O(n log n) or better. Example [(1,3),(3,5),(9,9)] returns 6; [] returns 0. Do not mutate the input. Return complete Python code, a correctness explanation and time/space complexity. Execute meaningful boundary and randomized checks in the available Python sandbox. Distinguish observed checks from reasoning. Do not claim external judge acceptance. All requirements are supplied; no external research is required."
+  }
+]

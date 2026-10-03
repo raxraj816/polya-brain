@@ -3,7 +3,6 @@
 import hashlib
 import json
 import shutil
-import subprocess
 
 import pytest
 from pydantic import ValidationError
@@ -440,21 +439,14 @@ def test_production_framing_receives_actual_tool_inventory(monkeypatch, enabled)
 def test_public_runtime_dispatches_sandbox_before_verification(
     monkeypatch, execution_unknown, scenario, code_reference
 ):
-    from app.execution import DockerPythonSandbox
+    from app.execution import DockerPythonSandbox, image_available
     from app.execution.sandbox import SandboxExecutionResult
 
     executed = []
     live = scenario == "docker_recovery"
     recovery = scenario != "passed"
     if live and (
-        shutil.which("docker") is None
-        or subprocess.run(
-            ["docker", "image", "inspect", DockerPythonSandbox().image],
-            capture_output=True,
-            check=False,
-            timeout=10,
-        ).returncode
-        != 0
+        shutil.which("docker") is None or not image_available(DockerPythonSandbox().image)
     ):
         pytest.skip("requires Docker and the pinned Python sandbox image")
     real_execute = DockerPythonSandbox.execute

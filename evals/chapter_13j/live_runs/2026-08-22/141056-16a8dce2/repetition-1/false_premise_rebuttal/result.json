@@ -1,0 +1,116 @@
+{
+  "case_id": "false_premise_rebuttal",
+  "category": "false_premise",
+  "direct": {
+    "abstention_correct": false,
+    "answer_correct": true,
+    "checks_performed": [
+      "Verified whether NovaCache API exists",
+      "Verified existence of orbital mode parameter across independent sources",
+      "Rejected false premise based on retrieved evidence"
+    ],
+    "conclusion": "The premise of the question is false: NovaCache does not exist and has no official orbital mode parameter or feature.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "https://catalog.example.edu/novacache",
+      "https://docs.example.org/novacache-schema"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 3977.175625041127,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The NovaCache API does not exist and therefore has no official orbital mode.",
+              "extra_snippets": [],
+              "id": "official-schema",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-05T00:00:00Z",
+              "title": "NovaCache official schema",
+              "url": "https://docs.example.org/novacache-schema"
+            },
+            {
+              "excerpt": "Independent catalog review confirms NovaCache does not exist and has no orbital mode.",
+              "extra_snippets": [],
+              "id": "independent-catalog",
+              "provider_rank": 2,
+              "provider_score": null,
+              "published_at": "2026-08-06T00:00:00Z",
+              "title": "Independent API catalog",
+              "url": "https://catalog.example.edu/novacache"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "NovaCache \"orbital mode\"",
+          "status": "succeeded"
+        },
+        "target": "NovaCache \"orbital mode\""
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 2195,
+      "model_calls": 2,
+      "output_tokens": 452,
+      "total_tokens": 2647
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "expected_terminal": "answer",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": false,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [
+      "Check criterion 'Reject the premise if no such API parameter exists': Verified that findings explicitly reject the existence of NovaCache and its orbital mode.",
+      "Check criterion 'Cite independent evidence': Verified that citations to canonical sources (https://catalog.example.edu/novacache and https://docs.example.org/novacache-schema) are present and supported."
+    ],
+    "conclusion": "The premise is rejected: NovaCache is a non-existent API and does not have an official orbital mode, as confirmed by independent catalog and schema reviews (https://catalog.example.edu/novacache, https://docs.example.org/novacache-schema).",
+    "cycles": 5,
+    "evidence_source_uris": [
+      "https://catalog.example.edu/novacache",
+      "https://docs.example.org/novacache-schema"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 9364.42591692321,
+    "passed": false,
+    "queries_revised": true,
+    "research_queries": [
+      "whether NovaCache has an official orbital mode What is the current official orbital mode of NovaCache? primary authoritative source exact evidence"
+    ],
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 4003,
+      "model_calls": 2,
+      "output_tokens": 2333,
+      "total_tokens": 6336
+    },
+    "verification_passed": true
+  },
+  "repetition": 1
+}

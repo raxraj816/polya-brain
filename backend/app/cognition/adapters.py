@@ -16,6 +16,7 @@ from app.cognition.contracts import (
     CognitiveStateUpdate,
     ObservationStatus,
 )
+from app.cognition.input_links import share_link_question, unreadable_share_link
 from app.engines import EngineStatus, PolyaEngine, engine_event_metadata, run_engine
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import RiskLevel, StructuredProblem
@@ -57,6 +58,22 @@ def problem_representation_capability(
         action: CognitiveActionCandidate,
         state: PolyaState,
     ) -> CognitiveObservation:
+        product = unreadable_share_link(state["raw_input"])
+        if product is not None:
+            # Answer immediately and precisely instead of spending a model call to
+            # discover that the content is unavailable.
+            return CognitiveObservation(
+                action_id=action.id,
+                capability=definition.name,
+                capability_version=definition.version,
+                status=ObservationStatus.BLOCKED,
+                summary=f"The input is only a {product} share link, which PolyaBrain cannot open.",
+                payload={"model_calls": 0, "procedure": "deterministic"},
+                proposed_update=CognitiveStateUpdate(
+                    questions_to_ask=[share_link_question(product)]
+                ),
+                failure_kind="human_input_required",
+            )
         if deterministic_only and deterministic_problem_understanding(state) is None:
             return CognitiveObservation(
                 action_id=action.id,

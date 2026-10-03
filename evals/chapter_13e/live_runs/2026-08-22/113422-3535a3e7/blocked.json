@@ -1,0 +1,11 @@
+{
+  "benchmark": "chapter_13e_live_verifier",
+  "completed_case_repetitions": 0,
+  "failed_case": "release_all_rules_pass",
+  "failed_repetition": 1,
+  "message": "unavailable: OpenRouter returned no text content.",
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "provider_error_kind": "unavailable",
+  "run_id": "113422-3535a3e7",
+  "status": "provider_blocked"
+}

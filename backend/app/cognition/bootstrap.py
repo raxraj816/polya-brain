@@ -65,7 +65,11 @@ from app.execution.sandbox import PYTHON_SANDBOX_PLAN_INSTRUCTIONS
 from app.graph.state import StateEvent
 from app.llm import FakeLLMClient, LLMClient, OpenRouterLLMClient
 from app.memory.capability import SemanticMemorySearch, semantic_memory_capability
+from app.memory.failure_patterns import default_store
 from app.models.contracts import EvidenceItem, ProductMode, RiskLevel
+from app.reader.provider import ReaderSearchProvider
+from app.reader.sources import PoliteFetcher, Wikipedia
+from app.verified_coding.runtime import VerifiedCodingFastPath
 
 
 def build_cognitive_runtime(
@@ -222,6 +226,17 @@ def build_cognitive_runtime(
         provider = BraveSearchProvider(
             configured_search_key,
             base_url=settings.search_base_url,
+        )
+    elif settings.search_provider.casefold() == "polya":
+        provider = ReaderSearchProvider(
+            Wikipedia(
+                PoliteFetcher(
+                    contact=settings.reader_contact,
+                    cache_dir=Path(settings.reader_cache_dir).expanduser()
+                    if settings.reader_cache_dir.strip()
+                    else None,
+                )
+            )
         )
     elif (
         settings.search_provider.casefold() == "openrouter"
@@ -411,6 +426,32 @@ def build_cognitive_runtime(
                 ),
             )
         )
+    budget = CognitiveResourceBudget(
+        max_model_calls=settings.cognitive_max_model_calls,
+        max_external_calls=settings.cognitive_max_external_calls,
+        max_input_tokens=settings.cognitive_max_input_tokens,
+        max_output_tokens=settings.cognitive_max_output_tokens,
+        max_normalized_cost=settings.cognitive_max_normalized_cost,
+        max_duration_ms=settings.cognitive_max_duration_ms,
+    )
+    fast_path = (
+        VerifiedCodingFastPath(
+            client,
+            model,
+            image=settings.code_execution_image,
+            memory_megabytes=settings.code_execution_memory_mb,
+            budget=budget,
+            patterns=default_store(
+                settings.failure_patterns_path, settings.failure_patterns_enabled
+            ),
+        )
+        if settings.verified_coding_enabled
+        and settings.code_execution_enabled
+        and configured_key
+        and configured_model
+        and not enable_source_patch
+        else None
+    )
     return CognitiveRuntime(
         registry,
         controller=CognitiveController(
@@ -418,16 +459,10 @@ def build_cognitive_runtime(
             semantic_memory=semantic_memory,
             performance_policy=adaptive_ledger,
         ),
-        budget=CognitiveResourceBudget(
-            max_model_calls=settings.cognitive_max_model_calls,
-            max_external_calls=settings.cognitive_max_external_calls,
-            max_input_tokens=settings.cognitive_max_input_tokens,
-            max_output_tokens=settings.cognitive_max_output_tokens,
-            max_normalized_cost=settings.cognitive_max_normalized_cost,
-            max_duration_ms=settings.cognitive_max_duration_ms,
-        ),
+        budget=budget,
         procedure_compiler=ProcedureCompiler(),
         performance_ledger=adaptive_ledger,
+        fast_path=fast_path,
     )
 
 

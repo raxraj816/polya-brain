@@ -1,0 +1,109 @@
+{
+  "case_id": "orinox_transfer",
+  "condition_order": [
+    "direct",
+    "full_context",
+    "ordinary_retrieval",
+    "polya"
+  ],
+  "direct": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Checked capability_context.sources for the Orinox service manual or any source text.",
+      "Confirmed supplied sources list is empty.",
+      "Confirmed no corrective action information for Orinox code M-42 is present in current_state.evidence or current_state.execution_outputs."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "context_documents": 0,
+    "input_tokens": 646,
+    "latency_ms": 1936.454,
+    "model_calls": 1,
+    "output_tokens": 134,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "source_passed": null,
+    "status": "insufficient_evidence",
+    "terms_passed": false,
+    "total_tokens": 780,
+    "unsupported_forced_conclusion": false
+  },
+  "family": "diagnostic_code_resolution",
+  "full_context": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Located Orinox Service Manual entry for Diagnostic M-42 in source orinox_transfer."
+    ],
+    "conclusion": "Purge the amber coolant loop for 9 seconds.",
+    "confidence": "high",
+    "context_documents": 12,
+    "input_tokens": 1102,
+    "latency_ms": 3707.81,
+    "model_calls": 1,
+    "output_tokens": 147,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "orinox_transfer"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 1249,
+    "unsupported_forced_conclusion": false
+  },
+  "ordinary_retrieval": {
+    "acquisitions": 1,
+    "checks_performed": [
+      "Located Orinox Service Manual Diagnostic M-42 entry in source orinox_transfer.",
+      "Extracted the stated required corrective action for M-42."
+    ],
+    "conclusion": "Purge the amber coolant loop for 9 seconds.",
+    "confidence": "high",
+    "context_documents": 1,
+    "input_tokens": 593,
+    "latency_ms": 17501.086,
+    "model_calls": 1,
+    "output_tokens": 135,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "orinox_transfer"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 728,
+    "unsupported_forced_conclusion": false
+  },
+  "phase": "transfer",
+  "polya": {
+    "acquisitions": 1,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "checks_performed": [
+      "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+    ],
+    "conclusion": "Required corrective action for M-42: purge the amber coolant loop for 9 seconds.",
+    "input_tokens": 0,
+    "latency_ms": 3.535,
+    "model_calls": 0,
+    "normalized_cost": 0.07,
+    "output_tokens": 0,
+    "passed": true,
+    "source_uris": [
+      "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_transfer.txt"
+    ],
+    "status": "completed",
+    "total_tokens": 0,
+    "unsupported_forced_conclusion": false,
+    "verification_passed": true
+  },
+  "repetition": 2
+}

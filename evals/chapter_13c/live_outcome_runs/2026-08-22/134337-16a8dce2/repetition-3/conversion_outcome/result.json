@@ -1,0 +1,117 @@
+{
+  "case_id": "conversion_outcome",
+  "category": "data_analysis",
+  "direct": {
+    "actions": [
+      "measure"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified baseline conversion value (10.0%)",
+      "Verified current conversion value (13.0%)",
+      "Calculated relative percent change (+30.0%) and absolute change (+3.0 percentage points)"
+    ],
+    "conclusion": "Baseline conversion is 10.0% and current conversion is 13.0%, representing an absolute increase of 3.0 percentage points and a relative change of +30.0%.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/conversion_outcome/measurement"
+    ],
+    "latency_ms": 4031.895667081699,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "measure",
+        "call_index": 1,
+        "capability": "measurement",
+        "observation": {
+          "deterministic_attestation": {
+            "checks_run": [
+              "Deterministic fixture covers criterion: Report baseline, current value, and percent change."
+            ],
+            "covered_success_criteria": [
+              "Report baseline, current value, and percent change."
+            ],
+            "producer_capability": "measurement",
+            "producer_version": "outcome-fixture-v1"
+          },
+          "source_uri": "fixture://chapter-13c-outcome/conversion_outcome/measurement",
+          "status": "succeeded",
+          "summary": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+        },
+        "target": "conversion_metrics"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1957,
+      "model_calls": 2,
+      "output_tokens": 395,
+      "total_tokens": 2352
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "measure",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Deterministic fixture covers criterion: Report baseline, current value, and percent change."
+    ],
+    "conclusion": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points.",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/conversion_outcome/measurement"
+    ],
+    "latency_ms": 1.516958000138402,
+    "observation_trace": [
+      {
+        "capability": "measurement",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Comparable baseline conversion is 10.0%; current conversion is 13.0%; relative change is +30.0%, an absolute increase of 3.0 percentage points."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed a candidate from fully attested deterministic evidence."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Deterministic evidence closure passed every current binding."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": true
+  },
+  "repetition": 3,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

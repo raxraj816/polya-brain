@@ -1,0 +1,113 @@
+{
+  "case_id": "debug_regression_still_fails",
+  "condition_order": [
+    "full_context",
+    "ordinary_retrieval",
+    "polya",
+    "direct_model"
+  ],
+  "direct_model": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked assertions array [true,true,false,true] for all-true; the third assertion is false, so not every assertion passes.",
+      "Checked error field is null; the runner reports no execution error."
+    ],
+    "citations_valid": true,
+    "context_documents": 1,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 978,
+    "latency_ms": 38308.355,
+    "model_calls": 1,
+    "output_tokens": 415,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "debug_regression_still_fails:direct_observation"
+    ],
+    "total_tokens": 1393
+  },
+  "family": "debugging",
+  "full_context": {
+    "accepted": false,
+    "checks_performed": [
+      "Criterion 0: Verified that every regression assertion is true; observed assertions [true, true, false, true], which contains a false.",
+      "Criterion 1: Verified that the isolated runner reports no execution error; observed error is null."
+    ],
+    "citations_valid": true,
+    "context_documents": 4,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1167,
+    "latency_ms": 36119.742,
+    "model_calls": 1,
+    "output_tokens": 485,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "debug_regression_still_fails:observation:assertions",
+      "debug_regression_still_fails:observation:error"
+    ],
+    "total_tokens": 1652
+  },
+  "ordinary_retrieval": {
+    "accepted": false,
+    "checks_performed": [
+      "Checked that all assertions in execution output are true; found [true, true, false, true] so not all true.",
+      "Checked that error field is null; found null."
+    ],
+    "citations_valid": true,
+    "context_documents": 2,
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_criterion_indices": [
+      0
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1004,
+    "latency_ms": 17502.103,
+    "model_calls": 1,
+    "output_tokens": 625,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "debug_regression_still_fails:distractor:2",
+      "debug_regression_still_fails:distractor:1"
+    ],
+    "total_tokens": 1629
+  },
+  "polya": {
+    "accepted": false,
+    "checks_performed": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+      "criterion-2-structured: Checked that the execution error field is empty."
+    ],
+    "criterion_coverage": 1.0,
+    "expected_accept": false,
+    "failed_checks": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+    ],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 0,
+    "latency_ms": 2.126,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "passed": true,
+    "status": "insufficient_evidence",
+    "total_tokens": 0,
+    "verified_terminal": true
+  },
+  "repetition": 2
+}

@@ -12,6 +12,7 @@ from app.execution.sandbox import (
     DockerSandboxLimits,
     SandboxExecutionResult,
     SandboxTestResult,
+    image_available,
     python_sandbox_capability,
 )
 from app.execution.simulation import (
@@ -38,6 +39,7 @@ __all__ = [
     "TableMeasurementTool",
     "controlled_experiment_capability",
     "evaluate_controlled_experiment",
+    "image_available",
     "python_sandbox_capability",
     "source_patch_sandbox_capability",
     "run_scenario_simulation",

@@ -1,0 +1,129 @@
+{
+  "case_id": "equation_outcome",
+  "category": "mathematical_reasoning",
+  "direct": {
+    "actions": [
+      "calculate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Computed x from 2x + 4 = 10",
+      "Substituted x = 3 into the original equation: 2(3) + 4 = 10"
+    ],
+    "conclusion": "x = 3 satisfies 2x + 4 = 10, because 2(3) + 4 = 6 + 4 = 10.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 11116.364042041823,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "calculate",
+        "call_index": 1,
+        "capability": "calculator",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+          "status": "succeeded",
+          "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+        },
+        "target": "2x + 4 = 10"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 2066,
+      "model_calls": 2,
+      "output_tokens": 384,
+      "total_tokens": 2450
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "openrouter/auto",
+  "polya": {
+    "actions": [
+      "calculate",
+      "hypothesize",
+      "plan",
+      "execute",
+      "verify",
+      "reflect",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified the stated value: the hypothesis and evidence both state x = 3, matching the exact algebra result.",
+      "Verified substitution in the original equation: execution output computed 2 * 3 + 4 = 10, which equals the expected value 10.",
+      "Checked for contradictions between evidence, execution output, and hypothesis: the computed value matches the expected value and no counterexample is present."
+    ],
+    "conclusion": "Established: x = 3 satisfies the equation 2x + 4 = 10, confirmed by computing 2 * 3 + 4 = 10, which matches the expected value. Remaining limit: uniqueness of x was asserted through linearity rather than independently re-verified, but this is not required by the stated success criterion.",
+    "cycles": 7,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 36574.826082913205,
+    "observation_trace": [
+      {
+        "capability": "calculator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+      },
+      {
+        "capability": "reasoner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Generated 1 testable candidate(s)."
+      },
+      {
+        "capability": "planner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Created 1 bounded plan task(s)."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Executed the verify-substitution plan: computed 2*3 + 4 = 10, which matches the expected value 10, confirming x = 3 satisfies the original equation 2x + 4 = 10."
+      },
+      {
+        "capability": "verifier",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Verification passed all declared checks."
+      },
+      {
+        "capability": "reflector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Extracted bounded lessons from the verified run."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 7988,
+      "model_calls": 6,
+      "output_tokens": 2862,
+      "total_tokens": 10850
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

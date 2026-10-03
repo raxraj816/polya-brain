@@ -1,0 +1,89 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-468b08702102",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In `APIRouter.include_router`, the route loop only checks `if isinstance(route, APIRoute):` and ignores routes that are instances of `WebSocketRoute`, causing websocket routes in child routers to be omitted when included into a parent router.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Add a branch in `include_router` to handle `WebSocketRoute` instances by creating a new `WebSocketRoute` with the prefix prepended to `route.path` and preserving `route.name`.\nRegression check: Verifies that including a child router containing both an APIRoute and a WebSocketRoute under a prefix results in parent routes containing both the prefixed APIRoute and the prefixed WebSocketRoute. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-40b3d6771f02",
+          "root_cause": "Root cause: In `APIRouter.include_router`, the route loop only checks `if isinstance(route, APIRoute):` and ignores routes that are instances of `WebSocketRoute`, causing websocket routes in child routers to be omitted when included into a parent router.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Add a branch in `include_router` to handle `WebSocketRoute` instances by creating a new `WebSocketRoute` with the prefix prepended to `route.path` and preserving `route.name`.\nRegression check: Verifies that including a child router containing both an APIRoute and a WebSocketRoute under a prefix results in parent routes containing both the prefixed APIRoute and the prefixed WebSocketRoute. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In `APIRouter.include_router` in `buggy_impl.py`, add handling for `WebSocketRoute` instances by appending a new `WebSocketRoute(prefix + route.path, route.name)` to `self.routes` when `isinstance(route, WebSocketRoute)` is encountered (e.g. using `elif isinstance(route, WebSocketRoute): self.routes.append(WebSocketRoute(prefix + route.path, route.name))`).",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-8b296a29291f",
+          "root_cause": "In `APIRouter.include_router` within `buggy_impl.py`, the route iteration only checks `if isinstance(route, APIRoute)` and appends prefixed `APIRoute` instances, silently ignoring child routes that are instances of `WebSocketRoute`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `check.verify(implementation)` with a child router containing both `APIRoute(\"/items\", \"items\")` and `WebSocketRoute(\"/events\", \"events\")`.",
+            "Assert that `parent.include_router(child, \"/v1\")` populates `parent.routes` with both `('APIRoute', '/v1/items', 'items')` and `('WebSocketRoute', '/v1/events', 'events')`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-40b3d6771f02": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-8b296a29291f": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "153150-16a8dce2"
+}

@@ -1,0 +1,34 @@
+{
+  "actions": [
+    "interpret",
+    "discover_constraints",
+    "detect_gaps",
+    "inspect",
+    "evaluate_evidence",
+    "stop"
+  ],
+  "awaiting_user_input": false,
+  "evidence_source_uris": [
+    "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/zephyra_manual.txt#L1-L9"
+  ],
+  "external_calls": 0,
+  "fictional_nonconfidential_fixture": true,
+  "final_answer": "PolyaBrain stopped without a verified conclusion. Terminal status: insufficient_evidence.",
+  "input_tokens": 0,
+  "latency_ms": 1.869,
+  "limitations": [
+    "One fictional-manual run verifies integration, not general product superiority.",
+    "The local evidence evaluator uses deterministic provenance and relevance gates.",
+    "Repeated fair live baselines remain required before a scientific win claim."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "model_calls": 0,
+  "normalized_cost": 0.18,
+  "output_tokens": 0,
+  "probe": "chapter_13d_live_raw_input_to_verified_report",
+  "started_at": "2026-08-22T09:51:16.116150+00:00",
+  "status": "failed",
+  "task_model_snapshot_count": 6,
+  "total_tokens": 0,
+  "verification_passed": false
+}

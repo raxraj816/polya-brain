@@ -493,6 +493,9 @@ def test_session_service_commits_running_before_graph_execution(
             )
             with pytest.raises(SessionConflictError, match=SESSION_STATUS_RUNNING):
                 competing_service.run_session(UUID(session_id))
+            report = competing_service.get_report(UUID(session_id))
+            assert report.final_conclusion is None
+            assert "refresh status before retrying" in report.recommended_next_action
             competing_result["status"] = SESSION_STATUS_RUNNING
         return successful_runner(raw_input, session_id=session_id)
 

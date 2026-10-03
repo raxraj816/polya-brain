@@ -1,0 +1,29 @@
+{
+  "actions": [
+    "hypothesize",
+    "verify",
+    "stop"
+  ],
+  "cycles": 3,
+  "fictional_nonconfidential_fixture": true,
+  "final_answer": "Zephyra revision 7 requires request_timeout_ticks = 37, as stated in rule Z7.4.",
+  "input_tokens": 3580,
+  "latency_ms": 19114.757,
+  "ledger_model_calls": 2,
+  "limitations": [
+    "One synthetic lookup probe is endpoint and architecture verification, not a win claim.",
+    "The evidence was already admitted so this isolates post-evidence semantic work.",
+    "Repeated held-out comparisons remain required for product-value evidence."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "model_calls": 2,
+  "normalized_cost": 0.66,
+  "output_tokens": 1605,
+  "probe": "chapter_13d_live_on_demand_fused_path",
+  "run_status": "completed",
+  "started_at": "2026-08-22T09:44:21.541558+00:00",
+  "status": "passed",
+  "task_model_snapshot_count": 3,
+  "total_tokens": 5185,
+  "verification_passed": true
+}

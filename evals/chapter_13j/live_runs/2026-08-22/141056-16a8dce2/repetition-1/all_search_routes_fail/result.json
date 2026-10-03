@@ -1,0 +1,67 @@
+{
+  "case_id": "all_search_routes_fail",
+  "category": "tool_failure_abstention",
+  "direct": {
+    "abstention_correct": true,
+    "answer_correct": false,
+    "checks_performed": [
+      "Evaluated the core question for specific API platform or service identifiers."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [],
+    "external_calls": 0,
+    "forbidden_output_hit": false,
+    "latency_ms": 3061.5702501963824,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 870,
+      "model_calls": 1,
+      "output_tokens": 463,
+      "total_tokens": 1333
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "expected_terminal": "insufficient_evidence",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": true,
+    "actions": [
+      "search",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [],
+    "conclusion": null,
+    "cycles": 2,
+    "evidence_source_uris": [],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 2.395458985120058,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current official API request limit What is the current official API request limit? primary authoritative source exact evidence"
+    ],
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": false
+  },
+  "repetition": 1
+}

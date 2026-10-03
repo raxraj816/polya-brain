@@ -1,0 +1,134 @@
+{
+  "case_id": "research_recovery_outcome",
+  "category": "technical_research_recovery",
+  "direct": {
+    "actions": [
+      "search",
+      "inspect"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Deterministic fixture covers criterion: State the timeout from a source-visible current artifact."
+    ],
+    "conclusion": "The current official material specifies a request timeout of 45 seconds (request_timeout_seconds = 45).",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/research_recovery_outcome/inspector"
+    ],
+    "latency_ms": 8179.583332967013,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "failure_kind": "fixture_unavailable",
+          "status": "failed",
+          "summary": "The search provider returned no results."
+        },
+        "target": "official request timeout specification"
+      },
+      {
+        "action_type": "inspect",
+        "call_index": 2,
+        "capability": "inspector",
+        "observation": {
+          "deterministic_attestation": {
+            "checks_run": [
+              "Deterministic fixture covers criterion: State the timeout from a source-visible current artifact."
+            ],
+            "covered_success_criteria": [
+              "State the timeout from a source-visible current artifact."
+            ],
+            "producer_capability": "inspector",
+            "producer_version": "outcome-fixture-v1"
+          },
+          "source_uri": "fixture://chapter-13c-outcome/research_recovery_outcome/inspector",
+          "status": "succeeded",
+          "summary": "The bundled current official specification states request_timeout_seconds = 45."
+        },
+        "target": "official documentation timeout specification"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3203,
+      "model_calls": 3,
+      "output_tokens": 594,
+      "total_tokens": 3797
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "search",
+      "inspect",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Deterministic fixture covers criterion: State the timeout from a source-visible current artifact."
+    ],
+    "conclusion": "The bundled current official specification states request_timeout_seconds = 45.",
+    "cycles": 5,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/research_recovery_outcome/inspector"
+    ],
+    "latency_ms": 3.3054170198738575,
+    "observation_trace": [
+      {
+        "capability": "web_search",
+        "failure_kind": "fixture_unavailable",
+        "status": "failed",
+        "summary": "The search provider returned no results."
+      },
+      {
+        "capability": "inspector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "The bundled current official specification states request_timeout_seconds = 45."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed a candidate from fully attested deterministic evidence."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Deterministic evidence closure passed every current binding."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

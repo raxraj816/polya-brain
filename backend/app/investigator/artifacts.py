@@ -17,7 +17,9 @@ from pydantic import JsonValue, TypeAdapter
 from app.cognition.contracts import CognitiveRunStatus
 from app.cognition.kernel import CognitiveRunResult
 from app.cognition.report_metadata import REPORT_METADATA_EVENT, report_questions, scope_limitations
+from app.cognition.research_stop import research_stop_next_action
 from app.cognition.source_patch_report import source_patch_checks, source_patch_conclusion
+from app.cognition.stop_explanation import explain_stop
 from app.cognition.task_model import accumulated_usage, configured_budget
 from app.cognition.verification_history import (
     HISTORICAL_NEXT_ACTION,
@@ -91,6 +93,29 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
         next_action = reflection.follow_up_actions[0]
     if result.status is CognitiveRunStatus.NEEDS_INPUT:
         next_action = "Resume this run with --answer containing the full revised problem and the original runtime options."
+    stopped = (
+        explain_stop((e.event_type, e.metadata, e.summary) for e in state["events"])
+        if not verified
+        and display_verification is None
+        and result.status is not CognitiveRunStatus.NEEDS_INPUT
+        else None
+    )
+    if stopped is not None and stopped.failure:
+        conclusion = stopped.headline
+    if (
+        stopped is not None
+        and stopped.next_action
+        and next_action
+        == ("Supply the missing evidence or resolve the reported failure, then run again.")
+    ):
+        next_action = stopped.next_action
+    if result.status is CognitiveRunStatus.INSUFFICIENT_EVIDENCE:
+        last_decision = next(
+            (e for e in reversed(state["events"]) if e.event_type == "cognitive_action_decision"),
+            None,
+        )
+        if last_decision is not None:
+            next_action = research_stop_next_action(last_decision.metadata) or next_action
 
     def concise(items: list[object]) -> list[SessionReportEvidence]:
         return [SessionReportEvidence.model_validate(item, from_attributes=True) for item in items]
@@ -118,9 +143,13 @@ def report_from_result(result: CognitiveRunResult) -> SessionReportResponse:
             if verified and any(task.tool_name == "source_patch_sandbox" for task in state["plan"])
             else display_verification.checks_run
             if display_verification
-            else []
+            else (stopped.progress if stopped else [])
         ),
-        failed_checks=display_verification.failed_checks if display_verification else [],
+        failed_checks=(
+            display_verification.failed_checks
+            if display_verification
+            else ([stopped.failure] if stopped and stopped.failure else [])
+        ),
         contradictions=display_verification.contradictions if display_verification else [],
         open_questions=list(dict.fromkeys(questions)),
         recommended_next_action=next_action,

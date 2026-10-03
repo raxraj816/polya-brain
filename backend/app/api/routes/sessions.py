@@ -32,6 +32,7 @@ from app.sessions import (
 from app.sessions.admission import RunAdmissionPolicy, UsageLimitError
 from app.sessions.service import SessionRunResult
 from app.sessions.source_check import SourceCheckSessionRunner
+from app.sessions.write_admission import WriteAdmissionPolicy
 from app.tracing.persistence import SQLAlchemyTraceRepository
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["sessions"])
@@ -126,6 +127,7 @@ def get_session_service(
     )
     return PolyaSessionService(
         db_session,
+        write_policy=WriteAdmissionPolicy(db_session, settings),
         runner=(
             SourceCheckSessionRunner(
                 request.app.state.settings,

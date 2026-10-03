@@ -1,0 +1,142 @@
+{
+  "case_id": "unresolved_conflict",
+  "category": "conflicting_evidence",
+  "direct": {
+    "abstention_correct": true,
+    "answer_correct": false,
+    "checks_performed": [
+      "Identified conflicting sources reporting 30 req/min and 60 req/min.",
+      "Exhausted available search attempts without resolving the discrepancy."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [
+      "https://docs.example.org/limit-a",
+      "https://research.example.edu/limit-b"
+    ],
+    "external_calls": 3,
+    "forbidden_output_hit": true,
+    "latency_ms": 12625.732499873266,
+    "parse_error": null,
+    "passed": false,
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The current official AcmeFlow API request limit is 30 requests per minute.",
+              "extra_snippets": [],
+              "id": "conflict-30",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-01T00:00:00Z",
+              "title": "Official request limit A",
+              "url": "https://docs.example.org/limit-a"
+            },
+            {
+              "excerpt": "The current official AcmeFlow API request limit is 60 requests per minute.",
+              "extra_snippets": [],
+              "id": "conflict-60",
+              "provider_rank": 2,
+              "provider_score": null,
+              "published_at": "2026-08-01T00:00:00Z",
+              "title": "Independent request limit B",
+              "url": "https://research.example.edu/limit-b"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API request limit official documentation",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API request limit official documentation"
+      },
+      {
+        "action_type": "search",
+        "call_index": 2,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API request limit official rate limit clarification",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API request limit official rate limit clarification"
+      },
+      {
+        "action_type": "search",
+        "call_index": 3,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API rate limit requests per minute",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API rate limit requests per minute"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 5619,
+      "model_calls": 4,
+      "output_tokens": 1076,
+      "total_tokens": 6695
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "expected_terminal": "insufficient_evidence",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": true,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "search",
+      "evaluate_evidence",
+      "search",
+      "evaluate_evidence",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [],
+    "conclusion": null,
+    "cycles": 7,
+    "evidence_source_uris": [
+      "https://research.example.edu/limit-b",
+      "https://docs.example.org/limit-a"
+    ],
+    "external_calls": 3,
+    "forbidden_output_hit": true,
+    "latency_ms": 7.18354107812047,
+    "passed": false,
+    "queries_revised": true,
+    "research_queries": [
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? primary authoritative source exact evidence",
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? resolve conflicting claims with a primary authoritative record",
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? resolve conflicting claims with a primary authoritative record alternative source domain"
+    ],
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": false
+  },
+  "repetition": 1
+}

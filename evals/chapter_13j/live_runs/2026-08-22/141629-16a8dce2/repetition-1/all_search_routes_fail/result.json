@@ -1,0 +1,79 @@
+{
+  "case_id": "all_search_routes_fail",
+  "category": "tool_failure_abstention",
+  "direct": {
+    "abstention_correct": true,
+    "answer_correct": false,
+    "checks_performed": [
+      "Executed web search for official AcmeFlow API request limits."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 7749.559917021543,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "failure_kind": "fixture_unavailable",
+          "status": "failed",
+          "summary": "The synthetic research provider is unavailable."
+        },
+        "target": "AcmeFlow API request limit rate limit documentation"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1902,
+      "model_calls": 2,
+      "output_tokens": 401,
+      "total_tokens": 2303
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "expected_terminal": "insufficient_evidence",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": true,
+    "actions": [
+      "search",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [],
+    "conclusion": null,
+    "cycles": 2,
+    "evidence_source_uris": [],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 2.8326669707894325,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? primary authoritative source exact evidence"
+    ],
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": false
+  },
+  "repetition": 1
+}

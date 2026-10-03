@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import shutil
-import subprocess
 from pathlib import Path
 
 import pytest
@@ -20,7 +19,7 @@ from app.cognition import (
     source_patch_investigator_capability,
     verifier_factory_capability,
 )
-from app.execution import DockerPythonSandbox, source_patch_sandbox_capability
+from app.execution import DockerPythonSandbox, image_available, source_patch_sandbox_capability
 from app.execution.source_patch import SourcePatchTask, _diagnosis_grounded
 from app.graph.state import PolyaState, StateEvent, create_initial_state
 from app.llm import FakeLLMClient, LLMResponse, LLMTokenUsage
@@ -30,15 +29,7 @@ from app.models.contracts import EvidenceItem, ReasoningMode, StructuredProblem
 def _docker_available() -> bool:
     if shutil.which("docker") is None:
         return False
-    return (
-        subprocess.run(
-            ["docker", "image", "inspect", DockerPythonSandbox().image],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        ).returncode
-        == 0
-    )
+    return image_available(DockerPythonSandbox().image)
 
 
 def _ready_state(source: Path, check: Path) -> PolyaState:
