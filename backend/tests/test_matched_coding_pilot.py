@@ -2,12 +2,11 @@
 
 import json
 import shutil
-import subprocess
 
 import pytest
 from evals.chapter_13p.coding_execution.matched import Limits, Meter, lean_solve, run_arm
 
-from app.execution import DockerPythonSandbox
+from app.execution import DockerPythonSandbox, image_available
 from app.execution.sandbox import SandboxExecutionResult
 from app.llm import FakeLLMClient, LLMClientError, LLMRequest, LLMResponse, LLMTokenUsage
 
@@ -129,16 +128,7 @@ def test_calendar_oracle_accepts_reference_and_rejects_constant_result():
     from app.execution import DockerSandboxLimits
 
     sandbox = DockerPythonSandbox(limits=DockerSandboxLimits(timeout_seconds=20))
-    if (
-        shutil.which("docker") is None
-        or subprocess.run(
-            ["docker", "image", "inspect", sandbox.image],
-            capture_output=True,
-            check=False,
-            timeout=10,
-        ).returncode
-        != 0
-    ):
+    if shutil.which("docker") is None or not image_available(sandbox.image):
         pytest.skip("requires Docker and the pinned sandbox image")
     reference = """from itertools import groupby
 def first_slot(calendars, duration):

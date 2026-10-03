@@ -532,3 +532,46 @@ remain concrete core-loop gaps. The ledger now includes sixteen CLI runs and thr
 workbench replays. All 646 backend tests pass after the recovery-routing change;
 Ruff, formatting and mypy pass. The first scope/page commit also passed all remote
 CI jobs, including database and workbench browser flows.
+
+## Offline launch-preparation audit of the persisted DART stop
+
+On 2026-10-01, inspected the saved source-final workbench session
+`b638232d-80cc-4220-ba5f-a315a2f8d251` and all 115 recorded events under
+`runs/core-value/online-acquisition/workbench-dart-source-final-*`. The failure
+remains preserved. This audit makes no fresh claim about NASA's findings.
+
+The saved run is `awaiting_user_input`, with no final conclusion. At event 106,
+the evaluator retained an unresolved semantic coverage gate and nominated another
+public document. At event 108, the run had used all three allowed external calls,
+seven model calls, 26,910 input and 5,706 output tokens, and about 69.01 seconds of
+recorded active time. Event 109 rejected another search because zero external calls
+remained, then selected the human fallback. Events 111 and 114 described the public
+research gap as missing user-owned information, despite the original request to
+acquire public sources. This is a bounded research stop with misleading recovery
+classification, not evidence of an HTTP transport hang. No final verifier ran.
+
+A minimal current-policy probe reproduces `ask_human` at three consumed external
+calls, while its paired control with two consumed calls selects `search`. It uses
+the recorded target, request, budget and aggregate usage in a synthetic gap state,
+the current controller and real human-input capability, with search dispatch
+forbidden. It does not reconstruct the whole historical runtime, replay provider
+reasoning, or establish that different source selection would succeed. The current
+controller is version 0.5.8; the historical decision was version 0.5.4.
+
+Audit script, source hashes, original decision and current probe output are in
+`runs/launch-readiness/2026-10-01-dart/`. Run with
+`PYTHONPATH=backend:backend/tests .venv/bin/python runs/launch-readiness/2026-10-01-dart/audit.py`.
+No source artifact was changed and no live provider was called.
+
+The next bounded recovery change should truthfully distinguish unavailable or
+exhausted public acquisition from genuinely missing private/user information,
+preserve accumulated costs and failed evidence, and retain an explicit safe exit.
+It must not silently enlarge budgets, waive semantic coverage, manufacture a
+passing conclusion, or imply the full DART investigation is repaired. Update the
+master plan and add exhaustion, available-budget, and genuine-clarification
+controls before implementing that behavior.
+
+The subsequent [bounded budget-stop repair](Chapter_13P_Public_Research_Budget_Stop.md)
+now passes kernel, CLI, persisted-report and browser checks. The original failure
+and this before-change audit remain intact. Truthful termination is improved;
+the full DART investigation and its source-coverage result remain unproven.

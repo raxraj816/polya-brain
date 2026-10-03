@@ -154,3 +154,33 @@ def test_one_repair_sees_both_invalid_selection_and_unsourced_test():
     assert result.model_calls == len(client.requests) == 2
     assert result.output.hypotheses[0].status.value == "candidate"
     assert result.output.tasks[0].params["tests"] == repaired["tasks"][0]["params"]["tests"]
+
+
+def test_repair_identifies_all_test_locations_without_echoing_private_values():
+    checks = task("assert f('private user value') == 'private output'\nassert f(2)==4")
+    checks.params["tests"].append("assert f(3)==6")
+    with pytest.raises(ValueError) as error:
+        validate_generated_checks([checks], {"raw_input": "Implement f"})
+    text = str(error.value)
+    assert "tasks[0].params.tests[0] line 1" in text
+    assert "tasks[0].params.tests[0] line 2" in text
+    assert "tasks[0].params.tests[1] line 1" in text
+    assert "private" not in text
+
+
+def test_prose_example_stays_rejected_but_reference_repair_is_admitted():
+    context = {"raw_input": "Implement f to double its input. Example 2 returns 4."}
+    with pytest.raises(ValueError, match="prose example"):
+        validate_generated_checks([task("assert f(2)==4")], context)
+    validate_generated_checks(
+        [task("def reference(x): return x+x\nassert f(2)==reference(2)")], context
+    )
+
+
+def test_location_feedback_is_bounded():
+    with pytest.raises(ValueError) as error:
+        validate_generated_checks(
+            [task("\n".join(f"assert f({i})=={i}" for i in range(100)))],
+            {"raw_input": "Implement f"},
+        )
+    assert str(error.value).count("tasks[0]") == 10

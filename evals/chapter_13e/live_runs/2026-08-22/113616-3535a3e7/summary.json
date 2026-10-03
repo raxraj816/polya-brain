@@ -1,0 +1,2058 @@
+{
+  "benchmark": "chapter_13e_live_verifier",
+  "case_count": 6,
+  "fairness": {
+    "direct_model_receives_complete_structured_observation": true,
+    "fictional_nonconfidential_cases": true,
+    "full_context_receives_all_observation_documents_and_distractors": true,
+    "ordinary_retrieval_uses_fixed_lexical_top_two": true,
+    "rotated_condition_order": true,
+    "same_candidate_and_criteria": true,
+    "same_model_for_model_conditions": true
+  },
+  "gate": {
+    "chapter_13e_verifier_gate_passed": true,
+    "general_intelligence_win_claimed": false,
+    "metrics": {
+      "completed_case_repetitions": 18,
+      "direct_model_false_passes": 0,
+      "direct_model_passed": 18,
+      "direct_model_total_tokens": 23944,
+      "expected_case_repetitions": 18,
+      "full_context_false_passes": 0,
+      "full_context_passed": 18,
+      "full_context_total_tokens": 26978,
+      "ordinary_retrieval_false_passes": 0,
+      "ordinary_retrieval_passed": 8,
+      "ordinary_retrieval_total_tokens": 30901,
+      "polya_false_passes": 0,
+      "polya_passed": 18,
+      "polya_total_tokens": 0
+    },
+    "requirements": {
+      "all_case_repetitions_completed": true,
+      "all_polya_verdicts_correct": true,
+      "full_polya_criterion_coverage": true,
+      "minimum_three_repetitions": true,
+      "polya_quality_not_below_direct": true,
+      "polya_quality_not_below_full_context": true,
+      "polya_quality_not_below_retrieval": true,
+      "six_cases_two_families": true,
+      "zero_polya_false_passes": true,
+      "zero_polya_model_tokens": true
+    }
+  },
+  "limitations": [
+    "This benchmark isolates verification after candidate generation and observation, not end-to-end general problem solving.",
+    "Polya receives a typed declarative verifier binding; model baselines receive equivalent criteria and observation content in text/JSON.",
+    "Procedure replay and autonomous capability execution require separate outcome gates.",
+    "No general intelligence superiority claim follows from this narrow gate."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "repetitions": 3,
+  "results": [
+    {
+      "case_id": "release_all_rules_pass",
+      "condition_order": [
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked source observation: tests array is [true,true,true], all elements true.",
+          "Checked source observation: risk value 0.14 is less than or equal to 0.2.",
+          "Checked source observation: approved field is true."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1048,
+        "latency_ms": 33116.588,
+        "model_calls": 1,
+        "output_tokens": 405,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:direct_observation"
+        ],
+        "total_tokens": 1453
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Check that all required tests pass: tests are [true, true, true], all true.",
+          "Check that measured risk score is at most 0.2: risk is 0.14, which is <= 0.2.",
+          "Check that independent release decision is approved: approved is true."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1156,
+        "latency_ms": 22873.081,
+        "model_calls": 1,
+        "output_tokens": 251,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:observation:tests",
+          "release_all_rules_pass:observation:risk",
+          "release_all_rules_pass:observation:approved"
+        ],
+        "total_tokens": 1407
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked execution output tests array [true, true, true] against criterion 0 (all required tests pass).",
+          "Checked execution output risk 0.14 against criterion 1 (risk <= 0.2).",
+          "Checked execution output approved true against criterion 2 (independent release decision approved)."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1073,
+        "latency_ms": 7845.596,
+        "model_calls": 1,
+        "output_tokens": 831,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1904
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.894,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "release_one_test_fails",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct_model"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked criterion 0: tests array [true, false, true] is not all true, so the required test pass criterion fails.",
+          "Checked criterion 1: risk 0.08 is less than or equal to 0.2, so the risk criterion passes.",
+          "Checked criterion 2: approved is true, so the approval criterion passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1073,
+        "latency_ms": 4189.115,
+        "model_calls": 1,
+        "output_tokens": 144,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:direct_observation"
+        ],
+        "total_tokens": 1217
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked tests array for all true: found false at index 1",
+          "Checked risk <= 0.2: 0.08 <= 0.2",
+          "Checked approved equals true: true"
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1148,
+        "latency_ms": 9211.882,
+        "model_calls": 1,
+        "output_tokens": 427,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:tests",
+          "release_one_test_fails:observation:risk",
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 1575
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked tests array [true, false, true] from independent-check output; not all tests are true, so criterion 0 fails.",
+          "Checked risk score 0.08 against threshold 0.2; criterion 1 passes.",
+          "Checked approved value true against required true; criterion 2 passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1144,
+        "latency_ms": 34711.275,
+        "model_calls": 1,
+        "output_tokens": 1049,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 2193
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.196,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "release_risk_exceeds_limit",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct_model",
+        "full_context"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Verified all required tests are true in source observation.",
+          "Verified measured risk score 0.31 is not at most 0.2.",
+          "Verified independent release decision is approved."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1130,
+        "latency_ms": 7111.747,
+        "model_calls": 1,
+        "output_tokens": 283,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_risk_exceeds_limit:direct_observation"
+        ],
+        "total_tokens": 1413
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Criterion 0: Every required test passes \u2014 tests are [true, true], so all pass.",
+          "Criterion 1: Measured risk score is at most 0.2 \u2014 observed risk is 0.31, which exceeds 0.2, so this criterion fails.",
+          "Criterion 2: Independent release decision is approved \u2014 approved is true, so this criterion passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1162,
+        "latency_ms": 32462.558,
+        "model_calls": 1,
+        "output_tokens": 323,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_risk_exceeds_limit:observation:tests",
+          "release_risk_exceeds_limit:observation:risk",
+          "release_risk_exceeds_limit:observation:approved"
+        ],
+        "total_tokens": 1485
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked tests array all true: tests = [true, true] -> all true.",
+          "Checked risk <= 0.2: risk = 0.31 > 0.2 -> fails.",
+          "Checked approved equals true: approved = true -> passes."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1078,
+        "latency_ms": 6868.578,
+        "model_calls": 1,
+        "output_tokens": 705,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1783
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.708,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "debug_regression_passes",
+      "condition_order": [
+        "polya",
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Verified that the source observation lists assertions [true, true, true, true], satisfying criterion 0 (every regression assertion passes).",
+          "Verified that the source observation reports error: null, satisfying criterion 1 (no execution error)."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 976,
+        "latency_ms": 10693.946,
+        "model_calls": 1,
+        "output_tokens": 242,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:direct_observation"
+        ],
+        "total_tokens": 1218
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked that all regression assertions are true in source debug_regression_passes:observation:assertions",
+          "Checked that the isolated runner error is null in source debug_regression_passes:observation:error"
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1159,
+        "latency_ms": 5254.033,
+        "model_calls": 1,
+        "output_tokens": 307,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:observation:assertions",
+          "debug_regression_passes:observation:error"
+        ],
+        "total_tokens": 1466
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Verified all four regression assertions are true from the independent checker output (assertions: [true, true, true, true]).",
+          "Verified the isolated runner reports no execution error from the independent checker output (error: null) and the observation source (error: null)."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 997,
+        "latency_ms": 11225.039,
+        "model_calls": 1,
+        "output_tokens": 1050,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:observation:error"
+        ],
+        "total_tokens": 2047
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked that the execution error field is empty."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.465,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "debug_regression_still_fails",
+      "condition_order": [
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Verified that all regression assertions are true (found false at index 2).",
+          "Verified that the isolated runner reports no execution error (error is null)."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1080,
+        "latency_ms": 4903.512,
+        "model_calls": 1,
+        "output_tokens": 246,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:direct_observation"
+        ],
+        "total_tokens": 1326
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked that all regression assertions are true using source debug_regression_still_fails:observation:assertions",
+          "Checked that the isolated runner reports no execution error using source debug_regression_still_fails:observation:error"
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1167,
+        "latency_ms": 28485.283,
+        "model_calls": 1,
+        "output_tokens": 391,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:observation:assertions",
+          "debug_regression_still_fails:observation:error"
+        ],
+        "total_tokens": 1558
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked that every regression assertion passes: assertions were [true, true, false, true], so one assertion failed.",
+          "Checked that the isolated runner reports no execution error: error is null, so this criterion passes."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1083,
+        "latency_ms": 9530.541,
+        "model_calls": 1,
+        "output_tokens": 332,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1415
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked that the execution error field is empty."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.618,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "debug_runner_errors",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct_model"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Confirmed source debug_runner_errors:direct_observation lists assertions [true, true, true], satisfying criterion 0 that every regression assertion passes.",
+          "Confirmed source debug_runner_errors:direct_observation reports error as \"runner timed out before teardown\", so criterion 1 requiring no execution error fails."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1066,
+        "latency_ms": 5636.026,
+        "model_calls": 1,
+        "output_tokens": 263,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:direct_observation"
+        ],
+        "total_tokens": 1329
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Check that all regression assertions pass: observed assertions [true, true, true].",
+          "Check that the isolated runner reports no execution error: observed error 'runner timed out before teardown'."
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1068,
+        "latency_ms": 42710.937,
+        "model_calls": 1,
+        "output_tokens": 528,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:observation:assertions",
+          "debug_runner_errors:observation:error"
+        ],
+        "total_tokens": 1596
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Criterion 0: Searched sources for any regression assertion results; no assertion data present in supplied sources.",
+          "Criterion 1: Searched sources for isolated runner error status; no runner status present in supplied sources."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0,
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1106,
+        "latency_ms": 45583.646,
+        "model_calls": 1,
+        "output_tokens": 530,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:distractor:1",
+          "debug_runner_errors:distractor:2"
+        ],
+        "total_tokens": 1636
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked that the execution error field is empty. The observed value did not satisfy the invariant."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-2-structured: Checked that the execution error field is empty. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 3.242,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "release_all_rules_pass",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct_model"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked tests array: all three entries are true, satisfying criterion 0.",
+          "Checked risk value 0.14 against threshold 0.2: 0.14 <= 0.2, satisfying criterion 1.",
+          "Checked approved flag: true, satisfying criterion 2."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1048,
+        "latency_ms": 3161.936,
+        "model_calls": 1,
+        "output_tokens": 293,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:direct_observation"
+        ],
+        "total_tokens": 1341
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Criterion 0: Checked execution output tests [true, true, true] with all_true operation; all values are true, so criterion passes.",
+          "Criterion 1: Checked execution output risk 0.14 with less_than_or_equal to 0.2; 0.14 <= 0.2, so criterion passes.",
+          "Criterion 2: Checked execution output approved true with equals true; matches, so criterion passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1156,
+        "latency_ms": 3820.807,
+        "model_calls": 1,
+        "output_tokens": 199,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:observation:tests",
+          "release_all_rules_pass:observation:risk",
+          "release_all_rules_pass:observation:approved"
+        ],
+        "total_tokens": 1355
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked that all required tests pass: tests array [true, true, true] has all true.",
+          "Checked that measured risk score 0.14 is at most 0.2.",
+          "Checked that independent release decision approved equals true."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1175,
+        "latency_ms": 11265.79,
+        "model_calls": 1,
+        "output_tokens": 278,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [
+          "release_all_rules_pass:distractor:1",
+          "release_all_rcles_pass:distractor:2"
+        ],
+        "total_tokens": 1453
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.513,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "release_one_test_fails",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct_model",
+        "full_context"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked criterion 0: tests array is [true, false, true], so not every required test passes.",
+          "Checked criterion 1: measured risk score 0.08 is at most 0.2.",
+          "Checked criterion 2: independent release decision approved is true."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1152,
+        "latency_ms": 2175.573,
+        "model_calls": 1,
+        "output_tokens": 274,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:direct_observation"
+        ],
+        "total_tokens": 1426
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked tests array [true, false, true] for all true; found false at index 1.",
+          "Checked risk 0.08 against threshold 0.2; 0.08 <= 0.2.",
+          "Checked approved flag true against required true."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1148,
+        "latency_ms": 5516.853,
+        "model_calls": 1,
+        "output_tokens": 354,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:tests",
+          "release_one_test_fails:observation:risk",
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 1502
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked source 'release_one_test_fails:observation:approved' for independent approval: found true.",
+          "Checked all supplied sources for test results: none present.",
+          "Checked all supplied sources for risk score: none present."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0,
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1065,
+        "latency_ms": 8241.98,
+        "model_calls": 1,
+        "output_tokens": 873,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 1938
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.753,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "release_risk_exceeds_limit",
+      "condition_order": [
+        "polya",
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Verified criterion 0: all required tests are true in the supplied observation.",
+          "Verified criterion 1: the measured risk score is 0.31, which exceeds the allowed maximum of 0.2.",
+          "Verified criterion 2: the independent release decision is approved."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1153,
+        "latency_ms": 2030.071,
+        "model_calls": 1,
+        "output_tokens": 288,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_risk_exceeds_limit:direct_observation"
+        ],
+        "total_tokens": 1441
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Check 0: Every required test passes \u2014 source reports tests [true, true], so this criterion is satisfied.",
+          "Check 1: Measured risk score is at most 0.2 \u2014 source reports risk 0.31, which exceeds 0.2, so this criterion fails.",
+          "Check 2: Independent release decision is approved \u2014 source reports approved true, so this criterion is satisfied."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1162,
+        "latency_ms": 31333.579,
+        "model_calls": 1,
+        "output_tokens": 367,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_risk_exceeds_limit:observation:tests",
+          "release_risk_exceeds_limit:observation:risk",
+          "release_risk_exceeds_limit:observation:approved"
+        ],
+        "total_tokens": 1529
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked execution_outputs independent-check tests [true, true]: all required tests pass.",
+          "Checked execution_outputs independent-check risk 0.31 against criterion at most 0.2: 0.31 exceeds 0.2.",
+          "Checked execution_outputs independent-check approved true: independent release decision is approved."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1157,
+        "latency_ms": 6028.568,
+        "model_calls": 1,
+        "output_tokens": 422,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1579
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 1.539,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "debug_regression_passes",
+      "condition_order": [
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Verified every regression assertion in source observation is true (assertions: [true, true, true, true]).",
+          "Verified the isolated runner reported no execution error (error: null)."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 976,
+        "latency_ms": 13530.361,
+        "model_calls": 1,
+        "output_tokens": 187,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:direct_observation"
+        ],
+        "total_tokens": 1163
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Verified that the assertions observation lists four true values, satisfying the all-true operation for criterion 0.",
+          "Verified that the error observation is null, satisfying the no-error operation for criterion 1."
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1057,
+        "latency_ms": 4383.814,
+        "model_calls": 1,
+        "output_tokens": 323,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:observation:assertions",
+          "debug_regression_passes:observation:error"
+        ],
+        "total_tokens": 1380
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Verified all four regression assertions are true in the independent checker output.",
+          "Verified the isolated runner reports error: null."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1099,
+        "latency_ms": 30053.322,
+        "model_calls": 1,
+        "output_tokens": 599,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:observation:error"
+        ],
+        "total_tokens": 1698
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked that the execution error field is empty."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.406,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "debug_regression_still_fails",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct_model"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked assertions array [true,true,false,true] for all-true; the third assertion is false, so not every assertion passes.",
+          "Checked error field is null; the runner reports no execution error."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 978,
+        "latency_ms": 38308.355,
+        "model_calls": 1,
+        "output_tokens": 415,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:direct_observation"
+        ],
+        "total_tokens": 1393
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Criterion 0: Verified that every regression assertion is true; observed assertions [true, true, false, true], which contains a false.",
+          "Criterion 1: Verified that the isolated runner reports no execution error; observed error is null."
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1167,
+        "latency_ms": 36119.742,
+        "model_calls": 1,
+        "output_tokens": 485,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:observation:assertions",
+          "debug_regression_still_fails:observation:error"
+        ],
+        "total_tokens": 1652
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked that all assertions in execution output are true; found [true, true, false, true] so not all true.",
+          "Checked that error field is null; found null."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1004,
+        "latency_ms": 17502.103,
+        "model_calls": 1,
+        "output_tokens": 625,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:distractor:2",
+          "debug_regression_still_fails:distractor:1"
+        ],
+        "total_tokens": 1629
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked that the execution error field is empty."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.126,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "debug_runner_errors",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct_model",
+        "full_context"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Verified that the assertions array contains only true values, satisfying criterion 0.",
+          "Verified that the error field is non-null and contains 'runner timed out before teardown', indicating an execution error, failing criterion 1."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 987,
+        "latency_ms": 3585.968,
+        "model_calls": 1,
+        "output_tokens": 318,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:direct_observation"
+        ],
+        "total_tokens": 1305
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Check that all regression assertions pass: assertions are [true, true, true].",
+          "Check that the isolated runner reports no execution error: error is 'runner timed out before teardown'."
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1068,
+        "latency_ms": 40679.545,
+        "model_calls": 1,
+        "output_tokens": 465,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:observation:assertions",
+          "debug_runner_errors:observation:error"
+        ],
+        "total_tokens": 1533
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked that all regression assertions are true: assertions = [true, true, true].",
+          "Checked that the isolated runner reports no execution error: output.error = 'runner timed out before teardown'."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1004,
+        "latency_ms": 9688.941,
+        "model_calls": 1,
+        "output_tokens": 741,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1745
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked that the execution error field is empty. The observed value did not satisfy the invariant."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-2-structured: Checked that the execution error field is empty. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.643,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "release_all_rules_pass",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct_model",
+        "full_context"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked tests array: [true, true, true] all true, satisfying criterion 0.",
+          "Checked risk value 0.14 <= 0.2, satisfying criterion 1.",
+          "Checked approved flag true, satisfying criterion 2."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1048,
+        "latency_ms": 4993.133,
+        "model_calls": 1,
+        "output_tokens": 305,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:direct_observation"
+        ],
+        "total_tokens": 1353
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked that all required tests pass using source release_all_rules_pass:observation:tests, which reports tests: [true, true, true].",
+          "Checked that the measured risk score is at most 0.2 using source release_all_rules_pass:observation:risk, which reports risk: 0.14.",
+          "Checked that the independent release decision is approved using source release_all_rules_pass:observation:approved, which reports approved: true."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1156,
+        "latency_ms": 17679.696,
+        "model_calls": 1,
+        "output_tokens": 413,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:observation:tests",
+          "release_all_rules_pass:observation:risk",
+          "release_all_rules_pass:observation:approved"
+        ],
+        "total_tokens": 1569
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Check required tests: execution output tests array is [true, true, true], so all required tests pass.",
+          "Check risk score: measured risk is 0.14, which is at most 0.2.",
+          "Check independent release decision: approved is true."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1073,
+        "latency_ms": 54611.519,
+        "model_calls": 1,
+        "output_tokens": 677,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1750
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 5.206,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "release_one_test_fails",
+      "condition_order": [
+        "polya",
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Check required tests: tests array is [true, false, true], contains false, so not every required test passes.",
+          "Check risk score: risk is 0.08, which is at most 0.2.",
+          "Check independent release decision: approved is true."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1050,
+        "latency_ms": 21129.069,
+        "model_calls": 1,
+        "output_tokens": 239,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:direct_observation"
+        ],
+        "total_tokens": 1289
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Check criterion 0: tests observation is [true, false, true], so not every required test passes.",
+          "Check criterion 1: risk observation is 0.08, which is at most 0.2.",
+          "Check criterion 2: approved observation is true, so the independent release decision is approved."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1250,
+        "latency_ms": 6232.43,
+        "model_calls": 1,
+        "output_tokens": 339,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:tests",
+          "release_one_test_fails:observation:risk",
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 1589
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked execution output tests [true, false, true] for all_true: criterion 0 fails because one required test is false.",
+          "Checked execution output risk 0.08 <= 0.2: criterion 1 passes.",
+          "Checked source release_one_test_fails:observation:approved for approved true: criterion 2 passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1144,
+        "latency_ms": 11160.444,
+        "model_calls": 1,
+        "output_tokens": 642,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 1786
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.318,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "release_risk_exceeds_limit",
+      "condition_order": [
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Verified criterion 0: all entries in tests are true, so every required test passes.",
+          "Verified criterion 1: measured risk is 0.31, which exceeds the allowed maximum of 0.2.",
+          "Verified criterion 2: approved equals true, so the independent release decision is approved."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1153,
+        "latency_ms": 2276.837,
+        "model_calls": 1,
+        "output_tokens": 250,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_risk_exceeds_limit:direct_observation"
+        ],
+        "total_tokens": 1403
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked that all required tests pass: tests = [true, true], all true.",
+          "Checked that measured risk score is at most 0.2: risk = 0.31, which exceeds 0.2.",
+          "Checked that independent release decision is approved: approved = true."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1162,
+        "latency_ms": 7757.0,
+        "model_calls": 1,
+        "output_tokens": 448,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_risk_exceeds_limit:observation:tests",
+          "release_risk_exceeds_limit:observation:risk",
+          "release_risk_exceeds_limit:observation:approved"
+        ],
+        "total_tokens": 1610
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Criterion 0: All required tests pass. Observed tests: [true, true]. All true, so criterion passes.",
+          "Criterion 1: Measured risk score <= 0.2. Observed risk: 0.31. 0.31 > 0.2, so criterion fails.",
+          "Criterion 2: Independent release decision approved. Observed approved: true, so criterion passes."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1180,
+        "latency_ms": 20470.712,
+        "model_calls": 1,
+        "output_tokens": 471,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1651
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-2-structured: Checked the numeric upper bound. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.529,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "debug_regression_passes",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct_model"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Verified that the assertions array contains only true values, satisfying criterion 0.",
+          "Verified that the error field is null, satisfying criterion 1."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 976,
+        "latency_ms": 3304.328,
+        "model_calls": 1,
+        "output_tokens": 248,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:direct_observation"
+        ],
+        "total_tokens": 1224
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked observation source 'debug_regression_passes:observation:assertions' and confirmed all four regression assertions are true.",
+          "Checked observation source 'debug_regression_passes:observation:error' and confirmed the isolated runner reports no execution error, represented as null."
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1159,
+        "latency_ms": 2811.058,
+        "model_calls": 1,
+        "output_tokens": 261,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:observation:assertions",
+          "debug_regression_passes:observation:error"
+        ],
+        "total_tokens": 1420
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked execution_outputs[0].output.assertions equals [true, true, true, true], so every regression assertion passes.",
+          "Checked execution_outputs[0].output.error is null and source debug_regression_passes:observation:error reports error: null, so the isolated runner reports no execution error."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1076,
+        "latency_ms": 21155.637,
+        "model_calls": 1,
+        "output_tokens": 579,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_passes:observation:error"
+        ],
+        "total_tokens": 1655
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked that the execution error field is empty."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 3.2,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "debug_regression_still_fails",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct_model",
+        "full_context"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Check assertions array for all true: assertions = [true, true, false, true], contains false",
+          "Check error field is null: error = null"
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 978,
+        "latency_ms": 5208.408,
+        "model_calls": 1,
+        "output_tokens": 335,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:direct_observation"
+        ],
+        "total_tokens": 1313
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Check regression assertions all pass",
+          "Check isolated runner reports no execution error"
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1065,
+        "latency_ms": 19778.636,
+        "model_calls": 1,
+        "output_tokens": 225,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_regression_still_fails:observation:assertions",
+          "debug_regression_still_fails:observation:error"
+        ],
+        "total_tokens": 1290
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked assertions array: [true, true, false, true] contains a false value, so not every regression assertion passes.",
+          "Checked error field: null indicates no execution error."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1004,
+        "latency_ms": 27388.863,
+        "model_calls": 1,
+        "output_tokens": 480,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1484
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked that the execution error field is empty."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 7.153,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "debug_runner_errors",
+      "condition_order": [
+        "polya",
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Confirmed all assertions in the direct observation are true, satisfying criterion 0.",
+          "Confirmed the error field is 'runner timed out before teardown', so the isolated runner reports an execution error, failing criterion 1."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1089,
+        "latency_ms": 1926.109,
+        "model_calls": 1,
+        "output_tokens": 248,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:direct_observation"
+        ],
+        "total_tokens": 1337
+      },
+      "family": "debugging",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked assertion observation: [true, true, true] confirms all assertions pass.",
+          "Checked error observation: \"runner timed out before teardown\" indicates an execution error."
+        ],
+        "citations_valid": true,
+        "context_documents": 4,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1068,
+        "latency_ms": 5212.225,
+        "model_calls": 1,
+        "output_tokens": 394,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "debug_runner_errors:observation:assertions",
+          "debug_runner_errors:observation:error"
+        ],
+        "total_tokens": 1462
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [
+          "Criterion 0: Verified all values in the 'assertions' array are true.",
+          "Criterion 1: Checked that the 'error' field is null; it is not null ('runner timed out before teardown')."
+        ],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          1
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1106,
+        "latency_ms": 38456.232,
+        "model_calls": 1,
+        "output_tokens": 449,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 1555
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked that the execution error field is empty. The observed value did not satisfy the invariant."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-2-structured: Checked that the execution error field is empty. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.039,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 3
+    }
+  ],
+  "run_id": "113616-3535a3e7",
+  "started_at": "2026-08-22T11:47:18.478927+00:00",
+  "status": "complete"
+}

@@ -40,6 +40,18 @@ class Settings(BaseSettings):
     concurrent_global_run_limit: int = Field(
         default=4, ge=1, le=1000, alias="POLYABRAIN_CONCURRENT_GLOBAL_RUN_LIMIT"
     )
+    daily_user_session_limit: int = Field(
+        default=50, ge=0, le=10000, alias="POLYABRAIN_DAILY_USER_SESSION_LIMIT"
+    )
+    daily_global_session_limit: int = Field(
+        default=500, ge=0, le=100000, alias="POLYABRAIN_DAILY_GLOBAL_SESSION_LIMIT"
+    )
+    daily_user_feedback_limit: int = Field(
+        default=100, ge=0, le=10000, alias="POLYABRAIN_DAILY_USER_FEEDBACK_LIMIT"
+    )
+    daily_global_feedback_limit: int = Field(
+        default=1000, ge=0, le=100000, alias="POLYABRAIN_DAILY_GLOBAL_FEEDBACK_LIMIT"
+    )
     auth_session_seconds: int = Field(
         default=3600, ge=60, le=28800, alias="POLYABRAIN_AUTH_SESSION_SECONDS"
     )
@@ -212,6 +224,13 @@ class Settings(BaseSettings):
         ge=32,
         le=512,
         alias="CODE_EXECUTION_MEMORY_MB",
+    )
+    verified_coding_enabled: bool = Field(default=True, alias="VERIFIED_CODING_ENABLED")
+    failure_patterns_enabled: bool = Field(default=True, alias="FAILURE_PATTERNS_ENABLED")
+    reader_contact: str = Field(default="", alias="READER_CONTACT")
+    reader_cache_dir: str = Field(default="runs/reader-cache", alias="READER_CACHE_DIR")
+    failure_patterns_path: str = Field(
+        default="runs/memory/failure_patterns.jsonl", alias="FAILURE_PATTERNS_PATH"
     )
 
 

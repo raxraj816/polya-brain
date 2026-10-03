@@ -1,0 +1,121 @@
+event_id,user_id,event_type
+1,ALICE,view
+2, bob,refund
+3,Ivy ,view
+4,Gina ,refund
+5, bob,refund
+6,ivy,refund
+7,Bob ,view
+8, hal,purchase
+9,Jon ,view
+10,ALICE,view
+11,FRANK,view
+12, dave,purchase
+13, dave,refund
+14,dave,view
+15,ERIN,view
+16,Bob ,view
+17,ERIN,purchase
+18,Carol ,purchase
+19,Carol ,purchase
+20,FRANK,view
+21,Bob ,purchase
+22, bob,view
+23, carol,view
+24,alice,view
+25,ivy,purchase
+26,ERIN,refund
+27,Carol ,purchase
+28,HAL,refund
+29,carol,purchase
+30,Hal ,view
+31,Dave ,view
+32,Ivy ,view
+33,Alice ,purchase
+34,gina,refund
+35,Erin ,purchase
+36,BOB,purchase
+37,IVY,view
+38,Ivy ,refund
+39, bob,view
+40, carol,view
+41,FRANK,view
+42, hal,purchase
+43, jon,view
+44, frank,refund
+45, carol,view
+46,gina,view
+47,alice,view
+48,erin,purchase
+49,GINA,purchase
+50,ERIN,view
+51,IVY,purchase
+52,frank,view
+53, hal,refund
+54,FRANK,purchase
+55,FRANK,refund
+56,gina,purchase
+57,ALICE,purchase
+58,Frank ,refund
+59,IVY,purchase
+60,Bob ,view
+61,ERIN,purchase
+62,Hal ,refund
+63,CAROL,refund
+64,dave,purchase
+65,HAL,purchase
+66,Bob ,view
+67,Jon ,view
+68,alice,purchase
+69,Erin ,view
+70,Bob ,purchase
+71,frank,refund
+72,ERIN,purchase
+73, hal,purchase
+74,jon,purchase
+75, bob,view
+76,BOB,refund
+77,DAVE,purchase
+78, bob,view
+79, jon,purchase
+80,Jon ,view
+81, dave,purchase
+82,GINA,purchase
+83, gina,refund
+84,FRANK,view
+85, erin,purchase
+86,CAROL,refund
+87, frank,purchase
+88, jon,purchase
+89, frank,refund
+90,Ivy ,view
+91,Jon ,purchase
+92,HAL,refund
+93,dave,view
+94,hal,purchase
+95, carol,purchase
+96,BOB,refund
+97,ivy,view
+98,FRANK,view
+99,gina,view
+100,Jon ,refund
+101,jon,view
+102,Carol ,view
+103,dave,view
+104,gina,purchase
+105, erin,view
+106,ERIN,purchase
+107,ivy,refund
+108,gina,view
+109,Gina ,purchase
+110,alice,purchase
+111,Alice ,view
+112,erin,purchase
+113,ALICE,purchase
+114,Ivy ,view
+115,GINA,view
+116, dave,view
+117,Frank ,refund
+118,JON,view
+119,frank,purchase
+120,HAL,purchase

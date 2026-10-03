@@ -6,6 +6,7 @@ from pydantic import Field, JsonValue, ValidationInfo, model_validator
 
 from app.cognition.generated_checks import validate_generated_checks
 from app.cognition.report_metadata import ConclusionReportMetadata
+from app.cognition.sandbox_proposals import validate_sandbox_proposals
 from app.graph.state import ExecutionOutput
 from app.models.contracts import (
     ContractModel,
@@ -44,6 +45,7 @@ class PlanGenerationOutput(ContractModel):
         ids = [task.id for task in self.tasks]
         if len(ids) != len(set(ids)):
             raise ValueError("plan task ids must be unique")
+        validate_sandbox_proposals(self.tasks)
         validate_generated_checks(self.tasks, info.context)
         return self
 
@@ -99,6 +101,7 @@ class DeliberationCapabilityOutput(ContractModel):
             raise ValueError(
                 "every analytic task requires one output; sandbox outputs must come from execution"
             )
+        validate_sandbox_proposals(self.tasks)
         validate_generated_checks(self.tasks, info.context)
         return self
 

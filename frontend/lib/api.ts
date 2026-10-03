@@ -67,15 +67,23 @@ export type History = {
   next_offset: number | null;
 };
 export async function api<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch(`/api/backend/${path}`, {
-    method: body === undefined ? "GET" : "POST",
-    headers: { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    cache: "no-store",
-  });
-  if (response.status === 401 && typeof window !== "undefined")
-    window.dispatchEvent(new Event("polya-auth-expired"));
-  const payload = await response.json();
+  let response: Response;
+  let payload;
+  try {
+    response = await fetch(`/api/backend/${path}`, {
+      method: body === undefined ? "GET" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: "no-store",
+    });
+    if (response.status === 401 && typeof window !== "undefined")
+      window.dispatchEvent(new Event("polya-auth-expired"));
+    payload = await response.json();
+  } catch {
+    throw new Error(
+      "The service response could not be read. Work may still be running or saved. Refresh the session or history before retrying an action.",
+    );
+  }
   if (!response.ok)
     throw new Error(
       typeof payload.detail === "string"
@@ -123,7 +131,7 @@ export function reportMarkdown(session: Session, report: Report): string {
   const evidence = (items: Evidence[]) =>
     items.map((e) => `${e.claim}\n  Source: ${e.source_uri || e.source_type}`);
   return (
-    `# PolyaBrain investigation\n\n${session.raw_input}\n\nSession: ${session.id}\n\nVerification: ${report.verification_status}\nConfidence: ${report.confidence_level}\n\n## Conclusion\n\n${report.final_conclusion || "No conclusion recorded."}\n` +
+    `# PolyaBrain investigation\n\n${session.raw_input}\n\nSession: ${session.id}\n\nVerification: ${report.verification_status}\nConfidence: ${report.confidence_level}\n\n## Conclusion\n\n${reportConclusion(report)}\n` +
     list("Evidence used", evidence(report.evidence_used)) +
     list("Evidence against", evidence(report.evidence_against)) +
     list("Checks performed", report.checks_performed) +
@@ -134,6 +142,16 @@ export function reportMarkdown(session: Session, report: Report): string {
   );
 }
 export const words = (value: string) => value.replaceAll("_", " ");
+export const sessionLabel = (status: string) =>
+  words(
+    status === "completed"
+      ? "run_finished"
+      : status === "running"
+        ? "outcome_pending"
+        : status,
+  );
+export const reportConclusion = (report: Report) =>
+  report.final_conclusion || "No verified conclusion is available.";
 
 export function problemTitle(rawInput: string): string {
   const text = rawInput.trim().replace(/\s+/gu, " ");

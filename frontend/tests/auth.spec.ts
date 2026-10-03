@@ -81,3 +81,69 @@ test("OIDC browser login, private history, logout and account switching", async 
   ).toBeVisible();
   await context.close();
 });
+
+test("OIDC browser write limits preserve unsaved input and existing reports", async ({
+  browser,
+}) => {
+  test.skip(
+    process.env.POLYABRAIN_TEST_AUTH !== "1" ||
+      process.env.POLYABRAIN_TEST_WRITE_LIMITS !== "1",
+    "requires fresh OIDC fixture with user session/feedback limits of one",
+  );
+  const context = await browser.newContext({
+    baseURL: test.info().project.use.baseURL,
+  });
+  const page = await context.newPage();
+  await page.goto("/");
+  await page.getByRole("link", { name: signInLabel, exact: true }).click();
+  await page.getByRole("button", { name: "Bob", exact: true }).click();
+  await page
+    .getByLabel("What are you trying to solve?")
+    .fill("What is 17 * 6?");
+  await page
+    .getByRole("button", { name: "Start investigation", exact: true })
+    .click();
+  await expect(page.locator(".conclusion")).toContainText("102");
+  const savedUrl = page.url();
+  await page.getByRole("button", { name: "Save feedback" }).click();
+  await expect(page.getByText("Saved for manual review")).toBeVisible();
+  const correction = page.getByLabel(/What should we keep or correct/);
+  await correction.fill("Keep this unsaved correction.");
+  const deniedFeedback = page.waitForResponse(
+    (r) => r.url().endsWith("/feedback") && r.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "Save feedback" }).click();
+  const feedbackResponse = await deniedFeedback;
+  expect(feedbackResponse.status()).toBe(429);
+  expect(Number(feedbackResponse.headers()["retry-after"])).toBeGreaterThan(0);
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "daily feedback creation allowance" }),
+  ).toBeVisible();
+  await expect(correction).toHaveValue("Keep this unsaved correction.");
+  await expect(page.locator(".conclusion")).toContainText("102");
+  await page.getByRole("button", { name: "New investigation" }).click();
+  const draft = page.getByLabel("What are you trying to solve?");
+  await draft.fill("Keep this unsubmitted investigation.");
+  const deniedCreate = page.waitForResponse(
+    (r) => r.url().endsWith("/sessions") && r.request().method() === "POST",
+  );
+  await page
+    .getByRole("button", { name: "Start investigation", exact: true })
+    .click();
+  expect((await deniedCreate).status()).toBe(429);
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "daily session creation allowance" }),
+  ).toBeVisible();
+  await expect(draft).toHaveValue("Keep this unsubmitted investigation.");
+  const history = await (
+    await context.request.get("/api/backend/api/v1/sessions")
+  ).json();
+  expect(history.sessions).toHaveLength(1);
+  await page.goto(savedUrl);
+  await expect(page.locator(".conclusion")).toContainText("102");
+  await context.close();
+});

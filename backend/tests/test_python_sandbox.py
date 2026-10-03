@@ -1,12 +1,16 @@
 """Live isolation and capability tests for the Docker Python sandbox."""
 
 import shutil
-import subprocess
 
 import pytest
 
 from app.cognition import CognitiveActionCandidate, CognitiveActionType
-from app.execution import DockerPythonSandbox, DockerSandboxLimits, python_sandbox_capability
+from app.execution import (
+    DockerPythonSandbox,
+    DockerSandboxLimits,
+    image_available,
+    python_sandbox_capability,
+)
 from app.graph.state import create_initial_state
 from app.models.contracts import PlanTask, RiskLevel
 
@@ -14,15 +18,7 @@ from app.models.contracts import PlanTask, RiskLevel
 def _docker_available() -> bool:
     if shutil.which("docker") is None:
         return False
-    return (
-        subprocess.run(
-            ["docker", "image", "inspect", DockerPythonSandbox().image],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        ).returncode
-        == 0
-    )
+    return image_available(DockerPythonSandbox().image)
 
 
 pytestmark = pytest.mark.skipif(

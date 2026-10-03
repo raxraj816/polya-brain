@@ -37,7 +37,7 @@ from app.problem_understanding import (
 from app.problem_understanding.fallbacks import deterministic_problem_understanding
 from app.problem_understanding.prompt import PROBLEM_UNDERSTANDING_MAX_OUTPUT_TOKENS
 
-PROBLEM_REPRESENTATION_ENGINE_VERSION: Final = "problem_representation@1.5.0"
+PROBLEM_REPRESENTATION_ENGINE_VERSION: Final = "problem_representation@1.6.0"
 
 
 @dataclass(frozen=True)

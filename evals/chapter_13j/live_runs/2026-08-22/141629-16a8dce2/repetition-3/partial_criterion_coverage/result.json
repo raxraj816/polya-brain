@@ -1,0 +1,118 @@
+{
+  "case_id": "partial_criterion_coverage",
+  "category": "partial_coverage",
+  "direct": {
+    "abstention_correct": true,
+    "answer_correct": false,
+    "checks_performed": [
+      "Evaluated retrieved search results for request limit and official deprecation date.",
+      "Verified that request limit (45 requests per minute) is supported by sources.",
+      "Verified that deprecation date information is missing from the search results.",
+      "Confirmed search call limit (1 maximum search call) has been reached."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [
+      "https://docs.example.org/partial-limit",
+      "https://research.example.edu/partial-limit"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 4921.265499899164,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The current AcmeFlow API request limit is 45 requests per minute.",
+              "extra_snippets": [],
+              "id": "partial-limit-a",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-01T00:00:00Z",
+              "title": "Official request limit",
+              "url": "https://docs.example.org/partial-limit"
+            },
+            {
+              "excerpt": "Independent testing confirms the current AcmeFlow API request limit is 45 requests per minute.",
+              "extra_snippets": [],
+              "id": "partial-limit-b",
+              "provider_rank": 2,
+              "provider_score": null,
+              "published_at": "2026-08-02T00:00:00Z",
+              "title": "Independent request limit",
+              "url": "https://research.example.edu/partial-limit"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API request limit official deprecation date",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API request limit official deprecation date"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 2226,
+      "model_calls": 2,
+      "output_tokens": 580,
+      "total_tokens": 2806
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "expected_terminal": "insufficient_evidence",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": true,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_correct": false,
+    "checks_performed": [
+      "Check request limit criterion against canonical evidence",
+      "Check official deprecation date criterion against canonical evidence",
+      "Check constraint: ensure both facts are supported by independent current evidence before answering"
+    ],
+    "conclusion": null,
+    "cycles": 5,
+    "evidence_source_uris": [
+      "https://research.example.edu/partial-limit",
+      "https://docs.example.org/partial-limit"
+    ],
+    "external_calls": 1,
+    "forbidden_output_hit": false,
+    "latency_ms": 7230.847500031814,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current AcmeFlow API request limit and official deprecation date What are the current AcmeFlow API request limit and official deprecation date? primary authoritative source exact evidence"
+    ],
+    "source_passed": true,
+    "terminal_status": "insufficient_evidence",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3882,
+      "model_calls": 2,
+      "output_tokens": 1668,
+      "total_tokens": 5550
+    },
+    "verification_passed": false
+  },
+  "repetition": 3
+}

@@ -19,6 +19,7 @@ from app.cognition.model_gateway import (
     CognitiveModelGateway,
     ModelCapabilityParseError,
     ModelCapabilityResult,
+    ModelOutputTruncatedError,
 )
 from app.graph.state import PolyaState
 from app.llm import (
@@ -294,7 +295,9 @@ class SemanticRouteBroker:
             try:
                 output = operation(route_client, route, route_budget)
             except Exception as exc:
-                if isinstance(exc, schema_failure_types):
+                if isinstance(exc, ModelOutputTruncatedError):
+                    failure_kind = "output_truncated"
+                elif isinstance(exc, schema_failure_types):
                     failure_kind = "schema_validation"
                 elif isinstance(exc, LLMClientError):
                     failure_kind = exc.code.value
@@ -372,6 +375,8 @@ class SemanticRouteBroker:
             else (
                 last_error.code.value
                 if isinstance(last_error, LLMClientError)
+                else "output_truncated"
+                if isinstance(last_error, ModelOutputTruncatedError)
                 else LLMErrorCode.MALFORMED_RESPONSE.value
             )
         )

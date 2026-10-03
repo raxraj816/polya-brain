@@ -1,0 +1,126 @@
+{
+  "case_id": "research_recovery_outcome",
+  "category": "technical_research_recovery",
+  "direct": {
+    "actions": [
+      "search",
+      "inspect"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified the official specification artifact via inspector after search failure."
+    ],
+    "conclusion": "The current official material specifies a request timeout of 45 seconds.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/research_recovery_outcome/inspector"
+    ],
+    "latency_ms": 5935.640000039712,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "failure_kind": "fixture_unavailable",
+          "status": "failed",
+          "summary": "The search provider returned no results."
+        },
+        "target": "current official request timeout"
+      },
+      {
+        "action_type": "inspect",
+        "call_index": 2,
+        "capability": "inspector",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/research_recovery_outcome/inspector",
+          "status": "succeeded",
+          "summary": "The bundled current official specification states request_timeout_seconds = 45."
+        },
+        "target": "official_request_timeout_specification"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3079,
+      "model_calls": 3,
+      "output_tokens": 428,
+      "total_tokens": 3507
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "search",
+      "inspect",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Check that timeout value is stated directly from a source-visible current artifact (fixture://chapter-13c-outcome/research_recovery_outcome/inspector).",
+      "Check for absence of contradicting claims or alternate parameter definitions in the state evidence.",
+      "Verify provenance constraint adherence."
+    ],
+    "conclusion": "According to the bundled current official specification (`fixture://chapter-13c-outcome/research_recovery_outcome/inspector`), the current official request timeout is 45 seconds (`request_timeout_seconds = 45`).",
+    "cycles": 5,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/research_recovery_outcome/inspector"
+    ],
+    "latency_ms": 7069.616875145584,
+    "observation_trace": [
+      {
+        "capability": "web_search",
+        "failure_kind": "fixture_unavailable",
+        "status": "failed",
+        "summary": "The search provider returned no results."
+      },
+      {
+        "capability": "inspector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "The bundled current official specification states request_timeout_seconds = 45."
+      },
+      {
+        "capability": "deliberator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+      },
+      {
+        "capability": "conclusion_checker",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Conclusion check passed all declared criteria."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3434,
+      "model_calls": 2,
+      "output_tokens": 1786,
+      "total_tokens": 5220
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

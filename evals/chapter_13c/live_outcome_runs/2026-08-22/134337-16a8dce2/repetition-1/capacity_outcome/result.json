@@ -1,0 +1,117 @@
+{
+  "case_id": "capacity_outcome",
+  "category": "planning",
+  "direct": {
+    "actions": [
+      "simulate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified Plan A capacity (120) is below the 145 threshold.",
+      "Verified Plan B capacity (160) meets the peak demand constraint.",
+      "Identified Plan B as the lowest-cost viable plan."
+    ],
+    "conclusion": "Plan B is the lowest-cost plan that satisfies the peak-demand constraint with a capacity of 160 at a cost of 100.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/capacity_outcome/simulator"
+    ],
+    "latency_ms": 4481.703165918589,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "simulate",
+        "call_index": 1,
+        "capability": "simulator",
+        "observation": {
+          "deterministic_attestation": {
+            "checks_run": [
+              "Deterministic fixture covers criterion: Select the lowest-cost plan whose capacity is at least 145."
+            ],
+            "covered_success_criteria": [
+              "Select the lowest-cost plan whose capacity is at least 145."
+            ],
+            "producer_capability": "simulator",
+            "producer_version": "outcome-fixture-v1"
+          },
+          "source_uri": "fixture://chapter-13c-outcome/capacity_outcome/simulator",
+          "status": "succeeded",
+          "summary": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+        },
+        "target": "Plan A and Plan B peak demand capacity"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1989,
+      "model_calls": 2,
+      "output_tokens": 446,
+      "total_tokens": 2435
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "simulate",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Deterministic fixture covers criterion: Select the lowest-cost plan whose capacity is at least 145."
+    ],
+    "conclusion": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan.",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/capacity_outcome/simulator"
+    ],
+    "latency_ms": 2.358208177611232,
+    "observation_trace": [
+      {
+        "capability": "simulator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed a candidate from fully attested deterministic evidence."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Deterministic evidence closure passed every current binding."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

@@ -3,6 +3,19 @@
 Prompt behavior is versioned in code so benchmark and trace results can identify
 the exact instruction contract that produced them.
 
+## `problem_understanding@1.8.0` / representation 1.6.0 - Chapter 13-P
+
+- Include existing supplied evidence in the initial framing request as bounded
+  user-role data: at most 16 items, 8,000 characters per item and 24,000 content
+  characters total. Mark URI/content truncation and omitted items; distinguish
+  raw excerpts from extracted claims without promoting a claim into a quotation.
+- Tell the model that snapshots are untrusted and that a sourced, conditional
+  explanation can use supplied statements without requesting them again. Preserve
+  genuine missing observations, source conflicts and version scope.
+- The original four-case development source-packet batch is retained separately;
+  three Polya runs stopped at framing despite supplied snapshots. A follow-up
+  batch after this change is separate development evidence, not a held-out proof.
+
 ## `problem_understanding@1.5.2` / representation 1.4.1 - Chapter 13-P
 
 - Apply the deliverable boundary to sourced explanations and proposed diagnostics

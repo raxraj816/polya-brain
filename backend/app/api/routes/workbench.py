@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -21,6 +21,7 @@ from app.models.contracts import (
     StructuredProblem,
 )
 from app.models.sessions import SessionResponse
+from app.sessions.write_admission import WriteAdmissionPolicy
 from app.tracing.sanitization import sanitize_json_value
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["workbench"])
@@ -141,7 +142,9 @@ class FeedbackResponse(FeedbackRequest):
 
 
 @router.post("/{session_id}/feedback", response_model=FeedbackResponse, status_code=201)
-def save_feedback(session_id: UUID, request: FeedbackRequest, db: Session = DB) -> FeedbackResponse:
+def save_feedback(
+    session_id: UUID, request: FeedbackRequest, http_request: Request, db: Session = DB
+) -> FeedbackResponse:
     session = db.get(records.ProblemSession, session_id)
     if session is None:
         raise HTTPException(status_code=404, detail="Problem session not found.")
@@ -151,8 +154,14 @@ def save_feedback(session_id: UUID, request: FeedbackRequest, db: Session = DB) 
             detail="Wait for the investigation to pause or finish before reviewing it.",
         )
     safe = FeedbackRequest.model_validate(sanitize_json_value(request.model_dump(mode="json")))
+    admitted_at = WriteAdmissionPolicy(db, http_request.app.state.settings).acquire(
+        "feedback", session_id=session_id
+    )
     record = records.HumanFeedback(
-        session_id=session_id, feedback_type=safe.feedback_type, correction=safe.correction or None
+        created_at=admitted_at,
+        session_id=session_id,
+        feedback_type=safe.feedback_type,
+        correction=safe.correction or None,
     )
     db.add(record)
     db.commit()

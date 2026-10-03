@@ -1,0 +1,104 @@
+{
+  "case_id": "orinox_first",
+  "condition_order": [
+    "polya",
+    "direct",
+    "full_context",
+    "ordinary_retrieval"
+  ],
+  "direct": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Checked current_state.evidence: empty",
+      "Checked capability_context.sources: empty",
+      "No Orinox service manual source was supplied to identify corrective action for code Q-17"
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "context_documents": 0,
+    "input_tokens": 646,
+    "latency_ms": 1837.558,
+    "model_calls": 1,
+    "output_tokens": 112,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "source_passed": null,
+    "status": "insufficient_evidence",
+    "terms_passed": false,
+    "total_tokens": 758,
+    "unsupported_forced_conclusion": false
+  },
+  "family": "diagnostic_code_resolution",
+  "full_context": {
+    "acquisitions": 0,
+    "checks_performed": [],
+    "conclusion": null,
+    "confidence": null,
+    "context_documents": 12,
+    "input_tokens": 1443,
+    "latency_ms": 19390.827,
+    "model_calls": 2,
+    "output_tokens": 1063,
+    "parse_error": "model capability response contained incomplete JSON",
+    "passed": false,
+    "source_ids": [],
+    "source_passed": false,
+    "status": "parse_failed",
+    "terms_passed": false,
+    "total_tokens": 2506,
+    "unsupported_forced_conclusion": false
+  },
+  "ordinary_retrieval": {
+    "acquisitions": 1,
+    "checks_performed": [
+      "Reviewed Orinox Service Manual Diagnostic Q-17 section in source orinox_first and found the required corrective action."
+    ],
+    "conclusion": "reseat the blue phase coupler before restart",
+    "confidence": "high",
+    "context_documents": 1,
+    "input_tokens": 592,
+    "latency_ms": 9936.972,
+    "model_calls": 1,
+    "output_tokens": 138,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "orinox_first"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 730,
+    "unsupported_forced_conclusion": false
+  },
+  "phase": "first_encounter",
+  "polya": {
+    "acquisitions": 1,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "checks_performed": [
+      "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+    ],
+    "conclusion": "Required corrective action for Q-17: reseat the blue phase coupler before restart.",
+    "input_tokens": 0,
+    "latency_ms": 3.026,
+    "model_calls": 0,
+    "normalized_cost": 0.07,
+    "output_tokens": 0,
+    "passed": true,
+    "source_uris": [
+      "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_first.txt"
+    ],
+    "status": "completed",
+    "total_tokens": 0,
+    "unsupported_forced_conclusion": false,
+    "verification_passed": true
+  },
+  "repetition": 2
+}

@@ -1,0 +1,15 @@
+{
+  "status": "template_not_evidence",
+  "author_id": null,
+  "did_not_build_or_tune_evaluated_changes": null,
+  "prior_task_familiarity": null,
+  "permission_to_use_inputs": null,
+  "case": {
+    "id": null,
+    "prompt": null,
+    "sources": [],
+    "rubric": null
+  },
+  "reference_check_location_excluded_from_solver": null,
+  "frozen_at": null
+}

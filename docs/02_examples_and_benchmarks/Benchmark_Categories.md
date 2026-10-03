@@ -277,6 +277,16 @@ found a section-9.3.1 citation whose supporting selected passage was section 6.4
 Preserve this citation-fidelity defect instead of equating runtime status with
 independent correctness. Full-run costs and failed attempts remain in the ledger.
 
+The saved source-final workbench DART run exhausted three external calls before
+asking for public information. Preserve that historical failure. For the bounded
+termination repair, test exhausted and zero acquisition budgets, available search,
+affordable alternative memory/inspection, private and mixed gaps, and unavailable
+providers. A stop must retain evidence, costs and failed checks, avoid a fabricated
+clarification or reusable success, and explain the acquisition limit in CLI and
+persisted reports. Reject stale/malformed stop guidance. These deterministic
+controls establish truthful termination only; the full DART outcome and fresh
+source-selection quality remain unproven.
+
 ### Candidate repair transfer (Chapter 13-P)
 
 Freeze the two supplied fictional protocol families in
@@ -420,3 +430,92 @@ browser graph run also passes the same 600 random and eight boundary/scale check
 Measured usage, prior attempts, small-sample limits and browser delivery checks
 are recorded in `Chapter_13P_Compact_Model_Interface.md`. All remain developer
 evidence; lean still uses fewer tokens and less time on these cases.
+
+### Citation provenance acceptance regressions
+
+Preserve the historical HTTP answer whose RFC section locator was absent from
+admitted excerpts. Replay its reconstructed terminal response at the current
+conclusion capability with a fake provider: the original wrong section and an
+unadmitted-domain control must fail, while a manually corrected locator can
+pass the provenance screen. This is acceptance-boundary evidence, not a fresh
+model answer, whole-run replay or evidence of semantic entailment.
+
+Test both model verifier adapters, wrong paths/queries, cross-reference-only
+sections, missing raw excerpts, encoded fragments, malformed URLs, Markdown
+reference/autolinks/tables, code examples, explicit future-link disclaimers and
+bounded input failure. Check CLI/API reports, persistence across reload and
+suppression of failed-outcome learning. Keep non-HTTP synthetic evidence usable
+under the existing semantic review. Record all failures and distinguish these
+developer regressions from held-out or real-user evaluations. See
+[results and limitations](../03_implementation/Chapter_13P_Citation_Provenance.md).
+
+
+## Chapter 171 launch-preparation developer comparison
+
+### Public-research recovery classification
+
+Developer regressions must distinguish public-source acquisition failure from
+missing user-owned information. Missing registration, failed/inconclusive/blocked
+search and privacy refusal must not create a clarification or verified outcome.
+Retain evidence, unresolved gaps, usage and failure observations; preserve safe
+inspection and genuine private clarification in mixed requests. Untyped wording
+does not establish public ownership. Verify terminal guidance through CLI reports,
+fresh database reads, browser reload and export. These tests do not establish
+semantic support, source-selection quality, held-out success or human usefulness.
+
+### Bounded page-read recovery
+
+Page-recovery developer checks must include a failed document followed by fresh,
+evaluated discovery of a distinct source; a serialized-state round trip; stale,
+unevaluated, unrelated and page-produced batches; missing/mismatched/legacy attempt
+bindings; same-URL and third-read refusal; and shared budget/privacy negatives.
+An integration fixture exercises actual search/evaluation/page adapters with fake
+providers and exports the unverified report. Count retained failures and all calls.
+Acquisition progress does not count as verified resolution or live model quality.
+
+### Matched coding evidence
+
+The frozen six-case matched coding campaign and original failures are documented in
+[the readiness evidence package](../03_implementation/Chapter_171_Readiness_Evidence_Package.md).
+All cases are known development tasks. Hidden check execution is not equivalent to
+held-out tasks or independent human review. The original 5/12 versus 12/12 result
+remains part of the record after generated-check repair; post-change results must
+be reported separately with aggregate campaign spend. No superiority claim follows.
+
+## Chapter 172: familiar problems with an explicit twist
+
+Real specifications often differ from the textbook version of a problem a model has
+memorised: lower median instead of the averaged median, unrestricted rather than
+restricted Damerau-Levenshtein, an LRU whose updates do not refresh recency,
+closed meeting intervals with cleanup gaps, SemVer identifiers containing hyphens,
+observed weekend holidays, toroidal 8-connectivity, ASCII-only digits, hard word
+wrapping. A lean loop's own tests tend to share its pattern-matched reading, so
+these cases measure whether independent verification catches confident errors.
+
+`evals/verified_coding/heldout-cases.json` holds ten such tasks frozen and hashed
+before any solver run (`FREEZE.json`). Withheld checks in `checks.py` are validated
+by `validate_checks.py`: an agent-written correct solution must pass and every
+realistic mutant must fail. Dev cases live separately in `dev-cases.json`. The
+paired runner (`run.py`) scores lean, lean plus self-review, lean plus differential
+verification (all from the same first answer) and the kernel. Report corrected
+failures, harmed successes, false certifications and cost per arm. Tasks are
+agent-authored; independent human tasks remain a separate gate.
+
+### Adversarial verifier controls
+
+The 32 cases in `backend/tests/test_differential_adversarial.py` challenge false
+agreement rather than measuring solver capability: boolean/numeric values in
+containers and object fields, exception-side input mutation, unordered matching,
+truncated iterators, malformed required checks and incomplete sandbox results.
+Include valid-equivalence controls to detect false alarms. Both certificate/report
+pipelines must expose incomplete evidence as unverified. Preserve before-fix
+failures and separate these deterministic developer controls from frozen solver
+trials, independent review and real-user value. See
+[Chapter 172 hardening](../03_implementation/Chapter_172_Adversarial_Verification.md).
+
+Coverage controls additionally challenge generators that work only on one size,
+reference timeouts, unavailable scale inputs and coverage loss after a repair.
+Offline QuixBugs replay reuses hash-bound historical generator responses; it is
+not a new independent trial. Its 80 expected arm records include five unavailable
+historical attempts/responses and three unverified controls. Keep those in every
+summary denominator; see [replay evidence](../03_implementation/Chapter_172_Comparison_Coverage.md).

@@ -1,0 +1,107 @@
+{
+  "case_id": "lumera_transfer",
+  "condition_order": [
+    "polya",
+    "direct",
+    "full_context",
+    "ordinary_retrieval"
+  ],
+  "direct": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Checked SOURCES for Lumera policy L-9 or amber-tier abort cooling interval; no sources were provided."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "context_documents": 0,
+    "input_tokens": 629,
+    "latency_ms": 2520.931,
+    "model_calls": 1,
+    "output_tokens": 75,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "source_passed": null,
+    "status": "insufficient_evidence",
+    "terms_passed": false,
+    "total_tokens": 704,
+    "unsupported_forced_conclusion": false
+  },
+  "family": "policy_constraint_lookup",
+  "full_context": {
+    "acquisitions": 0,
+    "checks_performed": [
+      "Located Lumera Operations Policy L-9 in source lumera_transfer.",
+      "Read the stated requirement: an amber-tier abort requires an 18-minute cooling interval."
+    ],
+    "conclusion": "18 minutes",
+    "confidence": "high",
+    "context_documents": 12,
+    "input_tokens": 1108,
+    "latency_ms": 3029.169,
+    "model_calls": 1,
+    "output_tokens": 137,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "lumera_transfer"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 1245,
+    "unsupported_forced_conclusion": false
+  },
+  "ordinary_retrieval": {
+    "acquisitions": 1,
+    "checks_performed": [
+      "Reviewed Lumera Operations Policy L-9 in source lumera_transfer, which states an amber-tier abort requires an 18-minute cooling interval."
+    ],
+    "conclusion": "18 minutes",
+    "confidence": "high",
+    "context_documents": 1,
+    "input_tokens": 593,
+    "latency_ms": 9780.524,
+    "model_calls": 1,
+    "output_tokens": 134,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "lumera_transfer"
+    ],
+    "source_passed": true,
+    "status": "answered",
+    "terms_passed": true,
+    "total_tokens": 727,
+    "unsupported_forced_conclusion": false
+  },
+  "phase": "transfer",
+  "polya": {
+    "acquisitions": 1,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "checks_performed": [
+      "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+    ],
+    "conclusion": "An amber-tier abort requires an 18-minute cooling interval.",
+    "input_tokens": 0,
+    "latency_ms": 2.953,
+    "model_calls": 0,
+    "normalized_cost": 0.07,
+    "output_tokens": 0,
+    "passed": true,
+    "source_uris": [
+      "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_transfer.txt"
+    ],
+    "status": "completed",
+    "total_tokens": 0,
+    "unsupported_forced_conclusion": false,
+    "verification_passed": true
+  },
+  "repetition": 3
+}

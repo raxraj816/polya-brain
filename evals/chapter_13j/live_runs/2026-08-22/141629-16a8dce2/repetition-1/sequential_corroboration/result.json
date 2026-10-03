@@ -1,0 +1,134 @@
+{
+  "case_id": "sequential_corroboration",
+  "category": "multi_source_corroboration",
+  "direct": {
+    "abstention_correct": false,
+    "answer_correct": true,
+    "checks_performed": [
+      "Verified the request limit across two independent sources, including an authoritative documentation source",
+      "Confirmed source provenance and consistency across retrieved evidence"
+    ],
+    "conclusion": "The current official AcmeFlow API request limit is 45 requests per minute.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "https://docs.example.org/request-limit",
+      "https://research.example.edu/request-limit"
+    ],
+    "external_calls": 2,
+    "forbidden_output_hit": false,
+    "latency_ms": 6660.255791852251,
+    "parse_error": null,
+    "passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "search",
+        "call_index": 1,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "The current official AcmeFlow API request limit is 45 requests per minute.",
+              "extra_snippets": [],
+              "id": "official-limit",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-01T00:00:00Z",
+              "title": "Official request limit",
+              "url": "https://docs.example.org/request-limit"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API request limit rate limit documentation",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API request limit rate limit documentation"
+      },
+      {
+        "action_type": "search",
+        "call_index": 2,
+        "capability": "web_search",
+        "observation": {
+          "candidates": [
+            {
+              "excerpt": "Independent testing confirms the current official AcmeFlow API request limit is 45 requests per minute.",
+              "extra_snippets": [],
+              "id": "independent-limit",
+              "provider_rank": 1,
+              "provider_score": null,
+              "published_at": "2026-08-02T00:00:00Z",
+              "title": "Independent request-limit test",
+              "url": "https://research.example.edu/request-limit"
+            }
+          ],
+          "more_results_available": false,
+          "provider": "chapter-13j-fixture-search",
+          "query": "AcmeFlow API \"45 requests per minute\" limit",
+          "status": "succeeded"
+        },
+        "target": "AcmeFlow API \"45 requests per minute\" limit"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3758,
+      "model_calls": 3,
+      "output_tokens": 819,
+      "total_tokens": 4577
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "expected_terminal": "answer",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": false,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_correct": true,
+    "checks_performed": [
+      "Criterion check: Verify that the exact limit is explicitly stated from canonical evidence.",
+      "Criterion check: Verify that two independent public sources are cited with provenance preserved.",
+      "Constraint check: Confirm at least one authoritative documentation source and one independent testing source are present in state.",
+      "Falsification check: Search for conflicting values or contradictory evidence across state records."
+    ],
+    "conclusion": "The current official AcmeFlow API request limit is 45 requests per minute, as documented in official documentation (https://docs.example.org/request-limit) and confirmed by independent research (https://research.example.edu/request-limit).",
+    "cycles": 7,
+    "evidence_source_uris": [
+      "https://docs.example.org/request-limit",
+      "https://research.example.edu/request-limit"
+    ],
+    "external_calls": 2,
+    "forbidden_output_hit": false,
+    "latency_ms": 7102.212416939437,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? primary authoritative source exact evidence",
+      "the current official AcmeFlow API request limit What is the current official AcmeFlow API request limit? independent corroborating source from a different publisher"
+    ],
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3741,
+      "model_calls": 2,
+      "output_tokens": 1799,
+      "total_tokens": 5540
+    },
+    "verification_passed": true
+  },
+  "repetition": 1
+}

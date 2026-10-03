@@ -1,0 +1,161 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-258b0a53601e",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSelecting filesystem-path output creates a writer but the first write raises NameError. Identify the closure/reference defect, give the smallest correction, and specify a path-output regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 10, in verify\n    writer(\"trace-line\")\n    ~~~~~~^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 11, in write\n    with open(output_path, \"a\") as output_file:  # noqa: F821\n              ^^^^^^^^^^^\nNameError: name 'output_path' is not defined\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Path output fails on first write\n\nConfiguring the tracer with a filesystem path succeeds initially, but the first\nattempt to write trace output raises `NameError`. Writing to an existing stream\ndoes not show the failure. Identify the failure mechanism and the smallest safe\ncorrection, then name a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of PySnooper bug 3 at e21a3116.\"\"\"\n\nfrom pathlib import Path\nfrom typing import TextIO\n\n\ndef get_write_function(output: Path | str | TextIO):\n    if isinstance(output, (Path, str)):\n\n        def write(value: str) -> None:\n            with open(output_path, \"a\") as output_file:  # noqa: F821\n                output_file.write(value)\n\n        return write\n    return output.write\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom pathlib import Path\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    output = Path(__file__).with_name(\"reproduction-output.txt\")\n    output.unlink(missing_ok=True)\n    try:\n        writer = implementation.get_write_function(output)\n        writer(\"trace-line\")\n        assert output.read_text(encoding=\"utf-8\") == \"trace-line\"\n    finally:\n        output.unlink(missing_ok=True)\n",
+      "responses": [
+        {
+          "corrective_action": "In `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py`, change `with open(output_path, \"a\") as output_file:` inside `write()` to `with open(output, \"a\") as output_file:` so that it references the enclosing parameter `output`.",
+          "evidence_references": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/issue.md",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-3fba64d0d598",
+          "root_cause": "In `buggy_impl.py`, `get_write_function` takes `output` as its parameter, but the inner `write` closure attempts to open `output_path`, an undefined variable name, causing a `NameError: name 'output_path' is not defined` when writing to a path.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `verify(implementation)` in `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py` with the corrected module.",
+            "Verify that `get_write_function(output)` successfully writes `'trace-line'` to the specified `Path` without raising `NameError` and that `output.read_text(encoding='utf-8') == 'trace-line'` succeeds."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `buggy_impl.py`, `get_write_function` defines a nested `write` function that attempts to open `output_path` instead of the parameter `output`, raising a `NameError` on the first write when given a `Path` or `str`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. Replaces the undefined variable 'output_path' with the enclosing scope parameter 'output' when opening the file for writing.\nRegression check: The `verify` function in `check.py` passes a `pathlib.Path` object to `get_write_function`, calls the resulting writer with 'trace-line', and asserts the text was written to the file. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-688d7aef0a5c",
+          "root_cause": "Root cause: In `buggy_impl.py`, `get_write_function` defines a nested `write` function that attempts to open `output_path` instead of the parameter `output`, raising a `NameError` on the first write when given a `Path` or `str`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. Replaces the undefined variable 'output_path' with the enclosing scope parameter 'output' when opening the file for writing.\nRegression check: The `verify` function in `check.py` passes a `pathlib.Path` object to `get_write_function`, calls the resulting writer with 'trace-line', and asserts the text was written to the file. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-3fba64d0d598": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-688d7aef0a5c": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-4b7249f98a76",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Update `APIRouter.include_router` in `buggy_impl.py` to handle `WebSocketRoute` instances by adding a branch `elif isinstance(route, WebSocketRoute): self.routes.append(WebSocketRoute(prefix + route.path, route.name))` so that child websocket routes are preserved under the specified prefix.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-3f92cd37c6fd",
+          "root_cause": "`APIRouter.include_router` only checks for `isinstance(route, APIRoute)` when copying routes from the child router, completely omitting any `WebSocketRoute` objects from `child.routes`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Instantiate a child `APIRouter` with an `APIRoute(\"/items\", \"items\")` and a `WebSocketRoute(\"/events\", \"events\")`.",
+            "Call `parent.include_router(child, \"/v1\")` on a parent `APIRouter`.",
+            "Verify that `parent.routes` contains both `APIRoute(\"/v1/items\", \"items\")` and `WebSocketRoute(\"/v1/events\", \"events\")` as checked in `check.py`."
+          ]
+        },
+        {
+          "corrective_action": null,
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [
+            "The cognitive runtime did not produce a verified field diagnosis."
+          ],
+          "response_id": "response-4a05b398fa80",
+          "root_cause": null,
+          "status": "insufficient_evidence",
+          "verification_steps": []
+        }
+      ],
+      "review_form": {
+        "response-3f92cd37c6fd": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-4a05b398fa80": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "152735-16a8dce2"
+}

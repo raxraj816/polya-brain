@@ -1,0 +1,277 @@
+{
+  "benchmark": "chapter_13e_live_verifier",
+  "case_count": 2,
+  "fairness": {
+    "direct_model_receives_complete_structured_observation": true,
+    "fictional_nonconfidential_cases": true,
+    "full_context_receives_all_observation_documents_and_distractors": true,
+    "ordinary_retrieval_uses_fixed_lexical_top_two": true,
+    "rotated_condition_order": true,
+    "same_candidate_and_criteria": true,
+    "same_model_for_model_conditions": true
+  },
+  "gate": {
+    "chapter_13e_verifier_gate_passed": false,
+    "general_intelligence_win_claimed": false,
+    "metrics": {
+      "completed_case_repetitions": 2,
+      "direct_model_false_passes": 0,
+      "direct_model_passed": 2,
+      "direct_model_total_tokens": 2869,
+      "expected_case_repetitions": 2,
+      "full_context_false_passes": 0,
+      "full_context_passed": 2,
+      "full_context_total_tokens": 3017,
+      "ordinary_retrieval_false_passes": 0,
+      "ordinary_retrieval_passed": 1,
+      "ordinary_retrieval_total_tokens": 4474,
+      "polya_false_passes": 0,
+      "polya_passed": 2,
+      "polya_total_tokens": 0
+    },
+    "requirements": {
+      "all_case_repetitions_completed": true,
+      "all_polya_verdicts_correct": true,
+      "full_polya_criterion_coverage": true,
+      "minimum_three_repetitions": false,
+      "polya_quality_not_below_direct": true,
+      "polya_quality_not_below_full_context": true,
+      "polya_quality_not_below_retrieval": true,
+      "six_cases_two_families": false,
+      "zero_polya_false_passes": true,
+      "zero_polya_model_tokens": true
+    }
+  },
+  "limitations": [
+    "This benchmark isolates verification after candidate generation and observation, not end-to-end general problem solving.",
+    "Polya receives a typed declarative verifier binding; model baselines receive equivalent criteria and observation content in text/JSON.",
+    "Procedure replay and autonomous capability execution require separate outcome gates.",
+    "No general intelligence superiority claim follows from this narrow gate."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "repetitions": 1,
+  "results": [
+    {
+      "case_id": "release_all_rules_pass",
+      "condition_order": [
+        "direct_model",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct_model": {
+        "accepted": true,
+        "checks_performed": [
+          "Check tests array all true",
+          "Check risk 0.14 <= 0.2",
+          "Check approved equals true"
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1059,
+        "latency_ms": 5564.403,
+        "model_calls": 1,
+        "output_tokens": 361,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:direct_observation"
+        ],
+        "total_tokens": 1420
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked tests observation [true, true, true] for all_true -> passes",
+          "Checked risk observation 0.14 <= 0.2 -> passes",
+          "Checked approved observation true equals true -> passes"
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1167,
+        "latency_ms": 26673.486,
+        "model_calls": 1,
+        "output_tokens": 328,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:observation:tests",
+          "release_all_rules_pass:observation:risk",
+          "release_all_rules_pass:observation:approved"
+        ],
+        "total_tokens": 1495
+      },
+      "ordinary_retrieval": {
+        "accepted": true,
+        "checks_performed": [
+          "Checked execution_outputs independent-check: tests [true, true, true] are all true, satisfying criterion 0.",
+          "Checked execution_outputs independent-check: risk 0.14 is less than or equal to 0.2, satisfying criterion 1.",
+          "Checked execution_outputs independent-check: approved is true, satisfying criterion 2."
+        ],
+        "citations_valid": true,
+        "context_documents": 2,
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1163,
+        "latency_ms": 14611.132,
+        "model_calls": 1,
+        "output_tokens": 786,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_all_rules_pass:distractor:1",
+          "release_all_rules_pass:distractor:2"
+        ],
+        "total_tokens": 1949
+      },
+      "polya": {
+        "accepted": true,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": true,
+        "failed_checks": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 2.64,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "completed",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "release_one_test_fails",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct_model"
+      ],
+      "direct_model": {
+        "accepted": false,
+        "checks_performed": [
+          "Checked tests array [true, false, true] for all true: found false at index 1.",
+          "Checked risk 0.08 <= 0.2: passes.",
+          "Checked approved equals true: passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 1,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1061,
+        "latency_ms": 9172.144,
+        "model_calls": 1,
+        "output_tokens": 388,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:direct_observation"
+        ],
+        "total_tokens": 1449
+      },
+      "family": "multi_rule",
+      "full_context": {
+        "accepted": false,
+        "checks_performed": [
+          "Check 0: criterion 'Every required test passes' against observed tests [true, false, true] \u2014 found a false result, so not all required tests pass.",
+          "Check 1: criterion 'The measured risk score is at most 0.2' against observed risk 0.08 \u2014 0.08 <= 0.2, so this criterion passes.",
+          "Check 2: criterion 'The independent release decision is approved' against observed approved true \u2014 matches, so this criterion passes."
+        ],
+        "citations_valid": true,
+        "context_documents": 5,
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [
+          0
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1159,
+        "latency_ms": 2897.459,
+        "model_calls": 1,
+        "output_tokens": 363,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "release_one_test_fails:observation:tests",
+          "release_one_test_fails:observation:risk",
+          "release_one_test_fails:observation:approved"
+        ],
+        "total_tokens": 1522
+      },
+      "ordinary_retrieval": {
+        "accepted": false,
+        "checks_performed": [],
+        "citations_valid": false,
+        "context_documents": 2,
+        "criterion_coverage": 0.0,
+        "expected_accept": false,
+        "failed_criterion_indices": [],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 1492,
+        "latency_ms": 85983.715,
+        "model_calls": 2,
+        "output_tokens": 1033,
+        "parse_error": "model capability response failed contract validation: source_ids: List should have at least 1 item after validation, not 0",
+        "passed": false,
+        "source_ids": [],
+        "total_tokens": 2525
+      },
+      "polya": {
+        "accepted": false,
+        "checks_performed": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant.",
+          "criterion-2-structured: Checked the numeric upper bound.",
+          "criterion-3-structured: Compared the structured value for exact equality."
+        ],
+        "criterion_coverage": 1.0,
+        "expected_accept": false,
+        "failed_checks": [
+          "criterion-1-structured: Checked that every non-empty list element is exactly true. The observed value did not satisfy the invariant."
+        ],
+        "false_pass": false,
+        "false_reject": false,
+        "input_tokens": 0,
+        "latency_ms": 3.416,
+        "model_calls": 0,
+        "output_tokens": 0,
+        "passed": true,
+        "status": "insufficient_evidence",
+        "total_tokens": 0,
+        "verified_terminal": true
+      },
+      "repetition": 1
+    }
+  ],
+  "run_id": "113016-3535a3e7",
+  "started_at": "2026-08-22T11:30:16.255159+00:00",
+  "status": "complete"
+}

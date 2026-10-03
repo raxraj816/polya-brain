@@ -11,7 +11,7 @@ from contextlib import suppress
 from app.graph.state import StateEvent
 from app.models.contracts import PlanTask, ReasoningMode
 
-VERSION = "generated_check_sources@0.1.0"
+VERSION = "generated_check_sources@0.1.1"
 
 
 def check_source_event(tasks: Sequence[PlanTask], engine_name: str) -> list[StateEvent]:
@@ -85,13 +85,14 @@ def validate_generated_checks(tasks: Sequence[PlanTask], context: object) -> Non
         if isinstance(existing, (list, tuple)) and all(isinstance(item, str) for item in existing)
         else set()
     )
-    for task in tasks:
+    violations: list[str] = []
+    for task_index, task in enumerate(tasks):
         if task.tool_name != "python_sandbox":
             continue
         tests = task.params.get("tests")
         if not isinstance(tests, list):
             continue  # Parameter bounds are enforced at the capability boundary.
-        for test in tests:
+        for test_index, test in enumerate(tests):
             if not isinstance(test, str) or test in known:
                 continue
             try:
@@ -116,10 +117,20 @@ def validate_generated_checks(tasks: Sequence[PlanTask], context: object) -> Non
                     for index in range(len(supplied) - len(wanted) + 1)
                 ):
                     continue
-                raise ValueError(
-                    "Generated check contains a literal expected output not present as an explicit "
-                    "example in raw_input. Preserve user examples and existing checks. For invented "
-                    "cases, replace guessed literal expectations with assertions against a simple "
-                    "executable reference derived from the specification; do not call the candidate "
-                    "from the reference or claim unobserved execution."
-                )
+                if len(violations) < 10:
+                    violations.append(
+                        f"tasks[{task_index}].params.tests[{test_index}] line {node.lineno}"
+                    )
+    if violations:
+        raise ValueError(
+            "Generated check contains a literal expected output not present as an exact "
+            "call/comparison example in raw_input. Offending locations (first 10, zero-based "
+            "indices, one-based lines): " + "; ".join(violations) + ". "
+            "Repair every unsupported literal comparison in these tests, not only invented "
+            "boundary cases. A prose example or a different receiver alias does not match "
+            "an exact callable assertion. Keep supplied inputs and values unchanged; use a "
+            "simple executable reference derived from the specification for cases without "
+            "an exact assertion. Preserve previously admitted checks. Do not hide expected "
+            "values behind variables, call the candidate from the reference, or claim "
+            "unobserved execution."
+        )

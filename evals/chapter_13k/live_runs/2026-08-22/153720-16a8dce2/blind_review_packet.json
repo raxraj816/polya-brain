@@ -1,0 +1,167 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-14eeb09c0b7e",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSkip-default response serialization still emits a field whose value equals the model default. Diagnose when default metadata is discarded, propose the smallest correction, and specify both sides of the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 6, in verify\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Response-model defaults survive skip-default serialization\n\nA route configured to skip response-model defaults still emits a field whose\nvalue is the model default when the handler returns a model instance. Diagnose\nwhere model semantics are lost and state the smallest correction and check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 10 at b77a43bc.\"\"\"\n\n\nclass ResponseModel:\n    def __init__(self, name: str, note: str | None = None) -> None:\n        self.name = name\n        self.note = note\n\n    def dict(self, *, skip_defaults: bool = False) -> dict[str, str | None]:\n        result: dict[str, str | None] = {\"name\": self.name, \"note\": self.note}\n        if skip_defaults and self.note is None:\n            result.pop(\"note\")\n        return result\n\n\ndef serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\n    value = {\"name\": response.name, \"note\": response.note}\n    return dict(value)\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    response = implementation.ResponseModel(name=\"Ada\")\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n    assert implementation.serialize_response(response, skip_defaults=False) == {\n        \"name\": \"Ada\",\n        \"note\": None,\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Update `serialize_response` in `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py` to delegate to `response.dict(skip_defaults=skip_defaults)` instead of manually constructing a dictionary from `response.name` and `response.note`.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-ca223f5ff83e",
+          "root_cause": "The function `serialize_response` in `buggy_impl.py` creates a raw dictionary from `response.name` and `response.note` directly, bypassing `ResponseModel.dict(skip_defaults=skip_defaults)` and ignoring the `skip_defaults` argument.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `check.verify(implementation)` where `response = ResponseModel(name=\"Ada\")`.",
+            "Before correction: `serialize_response(response, skip_defaults=True)` returns `{'name': 'Ada', 'note': None}`, failing the assertion `assert implementation.serialize_response(response, skip_defaults=True) == {'name': 'Ada'}`.",
+            "After correction: `serialize_response(response, skip_defaults=True)` invokes `response.dict(skip_defaults=True)` and returns `{'name': 'Ada'}`, while `skip_defaults=False` returns `{'name': 'Ada', 'note': None}`, satisfying all assertions in `check.py`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: serialize_response discards model serialization semantics and the skip_defaults flag by directly extracting raw attributes into a dictionary instead of invoking response.dict(skip_defaults=skip_defaults).\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegates serialization to response.dict(skip_defaults=skip_defaults), which drops default fields when skip_defaults is True while preserving them when False.\nRegression check: Verifies that serialize_response(ResponseModel(name='Ada'), skip_defaults=True) returns {'name': 'Ada'} and serialize_response(..., skip_defaults=False) returns {'name': 'Ada', 'note': None}. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-fcf9f8b543fd",
+          "root_cause": "Root cause: serialize_response discards model serialization semantics and the skip_defaults flag by directly extracting raw attributes into a dictionary instead of invoking response.dict(skip_defaults=skip_defaults).\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegates serialization to response.dict(skip_defaults=skip_defaults), which drops default fields when skip_defaults is True while preserving them when False.\nRegression check: Verifies that serialize_response(ResponseModel(name='Ada'), skip_defaults=True) returns {'name': 'Ada'} and serialize_response(..., skip_defaults=False) returns {'name': 'Ada', 'note': None}. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-ca223f5ff83e": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-fcf9f8b543fd": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-75cc400e3d6c",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nA persisted-session update crashes when a request explicitly unsets one header while another byte-valued header is valid. Diagnose the operation applied to the unset sentinel and give a bounded correction and test.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 5, in verify\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n  File \"<case-artifacts>/buggy_impl.py\", line 7, in update_headers\n    value = value.decode(\"utf8\")\n            ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'decode'\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Explicitly unset session header crashes update\n\nWhen a request uses a persisted session and explicitly unsets one header, the\nsession-update path raises an exception before saving the remaining headers.\nDetermine how the unset value reaches the failing operation and propose a\ncorrection that preserves ordinary byte-valued headers.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 3 at 8c33e5e3.\"\"\"\n\n\ndef update_headers(request_headers: dict[str, bytes | None]) -> dict[str, str]:\n    headers: dict[str, str] = {}\n    for name, value in request_headers.items():\n        value = value.decode(\"utf8\")\n        if name == \"User-Agent\" and value.startswith(\"HTTPie/\"):\n            continue\n        headers[name] = value\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n    assert result == {\"X-Request-ID\": \"request-7\"}\n",
+      "responses": [
+        {
+          "corrective_action": "In `buggy_impl.py`, check if `value is None` at the beginning of the loop and skip the entry (e.g. `if value is None: continue`), so unset header sentinels are not decoded with `.decode(\"utf8\")` and are excluded from the returned dictionary.",
+          "evidence_references": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/issue.md",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-15780e301efd",
+          "root_cause": "In `update_headers` within `buggy_impl.py`, the loop unconditionally invokes `value.decode(\"utf8\")` on every dictionary value in `request_headers`. When an explicitly unset header is passed as `None`, calling `.decode(...)` on `NoneType` raises `AttributeError: 'NoneType' object has no attribute 'decode'`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `verify(implementation)` from `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py` with input `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}`.",
+            "Verify that the call raises `AttributeError: 'NoneType' object has no attribute 'decode'` against the buggy implementation.",
+            "Verify that the call returns `{\"X-Request-ID\": \"request-7\"}` after skipping `None` values."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `update_headers`, `value.decode(\"utf8\")` is called unconditionally on all dictionary values in `request_headers`. When an unset header sentinel `None` is provided, `value.decode(\"utf8\")` raises `AttributeError: 'NoneType' object has no attribute 'decode'`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py\nCorrection: replace 'value = value.decode(\"utf8\")' with 'if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Checking if `value is None` before decoding prevents `AttributeError` on unset header sentinels and skips adding unset headers to the resulting dictionary, satisfying the session update behavior.\nRegression check: `check.verify` calls `implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})` and asserts the result is `{\"X-Request-ID\": \"request-7\"}`. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-d19479fa2d02",
+          "root_cause": "Root cause: In `update_headers`, `value.decode(\"utf8\")` is called unconditionally on all dictionary values in `request_headers`. When an unset header sentinel `None` is provided, `value.decode(\"utf8\")` raises `AttributeError: 'NoneType' object has no attribute 'decode'`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py\nCorrection: replace 'value = value.decode(\"utf8\")' with 'if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Checking if `value is None` before decoding prevents `AttributeError` on unset header sentinels and skips adding unset headers to the resulting dictionary, satisfying the session update behavior.\nRegression check: `check.verify` calls `implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})` and asserts the result is `{\"X-Request-ID\": \"request-7\"}`. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-15780e301efd": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-d19479fa2d02": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "153720-16a8dce2"
+}

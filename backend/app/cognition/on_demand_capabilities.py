@@ -8,6 +8,8 @@ from pydantic import JsonValue
 
 from app.cognition.arithmetic_pack import is_simple_arithmetic
 from app.cognition.capabilities import AuditedCapabilityError, FunctionCapability
+from app.cognition.citation_provenance import INSTRUCTIONS as CITATION_INSTRUCTIONS
+from app.cognition.citation_provenance import check_citations
 from app.cognition.code_delivery import assemble_tested_code, code_delivery_context
 from app.cognition.contracts import (
     CapabilityDefinition,
@@ -38,6 +40,7 @@ from app.cognition.model_capabilities import (
 from app.cognition.model_contracts import ConclusionCheckOutput, DeliberationCapabilityOutput
 from app.cognition.model_gateway import CognitiveModelGateway
 from app.cognition.report_metadata import report_metadata_event
+from app.cognition.sandbox_proposals import validate_sandbox_proposals
 from app.cognition.task_model import (
     accumulated_usage,
     configured_budget,
@@ -591,21 +594,7 @@ def deliberator_capability(
             allowed_tools.add("python_sandbox")
         if any(task.tool_name not in allowed_tools for task in output.tasks):
             raise ValueError("fused deliberation selected an unavailable execution tool")
-        for task in output.tasks:
-            if task.tool_name != "python_sandbox":
-                continue
-            code, tests = task.params.get("code"), task.params.get("tests")
-            if (
-                not isinstance(code, str)
-                or not 1 <= len(code.strip()) <= 20_000
-                or not isinstance(tests, list)
-                or not 1 <= len(tests) <= 20
-                or any(
-                    not isinstance(test, str) or not 1 <= len(test.strip()) <= 2000
-                    for test in tests
-                )
-            ):
-                raise ValueError("sandbox proposal requires bounded code and nonempty assertions")
+        validate_sandbox_proposals(output.tasks)
         recovery_events: list[StateEvent] = []
         if needs_recovery_analysis(state):
             # Preserve prior work and disambiguate every new task/output pair even
@@ -690,7 +679,7 @@ def conclusion_checker_capability(
         name="arithmetic_conclusion_checker" if deterministic_only else "conclusion_checker",
         version="arithmetic_conclusion_checker@0.1.0"
         if deterministic_only
-        else gateway.capability_version("fused_conclusion_checker@0.12.0"),
+        else gateway.capability_version("fused_conclusion_checker@0.13.0"),
         supported_actions={CognitiveActionType.VERIFY},
         risk_level=RiskLevel.LOW,
         approved_for_sensitive_data=deterministic_only or approved_for_sensitive_data,
@@ -817,6 +806,7 @@ def conclusion_checker_capability(
                     "without checking. Do not describe numbers as rounding-compatible until "
                     "their units, observation dates and measurement definitions are aligned. "
                     + INSTRUCTIONS
+                    + CITATION_INSTRUCTIONS
                 ),
                 output_type=ConclusionCheckOutput,
                 state=state,
@@ -938,6 +928,11 @@ def conclusion_checker_capability(
                         recommended_route="Revise the analysis using the measurement units in the admitted raw source excerpts.",
                     )
                 )
+        if output.report.passed and output.final_answer:
+            citation_check = check_citations(state, output.final_answer)
+            source_events.append(citation_check.event(output.final_answer, definition.name))
+            if citation_check.failures:
+                output = ConclusionCheckOutput(report=citation_check.reject(output.report))
         if output.report.passed and delivery_binding is not None:
             source_events.append(
                 StateEvent(
@@ -1016,9 +1011,10 @@ def on_demand_cognitive_capabilities(
             approved_for_sensitive_data=approved_for_sensitive_data,
             allow_python_sandbox=allow_python_sandbox,
             # Complete code, assertions and analysis exceeded 3200 tokens in the
-            # frozen calendar pilot. Reserve capacity within the existing budget.
-            max_output_tokens=max_output_tokens_per_call
-            or (6000 if allow_python_sandbox else 3200),
+            # frozen calendar pilot, and so did a full system-design answer (an
+            # architecture plus failure timelines) without the sandbox. Reserve the
+            # same capacity in both modes; it fits the default run output budget.
+            max_output_tokens=max_output_tokens_per_call or 6000,
             timeout_seconds=timeout_seconds_per_call or 75.0,
         ),
         conclusion_checker_capability(

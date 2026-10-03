@@ -53,6 +53,7 @@ class ProblemSession(Base):
     __table_args__ = (
         Index("ix_problem_sessions_status", "status"),
         Index("ix_problem_sessions_user_id", "user_id"),
+        Index("ix_problem_sessions_user_created", "user_id", "created_at"),
         Index("ix_problem_sessions_created_at", "created_at"),
         Index("ix_problem_sessions_run_started_at", "run_started_at"),
     )
@@ -110,7 +111,10 @@ class HumanFeedback(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
-    __table_args__ = (Index("ix_human_feedback_session_created", "session_id", "created_at"),)
+    __table_args__ = (
+        Index("ix_human_feedback_session_created", "session_id", "created_at"),
+        Index("ix_human_feedback_created", "created_at"),
+    )
 
 
 class ClarificationRequest(Base):

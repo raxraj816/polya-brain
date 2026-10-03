@@ -1,0 +1,115 @@
+{
+  "case_id": "equation_outcome",
+  "category": "mathematical_reasoning",
+  "direct": {
+    "actions": [
+      "calculate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Substituted x = 3 into 2x + 4 to verify 2(3) + 4 = 10."
+    ],
+    "conclusion": "The value of x that satisfies the equation 2x + 4 = 10 is x = 3.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 6458.398791961372,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "calculate",
+        "call_index": 1,
+        "capability": "calculator",
+        "observation": {
+          "deterministic_attestation": {
+            "checks_run": [
+              "Deterministic fixture covers criterion: State x and verify it in the original equation."
+            ],
+            "covered_success_criteria": [
+              "State x and verify it in the original equation."
+            ],
+            "producer_capability": "calculator",
+            "producer_version": "outcome-fixture-v1"
+          },
+          "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+          "status": "succeeded",
+          "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+        },
+        "target": "(10 - 4) / 2"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1979,
+      "model_calls": 2,
+      "output_tokens": 410,
+      "total_tokens": 2389
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "calculate",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Deterministic fixture covers criterion: State x and verify it in the original equation."
+    ],
+    "conclusion": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10.",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 0.9201248176395893,
+    "observation_trace": [
+      {
+        "capability": "calculator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed a candidate from fully attested deterministic evidence."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Deterministic evidence closure passed every current binding."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

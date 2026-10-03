@@ -1,0 +1,15 @@
+{
+  "statement": "Built and hashed before any solver or verifier run on these tasks. Agent-authored synthetic data with deterministic ground truth; not independently sourced.",
+  "tasks_sha256": "cd327a40306b4cdfb6482ed8bb55dc09df54844390587282f11d991afc4a2cf1",
+  "data_sha256": {
+    "data/customers.csv": "6149ca399997237be718f2c263e20f21545be6321130cfb2d8e045975ce51232",
+    "data/events.csv": "a3f75ad1186aa840c1bbd95211dfc3b58da46bb1f57a5553e501debd323e70b7",
+    "data/orders_eu.csv": "f6aae88c0fc2e14934eafda2e8810fac0527987372dec23005208448e9f2f1d6",
+    "data/orders_march.csv": "946e6983aa9e0d0030b848abb3002d368ac9093e8c43fc7eecbbf1ade6869155",
+    "data/payments.csv": "1d8742a029085544d843b744e929acf724309f52e1d80a0696715ba1e1180c7d",
+    "data/purchases.csv": "35adab43dec1f61ea2c0cb62493819d44b8a1cd23fbfb2d0d9fe4ecc58d3076e",
+    "data/requests.csv": "311a861d8c6247cf7e7f99645f04250cb33e6ca4ba2b0e1268b00dc4c46904c8",
+    "data/sales_lines.csv": "942a99590e9873c1d2ed0821ffdb82113be0eb9512648ea98cf97280252f5b45",
+    "data/transactions.csv": "9347d6a75ac02e5af73b13cfd8848ca6c22ac824f42f546129994202546dc336"
+  }
+}

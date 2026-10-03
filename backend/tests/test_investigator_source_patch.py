@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import json
 import shutil
-import subprocess
 from pathlib import Path
 
 import pytest
 
-from app.execution import DockerPythonSandbox
+from app.execution import DockerPythonSandbox, image_available
 from app.investigator.cli import main
 from app.llm import FakeLLMClient, LLMResponse, LLMTokenUsage
 
@@ -77,13 +76,7 @@ def arguments(tmp_path: Path, source: Path, check: Path) -> list[str]:
 
 
 @pytest.mark.skipif(
-    shutil.which("docker") is None
-    or subprocess.run(
-        ["docker", "image", "inspect", DockerPythonSandbox().image],
-        capture_output=True,
-        check=False,
-    ).returncode
-    != 0,
+    shutil.which("docker") is None or not image_available(DockerPythonSandbox().image),
     reason="requires the pinned Docker sandbox image",
 )
 @pytest.mark.parametrize("case", ["fixed", "vacuous", "wrong_edit"])
@@ -163,13 +156,7 @@ def test_source_patch_offline_stops_without_fictitious_model_calls(patch_case, t
 
 
 @pytest.mark.skipif(
-    shutil.which("docker") is None
-    or subprocess.run(
-        ["docker", "image", "inspect", DockerPythonSandbox().image],
-        capture_output=True,
-        check=False,
-    ).returncode
-    != 0,
+    shutil.which("docker") is None or not image_available(DockerPythonSandbox().image),
     reason="requires the pinned Docker sandbox image",
 )
 def test_source_patch_pause_resumes_through_same_composer(patch_case, tmp_path, monkeypatch):

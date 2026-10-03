@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Protocol
 
 from app.cognition.capabilities import CapabilityRegistry
 from app.cognition.controller import CognitiveController
@@ -24,6 +25,19 @@ from app.models.contracts import EvidenceItem
 DEFAULT_MAX_CYCLES = 24
 
 
+class RuntimeFastPath(Protocol):
+    """A specialised procedure that may fully handle raw input before the kernel."""
+
+    def __call__(
+        self,
+        raw_input: str,
+        *,
+        session_id: str | None,
+        seed_evidence: list[EvidenceItem] | None,
+        checkpoint: Callable[[PolyaState, bool], None] | None,
+    ) -> CognitiveRunResult | None: ...
+
+
 class CognitiveRuntime:
     """Start one bounded cognitive run from raw user input."""
 
@@ -35,8 +49,10 @@ class CognitiveRuntime:
         budget: CognitiveResourceBudget | None = None,
         procedure_compiler: ProcedureCompiler | None = None,
         performance_ledger: CapabilityPerformanceLedger | None = None,
+        fast_path: RuntimeFastPath | None = None,
     ) -> None:
         self._registry = registry
+        self._fast_path = fast_path
         self._kernel = CognitiveKernel(registry, controller=controller)
         self._budget = budget
         self._procedure_compiler = procedure_compiler
@@ -70,6 +86,22 @@ class CognitiveRuntime:
         checkpoint: Callable[[PolyaState, bool], None] | None = None,
     ) -> CognitiveRunResult:
         """Continue validated state with its original resource ledger intact."""
+        if (
+            self._fast_path is not None
+            and not state["events"]
+            and state["structured_problem"] is None
+            and not state["plan"]
+        ):
+            # Only a fresh run may be handed to a specialised procedure; resumed or
+            # partially framed state always continues in the kernel.
+            handled = self._fast_path(
+                state["raw_input"],
+                session_id=state["session_id"],
+                seed_evidence=list(state["evidence"]) or None,
+                checkpoint=checkpoint,
+            )
+            if handled is not None:
+                return handled
         result = self._kernel.run(
             state,
             max_cycles=max_cycles,

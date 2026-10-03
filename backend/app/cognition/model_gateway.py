@@ -25,6 +25,7 @@ from app.cognition.response_repair import (
     apply_response_edits,
     full_response_metadata,
 )
+from app.cognition.sandbox_proposals import validate_sandbox_proposals
 from app.graph.state import PolyaState
 from app.llm import (
     AttemptCountingLLMClient,
@@ -34,6 +35,7 @@ from app.llm import (
     LLMMessage,
     LLMRequest,
     LLMRequestOptions,
+    LLMResponse,
     LLMRole,
     LLMRouteAttemptTelemetry,
     LLMTokenUsage,
@@ -41,13 +43,25 @@ from app.llm import (
 )
 from app.models.contracts import ContractModel, PlanTask
 
-COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.10.0"
+COGNITIVE_CAPABILITY_PROMPT_VERSION = "cognitive_capability@0.10.3"
 
 OutputT = TypeVar("OutputT", bound=ContractModel)
 
 
 class ModelCapabilityParseError(ValueError):
     """Safe validation failure that does not expose the model response."""
+
+
+class ModelOutputTruncatedError(ModelCapabilityParseError):
+    """The model kept running into its output limit, so no complete response exists."""
+
+
+TRUNCATION_FINISH_REASONS = frozenset({"length", "max_tokens", "max_output_tokens", "model_length"})
+
+
+def response_truncated(response: LLMResponse) -> bool:
+    """True when the provider reports that generation stopped at the output limit."""
+    return (response.finish_reason or "").strip().lower() in TRUNCATION_FINISH_REASONS
 
 
 @dataclass(frozen=True)
@@ -166,6 +180,11 @@ def _validate_output[ValidatedT: ContractModel](
                     tasks = [PlanTask.model_validate(task) for task in raw_tasks]
                 except ValidationError:
                     tasks = []
+                try:
+                    validate_sandbox_proposals(tasks)
+                except ValueError as bounds_error:
+                    if str(bounds_error) not in issues:
+                        issues += "; sandbox_bounds: " + str(bounds_error)
                 try:
                     validate_generated_checks(tasks, validation_context)
                 except ValueError as source_error:
@@ -389,6 +408,65 @@ OUTPUT_JSON_SCHEMA:
                     provider=self._client.provider,
                     retryable=False,
                 ) from initial_error
+            if response_truncated(response):
+                # Repairing a cut-off response under the same limit cannot succeed: the
+                # repair would have to resend everything. Ask once for a complete, more
+                # compact answer instead. Same attempt count and per-attempt limit.
+                concise_request = request.model_copy(
+                    update={
+                        "messages": [
+                            LLMMessage(
+                                role=LLMRole.SYSTEM,
+                                content=request.messages[0].content
+                                + "\n\nYOUR PREVIOUS RESPONSE TO THIS EXACT REQUEST WAS CUT OFF AT "
+                                f"THE {max_output_tokens}-TOKEN OUTPUT LIMIT BEFORE THE JSON CLOSED. "
+                                "Return the complete JSON object again within that limit: keep "
+                                "every required field and every requested deliverable, but group "
+                                "related items, keep each explanation to its essentials, and omit "
+                                "optional fields and repetition.",
+                            ),
+                            request.messages[1],
+                        ],
+                        "options": request.options.model_copy(
+                            update={
+                                "timeout_seconds": min(
+                                    request.options.timeout_seconds, remaining_seconds
+                                ),
+                                "total_timeout_seconds": remaining_seconds,
+                                "max_retries": 1,
+                            }
+                        ),
+                    }
+                )
+                concise_response = complete_with_retry(attempt_client, concise_request)
+                try:
+                    output = _validate_output(
+                        concise_response.text, output_type, validation_context=validation_context
+                    )
+                except ModelCapabilityParseError as concise_error:
+                    if response_truncated(concise_response):
+                        raise ModelOutputTruncatedError(
+                            "The structured response exceeded its output limit twice."
+                        ) from concise_error
+                    raise
+                usage = _combined_usage(response.usage, concise_response.usage)
+                repair_metadata = {"mode": "concise_retry_after_truncation"}
+                return ModelCapabilityResult(
+                    output=output,
+                    provider=concise_response.provider,
+                    model=concise_response.model,
+                    usage=usage,
+                    model_calls=attempt_client.attempt_count,
+                    response_repair=repair_metadata,
+                    route_attempts=(
+                        LLMRouteAttemptTelemetry(
+                            route=self._model,
+                            succeeded=True,
+                            duration_ms=(perf_counter() - started) * 1000,
+                            provider_attempts=attempt_client.attempt_count,
+                        ),
+                    ),
+                )
             try:
                 original_payload = _extract_json_object(response.text)
             except ValueError:

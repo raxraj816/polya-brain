@@ -116,6 +116,45 @@ test("proxy rejects cross-origin mutations and non-JSON form submissions", async
   expect(form.status()).toBe(415);
 });
 
+test("a lost run response recovers the saved result without submitting another run", async ({
+  page,
+}) => {
+  let runRequests = 0;
+  await page.route("**/api/backend/api/v1/sessions/*/run", async (route) => {
+    runRequests++;
+    // Execute the actual deterministic backend run, then lose its response.
+    const completed = await route.fetch();
+    expect(completed.ok()).toBeTruthy();
+    await route.fulfill({
+      status: 504,
+      contentType: "application/json",
+      body: JSON.stringify({
+        detail:
+          "The investigation service took too long to respond. Work may still be running or saved. Refresh the session or history before retrying an action.",
+      }),
+    });
+  });
+  await page.goto("/");
+  await page
+    .getByLabel("What are you trying to solve?")
+    .fill("What is 17 * 6?");
+  await page
+    .getByRole("button", { name: "Start investigation", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Refresh the session or history" }),
+  ).toBeVisible();
+  await expect(page.locator(".conclusion")).toContainText("102");
+  const savedUrl = page.url();
+  await page.reload();
+  await expect(page).toHaveURL(savedUrl);
+  await expect(page.locator(".conclusion")).toContainText("102");
+  await expect(page.locator(".verification-line")).toContainText("passed");
+  expect(runRequests).toBe(1);
+});
+
 test("a paused investigation restores questions and records clarification across reloads", async ({
   page,
 }) => {

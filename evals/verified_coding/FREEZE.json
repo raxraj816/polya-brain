@@ -1,0 +1,62 @@
+{
+  "frozen_at": "2026-10-02T09:08:24+00:00",
+  "statement": "Held-out tasks and withheld checks were authored and frozen before any solver, baseline or PolyaBrain pipeline run on them. They must not be used for development or prompt tuning. Agent-authored, not independently sourced; public-problem variants may resemble training data.",
+  "heldout_cases_sha256": "2fa2ba40c0f11a5e8f7a242e40d32fd71930ca5699cbac38d1f779acab7f68e8",
+  "heldout_prompt_sha256": {
+    "lower_median": "60cf318e39c2baaeb014e4db9cbc1814505b801ddfee946eea8dedc047136015",
+    "dl_distance": "26c10b987fd16a6a27e53c4c517412826a4196e39ca71f83631d1c9bf1aec765",
+    "semver_compare": "239a1fbfc469d8d9fb10fc1e355ba826294fd2b874da075a90b49f3202b10e08",
+    "sticky_cache": "158417e0ca9ebe53e95fb0c03418be64f53c554ad2bc559d30d4f0417abbd79c",
+    "largest_remainder": "12101a0eff368091e9177268e91a6f61c570208c8d51c1d833a75bf2296877c7",
+    "parse_duration": "787d95a59f1f5af62d3ccdc4100266ef13eb96fe02c97840e4f3bc350a2b41cd",
+    "observed_business_days": "74a4a6f9fd4591b8ee24cf44c9f55e9d10574d71bd941fce6dde3cf3656a2335",
+    "torus_islands": "9a88c958f1945cb6c11b6c99a4608f8967d11b5772ca53c2e084680596ef414f",
+    "cleanup_meetings": "619726fb6ae806d50177fb7c86cd707eb2a820635679439c21e0a29ac996c58a",
+    "hard_wrap": "ea22702e5b998c912c0a8a92b4f96398658c2d8ec2b94fc4b027fb67c18d80d8"
+  },
+  "heldout_checks_sha256": {
+    "lower_median": "483f84aadd02517fd341057c75ffac588f338d80c4030422117f4030adf7651c",
+    "dl_distance": "b202cda28da3eadff91ad30fb16462404217dfac024a2dc58f619b96ed5ef2c2",
+    "semver_compare": "ff349a7e5a6803d8fad272e5b2dee9e67a1cc19d808a4a40194e0b32e0e66244",
+    "sticky_cache": "8d1b0bbc598da0333457681962caf066927193619076022e9088a019acc49788",
+    "largest_remainder": "c04e40fd30d8e2036fbbb4f09ee6b339944ea2db98f9b98f23e63b9ae967a5c2",
+    "parse_duration": "cbc2e68cbb397914bdaa2f31230944c7914d4e75c8aac1fe9d03e772ed467945",
+    "observed_business_days": "e8fd53719ab9134fc2f261a5efb2ccb5c1148097f9c4c9eea4c617419a63748c",
+    "torus_islands": "ea80a9bceabe0a741b4df39eb31691fb4b08460fa216abd3e0229a0a932a2729",
+    "cleanup_meetings": "197be18d61cf5702e124fe28193817dbee7ebd5df93623489de5c3c06aa11395",
+    "hard_wrap": "4a1d5d7f88be98b56653267314220b0672b7ef5c20c979060e8b442fae2b6566"
+  },
+  "dev_cases": [
+    "kth_distinct",
+    "merge_labeled",
+    "strict_roman"
+  ],
+  "v2": {
+    "frozen_at": "2026-10-02T10:05:05+00:00",
+    "statement": "Authored after the v1 held-out results showed every arm passing; frozen and hashed before any solver run on these tasks. The verified-coding pipeline source is unchanged between this freeze and the v2 run (see run manifests' source hashes). Agent-authored, not independently sourced.",
+    "cases_sha256": "81a5b2f35783152fbfefda8223355878e27ad99ed33579a1062366c95937f064",
+    "prompt_sha256": {
+      "semver_satisfies": "2f330d15087b4d86d08c350898f4a239f4fcdfb6b25acfa4d05b62fe939c2736",
+      "multi_window_limiter": "d9da1efec3c3160e05f0cd46d688f051d6e49e5cb80810e591fd84dbf2e32ac9",
+      "overdraft_ledger": "1354904c6948b0b04ba6403671c6e04fec70b2502b3a47699afefe75baa8eabf",
+      "cron_next": "5cc6fd3aa8bfb5feb546c83454cbcb7ff2c3f3b1f77c2b178861aca8e0f282d3",
+      "phaseout_tax": "475529659aeadb83e2747e253eccd94ca42691d9397dc0a01f5f85796b5548cc"
+    },
+    "checks_sha256": {
+      "semver_satisfies": "b7543ecf199b325848651323024a9630b6396626f497438696cda36a30c3bf2f",
+      "multi_window_limiter": "2c63ad67329d8d2355fedafd69888d24ca6f2582a5fa431d6fab1a7512b63d55",
+      "overdraft_ledger": "fd5ee1d466b52569cb80e90e9d1dcb62dbe4ab046a65a796bf024ec549c02972",
+      "cron_next": "3c7ed26ff94984e2d6282958e17093b16d9a16cc4243e89ee470347da6db373b",
+      "phaseout_tax": "c8b22ccea56383f4240d652f1d8cc9107c8753b7a924e60195f9f2f7d35b1b37"
+    },
+    "pipeline_source_sha256": {
+      "backend/app/verified_coding/__init__.py": "b278de5d7fc6f431dd3f0e0c83703c07622d98e92c73d828cc0108e8969a2f35",
+      "backend/app/verified_coding/contracts.py": "f9b365f37bb905b6c2f12871e71025cc831e459a06806acf2df7a5d4be789baf",
+      "backend/app/verified_coding/harness.py": "f25e5679aa8a1a2b0a680619795c2d7fd66c40088f958eea35b1d4139c4a1391",
+      "backend/app/verified_coding/pipeline.py": "2d1ffa22aec4e6e6cfc2a59ae9525831370c2186e20bb6953ef641cf657de800",
+      "backend/app/verified_coding/projection.py": "ec5c403e7b82135f39a2dd2dc16c9f0e63ba0a61410df261de6c8b17d81c46f4",
+      "backend/app/verified_coding/prompts.py": "7e9525142172ce9f84fe81754634f1dea2914030a6f0f69b3b46caff89d83f1f",
+      "backend/app/verified_coding/runtime.py": "28fedc3cd0f92083dedfe96bc339db0c62015a5b6976e1c6837e225c2fa0bedb"
+    }
+  }
+}

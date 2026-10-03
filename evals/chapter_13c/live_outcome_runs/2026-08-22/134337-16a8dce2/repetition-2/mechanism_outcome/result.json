@@ -1,0 +1,116 @@
+{
+  "case_id": "mechanism_outcome",
+  "category": "scientific_reasoning",
+  "direct": {
+    "actions": [
+      "experiment"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified treatment response direction against Mechanism A and Mechanism B predictions",
+      "Evaluated experimental limitation concerning generalizability"
+    ],
+    "conclusion": "Mechanism B matches the treatment response, as the experimental observation demonstrates an increase in mean outcome from 10.0 to 12.0. However, this finding is subject to the limitation that it does not establish external validity.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/mechanism_outcome/experiment"
+    ],
+    "latency_ms": 4479.197042062879,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "experiment",
+        "call_index": 1,
+        "capability": "experiment",
+        "observation": {
+          "deterministic_attestation": {
+            "checks_run": [
+              "Deterministic fixture covers criterion: Select the mechanism matching the observed direction and state the limitation."
+            ],
+            "covered_success_criteria": [
+              "Select the mechanism matching the observed direction and state the limitation."
+            ],
+            "producer_capability": "experiment",
+            "producer_version": "outcome-fixture-v1"
+          },
+          "source_uri": "fixture://chapter-13c-outcome/mechanism_outcome/experiment",
+          "status": "succeeded",
+          "summary": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+        },
+        "target": "controlled test"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1972,
+      "model_calls": 2,
+      "output_tokens": 501,
+      "total_tokens": 2473
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "experiment",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Deterministic fixture covers criterion: Select the mechanism matching the observed direction and state the limitation."
+    ],
+    "conclusion": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity.",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/mechanism_outcome/experiment"
+    ],
+    "latency_ms": 24.10441590473056,
+    "observation_trace": [
+      {
+        "capability": "experiment",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Randomized control mean is 10.0 and treatment mean is 12.0, an observed increase of 2.0. This supports mechanism B's directional prediction but does not establish external validity."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed a candidate from fully attested deterministic evidence."
+      },
+      {
+        "capability": "attested_evidence_procedure",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Deterministic evidence closure passed every current binding."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    },
+    "verification_passed": true
+  },
+  "repetition": 2,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

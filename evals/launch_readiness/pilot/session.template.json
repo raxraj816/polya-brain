@@ -1,0 +1,23 @@
+{
+  "status": "template_not_evidence",
+  "participant_id": null,
+  "role": null,
+  "consent_recorded": null,
+  "task_id": null,
+  "acceptance_criteria": null,
+  "usual_workflow": null,
+  "permitted_tools": null,
+  "started_at": null,
+  "ended_at": null,
+  "outcome": null,
+  "evidence_inspected": null,
+  "unsupported_claims": null,
+  "repairs": null,
+  "assistance": null,
+  "preferred_workflow_and_reason": null,
+  "observation_window": null,
+  "second_task_id": null,
+  "second_use_initiated_by": null,
+  "second_task_outcome": null,
+  "authorized_evidence_reference": null
+}

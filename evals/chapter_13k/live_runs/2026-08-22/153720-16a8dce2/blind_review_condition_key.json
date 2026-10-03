@@ -1,0 +1,302 @@
+{
+  "hidden_case_rubrics": {
+    "fastapi_optional_bearer": {
+      "forbidden_conclusions": [
+        "accept basic credentials as bearer"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test absent basic and bearer headers",
+            "check missing wrong-scheme and valid bearer inputs",
+            "verify none for basic and credentials for bearer"
+          ],
+          "name": "three_auth_paths"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "return none for a non-bearer scheme when auto_error is false",
+            "guard the invalid-scheme error with auto_error",
+            "only raise for the wrong scheme when auto_error is true"
+          ],
+          "name": "optional_wrong_scheme_returns_none"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "auto_error is not checked for a non-bearer scheme",
+            "wrong scheme branch always raises",
+            "invalid scheme bypasses the optional guard"
+          ],
+          "name": "unguarded_wrong_scheme"
+        }
+      ]
+    },
+    "fastapi_skip_defaults": {
+      "forbidden_conclusions": [
+        "drop all fields whose value is none unconditionally"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test that skip true omits note and skip false includes it",
+            "verify both skip_defaults settings",
+            "assert name only when true and note none when false"
+          ],
+          "name": "skip_true_and_false"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "call response.dict with skip_defaults before encoding",
+            "use the model serialization path when skip_defaults is true",
+            "preserve the response model until defaults are excluded"
+          ],
+          "name": "serialize_from_model"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "the model is flattened to a plain dictionary before skip-default serialization",
+            "default semantics are lost when response becomes a dict",
+            "skip_defaults is never applied through the response model"
+          ],
+          "name": "model_metadata_lost"
+        }
+      ]
+    },
+    "fastapi_websocket_router": {
+      "forbidden_conclusions": [
+        "convert websocket routes into http routes"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "include a child with http and websocket routes and assert both prefixed routes",
+            "test that /v1/items and /v1/events both survive inclusion",
+            "verify route type path prefix and name for both branches"
+          ],
+          "name": "both_route_types"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "add a websocketroute branch with prefix and name",
+            "copy websocket routes into the parent while preserving path prefix and route name",
+            "handle websocketroute alongside apiroute"
+          ],
+          "name": "copy_websocket_with_metadata"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "include_router only handles apiroute",
+            "there is no websocketroute branch",
+            "websocket routes fall through the type dispatch"
+          ],
+          "name": "websocket_branch_missing"
+        }
+      ]
+    },
+    "httpie_host_case": {
+      "forbidden_conclusions": [
+        "always overwrite the explicit host"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test a lowercase host and assert one preserved value",
+            "verify no duplicate host is added for lowercase input",
+            "count case-insensitive host keys and preserve custom.example"
+          ],
+          "name": "lowercase_host_preserved_once"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "check host membership on the original headers",
+            "normalize header keys before the presence check",
+            "preserve case-insensitive membership when deciding whether to add host"
+          ],
+          "name": "check_semantic_container"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "converting to a plain dict loses case-insensitive membership",
+            "host is checked on the case-sensitive copied dictionary",
+            "the original header container is case-insensitive but the copy is not"
+          ],
+          "name": "case_semantics_lost"
+        }
+      ]
+    },
+    "httpie_unset_header": {
+      "forbidden_conclusions": [
+        "convert none to the string none"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test a none header alongside a byte-valued header",
+            "verify the unset header is omitted and the valid header is decoded",
+            "check authorization none and x-request-id bytes"
+          ],
+          "name": "mixed_unset_and_bytes"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "skip none before decoding",
+            "continue when the header value is none",
+            "guard the unset sentinel before value.decode"
+          ],
+          "name": "guard_before_decode"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "decode is called on none",
+            "the unset none sentinel reaches value.decode",
+            "none has no decode method"
+          ],
+          "name": "none_is_decoded"
+        }
+      ]
+    },
+    "pysnooper_path_output": {
+      "forbidden_conclusions": [
+        "define a global output_path"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "write through a filesystem path and read the same content",
+            "test path output creates and appends trace text",
+            "invoke the path writer and assert the file contents",
+            "call the path writer and assert the file contains trace-line",
+            "execute check verify with Path and assert trace-line",
+            "run check verify and verify writer trace-line writes to disk"
+          ],
+          "name": "path_write_roundtrip"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "open output instead of output_path",
+            "capture and use the output argument in the writer",
+            "replace the undefined output_path reference with output"
+          ],
+          "name": "use_output_argument"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "output_path is undefined",
+            "the closure references an unbound output_path",
+            "the closure never binds output_path",
+            "the writer opens a name that does not exist instead of its output argument"
+          ],
+          "name": "undefined_closure_reference"
+        }
+      ]
+    }
+  },
+  "mapping": {
+    "response-15780e301efd": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2241,
+        "latency_ms": 4749.160000123084,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1207,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-ca223f5ff83e": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2373,
+        "latency_ms": 3803.9005829486996,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1234,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-d19479fa2d02": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 3189,
+        "latency_ms": 4594.848125008866,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1096,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-fcf9f8b543fd": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 3097,
+        "latency_ms": 4264.503790996969,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1453,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "polya",
+      "repetition": 1
+    }
+  },
+  "review_type": "condition_and_hidden_rubric_key_keep_separate",
+  "run_id": "153720-16a8dce2"
+}

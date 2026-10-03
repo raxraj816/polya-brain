@@ -1,0 +1,106 @@
+{
+  "case_id": "equation_outcome",
+  "category": "mathematical_reasoning",
+  "direct": {
+    "actions": [
+      "calculate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Substituted x = 3 into 2x + 4 to verify 2(3) + 4 = 10."
+    ],
+    "conclusion": "The value of x that satisfies the equation 2x + 4 = 10 is x = 3.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 5574.978791875765,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "calculate",
+        "call_index": 1,
+        "capability": "calculator",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+          "status": "succeeded",
+          "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+        },
+        "target": "(10 - 4) / 2"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1897,
+      "model_calls": 2,
+      "output_tokens": 415,
+      "total_tokens": 2312
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "calculate",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verify algebraic derivation: 2x + 4 = 10 -> 2x = 6 -> x = 3.",
+      "Verify substitution check against success criterion: 2(3) + 4 = 10 equals right-hand side."
+    ],
+    "conclusion": "The solution is x = 3. Verification: substituting x = 3 into 2x + 4 yields 2(3) + 4 = 6 + 4 = 10, which matches the right-hand side.",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 6761.647457955405,
+    "observation_trace": [
+      {
+        "capability": "calculator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+      },
+      {
+        "capability": "deliberator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+      },
+      {
+        "capability": "conclusion_checker",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Conclusion check passed all declared criteria."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3612,
+      "model_calls": 2,
+      "output_tokens": 1837,
+      "total_tokens": 5449
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

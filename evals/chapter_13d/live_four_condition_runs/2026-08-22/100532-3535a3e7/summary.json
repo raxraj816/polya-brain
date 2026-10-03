@@ -1,0 +1,155 @@
+{
+  "benchmark": "chapter_13d_live_four_condition",
+  "case_count": 1,
+  "fairness": {
+    "direct_condition_is_intentionally_closed_book": true,
+    "fictional_nonconfidential_corpus": true,
+    "rotated_condition_order": true,
+    "same_corpus_for_full_retrieval_and_polya": true,
+    "same_model_for_model_conditions": true,
+    "same_questions_and_expected_terms": true
+  },
+  "gate": {
+    "general_intelligence_win_claimed": false,
+    "metrics": {
+      "completed_case_repetitions": 1,
+      "direct_passed": 0,
+      "expected_case_repetitions": 1,
+      "full_context_passed": 1,
+      "ordinary_retrieval_passed": 1,
+      "polya_passed": 1,
+      "polya_total_tokens": 0
+    },
+    "narrow_exact_lookup_gate_passed": false,
+    "requirements": {
+      "all_pairs_completed": true,
+      "all_polya_outcomes_verified": true,
+      "minimum_three_repetitions": false,
+      "polya_quality_not_below_full_context": true,
+      "polya_quality_not_below_retrieval": true,
+      "zero_polya_model_tokens": true,
+      "zero_polya_unsupported_conclusions": true
+    }
+  },
+  "limitations": [
+    "The narrow gate covers exact unfamiliar-corpus lookups, not general intelligence.",
+    "Polya uses a deterministic procedure whose strict task/evidence preconditions are tested.",
+    "Broader investigation tasks still require separate repeated outcome benchmarks."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "repetitions": 1,
+  "results": [
+    {
+      "case_id": "zephyra_first",
+      "condition_order": [
+        "direct",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked SOURCES for any entries; SOURCES is empty, so no authoritative manual or specification text was available to determine the request timeout for Zephyra revision 7."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 547,
+        "latency_ms": 14138.15,
+        "model_calls": 1,
+        "output_tokens": 93,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 640,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Zephyra Transport Protocol Revision 7 in source zephyra_first",
+          "Extracted Rule Z7.4 request_timeout_ticks value",
+          "Confirmed the question asks for revision 7, not revision 8 (zephyra_transfer)"
+        ],
+        "conclusion": "37 ticks",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1105,
+        "latency_ms": 4790.874,
+        "model_calls": 1,
+        "output_tokens": 208,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1313,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located Zephyra Transport Protocol Revision 7 in source zephyra_first.",
+          "Read Rule Z7.4, which specifies request_timeout_ticks = 37."
+        ],
+        "conclusion": "37 ticks (request_timeout_ticks = 37 per Rule Z7.4).",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 596,
+        "latency_ms": 13185.539,
+        "model_calls": 1,
+        "output_tokens": 201,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 797,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z7.4: request_timeout_ticks = 37.",
+        "input_tokens": 0,
+        "latency_ms": 5.298,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    }
+  ],
+  "run_id": "100532-3535a3e7",
+  "started_at": "2026-08-22T10:05:32.271061+00:00",
+  "status": "complete"
+}

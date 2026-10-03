@@ -1,0 +1,80 @@
+{
+  "case_id": "sequential_corroboration",
+  "category": "multi_source_corroboration",
+  "direct": {
+    "abstention_correct": false,
+    "answer_correct": false,
+    "checks_performed": [
+      "Evaluated question specificity for targeted information retrieval."
+    ],
+    "conclusion": null,
+    "confidence": "insufficient_evidence",
+    "evidence_source_uris": [],
+    "external_calls": 0,
+    "forbidden_output_hit": false,
+    "latency_ms": 2606.471417006105,
+    "parse_error": null,
+    "passed": false,
+    "source_passed": false,
+    "terminal_status": "insufficient_evidence",
+    "tool_history": [],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 878,
+      "model_calls": 1,
+      "output_tokens": 431,
+      "total_tokens": 1309
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "expected_terminal": "answer",
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "abstention_correct": false,
+    "actions": [
+      "search",
+      "evaluate_evidence",
+      "search",
+      "evaluate_evidence",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_correct": true,
+    "checks_performed": [
+      "Criterion check: Verify that the API request limit is explicitly determined and stated.",
+      "Criterion check: Verify that at least two independent current public sources are cited, including an authoritative source.",
+      "Constraint check: Verify source provenance and lack of contradictory evidence in state."
+    ],
+    "conclusion": "The current official API request limit is 45 requests per minute, supported by official documentation (https://docs.example.org/request-limit) and independent research verification (https://research.example.edu/request-limit).",
+    "cycles": 7,
+    "evidence_source_uris": [
+      "https://docs.example.org/request-limit",
+      "https://research.example.edu/request-limit"
+    ],
+    "external_calls": 2,
+    "forbidden_output_hit": false,
+    "latency_ms": 8799.413500120863,
+    "passed": true,
+    "queries_revised": true,
+    "research_queries": [
+      "the current official API request limit What is the current official API request limit? primary authoritative source exact evidence",
+      "the current official API request limit What is the current official API request limit? independent corroborating source from a different publisher"
+    ],
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3731,
+      "model_calls": 2,
+      "output_tokens": 1835,
+      "total_tokens": 5566
+    },
+    "verification_passed": true
+  },
+  "repetition": 1
+}

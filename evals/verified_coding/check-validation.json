@@ -1,0 +1,579 @@
+{
+  "cleanup_meetings": {
+    "valid": true,
+    "checks_sha256": "197be18d61cf5702e124fe28193817dbee7ebd5df93623489de5c3c06aa11395",
+    "check_sizes": [
+      956,
+      526,
+      260
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 1214,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_cases 1500\nboundaries 10\nscale 3\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 620,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 598,
+        "tests": [
+          false,
+          true,
+          false
+        ],
+        "stdout_tail": "boundaries 10\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "dl_distance": {
+    "valid": true,
+    "checks_sha256": "b202cda28da3eadff91ad30fb16462404217dfac024a2dc58f619b96ed5ef2c2",
+    "check_sizes": [
+      1021,
+      428,
+      249
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 483,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_cases 2500\nboundaries 10\nscale 1\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 288,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 318,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "hard_wrap": {
+    "valid": true,
+    "checks_sha256": "4a1d5d7f88be98b56653267314220b0672b7ef5c20c979060e8b442fae2b6566",
+    "check_sizes": [
+      890,
+      563,
+      201
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 356,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_texts 5000\nboundaries 12\nscale 3\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 309,
+        "tests": [
+          false,
+          false,
+          true
+        ],
+        "stdout_tail": "scale 3\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 280,
+        "tests": [
+          false,
+          true,
+          false
+        ],
+        "stdout_tail": "boundaries 12\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "kth_distinct": {
+    "valid": true,
+    "checks_sha256": "f7a40645d1d40ed92c4d4dcaf1e1b3bee24c1a83566a3a7d49b1a95f32580d9e",
+    "check_sizes": [
+      497
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 259,
+      "tests": [
+        true
+      ],
+      "stdout_tail": "random_cases 3000\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 225,
+        "tests": [
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "largest_remainder": {
+    "valid": true,
+    "checks_sha256": "c04e40fd30d8e2036fbbb4f09ee6b339944ea2db98f9b98f23e63b9ae967a5c2",
+    "check_sizes": [
+      726,
+      334,
+      348
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 1128,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_cases 4000\nboundaries 8\nlarge_exact 4\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 1102,
+        "tests": [
+          false,
+          false,
+          true
+        ],
+        "stdout_tail": "large_exact 4\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 1230,
+        "tests": [
+          false,
+          true,
+          true
+        ],
+        "stdout_tail": "boundaries 8\nlarge_exact 4\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "lower_median": {
+    "valid": true,
+    "checks_sha256": "483f84aadd02517fd341057c75ffac588f338d80c4030422117f4030adf7651c",
+    "check_sizes": [
+      503,
+      357,
+      372
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 269,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_cases 3000\nboundaries 8\nscale_seconds 0.003\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 268,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": true,
+        "runtime_ms": 20154,
+        "tests": [],
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 254,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "merge_labeled": {
+    "valid": true,
+    "checks_sha256": "830e488565052142ace80b35c7084bb6e3487e6393d3be6e02f5d7211595ae14",
+    "check_sizes": [
+      925
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 278,
+      "tests": [
+        true
+      ],
+      "stdout_tail": "random_cases 3000\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 247,
+        "tests": [
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "observed_business_days": {
+    "valid": true,
+    "checks_sha256": "e8fd53719ab9134fc2f261a5efb2ccb5c1148097f9c4c9eea4c617419a63748c",
+    "check_sizes": [
+      1003,
+      664,
+      597
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 647,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_cases 2500\nboundaries 8\nscale_seconds 0.003\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 382,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": true,
+        "runtime_ms": 20106,
+        "tests": [],
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 389,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "parse_duration": {
+    "valid": true,
+    "checks_sha256": "cbc2e68cbb397914bdaa2f31230944c7914d4e75c8aac1fe9d03e772ed467945",
+    "check_sizes": [
+      1259,
+      618
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 265,
+      "tests": [
+        true,
+        true
+      ],
+      "stdout_tail": "random_strings 6000\nboundaries 27\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 280,
+        "tests": [
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 208,
+        "tests": [
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "semver_compare": {
+    "valid": true,
+    "checks_sha256": "ff349a7e5a6803d8fad272e5b2dee9e67a1cc19d808a4a40194e0b32e0e66244",
+    "check_sizes": [
+      1493,
+      789
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 300,
+      "tests": [
+        true,
+        true
+      ],
+      "stdout_tail": "random_pairs 6000\nordered_chain 17\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 206,
+        "tests": [
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 235,
+        "tests": [
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "sticky_cache": {
+    "valid": true,
+    "checks_sha256": "8d1b0bbc598da0333457681962caf066927193619076022e9088a019acc49788",
+    "check_sizes": [
+      943,
+      453,
+      375
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 533,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_cases 3000\nboundaries 5\nscale_seconds 0.085\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 458,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 10485,
+        "tests": [
+          true,
+          true,
+          false
+        ],
+        "stdout_tail": "random_cases 3000\nboundaries 5\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "strict_roman": {
+    "valid": true,
+    "checks_sha256": "2c1598fa0a215a65af4e0ffde017279e4d92f9e432798e6ce2e8055c365ae806",
+    "check_sizes": [
+      702
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 357,
+      "tests": [
+        true
+      ],
+      "stdout_tail": "table_and_random 23999\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 260,
+        "tests": [
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "torus_islands": {
+    "valid": true,
+    "checks_sha256": "ea80a9bceabe0a741b4df39eb31691fb4b08460fa216abd3e0229a0a932a2729",
+    "check_sizes": [
+      1098,
+      528,
+      400
+    ],
+    "correct": {
+      "passed": true,
+      "timed_out": false,
+      "runtime_ms": 1665,
+      "tests": [
+        true,
+        true,
+        true
+      ],
+      "stdout_tail": "random_grids 3000\nboundaries 12\nscale 2\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": true, \"error_type\": null}, {\"index\": 3, \"passed\": true, \"error_type\": null}]",
+      "stderr_tail": ""
+    },
+    "mutants": [
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 640,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 556,
+        "tests": [
+          false,
+          false,
+          false
+        ],
+        "stdout_tail": "__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 2, \"passed\": false, \"error_type\": \"AssertionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"AssertionError\"}]",
+        "stderr_tail": ""
+      },
+      {
+        "passed": false,
+        "timed_out": false,
+        "runtime_ms": 360,
+        "tests": [
+          true,
+          false,
+          false
+        ],
+        "stdout_tail": "random_grids 3000\n__POLYABRAIN_TEST_RESULTS__=[{\"index\": 1, \"passed\": true, \"error_type\": null}, {\"index\": 2, \"passed\": false, \"error_type\": \"RecursionError\"}, {\"index\": 3, \"passed\": false, \"error_type\": \"RecursionError\"}]",
+        "stderr_tail": ""
+      }
+    ]
+  }
+}

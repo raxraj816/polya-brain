@@ -1,0 +1,942 @@
+{
+  "hidden_case_rubrics": {
+    "fastapi_optional_bearer": {
+      "forbidden_conclusions": [
+        "accept basic credentials as bearer"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test absent basic and bearer headers",
+            "check missing wrong-scheme and valid bearer inputs",
+            "verify none for basic and credentials for bearer"
+          ],
+          "name": "three_auth_paths"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "return none for a non-bearer scheme when auto_error is false",
+            "guard the invalid-scheme error with auto_error",
+            "only raise for the wrong scheme when auto_error is true"
+          ],
+          "name": "optional_wrong_scheme_returns_none"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "auto_error is not checked for a non-bearer scheme",
+            "wrong scheme branch always raises",
+            "invalid scheme bypasses the optional guard"
+          ],
+          "name": "unguarded_wrong_scheme"
+        }
+      ]
+    },
+    "fastapi_skip_defaults": {
+      "forbidden_conclusions": [
+        "drop all fields whose value is none unconditionally"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test that skip true omits note and skip false includes it",
+            "verify both skip_defaults settings",
+            "assert name only when true and note none when false"
+          ],
+          "name": "skip_true_and_false"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "call response.dict with skip_defaults before encoding",
+            "use the model serialization path when skip_defaults is true",
+            "preserve the response model until defaults are excluded"
+          ],
+          "name": "serialize_from_model"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "the model is flattened to a plain dictionary before skip-default serialization",
+            "default semantics are lost when response becomes a dict",
+            "skip_defaults is never applied through the response model"
+          ],
+          "name": "model_metadata_lost"
+        }
+      ]
+    },
+    "fastapi_websocket_router": {
+      "forbidden_conclusions": [
+        "convert websocket routes into http routes"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "include a child with http and websocket routes and assert both prefixed routes",
+            "test that /v1/items and /v1/events both survive inclusion",
+            "verify route type path prefix and name for both branches"
+          ],
+          "name": "both_route_types"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "add a websocketroute branch with prefix and name",
+            "copy websocket routes into the parent while preserving path prefix and route name",
+            "handle websocketroute alongside apiroute"
+          ],
+          "name": "copy_websocket_with_metadata"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "include_router only handles apiroute",
+            "there is no websocketroute branch",
+            "websocket routes fall through the type dispatch"
+          ],
+          "name": "websocket_branch_missing"
+        }
+      ]
+    },
+    "httpie_host_case": {
+      "forbidden_conclusions": [
+        "always overwrite the explicit host"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test a lowercase host and assert one preserved value",
+            "verify no duplicate host is added for lowercase input",
+            "count case-insensitive host keys and preserve custom.example"
+          ],
+          "name": "lowercase_host_preserved_once"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "check host membership on the original headers",
+            "normalize header keys before the presence check",
+            "preserve case-insensitive membership when deciding whether to add host"
+          ],
+          "name": "check_semantic_container"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "converting to a plain dict loses case-insensitive membership",
+            "host is checked on the case-sensitive copied dictionary",
+            "the original header container is case-insensitive but the copy is not"
+          ],
+          "name": "case_semantics_lost"
+        }
+      ]
+    },
+    "httpie_unset_header": {
+      "forbidden_conclusions": [
+        "convert none to the string none"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "test a none header alongside a byte-valued header",
+            "verify the unset header is omitted and the valid header is decoded",
+            "check authorization none and x-request-id bytes"
+          ],
+          "name": "mixed_unset_and_bytes"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "skip none before decoding",
+            "continue when the header value is none",
+            "guard the unset sentinel before value.decode"
+          ],
+          "name": "guard_before_decode"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "decode is called on none",
+            "the unset none sentinel reaches value.decode",
+            "none has no decode method"
+          ],
+          "name": "none_is_decoded"
+        }
+      ]
+    },
+    "pysnooper_path_output": {
+      "forbidden_conclusions": [
+        "define a global output_path"
+      ],
+      "required_check_concepts": [
+        {
+          "any_of": [
+            "write through a filesystem path and read the same content",
+            "test path output creates and appends trace text",
+            "invoke the path writer and assert the file contents",
+            "call the path writer and assert the file contains trace-line",
+            "execute check verify with Path and assert trace-line",
+            "run check verify and verify writer trace-line writes to disk"
+          ],
+          "name": "path_write_roundtrip"
+        }
+      ],
+      "required_correction_concepts": [
+        {
+          "any_of": [
+            "open output instead of output_path",
+            "capture and use the output argument in the writer",
+            "replace the undefined output_path reference with output"
+          ],
+          "name": "use_output_argument"
+        }
+      ],
+      "required_mechanism_concepts": [
+        {
+          "any_of": [
+            "output_path is undefined",
+            "the closure references an unbound output_path",
+            "the closure never binds output_path",
+            "the writer opens a name that does not exist instead of its output argument"
+          ],
+          "name": "undefined_closure_reference"
+        }
+      ]
+    }
+  },
+  "mapping": {
+    "response-09be0d1c6c9e": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 3424,
+        "latency_ms": 6920.0472079683095,
+        "mechanism_concepts_passed": true,
+        "model_calls": 2,
+        "output_tokens": 2228,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_websocket_router",
+      "condition": "direct",
+      "repetition": 2
+    },
+    "response-0aeb99967787": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1662,
+        "latency_ms": 6380.541708087549,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 400,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "polya",
+      "repetition": 3
+    },
+    "response-0e36dbff22a6": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1727,
+        "latency_ms": 5986.812749877572,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1125,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_optional_bearer",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-0e635ce55ff5": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2375,
+        "latency_ms": 3694.6694168727845,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 981,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_optional_bearer",
+      "condition": "direct",
+      "repetition": 3
+    },
+    "response-102bce5549fb": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1674,
+        "latency_ms": 3828.3977080136538,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1113,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-13577313f379": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1743,
+        "latency_ms": 4054.9367910716683,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1418,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_websocket_router",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-18c0f7afd751": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2373,
+        "latency_ms": 3494.8870418593287,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1082,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-1a2117cb8380": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1741,
+        "latency_ms": 5378.76549991779,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 965,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "pysnooper_path_output",
+      "condition": "polya",
+      "repetition": 2
+    },
+    "response-1d3ab0de8008": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1743,
+        "latency_ms": 3792.5364580005407,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 951,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_websocket_router",
+      "condition": "polya",
+      "repetition": 2
+    },
+    "response-375e65e49cf6": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2380,
+        "latency_ms": 3190.2322079986334,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 860,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "pysnooper_path_output",
+      "condition": "direct",
+      "repetition": 3
+    },
+    "response-4d1c36236bc9": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2354,
+        "latency_ms": 4167.356834048405,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1088,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_host_case",
+      "condition": "direct",
+      "repetition": 3
+    },
+    "response-4fdc27f6371c": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2241,
+        "latency_ms": 8102.567207999527,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1108,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "direct",
+      "repetition": 3
+    },
+    "response-50361d824c51": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2489,
+        "latency_ms": 3081.775999860838,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 915,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_websocket_router",
+      "condition": "direct",
+      "repetition": 3
+    },
+    "response-566fe45b5813": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2373,
+        "latency_ms": 3818.035249831155,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1245,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "direct",
+      "repetition": 3
+    },
+    "response-5cbfc3b27c9b": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2375,
+        "latency_ms": 3069.710500072688,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 936,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_optional_bearer",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-63cf114997f8": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2380,
+        "latency_ms": 3399.2092080879956,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 877,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "pysnooper_path_output",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-6eca835f6b59": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2380,
+        "latency_ms": 3581.732917111367,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1060,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "pysnooper_path_output",
+      "condition": "direct",
+      "repetition": 2
+    },
+    "response-765cee7aa666": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1675,
+        "latency_ms": 5019.372667185962,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1413,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_host_case",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-79c756342085": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1741,
+        "latency_ms": 4745.798917021602,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 748,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "pysnooper_path_output",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-81c266312e9a": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2241,
+        "latency_ms": 3918.5349580366164,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1161,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-8618cbc61a6f": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2354,
+        "latency_ms": 5753.660625079647,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1287,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_host_case",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-94d1fe01360c": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1741,
+        "latency_ms": 5237.770667066798,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 771,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "pysnooper_path_output",
+      "condition": "polya",
+      "repetition": 3
+    },
+    "response-969bec7f8aa1": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1674,
+        "latency_ms": 3459.1584999579936,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 946,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "polya",
+      "repetition": 3
+    },
+    "response-9d89cff1d076": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2489,
+        "latency_ms": 4337.418415816501,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1412,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_websocket_router",
+      "condition": "direct",
+      "repetition": 1
+    },
+    "response-9e3aa10652d9": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2354,
+        "latency_ms": 6748.817458981648,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1205,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_host_case",
+      "condition": "direct",
+      "repetition": 2
+    },
+    "response-ad723f7821e8": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1675,
+        "latency_ms": 5246.195666957647,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1119,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_host_case",
+      "condition": "polya",
+      "repetition": 2
+    },
+    "response-b5753a8103eb": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2375,
+        "latency_ms": 3608.474916080013,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1224,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_optional_bearer",
+      "condition": "direct",
+      "repetition": 2
+    },
+    "response-b78c00c25c74": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1662,
+        "latency_ms": 6721.545749809593,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1093,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "polya",
+      "repetition": 1
+    },
+    "response-bc0ca5f7677a": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2241,
+        "latency_ms": 3775.738875148818,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 943,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "direct",
+      "repetition": 2
+    },
+    "response-bd109fddb822": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1675,
+        "latency_ms": 5223.402832867578,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 828,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_host_case",
+      "condition": "polya",
+      "repetition": 3
+    },
+    "response-d23c831df019": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1743,
+        "latency_ms": 4014.3494580406696,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1106,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_websocket_router",
+      "condition": "polya",
+      "repetition": 3
+    },
+    "response-d49610c894ab": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1727,
+        "latency_ms": 5540.640708990395,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 322,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_optional_bearer",
+      "condition": "polya",
+      "repetition": 2
+    },
+    "response-d4e2330c5352": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "direct",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": false,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 2373,
+        "latency_ms": 3788.4138331282884,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1074,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "direct",
+      "repetition": 2
+    },
+    "response-e6953b59625e": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1727,
+        "latency_ms": 6138.760667061433,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 724,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_optional_bearer",
+      "condition": "polya",
+      "repetition": 3
+    },
+    "response-eacfbb658441": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1662,
+        "latency_ms": 5834.177250042558,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1362,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "httpie_unset_header",
+      "condition": "polya",
+      "repetition": 2
+    },
+    "response-f9e8697b2796": {
+      "automated_score": {
+        "check_concepts_passed": true,
+        "condition": "polya",
+        "correction_concepts_passed": true,
+        "evidence_reference_passed": true,
+        "executable_verification_passed": true,
+        "forbidden_conclusion_hits": [],
+        "input_tokens": 1674,
+        "latency_ms": 4169.585042167455,
+        "mechanism_concepts_passed": true,
+        "model_calls": 1,
+        "output_tokens": 1217,
+        "passed": true,
+        "unsupported_forced_conclusion": false
+      },
+      "case_id": "fastapi_skip_defaults",
+      "condition": "polya",
+      "repetition": 2
+    }
+  },
+  "review_type": "condition_and_hidden_rubric_key_keep_separate",
+  "run_id": "155648-16a8dce2"
+}

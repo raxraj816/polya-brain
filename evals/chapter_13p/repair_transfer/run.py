@@ -63,6 +63,7 @@ def main() -> None:
                 update={
                     "artifact_allowed_roots": str(root.resolve()),
                     "code_execution_enabled": True,
+                    "verified_coding_enabled": False,
                     "search_provider": "",
                     "cognitive_max_model_calls": 6,
                 }

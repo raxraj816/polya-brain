@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
+import re
 import selectors
 import subprocess
-from collections.abc import Sequence
+import zlib
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from time import monotonic
 from typing import IO, cast
@@ -28,6 +31,7 @@ from app.graph.state import ExecutionOutput, PolyaState, StateEvent
 from app.models.contracts import ContractModel, EvidenceItem, ReasoningMode, RiskLevel
 
 _TEST_MARKER = "__POLYABRAIN_TEST_RESULTS__="
+MAX_DATA_BYTES = 2_000_000
 PYTHON_TEST_HARNESS_VERSION = "python_checks@0.2.0"
 
 GENERATED_CHECK_INSTRUCTIONS = (
@@ -37,7 +41,12 @@ GENERATED_CHECK_INSTRUCTIONS = (
     "the specification (such as exhaustive enumeration on small inputs). Admission rejects "
     "ANY new function-call/literal expected-result assertion, even when the answer seems "
     "obvious or is mathematically derived. Only exact examples supplied in raw_input may "
-    "use literal expected results. For EVERY additional boundary, random or scale case, "
+    "use literal expected results. Exact means the same callable comparison, including "
+    "its receiver name. Prose examples (such as 'input returns value') are not callable "
+    "assertions: keep their input and stated values unchanged, but test those inputs "
+    "against an independently derived executable reference. Do not translate prose "
+    "into new call/literal assertions or rename the receiver of an exact assertion. "
+    "For EVERY additional boundary, random or scale case, "
     "use the shape assert candidate(args) == reference(args), or assert an independently "
     "derived property; do not write assert candidate(args) == 1, == -1, or is None. "
     "For large inputs where an exhaustive reference is too costly, use a separately "
@@ -84,6 +93,62 @@ class SandboxExecutionResult(ContractModel):
     test_results: list[SandboxTestResult] = Field(default_factory=list)
 
 
+def image_references(image: str) -> list[str]:
+    """Inspectable spellings of one image: as configured, then name@digest.
+
+    Some Docker releases reject ``docker image inspect name:tag@sha256:...`` even
+    when that exact image is present, while ``name@sha256:...`` resolves it. Both
+    forms identify the same pinned content.
+    """
+    references = [image]
+    name, separator, digest = image.partition("@")
+    if separator:
+        colon = name.rfind(":")
+        if colon > name.rfind("/"):  # a tag, not a registry port
+            references.append(f"{name[:colon]}@{digest}")
+    return references
+
+
+def image_available(
+    image: str, *, docker_binary: str = "docker", timeout_seconds: float = 10.0
+) -> bool:
+    """Return whether the local Docker daemon holds the configured image.
+
+    Tries ``docker image inspect`` on each reference spelling, then falls back to
+    the local digest listing, which some image stores answer even when inspect on a
+    pinned reference reports "No such image". A tag alone never satisfies a pin.
+    """
+
+    def run(*args: str) -> subprocess.CompletedProcess[bytes] | None:
+        try:
+            return subprocess.run(  # noqa: S603 - fixed executable and argument vector
+                [docker_binary, *args],
+                capture_output=True,
+                timeout=timeout_seconds,
+                check=False,
+            )
+        except OSError, subprocess.TimeoutExpired:
+            return None
+
+    references = image_references(image)
+    for reference in references:
+        result = run("image", "inspect", reference)
+        if result is None:
+            return False
+        if result.returncode == 0:
+            return True
+    pinned = [reference for reference in references if "@" in reference]
+    if not pinned:
+        return False
+    listing = run(
+        "image", "ls", "--digests", "--no-trunc", "--format", "{{.Repository}}@{{.Digest}}"
+    )
+    if listing is None or listing.returncode != 0:
+        return False
+    present = set(listing.stdout.decode(errors="replace").split())
+    return any(reference in present for reference in pinned)
+
+
 @dataclass(frozen=True)
 class DockerSandboxLimits:
     """Hard isolation and resource bounds for a Python container."""
@@ -114,12 +179,48 @@ class DockerPythonSandbox:
 
     def execute(self, code: str, tests: Sequence[str] = ()) -> SandboxExecutionResult:
         """Execute code and assertions without host mounts, network, or writable root."""
+        self._admit(code, tests)
+        return self._run(self._script(code, tests), len(tests))
+
+    def execute_with_data(
+        self, code: str, data: Mapping[str, bytes], tests: Sequence[str] = ()
+    ) -> SandboxExecutionResult:
+        """Execute code with read-only in-memory data files, still without host mounts.
+
+        The bytes are compressed into the program stream and exposed to the code as the
+        dict ``__POLYA_DATA__`` (name -> bytes). Code admission limits are unchanged;
+        the data has its own bound.
+        """
+        self._admit(code, tests)
+        total = sum(len(item) for item in data.values())
+        if total > MAX_DATA_BYTES or len(data) > 16:
+            raise ValueError(f"sandbox data must total at most {MAX_DATA_BYTES} bytes in 16 files")
+        if any(not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,63}", name) for name in data):
+            raise ValueError("sandbox data names must be plain identifiers")
+        payload = base64.b64encode(
+            zlib.compress(
+                json.dumps(
+                    {name: base64.b64encode(blob).decode() for name, blob in data.items()}
+                ).encode(),
+                6,
+            )
+        ).decode()
+        prelude = (
+            "import base64 as __pb_b64, json as __pb_dj, zlib as __pb_zl\n"
+            "__POLYA_DATA__ = {__k: __pb_b64.b64decode(__v) for __k, __v in "
+            f"__pb_dj.loads(__pb_zl.decompress(__pb_b64.b64decode({payload!r}))).items()}}\n"
+        )
+        return self._run(prelude + self._script(code, tests), len(tests))
+
+    @staticmethod
+    def _admit(code: str, tests: Sequence[str]) -> None:
         if not code.strip() or len(code) > 20_000:
             raise ValueError("sandbox code must contain 1 to 20000 characters")
         if len(tests) > 20 or any(not item.strip() or len(item) > 2_000 for item in tests):
             raise ValueError("sandbox accepts at most 20 bounded tests")
+
+    def _run(self, script: str, test_count: int) -> SandboxExecutionResult:
         container_name = f"polyabrain-sandbox-{uuid4().hex}"
-        script = self._script(code, tests)
         command = self._command(container_name)
         started = monotonic()
         process = subprocess.Popen(  # noqa: S603 - fixed executable and argument vector
@@ -143,7 +244,7 @@ class DockerPythonSandbox:
             runtime_ms=runtime_ms,
             timed_out=timed_out,
             output_truncated=truncated,
-            tests_run=len(tests),
+            tests_run=test_count,
             test_results=test_results,
         )
 

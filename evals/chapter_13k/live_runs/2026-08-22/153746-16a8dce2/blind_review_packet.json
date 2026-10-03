@@ -1,0 +1,474 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-4922009e0751",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSelecting filesystem-path output creates a writer but the first write raises NameError. Identify the closure/reference defect, give the smallest correction, and specify a path-output regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 10, in verify\n    writer(\"trace-line\")\n    ~~~~~~^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 11, in write\n    with open(output_path, \"a\") as output_file:  # noqa: F821\n              ^^^^^^^^^^^\nNameError: name 'output_path' is not defined\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Path output fails on first write\n\nConfiguring the tracer with a filesystem path succeeds initially, but the first\nattempt to write trace output raises `NameError`. Writing to an existing stream\ndoes not show the failure. Identify the failure mechanism and the smallest safe\ncorrection, then name a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of PySnooper bug 3 at e21a3116.\"\"\"\n\nfrom pathlib import Path\nfrom typing import TextIO\n\n\ndef get_write_function(output: Path | str | TextIO):\n    if isinstance(output, (Path, str)):\n\n        def write(value: str) -> None:\n            with open(output_path, \"a\") as output_file:  # noqa: F821\n                output_file.write(value)\n\n        return write\n    return output.write\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom pathlib import Path\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    output = Path(__file__).with_name(\"reproduction-output.txt\")\n    output.unlink(missing_ok=True)\n    try:\n        writer = implementation.get_write_function(output)\n        writer(\"trace-line\")\n        assert output.read_text(encoding=\"utf-8\") == \"trace-line\"\n    finally:\n        output.unlink(missing_ok=True)\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In `get_write_function`, when `output` is a `Path` or `str`, the returned `write` function attempts to open `output_path`, which is an undefined variable name instead of the parameter `output`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. In `get_write_function`, the function parameter is named `output`, but the inner closure `write` attempts to open `output_path`, raising a `NameError`. Replacing `output_path` with `output` binds the open call to the parameter passed into `get_write_function`.\nRegression check: `check.verify` invokes `get_write_function` with a `Path` object, writes 'trace-line', and asserts the file contents match 'trace-line'. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-34058f99281b",
+          "root_cause": "Root cause: In `get_write_function`, when `output` is a `Path` or `str`, the returned `write` function attempts to open `output_path`, which is an undefined variable name instead of the parameter `output`.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. In `get_write_function`, the function parameter is named `output`, but the inner closure `write` attempts to open `output_path`, raising a `NameError`. Replacing `output_path` with `output` binds the open call to the parameter passed into `get_write_function`.\nRegression check: `check.verify` invokes `get_write_function` with a `Path` object, writes 'trace-line', and asserts the file contents match 'trace-line'. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In `buggy_impl.py` inside `get_write_function`, replace `open(output_path, \"a\")` with `open(output, \"a\")` within the inner `write` function so it references the enclosing parameter `output` instead of the undefined name `output_path`.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/pysnooper_path_output/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-3f9240cd893e",
+          "root_cause": "In `buggy_impl.py`, the inner `write` function within `get_write_function` references an undefined variable `output_path` instead of the parameter `output` when calling `open()`, causing a `NameError: name 'output_path' is not defined` when writing to a path-based destination.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Pass a `pathlib.Path` instance representing an output file to `get_write_function(output)`.",
+            "Call the returned `writer` function with a string payload (e.g. `writer(\"trace-line\")`).",
+            "Verify that no `NameError` is raised and that the target file contains the expected written string, as performed in `check.py:verify`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-34058f99281b": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-3f9240cd893e": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-60c703f519ed",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn optional bearer dependency returns no credentials when the header is absent but raises for a non-Bearer scheme. Diagnose the inconsistent control path, state the smallest correction, and define the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 7, in verify\n    assert optional.authenticate(\"Basic abc123\") is None\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 19, in authenticate\n    raise AuthenticationError(\"Invalid authentication credentials\")\nfield_buggy_impl.AuthenticationError: Invalid authentication credentials\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Optional bearer dependency rejects another scheme\n\nAn HTTP bearer dependency configured with `auto_error=False` correctly returns\nno credentials when the header is absent, but still raises 403 when the header\nuses another authentication scheme. Determine the inconsistent control path and\nthe correction required by the optional-dependency contract.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 12 at d61f5e4b.\"\"\"\n\n\nclass AuthenticationError(RuntimeError):\n    pass\n\n\nclass HTTPBearer:\n    def __init__(self, auto_error: bool = True) -> None:\n        self.auto_error = auto_error\n\n    def authenticate(self, authorization: str | None) -> tuple[str, str] | None:\n        if not authorization:\n            if self.auto_error:\n                raise AuthenticationError(\"Not authenticated\")\n            return None\n        scheme, credentials = authorization.split(\" \", 1)\n        if scheme.casefold() != \"bearer\":\n            raise AuthenticationError(\"Invalid authentication credentials\")\n        return scheme, credentials\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    optional = implementation.HTTPBearer(auto_error=False)\n    assert optional.authenticate(None) is None\n    assert optional.authenticate(\"Basic abc123\") is None\n    assert optional.authenticate(\"Bearer token-7\") == (\"Bearer\", \"token-7\")\n",
+      "responses": [
+        {
+          "corrective_action": "In `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/buggy_impl.py`, modify `HTTPBearer.authenticate` so that when `scheme.casefold() != \"bearer\"`, `AuthenticationError(\"Invalid authentication credentials\")` is only raised if `self.auto_error` is True; otherwise return `None`.",
+          "evidence_references": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/issue.md",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/buggy_impl.py",
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-250cfdcaccd1",
+          "root_cause": "In `HTTPBearer.authenticate`, when the authorization header scheme is not 'bearer', `AuthenticationError` is raised unconditionally instead of checking `self.auto_error` and returning `None` when `self.auto_error=False`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Instantiate `HTTPBearer(auto_error=False)`.",
+            "Call `authenticate(\"Basic abc123\")`.",
+            "Assert that the return value is `None` rather than raising `AuthenticationError`.",
+            "Call `authenticate(\"Bearer token-7\")` and assert it returns `(\"Bearer\", \"token-7\")`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In HTTPBearer.authenticate, if the authorization scheme is not 'bearer', AuthenticationError is unconditionally raised without checking self.auto_error, failing the optional authentication contract when non-Bearer schemes are supplied.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False, encountering an authorization header with a scheme other than Bearer should return None rather than raising an AuthenticationError, consistent with how missing authorization headers are handled.\nRegression check: Verifies that an optional HTTPBearer instance (auto_error=False) returns None when authorization is None or uses a non-Bearer scheme ('Basic abc123'), and returns credentials tuple for valid Bearer headers. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-b6dbc6951f78",
+          "root_cause": "Root cause: In HTTPBearer.authenticate, if the authorization scheme is not 'bearer', AuthenticationError is unconditionally raised without checking self.auto_error, failing the optional authentication contract when non-Bearer schemes are supplied.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False, encountering an authorization header with a scheme other than Bearer should return None rather than raising an AuthenticationError, consistent with how missing authorization headers are handled.\nRegression check: Verifies that an optional HTTPBearer instance (auto_error=False) returns None when authorization is None or uses a non-Bearer scheme ('Basic abc123'), and returns credentials tuple for valid Bearer headers. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_optional_bearer/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-250cfdcaccd1": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-b6dbc6951f78": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-7e760cdaa692",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "In APIRouter.include_router within buggy_impl.py, add a branch to handle WebSocketRoute instances by appending WebSocketRoute(prefix + route.path, route.name) (e.g., `elif isinstance(route, WebSocketRoute): self.routes.append(WebSocketRoute(prefix + route.path, route.name))`).",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-0035de8affac",
+          "root_cause": "APIRouter.include_router only checks `if isinstance(route, APIRoute)` when copying child routes, silently ignoring instances of WebSocketRoute present in child.routes.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Instantiate a child APIRouter and add both an APIRoute('/items', 'items') and a WebSocketRoute('/events', 'events').",
+            "Call parent.include_router(child, '/v1').",
+            "Assert that parent.routes contains both ('APIRoute', '/v1/items', 'items') and ('WebSocketRoute', '/v1/events', 'events')."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: APIRouter.include_router iterates through child routes but only checks for APIRoute instances, silently dropping WebSocketRoute instances when including child routers.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Handle WebSocketRoute instances during include_router dispatch by appending a new WebSocketRoute with the prefix prepended to the path while preserving route.name.\nRegression check: check.verify populates child.routes with an APIRoute and a WebSocketRoute, includes the child under prefix '/v1', and verifies that parent.routes contains both transformed routes with updated prefixes. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-a35ae477da81",
+          "root_cause": "Root cause: APIRouter.include_router iterates through child routes but only checks for APIRoute instances, silently dropping WebSocketRoute instances when including child routers.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Handle WebSocketRoute instances during include_router dispatch by appending a new WebSocketRoute with the prefix prepended to the path while preserving route.name.\nRegression check: check.verify populates child.routes with an APIRoute and a WebSocketRoute, includes the child under prefix '/v1', and verifies that parent.routes contains both transformed routes with updated prefixes. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_websocket_router/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-0035de8affac": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-a35ae477da81": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-c3339330b674",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn explicit lowercase host header becomes duplicated by a URL-derived Host during rendering. Explain where case-insensitive membership semantics are lost, how to preserve them, and how to verify the correction.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 8, in verify\n    assert host_values == [\"custom.example\"]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Lowercase Host header is duplicated during rendering\n\nA request carrying an explicit lowercase `host` header is rendered with both\nthat value and a second `Host` value derived from the URL. Diagnose why an\nexisting case-insensitive header becomes invisible to the presence check and\nrecommend a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 4 at 8c892edd.\"\"\"\n\n\nclass CaseInsensitiveHeaders:\n    def __init__(self, values: list[tuple[str, str]]) -> None:\n        self._values = values\n\n    def items(self) -> list[tuple[str, str]]:\n        return list(self._values)\n\n    def __contains__(self, name: str) -> bool:\n        return any(key.casefold() == name.casefold() for key, _value in self._values)\n\n\ndef rendered_headers(original: CaseInsensitiveHeaders, url_host: str) -> dict[str, str]:\n    headers = dict(original.items())\n    if \"Host\" not in headers:\n        headers[\"Host\"] = url_host\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    original = implementation.CaseInsensitiveHeaders([(\"host\", \"custom.example\")])\n    result = implementation.rendered_headers(original, \"url.example\")\n    host_values = [value for key, value in result.items() if key.casefold() == \"host\"]\n    assert host_values == [\"custom.example\"]\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In rendered_headers, membership check 'if \"Host\" not in headers' queries the standard dict 'headers' which uses exact case comparison rather than the case-insensitive 'original' object, causing a secondary 'Host' header to be added when an existing lowercase 'host' is present.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against 'original' leverages CaseInsensitiveHeaders.__contains__ case-folding semantics rather than standard dict key lookup, preventing duplication when a lowercase 'host' header is present.\nRegression check: check.py:verify instantiates CaseInsensitiveHeaders with lowercase [('host', 'custom.example')], calls rendered_headers with url_host 'url.example', and asserts only ['custom.example'] is returned for host. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-e5b566528e3f",
+          "root_cause": "Root cause: In rendered_headers, membership check 'if \"Host\" not in headers' queries the standard dict 'headers' which uses exact case comparison rather than the case-insensitive 'original' object, causing a secondary 'Host' header to be added when an existing lowercase 'host' is present.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against 'original' leverages CaseInsensitiveHeaders.__contains__ case-folding semantics rather than standard dict key lookup, preventing duplication when a lowercase 'host' header is present.\nRegression check: check.py:verify instantiates CaseInsensitiveHeaders with lowercase [('host', 'custom.example')], calls rendered_headers with url_host 'url.example', and asserts only ['custom.example'] is returned for host. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In rendered_headers in buggy_impl.py, check membership against the CaseInsensitiveHeaders instance (e.g., `if \"Host\" not in original:`) rather than querying the case-sensitive standard dictionary `headers` directly.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-e82618365621",
+          "root_cause": "rendered_headers converts original into a standard Python dict (`headers = dict(original.items())`) and performs the presence check `\"Host\" not in headers` against that dict. Because standard dict lookups are case-sensitive, an existing lowercase `\"host\"` header in `headers` is not matched by `\"Host\"`, causing `headers[\"Host\"] = url_host` to erroneously execute and duplicate the host header.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute check.verify(implementation) in /Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_host_case/check.py with an instance containing [(\"host\", \"custom.example\")].",
+            "Verify that rendered_headers returns a dictionary containing only the original host header value [\"custom.example\"] and does not append \"Host\": \"url.example\"."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-e5b566528e3f": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-e82618365621": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-df2d642f1afd",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nA persisted-session update crashes when a request explicitly unsets one header while another byte-valued header is valid. Diagnose the operation applied to the unset sentinel and give a bounded correction and test.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 5, in verify\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n  File \"<case-artifacts>/buggy_impl.py\", line 7, in update_headers\n    value = value.decode(\"utf8\")\n            ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'decode'\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Explicitly unset session header crashes update\n\nWhen a request uses a persisted session and explicitly unsets one header, the\nsession-update path raises an exception before saving the remaining headers.\nDetermine how the unset value reaches the failing operation and propose a\ncorrection that preserves ordinary byte-valued headers.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 3 at 8c33e5e3.\"\"\"\n\n\ndef update_headers(request_headers: dict[str, bytes | None]) -> dict[str, str]:\n    headers: dict[str, str] = {}\n    for name, value in request_headers.items():\n        value = value.decode(\"utf8\")\n        if name == \"User-Agent\" and value.startswith(\"HTTPie/\"):\n            continue\n        headers[name] = value\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n    assert result == {\"X-Request-ID\": \"request-7\"}\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In `update_headers`, unset headers are represented by `None` values in `request_headers`. The function unconditionally invokes `.decode('utf8')` on `value` without checking if it is `None`, raising an `AttributeError` when an unset header is encountered.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py\nCorrection: replace 'value = value.decode(\"utf8\")' with 'if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Checking if `value is None` and skipping further processing prevents calling `.decode('utf8')` on `NoneType` sentinels representing unset headers, while continuing to decode and retain valid byte-valued headers.\nRegression check: The check verifies that calling `update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})` skips the `None` unset header and correctly decodes and returns `{\"X-Request-ID\": \"request-7\"}`. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-568f1a90c02d",
+          "root_cause": "Root cause: In `update_headers`, unset headers are represented by `None` values in `request_headers`. The function unconditionally invokes `.decode('utf8')` on `value` without checking if it is `None`, raising an `AttributeError` when an unset header is encountered.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py\nCorrection: replace 'value = value.decode(\"utf8\")' with 'if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Checking if `value is None` and skipping further processing prevents calling `.decode('utf8')` on `NoneType` sentinels representing unset headers, while continuing to decode and retain valid byte-valued headers.\nRegression check: The check verifies that calling `update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})` skips the `None` unset header and correctly decodes and returns `{\"X-Request-ID\": \"request-7\"}`. (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In `update_headers`, check if `value is None` at the start of the loop over `request_headers.items()` and skip the entry (e.g., `if value is None: continue`) before attempting to call `value.decode(\"utf8\")`.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/issue.md",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/httpie_unset_header/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-5dbc6e7438ee",
+          "root_cause": "`update_headers` in `buggy_impl.py` unconditionally invokes `.decode(\"utf8\")` on header values without handling `None`, which represents an explicitly unset header, resulting in an `AttributeError: 'NoneType' object has no attribute 'decode'`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Call `update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})`.",
+            "Assert that the function completes without raising `AttributeError` and returns `{\"X-Request-ID\": \"request-7\"}`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-568f1a90c02d": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-5dbc6e7438ee": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-f851c1d0582d",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSkip-default response serialization still emits a field whose value equals the model default. Diagnose when default metadata is discarded, propose the smallest correction, and specify both sides of the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 6, in verify\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Response-model defaults survive skip-default serialization\n\nA route configured to skip response-model defaults still emits a field whose\nvalue is the model default when the handler returns a model instance. Diagnose\nwhere model semantics are lost and state the smallest correction and check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 10 at b77a43bc.\"\"\"\n\n\nclass ResponseModel:\n    def __init__(self, name: str, note: str | None = None) -> None:\n        self.name = name\n        self.note = note\n\n    def dict(self, *, skip_defaults: bool = False) -> dict[str, str | None]:\n        result: dict[str, str | None] = {\"name\": self.name, \"note\": self.note}\n        if skip_defaults and self.note is None:\n            result.pop(\"note\")\n        return result\n\n\ndef serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\n    value = {\"name\": response.name, \"note\": response.note}\n    return dict(value)\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    response = implementation.ResponseModel(name=\"Ada\")\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n    assert implementation.serialize_response(response, skip_defaults=False) == {\n        \"name\": \"Ada\",\n        \"note\": None,\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Update `serialize_response` in `/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py` to call and return `response.dict(skip_defaults=skip_defaults)` instead of constructing a raw dictionary directly from response attributes.",
+          "evidence_references": [
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py",
+            "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/issue.md"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "/Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-b9998cfae5f9",
+          "root_cause": "`serialize_response` constructs a dictionary directly from the `ResponseModel` instance fields (`{'name': response.name, 'note': response.note}`) instead of delegating serialization to `response.dict(skip_defaults=skip_defaults)`, ignoring the `skip_defaults` flag and retaining default field values.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Construct a test instance `response = ResponseModel(name='Ada')` where `note` defaults to `None`.",
+            "Execute `serialize_response(response, skip_defaults=True)`. Before correction, this returns `{'name': 'Ada', 'note': None}` causing `check.py` line 6 to fail with `AssertionError`. After correction, this returns `{'name': 'Ada'}`.",
+            "Execute `serialize_response(response, skip_defaults=False)`. Verify it returns `{'name': 'Ada', 'note': None}`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In serialize_response, response attributes are manually extracted into a dictionary rather than calling response.dict(skip_defaults=skip_defaults), discarding the skip_defaults flag and model-level default suppression semantics.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegating serialization to response.dict(skip_defaults=skip_defaults) preserves model-level default exclusion logic rather than manually constructing a dictionary from raw attributes.\nRegression check: check.verify asserts serialize_response(response, skip_defaults=True) omits default fields ({'name': 'Ada'}) while serialize_response(response, skip_defaults=False) retains them ({'name': 'Ada', 'note': None}). (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-bc0a5b18045c",
+          "root_cause": "Root cause: In serialize_response, response attributes are manually extracted into a dictionary rather than calling response.dict(skip_defaults=skip_defaults), discarding the skip_defaults flag and model-level default suppression semantics.\nImplicated source: file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegating serialization to response.dict(skip_defaults=skip_defaults) preserves model-level default exclusion logic rather than manually constructing a dictionary from raw attributes.\nRegression check: check.verify asserts serialize_response(response, skip_defaults=True) omits default fields ({'name': 'Ada'}) while serialize_response(response, skip_defaults=False) retains them ({'name': 'Ada', 'note': None}). (file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13k/fixtures/fastapi_skip_defaults/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-b9998cfae5f9": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-bc0a5b18045c": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "153746-16a8dce2"
+}

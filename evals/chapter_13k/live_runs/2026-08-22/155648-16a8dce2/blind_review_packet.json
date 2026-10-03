@@ -1,0 +1,1396 @@
+{
+  "instructions": [
+    "Score each response independently before choosing a preference.",
+    "Use only the visible problem, source, test, and failing observation shown.",
+    "Reward the concrete failure mechanism, smallest semantic correction, and an executable regression check.",
+    "Penalize unsupported execution claims, invented evidence, vague fixes, and unjustified certainty.",
+    "Do not try to infer which system generated a response."
+  ],
+  "review_items": [
+    {
+      "pair_id": "case-126ddfbe9656",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSkip-default response serialization still emits a field whose value equals the model default. Diagnose when default metadata is discarded, propose the smallest correction, and specify both sides of the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 6, in verify\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Response-model defaults survive skip-default serialization\n\nA route configured to skip response-model defaults still emits a field whose\nvalue is the model default when the handler returns a model instance. Diagnose\nwhere model semantics are lost and state the smallest correction and check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 10 at b77a43bc.\"\"\"\n\n\nclass ResponseModel:\n    def __init__(self, name: str, note: str | None = None) -> None:\n        self.name = name\n        self.note = note\n\n    def dict(self, *, skip_defaults: bool = False) -> dict[str, str | None]:\n        result: dict[str, str | None] = {\"name\": self.name, \"note\": self.note}\n        if skip_defaults and self.note is None:\n            result.pop(\"note\")\n        return result\n\n\ndef serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\n    value = {\"name\": response.name, \"note\": response.note}\n    return dict(value)\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    response = implementation.ResponseModel(name=\"Ada\")\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n    assert implementation.serialize_response(response, skip_defaults=False) == {\n        \"name\": \"Ada\",\n        \"note\": None,\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: `serialize_response` manually constructs a dictionary from response fields without propagating `skip_defaults` or calling `response.dict(skip_defaults=skip_defaults)`, ignoring default-skipping logic.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    return response.dict(skip_defaults=skip_defaults)'. Delegate serialization in `serialize_response` to `response.dict(skip_defaults=skip_defaults)` so that model default stripping logic is respected.\nRegression check: `check.py` asserts that `serialize_response` with `skip_defaults=True` strips fields set to model defaults (`note=None`), while retaining them when `skip_defaults=False`. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-102bce5549fb",
+          "root_cause": "Root cause: `serialize_response` manually constructs a dictionary from response fields without propagating `skip_defaults` or calling `response.dict(skip_defaults=skip_defaults)`, ignoring default-skipping logic.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    return response.dict(skip_defaults=skip_defaults)'. Delegate serialization in `serialize_response` to `response.dict(skip_defaults=skip_defaults)` so that model default stripping logic is respected.\nRegression check: `check.py` asserts that `serialize_response` with `skip_defaults=True` strips fields set to model defaults (`note=None`), while retaining them when `skip_defaults=False`. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "Modify `serialize_response` in `<case-artifacts>/buggy_impl.py` to call `response.dict(skip_defaults=skip_defaults)` instead of manually creating a plain dictionary from attributes.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-18c0f7afd751",
+          "root_cause": "`serialize_response` in `<case-artifacts>/buggy_impl.py` ignores the `skip_defaults` argument and constructs a raw dictionary directly from `response.name` and `response.note` rather than invoking `response.dict(skip_defaults=skip_defaults)`, discarding model default-skipping logic.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Run `verify(implementation)` from `<case-artifacts>/check.py` with `response = ResponseModel(name=\"Ada\")`.",
+            "Confirm that `serialize_response(response, skip_defaults=True)` evaluated to `{\"name\": \"Ada\", \"note\": None}` before the fix (failing the assertion) and evaluates to `{\"name\": \"Ada\"}` after the fix.",
+            "Confirm that `serialize_response(response, skip_defaults=False)` evaluates to `{\"name\": \"Ada\", \"note\": None}`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-102bce5549fb": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-18c0f7afd751": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-1c589ab60cb0",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Update `APIRouter.include_router` in `buggy_impl.py` to handle `WebSocketRoute` instances in addition to `APIRoute`. When `isinstance(route, WebSocketRoute)` is encountered, instantiate and append `WebSocketRoute(prefix + route.path, route.name)` to `self.routes`.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-50361d824c51",
+          "root_cause": "In `APIRouter.include_router`, the route iteration only checks `if isinstance(route, APIRoute):` and ignores any `WebSocketRoute` items present in `child.routes`, causing websocket routes to be silently dropped when copying routes under a prefix.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Instantiate a child `APIRouter` with an `APIRoute(\"/items\", \"items\")` and a `WebSocketRoute(\"/events\", \"events\")`.",
+            "Call `parent.include_router(child, \"/v1\")` on a parent `APIRouter`.",
+            "Assert that `parent.routes` contains both `APIRoute(\"/v1/items\", \"items\")` and `WebSocketRoute(\"/v1/events\", \"events\")` as specified in `check.py`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `APIRouter.include_router`, the route iteration only checks `isinstance(route, APIRoute)` and appends prefixed `APIRoute` objects, silently ignoring instances of `WebSocketRoute` on the child router.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Add an explicit branch handling `WebSocketRoute` instances when copying child routes in `include_router`, creating a new `WebSocketRoute` with the prefix prepended to its path while preserving its route name.\nRegression check: The test `check.verify` includes a child `APIRouter` containing both an `APIRoute` and a `WebSocketRoute` into a parent router under prefix `\"/v1\"` and asserts that both routes are present with their expected types, prefixed paths, and names. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-d23c831df019",
+          "root_cause": "Root cause: In `APIRouter.include_router`, the route iteration only checks `isinstance(route, APIRoute)` and appends prefixed `APIRoute` objects, silently ignoring instances of `WebSocketRoute` on the child router.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Add an explicit branch handling `WebSocketRoute` instances when copying child routes in `include_router`, creating a new `WebSocketRoute` with the prefix prepended to its path while preserving its route name.\nRegression check: The test `check.verify` includes a child `APIRouter` containing both an `APIRoute` and a `WebSocketRoute` into a parent router under prefix `\"/v1\"` and asserts that both routes are present with their expected types, prefixed paths, and names. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-50361d824c51": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-d23c831df019": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-252b878c419d",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSkip-default response serialization still emits a field whose value equals the model default. Diagnose when default metadata is discarded, propose the smallest correction, and specify both sides of the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 6, in verify\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Response-model defaults survive skip-default serialization\n\nA route configured to skip response-model defaults still emits a field whose\nvalue is the model default when the handler returns a model instance. Diagnose\nwhere model semantics are lost and state the smallest correction and check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 10 at b77a43bc.\"\"\"\n\n\nclass ResponseModel:\n    def __init__(self, name: str, note: str | None = None) -> None:\n        self.name = name\n        self.note = note\n\n    def dict(self, *, skip_defaults: bool = False) -> dict[str, str | None]:\n        result: dict[str, str | None] = {\"name\": self.name, \"note\": self.note}\n        if skip_defaults and self.note is None:\n            result.pop(\"note\")\n        return result\n\n\ndef serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\n    value = {\"name\": response.name, \"note\": response.note}\n    return dict(value)\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    response = implementation.ResponseModel(name=\"Ada\")\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n    assert implementation.serialize_response(response, skip_defaults=False) == {\n        \"name\": \"Ada\",\n        \"note\": None,\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "In `<case-artifacts>/buggy_impl.py`, update `serialize_response` to delegate serialization to `response.dict(skip_defaults=skip_defaults)` instead of constructing a new dictionary directly from response attributes.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-d4e2330c5352",
+          "root_cause": "`serialize_response` in `buggy_impl.py` manually extracts attributes into a raw dictionary (`{\"name\": response.name, \"note\": response.note}`) instead of calling `response.dict(skip_defaults=skip_defaults)`, discarding the `skip_defaults` parameter and model-level default suppression logic.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `check.verify(implementation)` from `<case-artifacts>/check.py` with `response = ResponseModel(name='Ada')`.",
+            "Before correction: `serialize_response(response, skip_defaults=True)` returns `{'name': 'Ada', 'note': None}`, failing the assertion against `{'name': 'Ada'}`.",
+            "After correction: `serialize_response(response, skip_defaults=True)` returns `{'name': 'Ada'}` and `serialize_response(response, skip_defaults=False)` returns `{'name': 'Ada', 'note': None}`, passing all assertions."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: `serialize_response` manually constructs a dictionary from response attributes and ignores the `skip_defaults` flag rather than delegating to `response.dict(skip_defaults=skip_defaults)`.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegate serialization to `response.dict(skip_defaults=skip_defaults)` so the model's default-stripping logic is respected when `skip_defaults` is true.\nRegression check: `check.py` tests `serialize_response(response, skip_defaults=True)` expecting `{'name': 'Ada'}` without default `note=None`, and `serialize_response(response, skip_defaults=False)` expecting `{'name': 'Ada', 'note': None}`. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-f9e8697b2796",
+          "root_cause": "Root cause: `serialize_response` manually constructs a dictionary from response attributes and ignores the `skip_defaults` flag rather than delegating to `response.dict(skip_defaults=skip_defaults)`.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'return response.dict(skip_defaults=skip_defaults)'. Delegate serialization to `response.dict(skip_defaults=skip_defaults)` so the model's default-stripping logic is respected when `skip_defaults` is true.\nRegression check: `check.py` tests `serialize_response(response, skip_defaults=True)` expecting `{'name': 'Ada'}` without default `note=None`, and `serialize_response(response, skip_defaults=False)` expecting `{'name': 'Ada', 'note': None}`. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-d4e2330c5352": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-f9e8697b2796": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-2f418f342d6e",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSelecting filesystem-path output creates a writer but the first write raises NameError. Identify the closure/reference defect, give the smallest correction, and specify a path-output regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 10, in verify\n    writer(\"trace-line\")\n    ~~~~~~^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 11, in write\n    with open(output_path, \"a\") as output_file:  # noqa: F821\n              ^^^^^^^^^^^\nNameError: name 'output_path' is not defined\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Path output fails on first write\n\nConfiguring the tracer with a filesystem path succeeds initially, but the first\nattempt to write trace output raises `NameError`. Writing to an existing stream\ndoes not show the failure. Identify the failure mechanism and the smallest safe\ncorrection, then name a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of PySnooper bug 3 at e21a3116.\"\"\"\n\nfrom pathlib import Path\nfrom typing import TextIO\n\n\ndef get_write_function(output: Path | str | TextIO):\n    if isinstance(output, (Path, str)):\n\n        def write(value: str) -> None:\n            with open(output_path, \"a\") as output_file:  # noqa: F821\n                output_file.write(value)\n\n        return write\n    return output.write\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom pathlib import Path\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    output = Path(__file__).with_name(\"reproduction-output.txt\")\n    output.unlink(missing_ok=True)\n    try:\n        writer = implementation.get_write_function(output)\n        writer(\"trace-line\")\n        assert output.read_text(encoding=\"utf-8\") == \"trace-line\"\n    finally:\n        output.unlink(missing_ok=True)\n",
+      "responses": [
+        {
+          "corrective_action": "In `<case-artifacts>/buggy_impl.py`, within the inner `write` function of `get_write_function`, replace `open(output_path, \"a\")` with `open(output, \"a\")` so the context manager opens the provided `output` path or filename.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-375e65e49cf6",
+          "root_cause": "In `get_write_function`, the inner `write` closure attempts to open `output_path`, an undefined variable, instead of referencing the enclosing parameter `output`. When the writer is called, Python raises `NameError: name 'output_path' is not defined`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Run the verification function `verify` in `<case-artifacts>/check.py` against `buggy_impl`.",
+            "Verify that calling `get_write_function` with a `pathlib.Path` instance returns a writer that executes `writer(\"trace-line\")` without `NameError` and appends the trace string to the target file."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: The closure `write` in `get_write_function` references an undefined variable `output_path` instead of the function parameter `output`, causing a `NameError` when attempting to write to a path destination.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. In `get_write_function`, the inner `write` function references `output_path` which is undefined in the closure scope. Replacing `output_path` with the parameter `output` resolves the `NameError` and opens the intended filesystem path.\nRegression check: The test `check.verify(implementation)` creates a writer using a `Path` object destination, calls the writer with 'trace-line', and asserts the file contents match 'trace-line'. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-94d1fe01360c",
+          "root_cause": "Root cause: The closure `write` in `get_write_function` references an undefined variable `output_path` instead of the function parameter `output`, causing a `NameError` when attempting to write to a path destination.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. In `get_write_function`, the inner `write` function references `output_path` which is undefined in the closure scope. Replacing `output_path` with the parameter `output` resolves the `NameError` and opens the intended filesystem path.\nRegression check: The test `check.verify(implementation)` creates a writer using a `Path` object destination, calls the writer with 'trace-line', and asserts the file contents match 'trace-line'. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-375e65e49cf6": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-94d1fe01360c": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-3326c297effa",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSelecting filesystem-path output creates a writer but the first write raises NameError. Identify the closure/reference defect, give the smallest correction, and specify a path-output regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 10, in verify\n    writer(\"trace-line\")\n    ~~~~~~^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 11, in write\n    with open(output_path, \"a\") as output_file:  # noqa: F821\n              ^^^^^^^^^^^\nNameError: name 'output_path' is not defined\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Path output fails on first write\n\nConfiguring the tracer with a filesystem path succeeds initially, but the first\nattempt to write trace output raises `NameError`. Writing to an existing stream\ndoes not show the failure. Identify the failure mechanism and the smallest safe\ncorrection, then name a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of PySnooper bug 3 at e21a3116.\"\"\"\n\nfrom pathlib import Path\nfrom typing import TextIO\n\n\ndef get_write_function(output: Path | str | TextIO):\n    if isinstance(output, (Path, str)):\n\n        def write(value: str) -> None:\n            with open(output_path, \"a\") as output_file:  # noqa: F821\n                output_file.write(value)\n\n        return write\n    return output.write\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom pathlib import Path\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    output = Path(__file__).with_name(\"reproduction-output.txt\")\n    output.unlink(missing_ok=True)\n    try:\n        writer = implementation.get_write_function(output)\n        writer(\"trace-line\")\n        assert output.read_text(encoding=\"utf-8\") == \"trace-line\"\n    finally:\n        output.unlink(missing_ok=True)\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: Inside `get_write_function` in `buggy_impl.py`, the nested `write` closure attempts to open `output_path`, which is undefined in scope because the parameter is named `output`. This causes a `NameError: name 'output_path' is not defined` when writing to a path or string target.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. Replace the undefined variable `output_path` with the parameter `output` within `write`, allowing `open()` to correctly open the destination path/string and removing the unused `# noqa: F821` comment.\nRegression check: `check.py` defines `verify(implementation)` which creates a `Path` object, obtains a writer via `get_write_function(output)`, invokes it with a trace string, and asserts that the file contains the expected text. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-1a2117cb8380",
+          "root_cause": "Root cause: Inside `get_write_function` in `buggy_impl.py`, the nested `write` closure attempts to open `output_path`, which is undefined in scope because the parameter is named `output`. This causes a `NameError: name 'output_path' is not defined` when writing to a path or string target.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. Replace the undefined variable `output_path` with the parameter `output` within `write`, allowing `open()` to correctly open the destination path/string and removing the unused `# noqa: F821` comment.\nRegression check: `check.py` defines `verify(implementation)` which creates a `Path` object, obtains a writer via `get_write_function(output)`, invokes it with a trace string, and asserts that the file contains the expected text. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In <case-artifacts>/buggy_impl.py within get_write_function, change `with open(output_path, \"a\") as output_file:` to `with open(output, \"a\") as output_file:` so the closure references the parameter `output`.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-6eca835f6b59",
+          "root_cause": "In `get_write_function` within `buggy_impl.py`, the nested `write` function attempts to open `output_path` instead of the function parameter `output`, resulting in a `NameError: name 'output_path' is not defined` when writing trace output to a filesystem path.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Run `check.verify(implementation)` from `<case-artifacts>/check.py`.",
+            "Verify that `get_write_function(output)` successfully returns a writer for `Path` instances and writes `'trace-line'` to the destination file without raising `NameError`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-1a2117cb8380": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-6eca835f6b59": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-40f1ca486a11",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn explicit lowercase host header becomes duplicated by a URL-derived Host during rendering. Explain where case-insensitive membership semantics are lost, how to preserve them, and how to verify the correction.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 8, in verify\n    assert host_values == [\"custom.example\"]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Lowercase Host header is duplicated during rendering\n\nA request carrying an explicit lowercase `host` header is rendered with both\nthat value and a second `Host` value derived from the URL. Diagnose why an\nexisting case-insensitive header becomes invisible to the presence check and\nrecommend a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 4 at 8c892edd.\"\"\"\n\n\nclass CaseInsensitiveHeaders:\n    def __init__(self, values: list[tuple[str, str]]) -> None:\n        self._values = values\n\n    def items(self) -> list[tuple[str, str]]:\n        return list(self._values)\n\n    def __contains__(self, name: str) -> bool:\n        return any(key.casefold() == name.casefold() for key, _value in self._values)\n\n\ndef rendered_headers(original: CaseInsensitiveHeaders, url_host: str) -> dict[str, str]:\n    headers = dict(original.items())\n    if \"Host\" not in headers:\n        headers[\"Host\"] = url_host\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    original = implementation.CaseInsensitiveHeaders([(\"host\", \"custom.example\")])\n    result = implementation.rendered_headers(original, \"url.example\")\n    host_values = [value for key, value in result.items() if key.casefold() == \"host\"]\n    assert host_values == [\"custom.example\"]\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In `rendered_headers`, `headers` is constructed as a standard Python `dict(original.items())`. The membership check `if \"Host\" not in headers:` performs a case-sensitive lookup on the plain dictionary rather than querying `original` (which implements case-insensitive membership via `__contains__`). Consequently, when `original` contains lowercase `'host'`, `'Host'` is reported missing and re-added, duplicating the header.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against the plain dictionary `headers` uses case-sensitive lookup, ignoring the case-insensitive lookup implemented on `original`. Checking `if \"Host\" not in original:` uses `CaseInsensitiveHeaders.__contains__`, preventing duplicate host entries when a case-variant header like 'host' already exists.\nRegression check: The test `verify` in check.py passes a `CaseInsensitiveHeaders` instance initialized with `[(\"host\", \"custom.example\")]` to `rendered_headers` and asserts that only `[\"custom.example\"]` is present for case-folded 'host' keys. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-765cee7aa666",
+          "root_cause": "Root cause: In `rendered_headers`, `headers` is constructed as a standard Python `dict(original.items())`. The membership check `if \"Host\" not in headers:` performs a case-sensitive lookup on the plain dictionary rather than querying `original` (which implements case-insensitive membership via `__contains__`). Consequently, when `original` contains lowercase `'host'`, `'Host'` is reported missing and re-added, duplicating the header.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against the plain dictionary `headers` uses case-sensitive lookup, ignoring the case-insensitive lookup implemented on `original`. Checking `if \"Host\" not in original:` uses `CaseInsensitiveHeaders.__contains__`, preventing duplicate host entries when a case-variant header like 'host' already exists.\nRegression check: The test `verify` in check.py passes a `CaseInsensitiveHeaders` instance initialized with `[(\"host\", \"custom.example\")]` to `rendered_headers` and asserts that only `[\"custom.example\"]` is present for case-folded 'host' keys. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In `<case-artifacts>/buggy_impl.py`, change `if \"Host\" not in headers:` to `if \"Host\" not in original:` inside `rendered_headers` to use the case-insensitive membership check defined on `CaseInsensitiveHeaders`.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-8618cbc61a6f",
+          "root_cause": "In `rendered_headers`, `headers` is constructed as a standard Python `dict` from `original.items()`. The membership check `if \"Host\" not in headers:` executes exact case-sensitive lookup on the standard dictionary rather than using `CaseInsensitiveHeaders.__contains__` on `original`, causing existing lowercase `host` headers to be missed and a duplicate `Host` header to be added.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `verify(implementation)` from `<case-artifacts>/check.py` against the updated module.",
+            "Verify that when `original` contains `[(\"host\", \"custom.example\")]` and `url_host` is `\"url.example\"`, `rendered_headers` returns headers containing only `host_values == [\"custom.example\"]` without adding `\"Host\": \"url.example\"`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-765cee7aa666": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-8618cbc61a6f": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-41577cde3cda",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nA persisted-session update crashes when a request explicitly unsets one header while another byte-valued header is valid. Diagnose the operation applied to the unset sentinel and give a bounded correction and test.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 5, in verify\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n  File \"<case-artifacts>/buggy_impl.py\", line 7, in update_headers\n    value = value.decode(\"utf8\")\n            ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'decode'\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Explicitly unset session header crashes update\n\nWhen a request uses a persisted session and explicitly unsets one header, the\nsession-update path raises an exception before saving the remaining headers.\nDetermine how the unset value reaches the failing operation and propose a\ncorrection that preserves ordinary byte-valued headers.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 3 at 8c33e5e3.\"\"\"\n\n\ndef update_headers(request_headers: dict[str, bytes | None]) -> dict[str, str]:\n    headers: dict[str, str] = {}\n    for name, value in request_headers.items():\n        value = value.decode(\"utf8\")\n        if name == \"User-Agent\" and value.startswith(\"HTTPie/\"):\n            continue\n        headers[name] = value\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n    assert result == {\"X-Request-ID\": \"request-7\"}\n",
+      "responses": [
+        {
+          "corrective_action": "In `buggy_impl.py:update_headers`, check whether `value is None` before decoding; if `value is None`, skip the entry (e.g., `if value is None: continue`), ensuring only non-None byte values are decoded and added to `headers`.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-81c266312e9a",
+          "root_cause": "`update_headers` in `buggy_impl.py` unconditionally attempts to call `.decode('utf8')` on header values in `request_headers` without handling unset sentinel values represented by `None`, triggering an `AttributeError: 'NoneType' object has no attribute 'decode'`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Call `update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})` using the verification logic in `<case-artifacts>/check.py`.",
+            "Verify that no `AttributeError` is raised and the resulting dictionary equals `{\"X-Request-ID\": \"request-7\"}`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `update_headers`, unset headers have a value of `None`. Calling `value.decode(\"utf8\")` unconditionally raises `AttributeError: 'NoneType' object has no attribute 'decode'` when encountering an unset header sentinel.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for name, value in request_headers.items():\\n        value = value.decode(\"utf8\")' with 'for name, value in request_headers.items():\\n        if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Check whether the header value is None before calling `.decode('utf8')` and skip adding unset headers to the updated headers dictionary.\nRegression check: The test `verify` in `check.py` invokes `update_headers` with `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}` and asserts that the resulting dictionary is `{\"X-Request-ID\": \"request-7\"}`. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-b78c00c25c74",
+          "root_cause": "Root cause: In `update_headers`, unset headers have a value of `None`. Calling `value.decode(\"utf8\")` unconditionally raises `AttributeError: 'NoneType' object has no attribute 'decode'` when encountering an unset header sentinel.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for name, value in request_headers.items():\\n        value = value.decode(\"utf8\")' with 'for name, value in request_headers.items():\\n        if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Check whether the header value is None before calling `.decode('utf8')` and skip adding unset headers to the updated headers dictionary.\nRegression check: The test `verify` in `check.py` invokes `update_headers` with `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}` and asserts that the resulting dictionary is `{\"X-Request-ID\": \"request-7\"}`. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-81c266312e9a": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-b78c00c25c74": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-5402f7677541",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nA persisted-session update crashes when a request explicitly unsets one header while another byte-valued header is valid. Diagnose the operation applied to the unset sentinel and give a bounded correction and test.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 5, in verify\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n  File \"<case-artifacts>/buggy_impl.py\", line 7, in update_headers\n    value = value.decode(\"utf8\")\n            ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'decode'\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Explicitly unset session header crashes update\n\nWhen a request uses a persisted session and explicitly unsets one header, the\nsession-update path raises an exception before saving the remaining headers.\nDetermine how the unset value reaches the failing operation and propose a\ncorrection that preserves ordinary byte-valued headers.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 3 at 8c33e5e3.\"\"\"\n\n\ndef update_headers(request_headers: dict[str, bytes | None]) -> dict[str, str]:\n    headers: dict[str, str] = {}\n    for name, value in request_headers.items():\n        value = value.decode(\"utf8\")\n        if name == \"User-Agent\" and value.startswith(\"HTTPie/\"):\n            continue\n        headers[name] = value\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n    assert result == {\"X-Request-ID\": \"request-7\"}\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In `update_headers`, unset headers are represented with `None` as their value. The function calls `value.decode(\"utf8\")` unconditionally on each header value in `request_headers.items()`, causing an `AttributeError: 'NoneType' object has no attribute 'decode'` when an unset header (`None`) is encountered.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for name, value in request_headers.items():\\n        value = value.decode(\"utf8\")' with 'for name, value in request_headers.items():\\n        if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Check whether `value` is `None` before attempting to decode it as UTF-8. If `value is None`, skip adding it to `headers` (or `continue`), so unset headers with `None` values are ignored and do not trigger an `AttributeError`.\nRegression check: Runs `verify(implementation)` with `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}` and asserts that the resulting dictionary is `{\"X-Request-ID\": \"request-7\"}` without crashing on `None`. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-0aeb99967787",
+          "root_cause": "Root cause: In `update_headers`, unset headers are represented with `None` as their value. The function calls `value.decode(\"utf8\")` unconditionally on each header value in `request_headers.items()`, causing an `AttributeError: 'NoneType' object has no attribute 'decode'` when an unset header (`None`) is encountered.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for name, value in request_headers.items():\\n        value = value.decode(\"utf8\")' with 'for name, value in request_headers.items():\\n        if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Check whether `value` is `None` before attempting to decode it as UTF-8. If `value is None`, skip adding it to `headers` (or `continue`), so unset headers with `None` values are ignored and do not trigger an `AttributeError`.\nRegression check: Runs `verify(implementation)` with `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}` and asserts that the resulting dictionary is `{\"X-Request-ID\": \"request-7\"}` without crashing on `None`. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "In `update_headers` in `<case-artifacts>/buggy_impl.py`, check if `value is None` before decoding; if `value is None`, skip adding the unset header to `headers` (e.g. `if value is None: continue`) so that `decode(\"utf8\")` is only called on `bytes` instances.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-4fdc27f6371c",
+          "root_cause": "`update_headers` in `<case-artifacts>/buggy_impl.py` unconditionally calls `value.decode(\"utf8\")` on every dictionary entry in `request_headers`. When an explicitly unset header has `None` as its value, calling `.decode()` on `None` raises an `AttributeError`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `verify` in `<case-artifacts>/check.py`, calling `update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})`.",
+            "Assert that `update_headers` ignores `None` values without raising an `AttributeError` and returns `{\"X-Request-ID\": \"request-7\"}`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-0aeb99967787": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-4fdc27f6371c": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-6057a0a48e51",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In `APIRouter.include_router`, iteration over `child.routes` only handles routes of type `APIRoute` and ignores instances of `WebSocketRoute`, causing websocket routes from child routers to be dropped during router inclusion.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. In `APIRouter.include_router`, check whether each child route is an instance of `WebSocketRoute` in addition to `APIRoute`, appending a corresponding `WebSocketRoute` with the prefix prepended to the path and preserving its name.\nRegression check: `check.verify` includes a child router containing both an APIRoute and a WebSocketRoute under prefix '/v1' into a parent router, and asserts that parent.routes contains prefixed versions of both route types with matching names. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-13577313f379",
+          "root_cause": "Root cause: In `APIRouter.include_router`, iteration over `child.routes` only handles routes of type `APIRoute` and ignores instances of `WebSocketRoute`, causing websocket routes from child routers to be dropped during router inclusion.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. In `APIRouter.include_router`, check whether each child route is an instance of `WebSocketRoute` in addition to `APIRoute`, appending a corresponding `WebSocketRoute` with the prefix prepended to the path and preserving its name.\nRegression check: `check.verify` includes a child router containing both an APIRoute and a WebSocketRoute under prefix '/v1' into a parent router, and asserts that parent.routes contains prefixed versions of both route types with matching names. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "Update `APIRouter.include_router` in `<case-artifacts>/buggy_impl.py` to handle `WebSocketRoute` instances by adding a branch `elif isinstance(route, WebSocketRoute): self.routes.append(WebSocketRoute(prefix + route.path, route.name))`.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-9d89cff1d076",
+          "root_cause": "In `APIRouter.include_router` in `<case-artifacts>/buggy_impl.py`, the route iteration only checks `if isinstance(route, APIRoute):`, which silently drops any `WebSocketRoute` instances present on the child router.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Construct a child `APIRouter` with an `APIRoute` ('/items', 'items') and a `WebSocketRoute` ('/events', 'events').",
+            "Call `parent.include_router(child, '/v1')` on a parent `APIRouter`.",
+            "Assert that `parent.routes` contains both `('APIRoute', '/v1/items', 'items')` and `('WebSocketRoute', '/v1/events', 'events')` as specified in `<case-artifacts>/check.py`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-13577313f379": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-9d89cff1d076": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-60de9db2ce00",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSelecting filesystem-path output creates a writer but the first write raises NameError. Identify the closure/reference defect, give the smallest correction, and specify a path-output regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 10, in verify\n    writer(\"trace-line\")\n    ~~~~~~^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 11, in write\n    with open(output_path, \"a\") as output_file:  # noqa: F821\n              ^^^^^^^^^^^\nNameError: name 'output_path' is not defined\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Path output fails on first write\n\nConfiguring the tracer with a filesystem path succeeds initially, but the first\nattempt to write trace output raises `NameError`. Writing to an existing stream\ndoes not show the failure. Identify the failure mechanism and the smallest safe\ncorrection, then name a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of PySnooper bug 3 at e21a3116.\"\"\"\n\nfrom pathlib import Path\nfrom typing import TextIO\n\n\ndef get_write_function(output: Path | str | TextIO):\n    if isinstance(output, (Path, str)):\n\n        def write(value: str) -> None:\n            with open(output_path, \"a\") as output_file:  # noqa: F821\n                output_file.write(value)\n\n        return write\n    return output.write\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom pathlib import Path\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    output = Path(__file__).with_name(\"reproduction-output.txt\")\n    output.unlink(missing_ok=True)\n    try:\n        writer = implementation.get_write_function(output)\n        writer(\"trace-line\")\n        assert output.read_text(encoding=\"utf-8\") == \"trace-line\"\n    finally:\n        output.unlink(missing_ok=True)\n",
+      "responses": [
+        {
+          "corrective_action": "In `buggy_impl.py`, inside `get_write_function`, change `with open(output_path, \"a\") as output_file:` to `with open(output, \"a\") as output_file:` so that the inner `write` closure references the parameter `output` instead of the undefined variable `output_path`.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-63cf114997f8",
+          "root_cause": "In `buggy_impl.py`, the inner `write` function inside `get_write_function` references an undefined variable `output_path` instead of the enclosing parameter `output`, causing a `NameError: name 'output_path' is not defined` when attempting to open the target file on write.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Run `check.verify(implementation)` from `<case-artifacts>/check.py`.",
+            "Verify that `get_write_function` returned a writer when passed a `Path` object.",
+            "Verify that calling `writer(\"trace-line\")` successfully writes to disk without raising `NameError`.",
+            "Assert that reading `reproduction-output.txt` yields `\"trace-line\"`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: Inside `get_write_function`, the nested `write` function references `output_path` instead of the enclosing function's parameter `output`, causing a `NameError` on the first write when given a `Path` or `str`.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. Replace the undefined variable reference `output_path` with the parameter `output` received by `get_write_function`, allowing the nested write closure to open the specified file path.\nRegression check: The test `verify` in `check.py` passes a `Path` object to `get_write_function`, calls the returned writer with 'trace-line', and asserts that the file contents match. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-79c756342085",
+          "root_cause": "Root cause: Inside `get_write_function`, the nested `write` function references `output_path` instead of the enclosing function's parameter `output`, causing a `NameError` on the first write when given a `Path` or `str`.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'with open(output_path, \"a\") as output_file:  # noqa: F821' with 'with open(output, \"a\") as output_file:'. Replace the undefined variable reference `output_path` with the parameter `output` received by `get_write_function`, allowing the nested write closure to open the specified file path.\nRegression check: The test `verify` in `check.py` passes a `Path` object to `get_write_function`, calls the returned writer with 'trace-line', and asserts that the file contents match. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-63cf114997f8": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-79c756342085": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-6ab06a71fe86",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn optional bearer dependency returns no credentials when the header is absent but raises for a non-Bearer scheme. Diagnose the inconsistent control path, state the smallest correction, and define the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 7, in verify\n    assert optional.authenticate(\"Basic abc123\") is None\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 19, in authenticate\n    raise AuthenticationError(\"Invalid authentication credentials\")\nfield_buggy_impl.AuthenticationError: Invalid authentication credentials\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Optional bearer dependency rejects another scheme\n\nAn HTTP bearer dependency configured with `auto_error=False` correctly returns\nno credentials when the header is absent, but still raises 403 when the header\nuses another authentication scheme. Determine the inconsistent control path and\nthe correction required by the optional-dependency contract.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 12 at d61f5e4b.\"\"\"\n\n\nclass AuthenticationError(RuntimeError):\n    pass\n\n\nclass HTTPBearer:\n    def __init__(self, auto_error: bool = True) -> None:\n        self.auto_error = auto_error\n\n    def authenticate(self, authorization: str | None) -> tuple[str, str] | None:\n        if not authorization:\n            if self.auto_error:\n                raise AuthenticationError(\"Not authenticated\")\n            return None\n        scheme, credentials = authorization.split(\" \", 1)\n        if scheme.casefold() != \"bearer\":\n            raise AuthenticationError(\"Invalid authentication credentials\")\n        return scheme, credentials\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    optional = implementation.HTTPBearer(auto_error=False)\n    assert optional.authenticate(None) is None\n    assert optional.authenticate(\"Basic abc123\") is None\n    assert optional.authenticate(\"Bearer token-7\") == (\"Bearer\", \"token-7\")\n",
+      "responses": [
+        {
+          "corrective_action": "In `buggy_impl.py`, update `HTTPBearer.authenticate` so that when `scheme.casefold() != \"bearer\"`, it checks `if self.auto_error:` before raising `AuthenticationError(\"Invalid authentication credentials\")`, returning `None` when `self.auto_error` is False.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "artifact://case/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-0e635ce55ff5",
+          "root_cause": "`HTTPBearer.authenticate` unconditionally raises `AuthenticationError(\"Invalid authentication credentials\")` when `scheme.casefold() != \"bearer\"` instead of respecting `self.auto_error` and returning `None` when `auto_error=False`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Instantiate `HTTPBearer(auto_error=False)`.",
+            "Call `authenticate(\"Basic abc123\")` and verify it returns `None` rather than raising `AuthenticationError`.",
+            "Call `authenticate(None)` to verify it returns `None`.",
+            "Call `authenticate(\"Bearer token-7\")` to verify it returns `(\"Bearer\", \"token-7\")`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In HTTPBearer.authenticate, the check for non-bearer schemes raises AuthenticationError regardless of whether self.auto_error is True or False.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False, encountering an invalid/non-bearer scheme should return None rather than unconditionally raising AuthenticationError, matching the behavior for missing authorization headers.\nRegression check: check.py verifies that an optional HTTPBearer (auto_error=False) returns None for None header, returns None for 'Basic abc123', and returns ('Bearer', 'token-7') for valid Bearer token. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-e6953b59625e",
+          "root_cause": "Root cause: In HTTPBearer.authenticate, the check for non-bearer schemes raises AuthenticationError regardless of whether self.auto_error is True or False.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False, encountering an invalid/non-bearer scheme should return None rather than unconditionally raising AuthenticationError, matching the behavior for missing authorization headers.\nRegression check: check.py verifies that an optional HTTPBearer (auto_error=False) returns None for None header, returns None for 'Basic abc123', and returns ('Bearer', 'token-7') for valid Bearer token. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-0e635ce55ff5": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-e6953b59625e": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-8829e60efd19",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn explicit lowercase host header becomes duplicated by a URL-derived Host during rendering. Explain where case-insensitive membership semantics are lost, how to preserve them, and how to verify the correction.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 8, in verify\n    assert host_values == [\"custom.example\"]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Lowercase Host header is duplicated during rendering\n\nA request carrying an explicit lowercase `host` header is rendered with both\nthat value and a second `Host` value derived from the URL. Diagnose why an\nexisting case-insensitive header becomes invisible to the presence check and\nrecommend a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 4 at 8c892edd.\"\"\"\n\n\nclass CaseInsensitiveHeaders:\n    def __init__(self, values: list[tuple[str, str]]) -> None:\n        self._values = values\n\n    def items(self) -> list[tuple[str, str]]:\n        return list(self._values)\n\n    def __contains__(self, name: str) -> bool:\n        return any(key.casefold() == name.casefold() for key, _value in self._values)\n\n\ndef rendered_headers(original: CaseInsensitiveHeaders, url_host: str) -> dict[str, str]:\n    headers = dict(original.items())\n    if \"Host\" not in headers:\n        headers[\"Host\"] = url_host\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    original = implementation.CaseInsensitiveHeaders([(\"host\", \"custom.example\")])\n    result = implementation.rendered_headers(original, \"url.example\")\n    host_values = [value for key, value in result.items() if key.casefold() == \"host\"]\n    assert host_values == [\"custom.example\"]\n",
+      "responses": [
+        {
+          "corrective_action": "In `buggy_impl.py`, modify `rendered_headers` to check for host presence using `if \"Host\" not in original:` instead of `if \"Host\" not in headers:`, thereby leveraging `CaseInsensitiveHeaders.__contains__` before populating the default host.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "artifact://case/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-4d1c36236bc9",
+          "root_cause": "In `rendered_headers`, the `original` case-insensitive header container is converted to a standard `dict` (`headers = dict(original.items())`). The subsequent membership check `if \"Host\" not in headers:` executes against the standard case-sensitive dictionary rather than `original`, failing to detect lowercase `\"host\"` and injecting a duplicate `\"Host\"` header.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Instantiate `CaseInsensitiveHeaders([(\"host\", \"custom.example\")])`.",
+            "Invoke `rendered_headers(original, \"url.example\")`.",
+            "Verify that the resulting dictionary only retains `\"custom.example\"` across all case-folded host keys and does not contain a second `\"Host\"` key mapped to `\"url.example\"` (as tested by `check.verify`)."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In rendered_headers, the presence check `if \"Host\" not in headers:` operates on the standard Python dict `headers` instead of the case-insensitive collection `original`. Consequently, when an existing header is provided with lowercase casing ('host'), the membership test evaluates to True for absence, adding a duplicate 'Host' key from url_host.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against `headers` performs a case-sensitive dict lookup, which fails to recognize lowercase keys like 'host'. Checking `original` leverages CaseInsensitiveHeaders.__contains__, properly detecting existing Host headers regardless of case.\nRegression check: The test verify() creates CaseInsensitiveHeaders with ('host', 'custom.example'), calls rendered_headers with url_host 'url.example', and asserts that only the single custom host value exists. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-bd109fddb822",
+          "root_cause": "Root cause: In rendered_headers, the presence check `if \"Host\" not in headers:` operates on the standard Python dict `headers` instead of the case-insensitive collection `original`. Consequently, when an existing header is provided with lowercase casing ('host'), the membership test evaluates to True for absence, adding a duplicate 'Host' key from url_host.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against `headers` performs a case-sensitive dict lookup, which fails to recognize lowercase keys like 'host'. Checking `original` leverages CaseInsensitiveHeaders.__contains__, properly detecting existing Host headers regardless of case.\nRegression check: The test verify() creates CaseInsensitiveHeaders with ('host', 'custom.example'), calls rendered_headers with url_host 'url.example', and asserts that only the single custom host value exists. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-4d1c36236bc9": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-bd109fddb822": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-8dfb2c751632",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nA persisted-session update crashes when a request explicitly unsets one header while another byte-valued header is valid. Diagnose the operation applied to the unset sentinel and give a bounded correction and test.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 5, in verify\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n  File \"<case-artifacts>/buggy_impl.py\", line 7, in update_headers\n    value = value.decode(\"utf8\")\n            ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'decode'\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Explicitly unset session header crashes update\n\nWhen a request uses a persisted session and explicitly unsets one header, the\nsession-update path raises an exception before saving the remaining headers.\nDetermine how the unset value reaches the failing operation and propose a\ncorrection that preserves ordinary byte-valued headers.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 3 at 8c33e5e3.\"\"\"\n\n\ndef update_headers(request_headers: dict[str, bytes | None]) -> dict[str, str]:\n    headers: dict[str, str] = {}\n    for name, value in request_headers.items():\n        value = value.decode(\"utf8\")\n        if name == \"User-Agent\" and value.startswith(\"HTTPie/\"):\n            continue\n        headers[name] = value\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    result = implementation.update_headers({\"Authorization\": None, \"X-Request-ID\": b\"request-7\"})\n    assert result == {\"X-Request-ID\": \"request-7\"}\n",
+      "responses": [
+        {
+          "corrective_action": "In `update_headers` within `<case-artifacts>/buggy_impl.py`, skip header entries where `value is None` before attempting to decode `value` as UTF-8 (or check `if value is None: continue`).",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-bc0ca5f7677a",
+          "root_cause": "The function `update_headers` assumes all values in `request_headers` are `bytes` and unconditionally calls `value.decode(\"utf8\")`. When an explicitly unset header has a value of `None`, calling `.decode(\"utf8\")` raises an `AttributeError: 'NoneType' object has no attribute 'decode'`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `verify(implementation)` from `<case-artifacts>/check.py` with an input dictionary containing an unset header sentinel `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}`.",
+            "Observe that it raises `AttributeError: 'NoneType' object has no attribute 'decode'` before the correction.",
+            "Verify that after skipping `None` values, `update_headers` returns `{\"X-Request-ID\": \"request-7\"}` without error."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `update_headers`, `value.decode(\"utf8\")` is called unconditionally on each value in `request_headers`. When a session header is explicitly unset, its value is `None`, resulting in an `AttributeError: 'NoneType' object has no attribute 'decode'`.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for name, value in request_headers.items():\\n        value = value.decode(\"utf8\")' with 'for name, value in request_headers.items():\\n        if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Check whether `value` is `None` before calling `.decode(\"utf8\")` and skip unset headers so that `None` is not decoded and unset headers are omitted from the updated headers mapping.\nRegression check: Calls `verify` in check.py, which passes `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}` to `update_headers` and asserts that the resulting dictionary is `{\"X-Request-ID\": \"request-7\"}`. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-eacfbb658441",
+          "root_cause": "Root cause: In `update_headers`, `value.decode(\"utf8\")` is called unconditionally on each value in `request_headers`. When a session header is explicitly unset, its value is `None`, resulting in an `AttributeError: 'NoneType' object has no attribute 'decode'`.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for name, value in request_headers.items():\\n        value = value.decode(\"utf8\")' with 'for name, value in request_headers.items():\\n        if value is None:\\n            continue\\n        value = value.decode(\"utf8\")'. Check whether `value` is `None` before calling `.decode(\"utf8\")` and skip unset headers so that `None` is not decoded and unset headers are omitted from the updated headers mapping.\nRegression check: Calls `verify` in check.py, which passes `{\"Authorization\": None, \"X-Request-ID\": b\"request-7\"}` to `update_headers` and asserts that the resulting dictionary is `{\"X-Request-ID\": \"request-7\"}`. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-bc0ca5f7677a": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-eacfbb658441": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-a1c5277ce029",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn explicit lowercase host header becomes duplicated by a URL-derived Host during rendering. Explain where case-insensitive membership semantics are lost, how to preserve them, and how to verify the correction.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 8, in verify\n    assert host_values == [\"custom.example\"]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Lowercase Host header is duplicated during rendering\n\nA request carrying an explicit lowercase `host` header is rendered with both\nthat value and a second `Host` value derived from the URL. Diagnose why an\nexisting case-insensitive header becomes invisible to the presence check and\nrecommend a regression check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of HTTPie bug 4 at 8c892edd.\"\"\"\n\n\nclass CaseInsensitiveHeaders:\n    def __init__(self, values: list[tuple[str, str]]) -> None:\n        self._values = values\n\n    def items(self) -> list[tuple[str, str]]:\n        return list(self._values)\n\n    def __contains__(self, name: str) -> bool:\n        return any(key.casefold() == name.casefold() for key, _value in self._values)\n\n\ndef rendered_headers(original: CaseInsensitiveHeaders, url_host: str) -> dict[str, str]:\n    headers = dict(original.items())\n    if \"Host\" not in headers:\n        headers[\"Host\"] = url_host\n    return headers\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    original = implementation.CaseInsensitiveHeaders([(\"host\", \"custom.example\")])\n    result = implementation.rendered_headers(original, \"url.example\")\n    host_values = [value for key, value in result.items() if key.casefold() == \"host\"]\n    assert host_values == [\"custom.example\"]\n",
+      "responses": [
+        {
+          "corrective_action": "In `rendered_headers` in `<case-artifacts>/buggy_impl.py`, check header membership against the case-insensitive container using `if \"Host\" not in original:` instead of `if \"Host\" not in headers:` before inserting `headers[\"Host\"] = url_host`.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-9e3aa10652d9",
+          "root_cause": "`rendered_headers` converts `CaseInsensitiveHeaders` to a standard case-sensitive Python `dict` via `headers = dict(original.items())` and performs `if \"Host\" not in headers:`. Because standard dictionary key lookups are case-sensitive, an existing lowercase `\"host\"` header is not matched by `\"Host\"`, causing `headers[\"Host\"] = url_host` to be inserted and duplicating the host header.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Construct `original = CaseInsensitiveHeaders([(\"host\", \"custom.example\")])`.",
+            "Call `rendered_headers(original, \"url.example\")`.",
+            "Filter the resulting dictionary items for keys matching `\"host\"` case-insensitively.",
+            "Assert that the extracted host values list equals `[\"custom.example\"]`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `rendered_headers`, converting `original` to a standard Python `dict` loses the case-insensitive containment behavior of `CaseInsensitiveHeaders`. As a result, `\"Host\" not in headers` evaluates to `True` when a lowercase `'host'` header is present, causing a duplicate `'Host'` entry to be added.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against the plain `headers` dictionary uses case-sensitive dictionary lookup, ignoring the case-insensitive lookup implemented on `original`. Checking `\"Host\" not in original` leverages `CaseInsensitiveHeaders.__contains__` to correctly detect existing lowercase or mixed-case Host headers.\nRegression check: The test in check.py passes a CaseInsensitiveHeaders instance with a lowercase ('host', 'custom.example') entry to rendered_headers, and asserts that only a single casefolded 'host' header value ('custom.example') is present in the rendered result. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-ad723f7821e8",
+          "root_cause": "Root cause: In `rendered_headers`, converting `original` to a standard Python `dict` loses the case-insensitive containment behavior of `CaseInsensitiveHeaders`. As a result, `\"Host\" not in headers` evaluates to `True` when a lowercase `'host'` header is present, causing a duplicate `'Host'` entry to be added.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if \"Host\" not in headers:' with 'if \"Host\" not in original:'. Checking membership against the plain `headers` dictionary uses case-sensitive dictionary lookup, ignoring the case-insensitive lookup implemented on `original`. Checking `\"Host\" not in original` leverages `CaseInsensitiveHeaders.__contains__` to correctly detect existing lowercase or mixed-case Host headers.\nRegression check: The test in check.py passes a CaseInsensitiveHeaders instance with a lowercase ('host', 'custom.example') entry to rendered_headers, and asserts that only a single casefolded 'host' header value ('custom.example') is present in the rendered result. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-9e3aa10652d9": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-ad723f7821e8": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-a45462ba7a51",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn optional bearer dependency returns no credentials when the header is absent but raises for a non-Bearer scheme. Diagnose the inconsistent control path, state the smallest correction, and define the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 7, in verify\n    assert optional.authenticate(\"Basic abc123\") is None\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 19, in authenticate\n    raise AuthenticationError(\"Invalid authentication credentials\")\nfield_buggy_impl.AuthenticationError: Invalid authentication credentials\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Optional bearer dependency rejects another scheme\n\nAn HTTP bearer dependency configured with `auto_error=False` correctly returns\nno credentials when the header is absent, but still raises 403 when the header\nuses another authentication scheme. Determine the inconsistent control path and\nthe correction required by the optional-dependency contract.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 12 at d61f5e4b.\"\"\"\n\n\nclass AuthenticationError(RuntimeError):\n    pass\n\n\nclass HTTPBearer:\n    def __init__(self, auto_error: bool = True) -> None:\n        self.auto_error = auto_error\n\n    def authenticate(self, authorization: str | None) -> tuple[str, str] | None:\n        if not authorization:\n            if self.auto_error:\n                raise AuthenticationError(\"Not authenticated\")\n            return None\n        scheme, credentials = authorization.split(\" \", 1)\n        if scheme.casefold() != \"bearer\":\n            raise AuthenticationError(\"Invalid authentication credentials\")\n        return scheme, credentials\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    optional = implementation.HTTPBearer(auto_error=False)\n    assert optional.authenticate(None) is None\n    assert optional.authenticate(\"Basic abc123\") is None\n    assert optional.authenticate(\"Bearer token-7\") == (\"Bearer\", \"token-7\")\n",
+      "responses": [
+        {
+          "corrective_action": "In `HTTPBearer.authenticate` within `<case-artifacts>/buggy_impl.py`, check `self.auto_error` when `scheme.casefold() != \"bearer\"`: raise `AuthenticationError(\"Invalid authentication credentials\")` only if `self.auto_error` is `True`, otherwise return `None`.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-b5753a8103eb",
+          "root_cause": "In `HTTPBearer.authenticate`, when the authorization scheme is not 'bearer', `AuthenticationError` is raised unconditionally regardless of whether `self.auto_error` is `False`.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Execute `verify(implementation)` from `<case-artifacts>/check.py`.",
+            "Verify that `HTTPBearer(auto_error=False).authenticate(\"Basic abc123\")` returns `None` instead of raising `AuthenticationError`.",
+            "Verify that `HTTPBearer(auto_error=False).authenticate(None)` returns `None` and `HTTPBearer(auto_error=False).authenticate(\"Bearer token-7\")` returns `(\"Bearer\", \"token-7\")`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In HTTPBearer.authenticate within buggy_impl.py, when authorization contains a scheme other than 'bearer', an AuthenticationError is unconditionally raised regardless of whether self.auto_error is set to False.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False and the authorization header provides a scheme other than Bearer, the method should return None rather than raising an AuthenticationError, preserving the optional dependency contract.\nRegression check: check.py verifies that HTTPBearer(auto_error=False).authenticate('Basic abc123') returns None instead of raising AuthenticationError. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-d49610c894ab",
+          "root_cause": "Root cause: In HTTPBearer.authenticate within buggy_impl.py, when authorization contains a scheme other than 'bearer', an AuthenticationError is unconditionally raised regardless of whether self.auto_error is set to False.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False and the authorization header provides a scheme other than Bearer, the method should return None rather than raising an AuthenticationError, preserving the optional dependency contract.\nRegression check: check.py verifies that HTTPBearer(auto_error=False).authenticate('Basic abc123') returns None instead of raising AuthenticationError. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-b5753a8103eb": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-d49610c894ab": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-b1950b18e794",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nIncluding a child router copies its HTTP route but silently omits its websocket route. Diagnose the incomplete type dispatch, give the bounded correction, and define a test that protects both route kinds.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 15, in verify\n    assert routes == {\n           ^^^^^^^^^^^\n    ...<2 lines>...\n    }\n    ^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Included router silently drops websocket route\n\nIncluding a child router under a prefix copies its HTTP routes, but its websocket\nroute is absent from the parent. Identify the missing dispatch behavior and\npropose a correction that preserves the prefix and route name.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 15 at b16ca54c.\"\"\"\n\nfrom __future__ import annotations\n\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass APIRoute:\n    path: str\n    name: str\n\n\n@dataclass\nclass WebSocketRoute:\n    path: str\n    name: str\n\n\nclass APIRouter:\n    def __init__(self) -> None:\n        self.routes: list[APIRoute | WebSocketRoute] = []\n\n    def include_router(self, child: APIRouter, prefix: str) -> None:\n        for route in child.routes:\n            if isinstance(route, APIRoute):\n                self.routes.append(APIRoute(prefix + route.path, route.name))\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    child = implementation.APIRouter()\n    child.routes.extend(\n        [\n            implementation.APIRoute(\"/items\", \"items\"),\n            implementation.WebSocketRoute(\"/events\", \"events\"),\n        ]\n    )\n    parent = implementation.APIRouter()\n    parent.include_router(child, \"/v1\")\n    routes = {(type(route).__name__, route.path, route.name) for route in parent.routes}\n    assert routes == {\n        (\"APIRoute\", \"/v1/items\", \"items\"),\n        (\"WebSocketRoute\", \"/v1/events\", \"events\"),\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "In `APIRouter.include_router` within `<case-artifacts>/buggy_impl.py`, add handling for `WebSocketRoute` instances by checking `elif isinstance(route, WebSocketRoute):` and appending `WebSocketRoute(prefix + route.path, route.name)` to `self.routes`.",
+          "evidence_references": [
+            "<case-artifacts>/issue.md",
+            "<case-artifacts>/buggy_impl.py",
+            "<case-artifacts>/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-09be0d1c6c9e",
+          "root_cause": "In `APIRouter.include_router`, route iteration strictly checks `if isinstance(route, APIRoute):`, which silently drops any `WebSocketRoute` instances present in `child.routes` instead of copying them under the specified prefix.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Construct an `APIRouter` instance `child` and append an `APIRoute(\"/items\", \"items\")` and a `WebSocketRoute(\"/events\", \"events\")` to `child.routes`.",
+            "Create a parent `APIRouter` instance `parent` and invoke `parent.include_router(child, \"/v1\")`.",
+            "Assert that `{(type(route).__name__, route.path, route.name) for route in parent.routes}` equals `{('APIRoute', '/v1/items', 'items'), ('WebSocketRoute', '/v1/events', 'events')}` as defined in `<case-artifacts>/check.py`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: APIRouter.include_router iterates through child.routes but only checks for APIRoute instances, silently ignoring WebSocketRoute instances and failing to include them on the parent router.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for route in child.routes:\\n            if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'for route in child.routes:\\n            if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Add an explicit branch in APIRouter.include_router for WebSocketRoute instances so that child websocket routes are copied to the parent router with the specified prefix and route name preserved.\nRegression check: check.verify instantiates child routes with both APIRoute and WebSocketRoute, calls include_router with prefix '/v1', and asserts that parent.routes contains both prefixed routes with matching names. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-1d3ab0de8008",
+          "root_cause": "Root cause: APIRouter.include_router iterates through child.routes but only checks for APIRoute instances, silently ignoring WebSocketRoute instances and failing to include them on the parent router.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'for route in child.routes:\\n            if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))' with 'for route in child.routes:\\n            if isinstance(route, APIRoute):\\n                self.routes.append(APIRoute(prefix + route.path, route.name))\\n            elif isinstance(route, WebSocketRoute):\\n                self.routes.append(WebSocketRoute(prefix + route.path, route.name))'. Add an explicit branch in APIRouter.include_router for WebSocketRoute instances so that child websocket routes are copied to the parent router with the specified prefix and route name preserved.\nRegression check: check.verify instantiates child routes with both APIRoute and WebSocketRoute, calls include_router with prefix '/v1', and asserts that parent.routes contains both prefixed routes with matching names. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-09be0d1c6c9e": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-1d3ab0de8008": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-c97eef832733",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nAn optional bearer dependency returns no credentials when the header is absent but raises for a non-Bearer scheme. Diagnose the inconsistent control path, state the smallest correction, and define the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 7, in verify\n    assert optional.authenticate(\"Basic abc123\") is None\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/buggy_impl.py\", line 19, in authenticate\n    raise AuthenticationError(\"Invalid authentication credentials\")\nfield_buggy_impl.AuthenticationError: Invalid authentication credentials\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Optional bearer dependency rejects another scheme\n\nAn HTTP bearer dependency configured with `auto_error=False` correctly returns\nno credentials when the header is absent, but still raises 403 when the header\nuses another authentication scheme. Determine the inconsistent control path and\nthe correction required by the optional-dependency contract.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 12 at d61f5e4b.\"\"\"\n\n\nclass AuthenticationError(RuntimeError):\n    pass\n\n\nclass HTTPBearer:\n    def __init__(self, auto_error: bool = True) -> None:\n        self.auto_error = auto_error\n\n    def authenticate(self, authorization: str | None) -> tuple[str, str] | None:\n        if not authorization:\n            if self.auto_error:\n                raise AuthenticationError(\"Not authenticated\")\n            return None\n        scheme, credentials = authorization.split(\" \", 1)\n        if scheme.casefold() != \"bearer\":\n            raise AuthenticationError(\"Invalid authentication credentials\")\n        return scheme, credentials\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    optional = implementation.HTTPBearer(auto_error=False)\n    assert optional.authenticate(None) is None\n    assert optional.authenticate(\"Basic abc123\") is None\n    assert optional.authenticate(\"Bearer token-7\") == (\"Bearer\", \"token-7\")\n",
+      "responses": [
+        {
+          "corrective_action": "Root cause: In HTTPBearer.authenticate within buggy_impl.py, when an authorization header contains a scheme other than 'bearer', AuthenticationError is raised unconditionally regardless of whether self.auto_error is True or False.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False, non-Bearer schemes should not raise an AuthenticationError but instead return None, matching the optional dependency contract.\nRegression check: verify() creates an HTTPBearer instance with auto_error=False and asserts authenticate(None) is None, authenticate('Basic abc123') is None, and authenticate('Bearer token-7') returns ('Bearer', 'token-7'). (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-0e36dbff22a6",
+          "root_cause": "Root cause: In HTTPBearer.authenticate within buggy_impl.py, when an authorization header contains a scheme other than 'bearer', AuthenticationError is raised unconditionally regardless of whether self.auto_error is True or False.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'if scheme.casefold() != \"bearer\":\\n            raise AuthenticationError(\"Invalid authentication credentials\")' with 'if scheme.casefold() != \"bearer\":\\n            if self.auto_error:\\n                raise AuthenticationError(\"Invalid authentication credentials\")\\n            return None'. When auto_error is False, non-Bearer schemes should not raise an AuthenticationError but instead return None, matching the optional dependency contract.\nRegression check: verify() creates an HTTPBearer instance with auto_error=False and asserts authenticate(None) is None, authenticate('Basic abc123') is None, and authenticate('Bearer token-7') returns ('Bearer', 'token-7'). (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        },
+        {
+          "corrective_action": "Modify `HTTPBearer.authenticate` in `<case-artifacts>/buggy_impl.py` so that when `scheme.casefold() != \"bearer\"`, it checks `if self.auto_error:` before raising `AuthenticationError(\"Invalid authentication credentials\")` and returns `None` if `self.auto_error` is `False`.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-5cbfc3b27c9b",
+          "root_cause": "In `HTTPBearer.authenticate` (`buggy_impl.py`), when the authorization scheme is not `bearer`, `AuthenticationError` is raised unconditionally without checking `self.auto_error`. When `auto_error=False`, non-Bearer schemes should return `None` rather than raising an error.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Call `verify(implementation)` from `<case-artifacts>/check.py` against `HTTPBearer` configured with `auto_error=False`.",
+            "Verify that `optional.authenticate(\"Basic abc123\")` evaluates to `None` instead of raising `AuthenticationError(\"Invalid authentication credentials\")`.",
+            "Verify that `optional.authenticate(None)` evaluates to `None` and `optional.authenticate(\"Bearer token-7\")` returns `(\"Bearer\", \"token-7\")`."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-0e36dbff22a6": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-5cbfc3b27c9b": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    },
+    {
+      "pair_id": "case-e0ff9720cbd9",
+      "preference_confidence_1_to_5": null,
+      "preferred_response_id": null,
+      "problem_and_visible_evidence": "FIELD PROBLEM\nSkip-default response serialization still emits a field whose value equals the model default. Diagnose when default metadata is discarded, propose the smallest correction, and specify both sides of the regression check.\n\nBUGGY REPRODUCTION OBSERVATION\nexit_code=1\n\nTraceback (most recent call last):\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 39, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"<workspace>/evals/chapter_13k/run_reproduction.py\", line 33, in main\n    check.verify(implementation)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"<case-artifacts>/check.py\", line 6, in verify\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n\nVISIBLE ARTIFACT: issue.md (issue)\n# Response-model defaults survive skip-default serialization\n\nA route configured to skip response-model defaults still emits a field whose\nvalue is the model default when the handler returns a model instance. Diagnose\nwhere model semantics are lost and state the smallest correction and check.\n\n\nVISIBLE ARTIFACT: buggy_impl.py (buggy_source)\n\"\"\"Reduced reproduction of FastAPI bug 10 at b77a43bc.\"\"\"\n\n\nclass ResponseModel:\n    def __init__(self, name: str, note: str | None = None) -> None:\n        self.name = name\n        self.note = note\n\n    def dict(self, *, skip_defaults: bool = False) -> dict[str, str | None]:\n        result: dict[str, str | None] = {\"name\": self.name, \"note\": self.note}\n        if skip_defaults and self.note is None:\n            result.pop(\"note\")\n        return result\n\n\ndef serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\n    value = {\"name\": response.name, \"note\": response.note}\n    return dict(value)\n\n\nVISIBLE ARTIFACT: check.py (test)\nfrom types import ModuleType\n\n\ndef verify(implementation: ModuleType) -> None:\n    response = implementation.ResponseModel(name=\"Ada\")\n    assert implementation.serialize_response(response, skip_defaults=True) == {\"name\": \"Ada\"}\n    assert implementation.serialize_response(response, skip_defaults=False) == {\n        \"name\": \"Ada\",\n        \"note\": None,\n    }\n",
+      "responses": [
+        {
+          "corrective_action": "Modify `serialize_response` in `<case-artifacts>/buggy_impl.py` to delegate to `response.dict(skip_defaults=skip_defaults)` instead of manually constructing a dictionary from response attributes.",
+          "evidence_references": [
+            "artifact://case/issue.md",
+            "artifact://case/buggy_impl.py",
+            "artifact://case/check.py"
+          ],
+          "execution_attestations": [],
+          "implicated_artifacts": [
+            "<case-artifacts>/buggy_impl.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-566fe45b5813",
+          "root_cause": "In `buggy_impl.py`, `serialize_response` ignores the `skip_defaults` argument and constructs a dictionary directly from the instance attributes (`{\"name\": response.name, \"note\": response.note}`), bypassing `ResponseModel.dict(skip_defaults=skip_defaults)` which handles dropping default fields.",
+          "status": "diagnosed",
+          "verification_steps": [
+            "Before correction: Running `verify(buggy_impl)` evaluates `serialize_response(ResponseModel(name=\"Ada\"), skip_defaults=True)`, which returns `{\"name\": \"Ada\", \"note\": None}` and fails the assertion expecting `{\"name\": \"Ada\"}`.",
+            "After correction: `serialize_response(ResponseModel(name=\"Ada\"), skip_defaults=True)` invokes `response.dict(skip_defaults=True)` and returns `{\"name\": \"Ada\"}`, while `serialize_response(ResponseModel(name=\"Ada\"), skip_defaults=False)` returns `{\"name\": \"Ada\", \"note\": None}`, passing `check.verify`."
+          ]
+        },
+        {
+          "corrective_action": "Root cause: In `serialize_response`, the function manually constructs a dictionary from response attributes rather than invoking `response.dict(skip_defaults=skip_defaults)`, thereby bypassing the skip-defaults logic implemented on the model instance and returning default fields unconditionally.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    return response.dict(skip_defaults=skip_defaults)'. Delegating to `response.dict(skip_defaults=skip_defaults)` preserves model serialization semantics and properly excludes unset or default fields when `skip_defaults=True`.\nRegression check: Runs `verify(implementation)` to ensure `serialize_response(response, skip_defaults=True)` returns `{\"name\": \"Ada\"}` while `serialize_response(response, skip_defaults=False)` retains `{\"name\": \"Ada\", \"note\": None}`. (artifact://case/check.py).",
+          "evidence_references": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "execution_attestations": [
+            "The isolated patched source passed the admitted regression check."
+          ],
+          "implicated_artifacts": [
+            "issue.md",
+            "buggy_impl.py",
+            "check.py"
+          ],
+          "remaining_uncertainty": [],
+          "response_id": "response-969bec7f8aa1",
+          "root_cause": "Root cause: In `serialize_response`, the function manually constructs a dictionary from response attributes rather than invoking `response.dict(skip_defaults=skip_defaults)`, thereby bypassing the skip-defaults logic implemented on the model instance and returning default fields unconditionally.\nImplicated source: artifact://case/buggy_impl.py\nCorrection: replace 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    value = {\"name\": response.name, \"note\": response.note}\\n    return dict(value)' with 'def serialize_response(response: ResponseModel, *, skip_defaults: bool) -> dict[str, str | None]:\\n    return response.dict(skip_defaults=skip_defaults)'. Delegating to `response.dict(skip_defaults=skip_defaults)` preserves model serialization semantics and properly excludes unset or default fields when `skip_defaults=True`.\nRegression check: Runs `verify(implementation)` to ensure `serialize_response(response, skip_defaults=True)` returns `{\"name\": \"Ada\"}` while `serialize_response(response, skip_defaults=False)` retains `{\"name\": \"Ada\", \"note\": None}`. (artifact://case/check.py).",
+          "status": "diagnosed",
+          "verification_steps": [
+            "criterion-1-structured: Compared the structured value for exact equality.",
+            "criterion-2-structured: Compared the structured value for exact equality.",
+            "criterion-3-structured: Compared the structured value for exact equality.",
+            "criterion-4-structured: Compared the structured value for exact equality."
+          ]
+        }
+      ],
+      "review_form": {
+        "response-566fe45b5813": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        },
+        "response-969bec7f8aa1": {
+          "correction_quality_1_to_5": null,
+          "diagnosis_correctness_1_to_5": null,
+          "evidence_grounding_1_to_5": null,
+          "notes": "",
+          "practical_usefulness_1_to_5": null,
+          "regression_check_quality_1_to_5": null,
+          "uncertainty_discipline_1_to_5": null,
+          "unsupported_or_fabricated_claim": null
+        }
+      }
+    }
+  ],
+  "review_type": "blinded_field_derived_technical_investigation",
+  "run_id": "155648-16a8dce2"
+}

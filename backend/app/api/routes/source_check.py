@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import difflib
 import shutil
-import subprocess
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -15,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_db_session
 from app.config import Settings
 from app.db.models import Artifact, PlanTask, ProblemSession, ReasoningEvent
+from app.execution.sandbox import image_available
 from app.models.contracts import ContractModel
 from app.models.sessions import SessionResponse
 from app.sessions.source_check import (
@@ -23,6 +23,7 @@ from app.sessions.source_check import (
     input_metadata,
     validated_input,
 )
+from app.sessions.write_admission import WriteAdmissionPolicy
 
 router = APIRouter(tags=["source-check"])
 DB = Depends(get_db_session)
@@ -52,16 +53,7 @@ def availability(settings: Settings) -> SourceCheckAvailability:
             available=False,
             reason="The local backend cannot find Docker. The general Compose API intentionally has no Docker socket access.",
         )
-    try:
-        result = subprocess.run(
-            ["docker", "image", "inspect", settings.code_execution_image],
-            capture_output=True,
-            timeout=3,
-            check=False,
-        )
-    except OSError, subprocess.TimeoutExpired:
-        result = None
-    if result is None or result.returncode != 0:
+    if not image_available(settings.code_execution_image, timeout_seconds=3):
         return SourceCheckAvailability(
             available=False,
             reason="Start Docker and pull the configured pinned sandbox image before running source checks.",
@@ -84,7 +76,9 @@ def create_source_check(
     gate = availability(request.app.state.settings)
     if not gate.available:
         raise HTTPException(status_code=409, detail=gate.reason)
+    admitted_at = WriteAdmissionPolicy(db, request.app.state.settings).acquire("session")
     session = ProblemSession(
+        created_at=admitted_at,
         user_id=db.info.get("owner_id"),
         raw_input=payload.raw_input,
         mode="investigate",

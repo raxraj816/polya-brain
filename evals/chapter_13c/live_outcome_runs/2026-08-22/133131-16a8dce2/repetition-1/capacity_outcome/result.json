@@ -1,0 +1,109 @@
+{
+  "case_id": "capacity_outcome",
+  "category": "planning",
+  "direct": {
+    "actions": [
+      "simulate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Verified Plan A capacity (120) against peak demand threshold (145)",
+      "Verified Plan B capacity (160) against peak demand threshold (145)",
+      "Evaluated cost of passing plans"
+    ],
+    "conclusion": "Plan B is the lowest-cost plan that satisfies the peak-demand constraint, having a capacity of 160 (exceeding the required threshold of 145) at a cost of 100, whereas Plan A fails with a capacity of 120.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/capacity_outcome/simulator"
+    ],
+    "latency_ms": 4415.860375156626,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "simulate",
+        "call_index": 1,
+        "capability": "simulator",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/capacity_outcome/simulator",
+          "status": "succeeded",
+          "summary": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+        },
+        "target": "Plan A and Plan B peak demand capacity"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1912,
+      "model_calls": 2,
+      "output_tokens": 438,
+      "total_tokens": 2350
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "direct",
+    "polya"
+  ],
+  "model": "google/gemini-3.7-flash",
+  "polya": {
+    "actions": [
+      "simulate",
+      "hypothesize",
+      "verify",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Check demand threshold criterion: Verify Plan B capacity (160) >= 145 and Plan A capacity (120) < 145.",
+      "Check lowest-cost criterion: Verify Plan B (cost 100) is the lowest cost plan among all plans meeting demand >= 145.",
+      "Check evidence consistency: Confirm agreement across state evidence and task execution outputs."
+    ],
+    "conclusion": "Plan B is the least costly capacity plan that survives a peak demand of 145 units (capacity 160, cost 100).",
+    "cycles": 4,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/capacity_outcome/simulator"
+    ],
+    "latency_ms": 9438.577833818272,
+    "observation_trace": [
+      {
+        "capability": "simulator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "At peak demand 145, Plan A capacity 120 fails and Plan B capacity 160 passes. Plan B is the least costly passing plan."
+      },
+      {
+        "capability": "deliberator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Constructed 1 candidate(s) and 1 completed analytic check(s) in one bounded pass."
+      },
+      {
+        "capability": "conclusion_checker",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Conclusion check passed all declared criteria."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 3755,
+      "model_calls": 2,
+      "output_tokens": 2187,
+      "total_tokens": 5942
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

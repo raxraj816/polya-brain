@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  BodyLimitError,
+  deadline,
+  readBody,
+} from "../../../../lib/proxy-transfer";
 export const dynamic = "force-dynamic";
 export const maxDuration = 360;
 const allowed =
@@ -46,42 +51,51 @@ async function proxy(
         { status: 415 },
       );
   }
+  const transfer = deadline(
+    /\/(run|respond|events\/stream)$/.test(route) ? 330_000 : 30_000,
+    request.signal,
+  );
+  let streaming = false;
   try {
+    transfer.signal.throwIfAborted();
     if (publicOrigin) {
-      const status = await fetch(
-        new URL("api/v1/auth/session", base.replace(/\/$/, "") + "/"),
-        { cache: "no-store", redirect: "error" },
-      );
-      if (!status.ok || (await status.json()).required !== true)
-        return NextResponse.json(
-          {
-            detail:
-              "Public workbench requires authenticated backend configuration.",
-          },
-          { status: 503 },
+      const auth = deadline(10_000, transfer.signal);
+      try {
+        const status = await fetch(
+          new URL("api/v1/auth/session", base.replace(/\/$/, "") + "/"),
+          { cache: "no-store", redirect: "error", signal: auth.signal },
         );
-    }
-    const parts: Uint8Array[] = [];
-    let bytes = 0;
-    if (request.method !== "GET" && request.body) {
-      const reader = request.body.getReader();
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        bytes += value.byteLength;
-        if (bytes > 120000) {
-          await reader.cancel();
-          break;
-        }
-        parts.push(value);
+        const payload = await readBody(status.body, auth.signal, 120_000);
+        if (!status.ok || JSON.parse(payload.toString()).required !== true)
+          return NextResponse.json(
+            {
+              detail:
+                "Public workbench requires authenticated backend configuration.",
+            },
+            { status: 503 },
+          );
+      } finally {
+        auth.abort();
+        auth.dispose();
       }
     }
-    const body = request.method === "GET" ? undefined : Buffer.concat(parts);
-    if (bytes > 120000)
-      return NextResponse.json(
-        { detail: "Request exceeds the local input limit." },
-        { status: 413 },
-      );
+    let body: Buffer<ArrayBuffer> | undefined;
+    if (request.method !== "GET") {
+      const upload = deadline(10_000, transfer.signal);
+      try {
+        body = await readBody(request.body, upload.signal, 120_000);
+      } catch (error) {
+        if (error instanceof BodyLimitError)
+          return NextResponse.json(
+            { detail: "Request exceeds the local input limit." },
+            { status: 413 },
+          );
+        throw error;
+      } finally {
+        upload.dispose();
+      }
+    }
+    transfer.signal.throwIfAborted();
     const response = await fetch(url, {
       method: request.method,
       headers: {
@@ -99,6 +113,7 @@ async function proxy(
       body,
       cache: "no-store",
       redirect: "manual",
+      signal: transfer.signal,
     });
     const headers = new Headers({
       "Content-Type":
@@ -117,15 +132,58 @@ async function proxy(
         throw new Error("Unexpected redirect");
       headers.set("Location", location);
     }
-    return new Response(response.body, { status: response.status, headers });
-  } catch {
+    if (route.endsWith("/events/stream") && response.body && response.ok) {
+      let output: TransformStreamDefaultController<Uint8Array>;
+      const channel = new TransformStream<Uint8Array, Uint8Array>({
+        start(controller) {
+          output = controller;
+        },
+      });
+      // Unblock a pending write even if the downstream has stopped reading.
+      const stop = () => output.error(transfer.signal.reason);
+      transfer.signal.addEventListener("abort", stop, { once: true });
+      if (transfer.signal.aborted) stop();
+      void response.body
+        .pipeTo(channel.writable, { signal: transfer.signal })
+        .catch(() => {})
+        .finally(() => {
+          transfer.signal.removeEventListener("abort", stop);
+          transfer.abort();
+          transfer.dispose();
+        });
+      streaming = true;
+      return new Response(channel.readable, {
+        status: response.status,
+        headers,
+      });
+    }
+    const payload = await readBody(
+      response.body,
+      transfer.signal,
+      16 * 1024 * 1024,
+    );
+    return new Response(
+      [204, 205, 304].includes(response.status) ? null : payload,
+      {
+        status: response.status,
+        headers,
+      },
+    );
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === "TimeoutError";
     return NextResponse.json(
       {
-        detail:
-          "The investigation service is unavailable. Check the backend connection, then refresh the session before retrying an action.",
+        detail: timedOut
+          ? "The investigation service took too long to respond. Work may still be running or saved. Refresh the session or history before retrying an action."
+          : "The investigation service response could not be confirmed. Work may still be running or saved. Refresh the session or history before retrying an action.",
       },
-      { status: 502 },
+      { status: request.signal.aborted ? 499 : timedOut ? 504 : 502 },
     );
+  } finally {
+    if (!streaming) {
+      transfer.abort();
+      transfer.dispose();
+    }
   }
 }
 export const GET = proxy;

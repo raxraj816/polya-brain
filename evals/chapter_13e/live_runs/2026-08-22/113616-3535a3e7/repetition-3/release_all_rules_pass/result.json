@@ -1,0 +1,107 @@
+{
+  "case_id": "release_all_rules_pass",
+  "condition_order": [
+    "ordinary_retrieval",
+    "polya",
+    "direct_model",
+    "full_context"
+  ],
+  "direct_model": {
+    "accepted": true,
+    "checks_performed": [
+      "Checked tests array: [true, true, true] all true, satisfying criterion 0.",
+      "Checked risk value 0.14 <= 0.2, satisfying criterion 1.",
+      "Checked approved flag true, satisfying criterion 2."
+    ],
+    "citations_valid": true,
+    "context_documents": 1,
+    "criterion_coverage": 1.0,
+    "expected_accept": true,
+    "failed_criterion_indices": [],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1048,
+    "latency_ms": 4993.133,
+    "model_calls": 1,
+    "output_tokens": 305,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_all_rules_pass:direct_observation"
+    ],
+    "total_tokens": 1353
+  },
+  "family": "multi_rule",
+  "full_context": {
+    "accepted": true,
+    "checks_performed": [
+      "Checked that all required tests pass using source release_all_rules_pass:observation:tests, which reports tests: [true, true, true].",
+      "Checked that the measured risk score is at most 0.2 using source release_all_rules_pass:observation:risk, which reports risk: 0.14.",
+      "Checked that the independent release decision is approved using source release_all_rules_pass:observation:approved, which reports approved: true."
+    ],
+    "citations_valid": true,
+    "context_documents": 5,
+    "criterion_coverage": 1.0,
+    "expected_accept": true,
+    "failed_criterion_indices": [],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1156,
+    "latency_ms": 17679.696,
+    "model_calls": 1,
+    "output_tokens": 413,
+    "parse_error": null,
+    "passed": true,
+    "source_ids": [
+      "release_all_rules_pass:observation:tests",
+      "release_all_rules_pass:observation:risk",
+      "release_all_rules_pass:observation:approved"
+    ],
+    "total_tokens": 1569
+  },
+  "ordinary_retrieval": {
+    "accepted": true,
+    "checks_performed": [
+      "Check required tests: execution output tests array is [true, true, true], so all required tests pass.",
+      "Check risk score: measured risk is 0.14, which is at most 0.2.",
+      "Check independent release decision: approved is true."
+    ],
+    "citations_valid": false,
+    "context_documents": 2,
+    "criterion_coverage": 1.0,
+    "expected_accept": true,
+    "failed_criterion_indices": [],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 1073,
+    "latency_ms": 54611.519,
+    "model_calls": 1,
+    "output_tokens": 677,
+    "parse_error": null,
+    "passed": false,
+    "source_ids": [],
+    "total_tokens": 1750
+  },
+  "polya": {
+    "accepted": true,
+    "checks_performed": [
+      "criterion-1-structured: Checked that every non-empty list element is exactly true.",
+      "criterion-2-structured: Checked the numeric upper bound.",
+      "criterion-3-structured: Compared the structured value for exact equality."
+    ],
+    "criterion_coverage": 1.0,
+    "expected_accept": true,
+    "failed_checks": [],
+    "false_pass": false,
+    "false_reject": false,
+    "input_tokens": 0,
+    "latency_ms": 5.206,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "passed": true,
+    "status": "completed",
+    "total_tokens": 0,
+    "verified_terminal": true
+  },
+  "repetition": 3
+}

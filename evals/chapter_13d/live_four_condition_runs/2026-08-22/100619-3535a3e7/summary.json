@@ -1,0 +1,1982 @@
+{
+  "benchmark": "chapter_13d_live_four_condition",
+  "case_count": 6,
+  "fairness": {
+    "direct_condition_is_intentionally_closed_book": true,
+    "fictional_nonconfidential_corpus": true,
+    "rotated_condition_order": true,
+    "same_corpus_for_full_retrieval_and_polya": true,
+    "same_model_for_model_conditions": true,
+    "same_questions_and_expected_terms": true
+  },
+  "gate": {
+    "general_intelligence_win_claimed": false,
+    "metrics": {
+      "completed_case_repetitions": 18,
+      "direct_passed": 0,
+      "expected_case_repetitions": 18,
+      "full_context_passed": 17,
+      "ordinary_retrieval_passed": 16,
+      "polya_passed": 18,
+      "polya_total_tokens": 0
+    },
+    "narrow_exact_lookup_gate_passed": true,
+    "requirements": {
+      "all_pairs_completed": true,
+      "all_polya_outcomes_verified": true,
+      "minimum_three_repetitions": true,
+      "polya_quality_not_below_full_context": true,
+      "polya_quality_not_below_retrieval": true,
+      "zero_polya_model_tokens": true,
+      "zero_polya_unsupported_conclusions": true
+    }
+  },
+  "limitations": [
+    "The narrow gate covers exact unfamiliar-corpus lookups, not general intelligence.",
+    "Polya uses a deterministic procedure whose strict task/evidence preconditions are tested.",
+    "Broader investigation tasks still require separate repeated outcome benchmarks."
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "repetitions": 3,
+  "results": [
+    {
+      "case_id": "zephyra_first",
+      "condition_order": [
+        "direct",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked provided SOURCES list: empty",
+          "Confirmed no authoritative manual or revision-7 timeout data present"
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 626,
+        "latency_ms": 4290.397,
+        "model_calls": 1,
+        "output_tokens": 106,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 732,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source zephyra_first (Zephyra Transport Protocol \u2014 Revision 7)",
+          "Read rule Z7.4 in zephyra_first: request_timeout_ticks = 37",
+          "Confirmed no other source specifies a Zephyra revision 7 timeout"
+        ],
+        "conclusion": "Zephyra revision 7 requires request_timeout_ticks = 37.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1049,
+        "latency_ms": 9999.503,
+        "model_calls": 1,
+        "output_tokens": 107,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1156,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "The source text explicitly states 'request_timeout_ticks = 37' for Zephyra Transport Protocol Revision 7."
+        ],
+        "conclusion": "37 ticks",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 596,
+        "latency_ms": 20840.535,
+        "model_calls": 1,
+        "output_tokens": 180,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": false,
+        "total_tokens": 776,
+        "unsupported_forced_conclusion": true
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z7.4: request_timeout_ticks = 37.",
+        "input_tokens": 0,
+        "latency_ms": 4.75,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "zephyra_transfer",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked supplied SOURCES: empty source list; no authoritative manual content available."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 653,
+        "latency_ms": 5365.008,
+        "model_calls": 1,
+        "output_tokens": 92,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 745,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source zephyra_transfer (Zephyra Transport Protocol \u2014 Revision 8).",
+          "Read Rule Z8.2 in that source, which states retry_ceiling = 11.",
+          "Confirmed no other source in SOURCES contradicts or supersedes this value for revision 8."
+        ],
+        "conclusion": "Zephyra revision 8 requires a retry ceiling of 11.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1053,
+        "latency_ms": 18571.011,
+        "model_calls": 1,
+        "output_tokens": 110,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1163,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Verified Rule Z8.2 in the supplied Zephyra Transport Protocol source text."
+        ],
+        "conclusion": "Zephyra revision 8 requires a retry ceiling of 11.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 600,
+        "latency_ms": 3334.252,
+        "model_calls": 1,
+        "output_tokens": 153,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 753,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z8.2: retry_ceiling = 11.",
+        "input_tokens": 0,
+        "latency_ms": 2.566,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "orinox_first",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct",
+        "full_context"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked sources array: empty",
+          "Checked current_state.evidence: empty",
+          "Checked current_state.execution_outputs: empty"
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 544,
+        "latency_ms": 7313.358,
+        "model_calls": 1,
+        "output_tokens": 194,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 738,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "diagnostic_code_resolution",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Searched provided sources for 'Orinox code Q-17' and found the Orinox Service Manual entry for Diagnostic Q-17."
+        ],
+        "conclusion": "Reseat the blue phase coupler before restart.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1023,
+        "latency_ms": 23427.178,
+        "model_calls": 1,
+        "output_tokens": 236,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1259,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located Orinox Service Manual Diagnostic Q-17 text in source 'orinox_first'.",
+          "Extracted the required corrective action stated for Q-17."
+        ],
+        "conclusion": "Reseat the blue phase coupler before restart.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 694,
+        "latency_ms": 1523.718,
+        "model_calls": 1,
+        "output_tokens": 128,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 822,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Required corrective action for Q-17: reseat the blue phase coupler before restart.",
+        "input_tokens": 0,
+        "latency_ms": 2.217,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "orinox_transfer",
+      "condition_order": [
+        "polya",
+        "direct",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 937,
+        "latency_ms": 92758.705,
+        "model_calls": 2,
+        "output_tokens": 1631,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 2568,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "diagnostic_code_resolution",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Searched source texts for Orinox code M-42; found in 'orinox_transfer'."
+        ],
+        "conclusion": "Purge the amber coolant loop for 9 seconds.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1023,
+        "latency_ms": 37101.009,
+        "model_calls": 1,
+        "output_tokens": 298,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1321,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Searched the supplied Orinox Service Manual source for code M-42 and its required corrective action."
+        ],
+        "conclusion": "Purge the amber coolant loop for 9 seconds.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 672,
+        "latency_ms": 5270.824,
+        "model_calls": 1,
+        "output_tokens": 123,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 795,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Required corrective action for M-42: purge the amber coolant loop for 9 seconds.",
+        "input_tokens": 0,
+        "latency_ms": 2.815,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "lumera_first",
+      "condition_order": [
+        "direct",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "No authoritative policy source was provided to determine the quorum required by Lumera policy L-3 for a red-tier launch."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 551,
+        "latency_ms": 10500.908,
+        "model_calls": 1,
+        "output_tokens": 78,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 629,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "policy_constraint_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source lumera_first containing Lumera Operations Policy L-3",
+          "Read the stated requirement for a red-tier launch in that source"
+        ],
+        "conclusion": "4 of 5 wardens",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1109,
+        "latency_ms": 6300.725,
+        "model_calls": 1,
+        "output_tokens": 151,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1260,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Read source lumera_first and located the statement about red-tier launch approval."
+        ],
+        "conclusion": "Lumera policy L-3 requires approval from 4 of 5 wardens for a red-tier launch.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 596,
+        "latency_ms": 10491.463,
+        "model_calls": 1,
+        "output_tokens": 168,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 764,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "A red-tier launch requires approval from 4 of 5 wardens.",
+        "input_tokens": 0,
+        "latency_ms": 2.827,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "lumera_transfer",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "No sources were provided to look up Lumera policy L-9 or its cooling interval requirements."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 550,
+        "latency_ms": 23930.871,
+        "model_calls": 1,
+        "output_tokens": 140,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 690,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "policy_constraint_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source with id lumera_transfer containing Lumera Operations Policy L-9.",
+          "Read the policy text and extracted the stated cooling interval for an amber-tier abort."
+        ],
+        "conclusion": "Lumera policy L-9 requires an 18-minute cooling interval after an amber-tier abort.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1108,
+        "latency_ms": 4521.351,
+        "model_calls": 1,
+        "output_tokens": 154,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1262,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Read the Lumera Operations Policy L-9 text and located the statement 'An amber-tier abort requires an 18-minute cooling interval.'"
+        ],
+        "conclusion": "18 minutes",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 593,
+        "latency_ms": 19249.65,
+        "model_calls": 1,
+        "output_tokens": 133,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 726,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "An amber-tier abort requires an 18-minute cooling interval.",
+        "input_tokens": 0,
+        "latency_ms": 3.935,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 1
+    },
+    {
+      "case_id": "zephyra_first",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked SOURCES for any entries; SOURCES is empty, so no authoritative manual or revision-7 timeout value is available."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 547,
+        "latency_ms": 2084.215,
+        "model_calls": 1,
+        "output_tokens": 78,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 625,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source zephyra_first for Zephyra Transport Protocol Revision 7",
+          "Read Rule Z7.4 in zephyra_first"
+        ],
+        "conclusion": "Zephyra revision 7 requires request_timeout_ticks = 37.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1105,
+        "latency_ms": 4577.218,
+        "model_calls": 1,
+        "output_tokens": 188,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1293,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located source zephyra_first containing Zephyra Transport Protocol Revision 7.",
+          "Found Rule Z7.4 stating request_timeout_ticks = 37."
+        ],
+        "conclusion": "Zephyra revision 7 requires request_timeout_ticks = 37.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 675,
+        "latency_ms": 4153.269,
+        "model_calls": 1,
+        "output_tokens": 190,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 865,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z7.4: request_timeout_ticks = 37.",
+        "input_tokens": 0,
+        "latency_ms": 17.17,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "zephyra_transfer",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct",
+        "full_context"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked SOURCES for any content describing Zephyra revision 8 retry ceiling; SOURCES is empty."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 630,
+        "latency_ms": 4136.869,
+        "model_calls": 1,
+        "output_tokens": 74,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 704,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Zephyra Transport Protocol Revision 8 source (zephyra_transfer) and read Rule Z8.2, which states retry_ceiling = 11."
+        ],
+        "conclusion": "11",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1132,
+        "latency_ms": 3937.057,
+        "model_calls": 1,
+        "output_tokens": 158,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1290,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located source zephyra_transfer and read Rule Z8.2, which states retry_ceiling = 11."
+        ],
+        "conclusion": "11",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 679,
+        "latency_ms": 4200.217,
+        "model_calls": 1,
+        "output_tokens": 129,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 808,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z8.2: retry_ceiling = 11.",
+        "input_tokens": 0,
+        "latency_ms": 3.091,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "orinox_first",
+      "condition_order": [
+        "polya",
+        "direct",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked current_state.evidence: empty",
+          "Checked capability_context.sources: empty",
+          "No Orinox service manual source was supplied to identify corrective action for code Q-17"
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 646,
+        "latency_ms": 1837.558,
+        "model_calls": 1,
+        "output_tokens": 112,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 758,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "diagnostic_code_resolution",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [],
+        "conclusion": null,
+        "confidence": null,
+        "context_documents": 12,
+        "input_tokens": 1443,
+        "latency_ms": 19390.827,
+        "model_calls": 2,
+        "output_tokens": 1063,
+        "parse_error": "model capability response contained incomplete JSON",
+        "passed": false,
+        "source_ids": [],
+        "source_passed": false,
+        "status": "parse_failed",
+        "terms_passed": false,
+        "total_tokens": 2506,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Reviewed Orinox Service Manual Diagnostic Q-17 section in source orinox_first and found the required corrective action."
+        ],
+        "conclusion": "reseat the blue phase coupler before restart",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 592,
+        "latency_ms": 9936.972,
+        "model_calls": 1,
+        "output_tokens": 138,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 730,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Required corrective action for Q-17: reseat the blue phase coupler before restart.",
+        "input_tokens": 0,
+        "latency_ms": 3.026,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "orinox_transfer",
+      "condition_order": [
+        "direct",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked capability_context.sources for the Orinox service manual or any source text.",
+          "Confirmed supplied sources list is empty.",
+          "Confirmed no corrective action information for Orinox code M-42 is present in current_state.evidence or current_state.execution_outputs."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 646,
+        "latency_ms": 1936.454,
+        "model_calls": 1,
+        "output_tokens": 134,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 780,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "diagnostic_code_resolution",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Orinox Service Manual entry for Diagnostic M-42 in source orinox_transfer."
+        ],
+        "conclusion": "Purge the amber coolant loop for 9 seconds.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1102,
+        "latency_ms": 3707.81,
+        "model_calls": 1,
+        "output_tokens": 147,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1249,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located Orinox Service Manual Diagnostic M-42 entry in source orinox_transfer.",
+          "Extracted the stated required corrective action for M-42."
+        ],
+        "conclusion": "Purge the amber coolant loop for 9 seconds.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 593,
+        "latency_ms": 17501.086,
+        "model_calls": 1,
+        "output_tokens": 135,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 728,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Required corrective action for M-42: purge the amber coolant loop for 9 seconds.",
+        "input_tokens": 0,
+        "latency_ms": 3.535,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "lumera_first",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked provided sources for Lumera policy L-3 red-tier launch quorum; no sources were supplied."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 630,
+        "latency_ms": 3039.948,
+        "model_calls": 1,
+        "output_tokens": 109,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 739,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "policy_constraint_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source with id lumera_first containing Lumera Operations Policy L-3",
+          "Read the stated requirement for a red-tier launch in that source"
+        ],
+        "conclusion": "Lumera policy L-3 requires approval from 4 of 5 wardens for a red-tier launch.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1109,
+        "latency_ms": 3717.718,
+        "model_calls": 1,
+        "output_tokens": 171,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1280,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located Lumera Operations Policy L-3 in source lumera_first.",
+          "Confirmed the policy states a red-tier launch requires approval from 4 of 5 wardens."
+        ],
+        "conclusion": "4 of 5 wardens",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 675,
+        "latency_ms": 9303.401,
+        "model_calls": 1,
+        "output_tokens": 126,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 801,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "A red-tier launch requires approval from 4 of 5 wardens.",
+        "input_tokens": 0,
+        "latency_ms": 23.724,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "lumera_transfer",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct",
+        "full_context"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Searched provided sources for Lumera policy L-9 and amber-tier abort cooling interval; no sources were supplied."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 550,
+        "latency_ms": 43918.792,
+        "model_calls": 1,
+        "output_tokens": 153,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 703,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "policy_constraint_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Lumera Operations Policy L-9 in source lumera_transfer.",
+          "Confirmed the policy states an amber-tier abort requires an 18-minute cooling interval."
+        ],
+        "conclusion": "18 minutes",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1108,
+        "latency_ms": 4535.918,
+        "model_calls": 1,
+        "output_tokens": 157,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1265,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located source lumera_transfer containing Lumera Operations Policy L-9 and extracted the stated cooling interval for an amber-tier abort."
+        ],
+        "conclusion": "18 minutes",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 695,
+        "latency_ms": 4929.554,
+        "model_calls": 1,
+        "output_tokens": 161,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [
+          "lumera_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": false,
+        "total_tokens": 856,
+        "unsupported_forced_conclusion": true
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "An amber-tier abort requires an 18-minute cooling interval.",
+        "input_tokens": 0,
+        "latency_ms": 1.658,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 2
+    },
+    {
+      "case_id": "zephyra_first",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct",
+        "full_context"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked provided SOURCES: no source texts were supplied.",
+          "Checked current_state.evidence: no evidence entries available."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 626,
+        "latency_ms": 13666.877,
+        "model_calls": 1,
+        "output_tokens": 101,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 727,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Zephyra Transport Protocol Revision 7 source",
+          "Read Rule Z7.4 specifying request_timeout_ticks = 37"
+        ],
+        "conclusion": "Zephyra revision 7 requires request_timeout_ticks = 37.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1105,
+        "latency_ms": 3608.894,
+        "model_calls": 1,
+        "output_tokens": 171,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1276,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located Zephyra Transport Protocol Revision 7 in source zephyra_first.",
+          "Read Rule Z7.4, which specifies request_timeout_ticks = 37."
+        ],
+        "conclusion": "37 ticks (request_timeout_ticks = 37)",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 596,
+        "latency_ms": 14266.551,
+        "model_calls": 1,
+        "output_tokens": 190,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 786,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z7.4: request_timeout_ticks = 37.",
+        "input_tokens": 0,
+        "latency_ms": 1.19,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "zephyra_transfer",
+      "condition_order": [
+        "polya",
+        "direct",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked capability_context.sources: empty list, no source texts supplied.",
+          "Checked current_state.evidence: empty list, no extracted evidence available.",
+          "Checked current_state.execution_outputs: empty list, no computed outputs available.",
+          "Attempted to locate any mention of 'Zephyra revision 8' or 'retry ceiling' in the provided state; none found."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 653,
+        "latency_ms": 2992.041,
+        "model_calls": 1,
+        "output_tokens": 262,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 915,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "versioned_protocol_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located the Zephyra Transport Protocol Revision 8 source.",
+          "Read Rule Z8.2, which specifies retry_ceiling = 11."
+        ],
+        "conclusion": "11",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1109,
+        "latency_ms": 9799.93,
+        "model_calls": 1,
+        "output_tokens": 173,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1282,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located source zephyra_transfer and read its text.",
+          "Confirmed the text specifies 'Zephyra Transport Protocol \u2014 Revision 8' and 'Rule Z8.2: retry_ceiling = 11.'"
+        ],
+        "conclusion": "Zephyra revision 8 requires a retry ceiling of 11 (Rule Z8.2).",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 1097,
+        "latency_ms": 12905.936,
+        "model_calls": 2,
+        "output_tokens": 715,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "zephyra_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1812,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Rule Z8.2: retry_ceiling = 11.",
+        "input_tokens": 0,
+        "latency_ms": 3.499,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/zephyra_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "orinox_first",
+      "condition_order": [
+        "direct",
+        "full_context",
+        "ordinary_retrieval",
+        "polya"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked the supplied source list for any Orinox service manual content; none was provided.",
+          "Searched available evidence for any mention of code Q-17; no matching corrective action was found."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 646,
+        "latency_ms": 2968.103,
+        "model_calls": 1,
+        "output_tokens": 170,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 816,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "diagnostic_code_resolution",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Orinox Service Manual source for Diagnostic Q-17.",
+          "Read required corrective action for Q-17 in orinox_first."
+        ],
+        "conclusion": "Reseat the blue phase coupler before restart.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1102,
+        "latency_ms": 12252.708,
+        "model_calls": 1,
+        "output_tokens": 146,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1248,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located Orinox Service Manual Diagnostic Q-17 in source orinox_first.",
+          "Extracted the stated corrective action for Q-17."
+        ],
+        "conclusion": "Reseat the blue phase coupler before restart.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 592,
+        "latency_ms": 2656.709,
+        "model_calls": 1,
+        "output_tokens": 105,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 697,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Required corrective action for Q-17: reseat the blue phase coupler before restart.",
+        "input_tokens": 0,
+        "latency_ms": 3.125,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "orinox_transfer",
+      "condition_order": [
+        "full_context",
+        "ordinary_retrieval",
+        "polya",
+        "direct"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked the provided SOURCES list; it is empty.",
+          "Checked evidence, execution_outputs, hypotheses, plan, and verification in current_state; no relevant service manual or Orinox code M-42 information is available."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 646,
+        "latency_ms": 2250.26,
+        "model_calls": 1,
+        "output_tokens": 159,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 805,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "diagnostic_code_resolution",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Orinox Service Manual entry for Diagnostic M-42 in source orinox_transfer.",
+          "Confirmed the stated corrective action for M-42."
+        ],
+        "conclusion": "Purge the amber coolant loop for 9 seconds.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1102,
+        "latency_ms": 4232.703,
+        "model_calls": 1,
+        "output_tokens": 172,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1274,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Located M-42 in the Orinox service manual source."
+        ],
+        "conclusion": "Purge the amber coolant loop for 9 seconds.",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 695,
+        "latency_ms": 3482.008,
+        "model_calls": 1,
+        "output_tokens": 150,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "orinox_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 845,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "Required corrective action for M-42: purge the amber coolant loop for 9 seconds.",
+        "input_tokens": 0,
+        "latency_ms": 3.184,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/orinox_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "lumera_first",
+      "condition_order": [
+        "ordinary_retrieval",
+        "polya",
+        "direct",
+        "full_context"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked provided sources: none available"
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 630,
+        "latency_ms": 2292.999,
+        "model_calls": 1,
+        "output_tokens": 84,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 714,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "policy_constraint_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located source lumera_first (Lumera Operations Policy L-3) and confirmed it specifies the red-tier launch quorum."
+        ],
+        "conclusion": "Lumera policy L-3 requires approval from 4 of 5 wardens for a red-tier launch.",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1109,
+        "latency_ms": 4362.651,
+        "model_calls": 1,
+        "output_tokens": 195,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1304,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Read the supplied source text for Lumera Operations Policy L-3 and identified the explicit quorum requirement for a red-tier launch."
+        ],
+        "conclusion": "4 of 5 wardens",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 596,
+        "latency_ms": 7913.06,
+        "model_calls": 1,
+        "output_tokens": 170,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_first"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 766,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "first_encounter",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "A red-tier launch requires approval from 4 of 5 wardens.",
+        "input_tokens": 0,
+        "latency_ms": 4.614,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_first.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 3
+    },
+    {
+      "case_id": "lumera_transfer",
+      "condition_order": [
+        "polya",
+        "direct",
+        "full_context",
+        "ordinary_retrieval"
+      ],
+      "direct": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Checked SOURCES for Lumera policy L-9 or amber-tier abort cooling interval; no sources were provided."
+        ],
+        "conclusion": null,
+        "confidence": "insufficient_evidence",
+        "context_documents": 0,
+        "input_tokens": 629,
+        "latency_ms": 2520.931,
+        "model_calls": 1,
+        "output_tokens": 75,
+        "parse_error": null,
+        "passed": false,
+        "source_ids": [],
+        "source_passed": null,
+        "status": "insufficient_evidence",
+        "terms_passed": false,
+        "total_tokens": 704,
+        "unsupported_forced_conclusion": false
+      },
+      "family": "policy_constraint_lookup",
+      "full_context": {
+        "acquisitions": 0,
+        "checks_performed": [
+          "Located Lumera Operations Policy L-9 in source lumera_transfer.",
+          "Read the stated requirement: an amber-tier abort requires an 18-minute cooling interval."
+        ],
+        "conclusion": "18 minutes",
+        "confidence": "high",
+        "context_documents": 12,
+        "input_tokens": 1108,
+        "latency_ms": 3029.169,
+        "model_calls": 1,
+        "output_tokens": 137,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 1245,
+        "unsupported_forced_conclusion": false
+      },
+      "ordinary_retrieval": {
+        "acquisitions": 1,
+        "checks_performed": [
+          "Reviewed Lumera Operations Policy L-9 in source lumera_transfer, which states an amber-tier abort requires an 18-minute cooling interval."
+        ],
+        "conclusion": "18 minutes",
+        "confidence": "high",
+        "context_documents": 1,
+        "input_tokens": 593,
+        "latency_ms": 9780.524,
+        "model_calls": 1,
+        "output_tokens": 134,
+        "parse_error": null,
+        "passed": true,
+        "source_ids": [
+          "lumera_transfer"
+        ],
+        "source_passed": true,
+        "status": "answered",
+        "terms_passed": true,
+        "total_tokens": 727,
+        "unsupported_forced_conclusion": false
+      },
+      "phase": "transfer",
+      "polya": {
+        "acquisitions": 1,
+        "actions": [
+          "search",
+          "evaluate_evidence",
+          "hypothesize",
+          "verify",
+          "stop"
+        ],
+        "checks_performed": [
+          "Checked criterion 1 against the exact admitted claim, excerpt, and file provenance."
+        ],
+        "conclusion": "An amber-tier abort requires an 18-minute cooling interval.",
+        "input_tokens": 0,
+        "latency_ms": 2.953,
+        "model_calls": 0,
+        "normalized_cost": 0.07,
+        "output_tokens": 0,
+        "passed": true,
+        "source_uris": [
+          "file:///Users/rajkumar/Documents/workspace/polya-brain/evals/chapter_13d/fixtures/corpus/lumera_transfer.txt"
+        ],
+        "status": "completed",
+        "total_tokens": 0,
+        "unsupported_forced_conclusion": false,
+        "verification_passed": true
+      },
+      "repetition": 3
+    }
+  ],
+  "run_id": "100619-3535a3e7",
+  "started_at": "2026-08-22T10:06:19.082567+00:00",
+  "status": "complete"
+}

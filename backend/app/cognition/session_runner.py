@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from app.cognition.contracts import CognitiveRunStatus
 from app.cognition.runtime import DEFAULT_MAX_CYCLES, CognitiveRuntime
+from app.cognition.stop_explanation import explain_stop
 from app.graph.state import PolyaState, StateEvent
 from app.models.contracts import EvidenceItem
 
@@ -84,9 +85,11 @@ class CognitiveSessionRunner:
         state: PolyaState = result.state
         if state["final_answer"] is None:
             next_state = dict(state)
+            explanation = explain_stop(
+                (event.event_type, event.metadata, event.summary) for event in state["events"]
+            )
             next_state["final_answer"] = (
-                "PolyaBrain stopped without a verified conclusion. "
-                f"Terminal status: {result.status.value}."
+                f"{explanation.headline} Terminal status: {result.status.value}."
             )
             state = next_state  # type: ignore[assignment]
         return SessionExecutionResult(state=state, persisted_event_count=persisted)

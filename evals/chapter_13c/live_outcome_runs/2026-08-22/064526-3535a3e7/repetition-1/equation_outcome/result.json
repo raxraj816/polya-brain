@@ -1,0 +1,129 @@
+{
+  "case_id": "equation_outcome",
+  "category": "mathematical_reasoning",
+  "direct": {
+    "actions": [
+      "calculate"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Substituted x = 3 into 2x + 4: 2(3) + 4 = 6 + 4 = 10, which matches the right-hand side."
+    ],
+    "conclusion": "x = 3 satisfies 2x + 4 = 10 because 2(3) + 4 = 10.",
+    "confidence": "high",
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 6897.031582891941,
+    "parse_error": null,
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "final",
+    "tool_history": [
+      {
+        "action_type": "calculate",
+        "call_index": 1,
+        "capability": "calculator",
+        "observation": {
+          "source_uri": "fixture://chapter-13c-outcome/equation_outcome/calculator",
+          "status": "succeeded",
+          "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+        },
+        "target": "2x + 4 = 10"
+      }
+    ],
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 1919,
+      "model_calls": 2,
+      "output_tokens": 197,
+      "total_tokens": 2116
+    },
+    "verification_passed": true
+  },
+  "execution_order": [
+    "polya",
+    "direct"
+  ],
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "polya": {
+    "actions": [
+      "calculate",
+      "hypothesize",
+      "plan",
+      "execute",
+      "verify",
+      "reflect",
+      "stop"
+    ],
+    "answer_passed": true,
+    "budget_passed": true,
+    "checks_performed": [
+      "Checked that the stated solution x is recorded consistently (evidence gives x = 3; execution output gives x = 3).",
+      "Checked the substitution in the original equation: computed 2*3 + 4 from the executor output, obtaining 10.",
+      "Checked that the computed value 10 matches the right-hand side of the equation (10 = 10).",
+      "Checked the algebraic isolation for arithmetic errors: subtract 4 from both sides gives 2x = 6; divide by 2 gives x = 3."
+    ],
+    "conclusion": "The solution is x = 3, verified because substituting into the original equation gives 2(3) + 4 = 6 + 4 = 10, which matches the right-hand side.",
+    "cycles": 7,
+    "evidence_source_uris": [
+      "fixture://chapter-13c-outcome/equation_outcome/calculator"
+    ],
+    "latency_ms": 127843.75241701491,
+    "observation_trace": [
+      {
+        "capability": "calculator",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Exact algebra gives x = 3; substituting gives 2(3) + 4 = 10."
+      },
+      {
+        "capability": "reasoner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Generated 1 testable candidate(s)."
+      },
+      {
+        "capability": "planner",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Created 1 bounded plan task(s)."
+      },
+      {
+        "capability": "executor",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Verification confirms x=3: 2*3+4 equals 10, matching the right-hand side of the equation."
+      },
+      {
+        "capability": "verifier",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Verification passed all declared checks."
+      },
+      {
+        "capability": "reflector",
+        "failure_kind": null,
+        "status": "succeeded",
+        "summary": "Extracted bounded lessons from the verified run."
+      }
+    ],
+    "passed": true,
+    "recovery_passed": true,
+    "source_passed": true,
+    "terminal_status": "completed",
+    "unsupported_forced_conclusion": false,
+    "usage": {
+      "input_tokens": 7172,
+      "model_calls": 5,
+      "output_tokens": 2418,
+      "total_tokens": 9590
+    },
+    "verification_passed": true
+  },
+  "repetition": 1,
+  "shared_max_output_tokens_per_call": 1800,
+  "shared_model_call_budget": 6
+}

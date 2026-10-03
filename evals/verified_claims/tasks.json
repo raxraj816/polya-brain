@@ -1,0 +1,120 @@
+[
+  {
+    "id": "march_net_revenue",
+    "tables": [
+      "data/orders_march.csv"
+    ],
+    "question": "What was the total paid revenue in March 2026, excluding test accounts (emails ending in @example.com, case-insensitive)? Give the amount in dollars to 2 decimals.",
+    "truth": {
+      "total": 25336.66
+    },
+    "trap": "month filter, status filter, case-insensitive test-account exclusion",
+    "truth_required": [
+      "total"
+    ]
+  },
+  {
+    "id": "search_median_latency",
+    "tables": [
+      "data/requests.csv"
+    ],
+    "question": "What is the median latency in milliseconds for /api/search requests, ignoring server errors (status 500 or above) and rows without a latency value?",
+    "truth": {
+      "median": 450.5,
+      "count_used": 148
+    },
+    "truth_required": [
+      "median"
+    ],
+    "trap": "NA/blank latencies, 5xx exclusion, even-count median"
+  },
+  {
+    "id": "repeat_buyers",
+    "tables": [
+      "data/events.csv"
+    ],
+    "question": "User ids are case-insensitive and surrounding spaces are not significant. How many distinct users made at least 4 purchases?",
+    "truth": {
+      "users": 7
+    },
+    "trap": "id normalization (case and whitespace)",
+    "truth_required": [
+      "users"
+    ]
+  },
+  {
+    "id": "weighted_unit_price",
+    "tables": [
+      "data/sales_lines.csv"
+    ],
+    "question": "What was the average price paid per unit sold across all lines (i.e. total revenue divided by total units)? Round to 2 decimals.",
+    "truth": {
+      "average": 28.32
+    },
+    "trap": "quantity-weighted vs naive mean",
+    "truth_required": [
+      "average"
+    ]
+  },
+  {
+    "id": "mom_change",
+    "tables": [
+      "data/payments.csv"
+    ],
+    "question": "By what percentage did paid revenue change from February 2026 to March 2026? Use February as the base, give a signed percentage rounded to 1 decimal.",
+    "truth": {
+      "change_pct": 29.3
+    },
+    "trap": "base month, sign, status filter",
+    "truth_required": [
+      "change_pct"
+    ]
+  },
+  {
+    "id": "top_customers",
+    "tables": [
+      "data/purchases.csv"
+    ],
+    "question": "Which 3 customers have the highest total spend? Break ties alphabetically by name and list them in rank order.",
+    "truth": {
+      "top3": [
+        "Birch",
+        "Alpha",
+        "Orca"
+      ]
+    },
+    "trap": "ties broken alphabetically, ordering",
+    "truth_required": [
+      "top3"
+    ]
+  },
+  {
+    "id": "germany_revenue",
+    "tables": [
+      "data/customers.csv",
+      "data/orders_eu.csv"
+    ],
+    "question": "What is the total paid order revenue from customers whose CURRENT country is Germany? A customer's current country is the one on their most recent record (latest updated_at). Give dollars to 2 decimals.",
+    "truth": {
+      "total": 11629.89
+    },
+    "trap": "duplicate customer records, latest wins, join, status filter",
+    "truth_required": [
+      "total"
+    ]
+  },
+  {
+    "id": "dedup_transactions",
+    "tables": [
+      "data/transactions.csv"
+    ],
+    "question": "Some transactions were logged more than once because of retries (same transaction_id). What is the total amount counting each transaction_id once? Give dollars to 2 decimals.",
+    "truth": {
+      "total": 8170.38
+    },
+    "trap": "retry duplicates",
+    "truth_required": [
+      "total"
+    ]
+  }
+]
