@@ -59,3 +59,11 @@ Campaign total is $1.55324325 provider-reported plus an unresolved $0.04337250
 local reservation. The nominal remaining amount after reservation is $3.40338425,
 but **paid dispatch is stopped pending reconciliation**. No invoice or account-cap
 verification is claimed.
+
+## Offline aggregate spending inventory
+
+`python -m evals.launch_readiness.spend_audit` joins saved per-call ledgers across
+explicit roots and separately selected unguarded traces. It makes no provider
+requests and never authorizes spending. See
+[Chapter 171 accounting](../../docs/03_implementation/Chapter_171_Campaign_Accounting.md)
+for the reproducible command, current findings and unresolved billing gaps.

@@ -67,6 +67,7 @@ from Chapters 13C, 13D, 13E, 13F, 13J and 13K.
 | Chapter 172 incomplete comparison coverage | Seven before-fix failures retained; failed generation, reference timeouts and unusable scale checks block clean certification; bounded retries, retained counterexamples/counts and post-repair gating verified | Ten coverage controls plus four replay-binding checks; scripted model outputs and actual local Docker; [chapter](Chapter_172_Comparison_Coverage.md) |
 | Offline QuixBugs historical-response replay | 80 expected arm records: 38 bug regressions; 34 unchanged controls; zero control regression reports; three controls unverified; five historical responses/attempts unavailable | 75 replayable attempts, zero new provider calls; public algorithm fixtures, not fresh live trials or real-user changes; replay manifest pins its runtime |
 | Backend after coverage work | **1,325 passed, zero skips**, 154.86 seconds, scratch PostgreSQL and pinned Docker; Ruff lint/format, three-module strict mypy and `git diff --check` pass | Includes other working-tree work as well as this chapter's 14 tests; 843 dependency warnings; no new browser claim |
+| Chapter 171 aggregate accounting | 512 returned guarded calls, nine trace-only calls and ten unresolved reservations inventoried; $4.96704900 recorded reported-plus-reserved; 17 offline tests pass | Only $0.03295100 nominal difference from $5; not spending clearance; one additional unitemized trace and invoice reconciliation remain unresolved; [details](Chapter_171_Campaign_Accounting.md) |
 
 See [citation implementation and limitations](Chapter_13P_Citation_Provenance.md).
 No live provider requests were made in the initial audit and engineering-fix runs.
@@ -142,8 +143,8 @@ suite was not rerun for that frontend-only increment.
    tests and historical-response replay, not new independent model outcomes.
    Next evidence should use the founder's next real problems under the current
    founding-thesis reliability gate and independent real-change inputs; retain
-   model-oracle and same-process isolation limitations. Reconcile the additional
-   campaign records below before any paid work.
+   model-oracle and same-process isolation limitations. The additional campaign records are now inventoried below; ten unresolved
+   charges and an unitemized trace still block paid work.
    See [the evidence/reviewer/pilot package](Chapter_171_Readiness_Evidence_Package.md).
    Historical smaller coding pilots had equal success but worse Polya costs.
    See [matched outcomes](Chapter_13P_Compact_Model_Interface.md). Preserve failed
@@ -172,17 +173,25 @@ calls. The follow-up has ten returned calls reporting **$0.05577900**, plus one
 unreturned call with **$0.04337250** retained as a local reservation. Total
 reported cost is **$1.55324325**; reported plus unresolved reservation is
 **$1.59661575**, leaving a nominal **$3.40338425** in that historical subset.
-Additional paid evaluation artifacts now exist under `runs/verified-coding/` and
-`runs/verified-change/` (including a failed QuixBugs provider call). They are not
-included in that subset reconciliation. **The subset's nominal remainder is not
-a current spendable campaign balance.** Join and reconcile those ledgers, retaining
-all unknown reservations, before claiming a remaining aggregate allowance.
-This is neither invoice reconciliation nor an account-level cap. **Do not resume
-paid calls while the unreturned call's actual cost is unknown.** See the historical
-`runs/launch-readiness/2026-10-02-campaign-reconciliation.json` and the newer
-`runs/launch-readiness/2026-10-02-campaign-reconciliation-after-source-packets.json`.
-No paid process remains running. No account cap, credit purchase or credential
-creation was performed. Independent judgments and real-user behavior cannot be
+The [2026-10-03 aggregate inventory](Chapter_171_Campaign_Accounting.md) now
+joins those batches with `runs/verified-coding/` and `runs/verified-change/`:
+**$4.38000975 reported through saved responses or traces plus $0.58703925 across
+ten unresolved reservations = $4.96704900**. Only **$0.03295100** nominally remains
+below $5. Neither this amount nor the older subset remainder is spending clearance.
+The inventory covers 512 returned guarded calls and nine additional trace-only calls.
+A Chapter 174 failed-development trace has no itemized calls; its actual charge is
+not established by the saved artifacts and is excluded from these quantified totals.
+The earlier verified-coding ledger omitted the source-packet batches, whose
+$0.17319300 exactly explains the difference from its $4.79385600 total.
+Historical ledgers are retained unchanged.
+
+**Paid calls remain paused.** Ten unknown reservations and the unitemized gap need
+reconciliation or explicit disposition before any new bounded paid work. A local
+reservation is not an invoice upper bound; no provider-account balance or cap was
+verified. Source hashes and per-call inventory are in
+`runs/launch-readiness/2026-10-03-campaign-inventory.json`; 17 new offline tests pass.
+No paid calls, account changes or credential creation were performed in this audit.
+Independent judgments and real-user behavior cannot be
 manufactured by the assistant. Public exposure additionally requires actual
 identity-provider/HTTPS verification, private service boundaries, edge controls,
 spend configuration, monitoring, backup/restore, load and rollback rehearsal,

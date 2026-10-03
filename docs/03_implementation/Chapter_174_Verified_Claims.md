@@ -79,9 +79,12 @@ PYTHONPATH=backend:. .venv/bin/python -m evals.verified_claims.run \
 ```
 
 The single development call made this chapter (`runs/verified-claims/dev-1`) was
-refused with HTTP 402 and charged nothing. Earlier unexplained provider failures in
-the Chapter 173 runs may have had the same cause; they were already excluded as
-infrastructure failures.
+reported as refused with HTTP 402. The later offline campaign inventory found no
+itemized provider calls or billing evidence in its saved trace, so a zero charge
+is not independently established by that artifact. Earlier unexplained provider
+failures in the Chapter 173 runs may have had the same cause; their unresolved cost
+reservations remain retained even though they are excluded as infrastructure
+failures from quality results. See [aggregate accounting](Chapter_171_Campaign_Accounting.md).
 
 ## Verification
 

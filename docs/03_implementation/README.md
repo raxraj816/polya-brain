@@ -91,3 +91,5 @@ Phase 2 architecture notes:
   answers factual questions from Wikipedia, Wikidata or the user's own files with
   verbatim evidence, corroboration status and no language model; `SEARCH_PROVIDER=polya`
   gives the runtime vendor-free search.
+
+- [Chapter 171: Aggregate evaluation accounting](Chapter_171_Campaign_Accounting.md) — offline campaign inventory, retained unknown charges and spending pause.
