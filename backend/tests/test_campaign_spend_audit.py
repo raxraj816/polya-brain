@@ -102,3 +102,34 @@ def test_unmetered_trace_itemization_and_empty_trace(tmp_path):
     assert result["nominal_difference_from_cap_usd"] == "-0.1"
     assert len(result["artifact_issues"]) == 1
     assert not result["safe_to_resume_paid_calls"]
+
+
+def test_partial_response_pair_keeps_reservation(tmp_path):
+    directory = call(tmp_path)
+    (directory / "1.response.json").unlink()
+    result = audit_campaign([tmp_path])
+    assert result["unresolved_local_reservations_usd"] == "0.2"
+    assert result["artifact_issues"]
+
+
+def test_over_reservation_cost_is_not_capped(tmp_path):
+    call(tmp_path, cost=0.3)
+    result = audit_campaign([tmp_path])
+    assert result["provider_or_trace_reported_usd"] == "0.3"
+    assert result["artifact_issues"]
+
+
+def test_unknown_marker_cannot_be_silently_ignored(tmp_path):
+    directory = call(tmp_path)
+    save(directory / "1.unknown.json", {"cost_unknown": True})
+    result = audit_campaign([tmp_path])
+    assert result["provider_or_trace_reported_usd"] == "0.1"
+    assert result["artifact_issues"]
+
+
+def test_corrupt_json_retains_reservation(tmp_path):
+    directory = call(tmp_path)
+    (directory / "1.response.json").write_text("{")
+    result = audit_campaign([tmp_path])
+    assert result["unresolved_local_reservations_usd"] == "0.2"
+    assert result["artifact_issues"]
